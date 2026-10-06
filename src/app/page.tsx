@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Script from 'next/script';
+import { usePathname } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import { useSartStore } from '@/store/useSartStore';
 import RideBookingModal from '@/components/RideBookingModal';
@@ -42,44 +43,34 @@ export default function Home() {
     };
   }, []);
 
-  // Handle URL parsing on mount and browser back button (popstate)
+  const pathname = usePathname();
+
+  // Handle URL parsing on mount and route changes (Next.js App Router)
   useEffect(() => {
-    const handleUrlPath = () => {
-      const path = window.location.pathname;
-      if (path === '/' || path === '/home') {
-        setActiveTab('home');
-      } else if (path.startsWith('/home/')) {
-        const parts = path.split('/');
-        let tab = parts[2]; // e.g., 'ride', 'carrier'
-        
-        // Handle plural vs singular mismatches
-        if (tab === 'rides') tab = 'ride';
+    if (!pathname) return;
+    
+    if (pathname === '/' || pathname === '/home') {
+      setActiveTab('home');
+    } else if (pathname.startsWith('/home/')) {
+      const parts = pathname.split('/');
+      let tab = parts[2]; // e.g., 'ride', 'carrier'
+      
+      // Handle plural vs singular mismatches
+      if (tab === 'rides') tab = 'ride';
 
-        if (['ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking'].includes(tab)) {
-          setActiveTab(tab as any);
-          
-          // Dispatch custom event to tell modals to reset their step if needed
-          if (parts.length <= 3) {
-             window.dispatchEvent(new CustomEvent('resetModalSteps'));
-          }
-        }
-      } else if (path.startsWith('/booking/')) {
-        setActiveTab('booking');
-      } else {
-        // Check for top-level tabs (e.g. /store)
-        const tab = path.replace('/', '');
-        if (['store', 'booking', 'wallet', 'profile', 'support', 'favorites'].includes(tab)) {
-          setActiveTab(tab as any);
-        }
+      if (['ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking'].includes(tab)) {
+        setActiveTab(tab as any);
       }
-    };
-
-    // Run on initial mount
-    handleUrlPath();
-
-    window.addEventListener('popstate', handleUrlPath);
-    return () => window.removeEventListener('popstate', handleUrlPath);
-  }, [setActiveTab]);
+    } else if (pathname.startsWith('/booking/')) {
+      setActiveTab('booking');
+    } else {
+      // Check for top-level tabs (e.g. /store)
+      const tab = pathname.replace('/', '');
+      if (['store', 'booking', 'wallet', 'profile', 'support', 'favorites'].includes(tab)) {
+        setActiveTab(tab as any);
+      }
+    }
+  }, [pathname, setActiveTab]);
 
   return (
     <div className="web-app-layout">

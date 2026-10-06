@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSartStore } from '@/store/useSartStore';
 import SubNavbar from '@/components/SubNavbar';
 import QuickBookingForm from '@/components/QuickBookingForm';
@@ -27,6 +28,12 @@ export default function HomeTab() {
   }, []);
 
   const { activeTab, setActiveTab } = useSartStore();
+  const router = useRouter();
+
+  const handleServiceClick = (tab: string) => {
+    setActiveTab(tab as any);
+    router.push(`/home/${tab}`, { scroll: false });
+  };
 
   return (
     <section className={`tab-screen ${activeTab === 'home' ? 'active' : ''}`} id="tab-home">
@@ -46,7 +53,7 @@ export default function HomeTab() {
               <div className="carousel-content">
                 <h2 className="carousel-title">{slide.title}</h2>
                 <p className="carousel-subtitle">{slide.subtitle}</p>
-                <button className="carousel-cta" onClick={() => setActiveTab(slide.action as any)}>
+                <button className="carousel-cta" onClick={() => handleServiceClick(slide.action)}>
                   {slide.btn} <i className="fa-solid fa-arrow-right"></i>
                 </button>
               </div>
@@ -94,7 +101,7 @@ export default function HomeTab() {
     {/* Rides */}
     <div
       className={`service-card ${activeTab === 'ride' ? 'active' : ''}`}
-      onClick={() => setActiveTab('ride')}
+      onClick={() => handleServiceClick('ride')}
     >
       <div className="service-image-wrapper">
         <img
@@ -109,7 +116,7 @@ export default function HomeTab() {
     {/* Carrier */}
     <div
       className={`service-card ${activeTab === 'carrier' ? 'active' : ''}`}
-      onClick={() => setActiveTab('carrier')}
+      onClick={() => handleServiceClick('carrier')}
     >
       <div className="service-image-wrapper">
         <img
@@ -124,7 +131,7 @@ export default function HomeTab() {
     {/* Rental */}
     <div
       className={`service-card ${activeTab === 'rental' ? 'active' : ''}`}
-      onClick={() => setActiveTab('rental')}
+      onClick={() => handleServiceClick('rental')}
     >
       <div className="service-image-wrapper">
         <img
@@ -139,7 +146,7 @@ export default function HomeTab() {
     {/* Community */}
     <div
       className={`service-card ${activeTab === 'community' ? 'active' : ''}`}
-      onClick={() => setActiveTab('community')}
+      onClick={() => handleServiceClick('community')}
     >
       <div className="service-image-wrapper">
         <img
@@ -154,7 +161,7 @@ export default function HomeTab() {
     {/* Parking */}
     <div
       className={`service-card ${activeTab === 'parking' ? 'active' : ''}`}
-      onClick={() => setActiveTab('parking')}
+      onClick={() => handleServiceClick('parking')}
     >
       <div className="service-image-wrapper">
         <img
@@ -169,7 +176,7 @@ export default function HomeTab() {
     {/* Drivers */}
     <div
       className={`service-card ${activeTab === 'drivers' ? 'active' : ''}`}
-      onClick={() => setActiveTab('drivers')}
+      onClick={() => handleServiceClick('drivers')}
     >
       <div className="service-image-wrapper">
         <img

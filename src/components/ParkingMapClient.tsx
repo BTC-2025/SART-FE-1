@@ -17,9 +17,10 @@ interface ParkingMapClientProps {
   vehicleIconClass: string;
   vehicleTitle?: string;
   searchQuery?: string;
+  isSearched?: boolean;
 }
 
-export default function ParkingMapClient({ vehicleIconClass, vehicleTitle = 'Car', searchQuery = '' }: ParkingMapClientProps) {
+export default function ParkingMapClient({ vehicleIconClass, vehicleTitle = 'Car', searchQuery = '', isSearched = false }: ParkingMapClientProps) {
   // Simulate different coordinates based on search query
   const isSearchActive = searchQuery.length > 2;
   const centerCoords: [number, number] = isSearchActive ? [13.0827, 80.2707] : [12.9716, 77.5946]; // Chennai vs Bangalore simulation
@@ -56,15 +57,15 @@ export default function ParkingMapClient({ vehicleIconClass, vehicleTitle = 'Car
       key={`${centerCoords[0]}-${centerCoords[1]}`} // Force re-render on location change
       center={centerCoords} 
       zoom={14} 
-      style={{ height: '100%', width: '100%', borderRadius: '12px' }}
+      style={{ height: '100%', width: '100%', borderRadius: '0' }}
       zoomControl={false}
     >
       <TileLayer
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-        attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       
-      {spots.map((spot, idx) => (
+      {isSearched && spots.map((spot, idx) => (
         <Marker 
           key={idx} 
           position={[centerCoords[0] + spot.offset[0], centerCoords[1] + spot.offset[1]]} 

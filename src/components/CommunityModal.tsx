@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const ROAD_COMMUNITY = [
   {
@@ -56,10 +56,35 @@ const ALL_COMMUNITIES = [
 export default function CommunityModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   const [activeMainTab, setActiveMainTab] = useState<'private' | 'public'>('private');
   
-  // State for Public Unions
   const [step, setStep] = useState<1 | 2>(1);
-  const [activeCategory, setActiveCategory] = useState<'ALL' | 'ROAD' | 'SEA' | 'AIR' | 'RAIL'>('ALL');
   const [selectedVehicle, setSelectedVehicle] = useState('com-auto');
+
+  useEffect(() => {
+    const handleUrlState = () => {
+      const path = window.location.pathname;
+      if (path.includes('-join')) {
+        setStep(2);
+        const parts = path.split('/');
+        const last = parts[parts.length - 1];
+        const name = decodeURIComponent(last.replace('-join', ''));
+        const found = ALL_COMMUNITIES.find(v => v.name.startsWith(name));
+        if (found) setSelectedVehicle(found.id);
+      } else if (path === '/home/community') {
+        setStep(1);
+      }
+    };
+
+    if (isOpen) {
+      handleUrlState();
+    }
+
+    window.addEventListener('popstate', handleUrlState);
+    return () => {
+      window.removeEventListener('popstate', handleUrlState);
+    };
+  }, [isOpen]);
+
+  const [activeCategory, setActiveCategory] = useState<'ALL' | 'ROAD' | 'SEA' | 'AIR' | 'RAIL'>('ALL');
   const [pickup, setPickup] = useState('');
   const [date, setDate] = useState('');
   const [vehReg, setVehReg] = useState('');
@@ -109,6 +134,7 @@ export default function CommunityModal({ isOpen, onClose }: { isOpen: boolean, o
   const [newVehCat, setNewVehCat] = useState('Commercial Truck / Carrier');
 
   const [newDrName, setNewDrName] = useState('');
+  const [newDrEmail, setNewDrEmail] = useState('');
   const [newDrPhone, setNewDrPhone] = useState('');
 
   const [allocVeh, setAllocVeh] = useState('');
@@ -135,7 +161,7 @@ export default function CommunityModal({ isOpen, onClose }: { isOpen: boolean, o
     setSelectedVehicle(vehicle.id);
     setStep(2);
     const cleanName = vehicle.name.split('/')[0].trim();
-    updateUrl(`/home/community/${encodeURIComponent(cleanName)} join`);
+    updateUrl(`/home/community/${encodeURIComponent(cleanName)}-join`);
   };
 
   const handleClose = () => {
@@ -641,6 +667,11 @@ export default function CommunityModal({ isOpen, onClose }: { isOpen: boolean, o
               <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#4b5563', marginBottom: '6px' }}>Driver Name</label>
               <input type="text" value={newDrName} onChange={e => setNewDrName(e.target.value)} placeholder="e.g. Siva Kumar" style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #d1d5db', background: '#f9fafb', fontSize: '15px', color: '#111827', outline: 'none' }} />
             </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#4b5563', marginBottom: '6px' }}>Email Address</label>
+              <input type="email" value={newDrEmail} onChange={e => setNewDrEmail(e.target.value)} placeholder="e.g. siva@BNXmail.com" style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #d1d5db', background: '#f9fafb', fontSize: '15px', color: '#111827', outline: 'none' }} />
+            </div>
             
             <div style={{ marginBottom: '24px' }}>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#4b5563', marginBottom: '6px' }}>Phone Number</label>
@@ -648,10 +679,10 @@ export default function CommunityModal({ isOpen, onClose }: { isOpen: boolean, o
             </div>
 
             <button onClick={() => {
-              if(!newDrName || !newDrPhone) return alert("Please fill all details!");
-              const nd = { id: 'd'+Date.now(), name: newDrName, phone: newDrPhone, status: 'Available' };
+              if(!newDrName || !newDrPhone || !newDrEmail) return alert("Please fill all details!");
+              const nd = { id: 'd'+Date.now(), name: newDrName, email: newDrEmail, phone: newDrPhone, status: 'Available' };
               setDrivers([...drivers, nd]);
-              setNewDrName(''); setNewDrPhone('');
+              setNewDrName(''); setNewDrEmail(''); setNewDrPhone('');
               setShowAddDriverModal(false);
             }} style={{ width: '100%', padding: '14px', background: '#111827', color: '#ffffff', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: '700', cursor: 'pointer' }}>
               Add to Roster

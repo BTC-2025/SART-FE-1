@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
 const ParkingMapClient = dynamic(() => import('./ParkingMapClient'), {
@@ -69,14 +69,82 @@ interface ParkingBookingModalProps {
 }
 
 export default function ParkingBookingModal({ isOpen, onClose }: ParkingBookingModalProps) {
-  const [step, setStep] = useState<1 | 2>(1);
-  const [activeCategory, setActiveCategory] = useState<'ALL' | 'ROAD' | 'SEA' | 'AIR' | 'RAIL'>('ALL');
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selectedVehicle, setSelectedVehicle] = useState('p-car');
-  const [pickup, setPickup] = useState('Current Location');
+
+  useEffect(() => {
+    const handleUrlState = () => {
+      const path = window.location.pathname;
+      if (path.includes('-booking')) {
+        setStep(2);
+        const parts = path.split('/');
+        const last = parts[parts.length - 1];
+        const name = decodeURIComponent(last.replace('-booking', ''));
+        const found = ALL_PARKING.find(v => v.name.startsWith(name));
+        if (found) setSelectedVehicle(found.id);
+      } else if (path === '/home/parking') {
+        setStep(1);
+      }
+    };
+
+    // Check immediately on mount
+    if (isOpen) {
+      handleUrlState();
+    }
+
+    window.addEventListener('popstate', handleUrlState);
+    return () => {
+      window.removeEventListener('popstate', handleUrlState);
+    };
+  }, [isOpen]);
+
+  const [activeCategory, setActiveCategory] = useState<'ALL' | 'ROAD' | 'SEA' | 'AIR' | 'RAIL'>('ALL');
+  const [pickup, setPickup] = useState('');
   const [startDate, setStartDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [returnDate, setReturnDate] = useState('');
   const [returnTime, setReturnTime] = useState('');
+  
+  const [isSearched, setIsSearched] = useState(false);
+  const [selectedSlotId, setSelectedSlotId] = useState('');
+  const [isConfirming, setIsConfirming] = useState(false);
+  const confirmTimeoutRef = React.useRef<any>(null);
+
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+  
+  React.useEffect(() => {
+    if (!isTyping || pickup.length < 3) {
+      setSuggestions([]);
+      return;
+    }
+    const fetchSuggestions = async () => {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&countrycodes=in&limit=5&q=${encodeURIComponent(pickup)}`);
+        const data = await res.json();
+        setSuggestions(data);
+      } catch (e) {
+        console.error("Failed to fetch suggestions", e);
+      }
+    };
+    const timer = setTimeout(fetchSuggestions, 500);
+    return () => clearTimeout(timer);
+  }, [pickup, isTyping]);
+
+  const availableSlots = [
+    { id: 'premium', basePrice: 50, color: '#f59e0b', label: 'Premium Slot', desc: 'Prime location, ground floor' },
+    { id: 'standard', basePrice: 40, color: '#10b981', label: 'Standard Slot', desc: 'Regular parking area' },
+    { id: 'covered', basePrice: 80, color: '#3b82f6', label: 'Covered Parking', desc: 'Weather protection & security' },
+    { id: 'economy', basePrice: 30, color: '#8b5cf6', label: 'Economy Slot', desc: 'Open yard parking' }
+  ];
+
+  const getCalculatedPrice = (base: number) => {
+    const vName = selectedVehicleObj?.name || '';
+    if (vName.includes('Two-Wheeler') || vName.includes('Bike')) return base - 30 > 0 ? base - 30 : 10;
+    if (vName.includes('Boat') || vName.includes('Yacht')) return base * 10;
+    if (vName.includes('Plane') || vName.includes('Jet')) return base * 50;
+    return base;
+  };
 
   React.useEffect(() => {
     const handleReset = () => {
@@ -98,39 +166,72 @@ export default function ParkingBookingModal({ isOpen, onClose }: ParkingBookingM
     setSelectedVehicle(vehicle.id);
     setStep(2);
     const cleanName = vehicle.name.split('/')[0].trim();
-    updateUrl(`/home/parking/${encodeURIComponent(cleanName)} booking`);
+    updateUrl(`/home/parking/${encodeURIComponent(cleanName)}-booking`);
   };
 
   const handleBackToFleet = () => {
     setStep(1);
+    setIsSearched(false);
+    setSelectedSlotId('');
     updateUrl('/home/parking');
   };
 
   const handleClose = () => {
     setStep(1);
+    setIsSearched(false);
+    setSelectedSlotId('');
+    setIsConfirming(false);
+    if (confirmTimeoutRef.current) clearTimeout(confirmTimeoutRef.current);
     updateUrl('/');
     onClose();
   };
 
-  const handleBook = () => {
-    let vehicleName = 'Parking Slot';
-    let vehiclePrice = 50;
-    
-    const found = ALL_PARKING.find(v => v.id === selectedVehicle);
-    if (found) {
-      vehicleName = found.name;
-      vehiclePrice = found.price;
+  const handleSearch = () => {
+    if (!pickup || !startDate || !startTime) {
+      alert("Please enter location, check-in date and time.");
+      return;
     }
+    setIsSearched(true);
+  };
 
-    let subtitle = `${vehicleName} • Reserved`;
-    if (startDate && returnDate) {
-      subtitle += ` • From ${startDate} to ${returnDate}`;
+  const handleBook = () => {
+    if (!selectedSlotId) {
+      alert("Please select a parking slot from the list first.");
+      return;
     }
-    
-    if ((window as any).executeGenericBooking) {
-      (window as any).executeGenericBooking('parking', `Parking: ${pickup}`, subtitle, vehiclePrice, { from: pickup, startDate, startTime, returnDate, returnTime });
-    }
-    handleClose();
+    setStep(3);
+  };
+
+  const handleFinalConfirm = () => {
+    setIsConfirming(true);
+    confirmTimeoutRef.current = setTimeout(() => {
+      setIsConfirming(false);
+      
+      let vehicleName = 'Parking Slot';
+      let vehiclePrice = 50;
+      
+      const found = ALL_PARKING.find(v => v.id === selectedVehicle);
+      if (found) {
+        vehicleName = found.name;
+        vehiclePrice = found.price;
+      }
+
+      let subtitle = `${vehicleName} • Reserved`;
+      if (startDate && returnDate) {
+        subtitle += ` • From ${startDate} to ${returnDate}`;
+      }
+      
+      if ((window as any).executeGenericBooking) {
+        (window as any).executeGenericBooking('parking', `Parking: ${pickup}`, subtitle, vehiclePrice, { from: pickup, startDate, startTime, returnDate, returnTime });
+      }
+      handleClose();
+    }, 4000);
+  };
+
+  const cancelConfirmation = () => {
+    if (confirmTimeoutRef.current) clearTimeout(confirmTimeoutRef.current);
+    setIsConfirming(false);
+    setStep(2);
   };
 
   const selectedVehicleObj = ALL_PARKING.find(v => v.id === selectedVehicle);
@@ -186,9 +287,6 @@ export default function ParkingBookingModal({ isOpen, onClose }: ParkingBookingM
           <div style={{ fontSize: '22px', fontWeight: '800', color: '#111827', display: 'flex', alignItems: 'center', gap: '12px' }}>
             <i className="fa-solid fa-square-parking" style={{ color: '#f59e0b' }}></i> Reserve Parking & Docking
           </div>
-          <button onClick={handleClose} style={{ background: '#f3f4f6', border: 'none', width: '36px', height: '36px', borderRadius: '50%', color: '#4b5563', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>
-            <i className="fa-solid fa-xmark"></i>
-          </button>
         </div>
         
         {step === 1 && (
@@ -229,47 +327,21 @@ export default function ParkingBookingModal({ isOpen, onClose }: ParkingBookingM
         )}
 
         {step === 2 && (
-          <div style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
-            <div style={{ display: 'flex', height: '100%', flexWrap: 'wrap' }}>
-              
-              {/* Left Column: Map & Search */}
-              <div style={{ flex: '1 1 400px', borderRight: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column' }}>
-                <div style={{ padding: '24px', background: '#ffffff', borderBottom: '1px solid #e5e7eb' }}>
-                  <button 
-                    onClick={handleBackToFleet} 
-                    style={{ background: 'transparent', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: '15px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', padding: '0 0 16px 0' }}
-                  >
-                    <i className="fa-solid fa-arrow-left"></i> Back to Options
-                  </button>
-                  <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '800', color: '#111827' }}>Find Nearby Parking</h3>
-                  <div style={{ position: 'relative', display: 'flex', gap: '12px' }}>
-                    <div style={{ position: 'relative', flex: 1 }}>
-                      <i className="fa-solid fa-magnifying-glass" style={{ position: 'absolute', left: '16px', top: '16px', color: '#9ca3af' }}></i>
-                      <input type="text" style={{ width: '100%', padding: '14px 14px 14px 48px', borderRadius: '12px', border: '1px solid #d1d5db', background: '#f9fafb', color: '#111827', fontSize: '15px', outline: 'none' }} placeholder="Search area or landmark" value={pickup} onChange={e => setPickup(e.target.value)} />
-                    </div>
-                    <button 
-                      onClick={() => setPickup('Current Location')}
-                      style={{ background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '12px', padding: '0 20px', cursor: 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}
-                    >
-                      <i className="fa-solid fa-location-crosshairs"></i> Near Me
-                    </button>
-                  </div>
-                </div>
+          <div style={{ flex: 1, overflowY: 'hidden', padding: '0', display: 'flex' }}>
+            
+            {/* Left Column: Form Details */}
+            <div style={{ flex: '1 1 450px', background: '#ffffff', display: 'flex', flexDirection: 'column', borderRight: '1px solid #e5e7eb', overflowY: 'auto' }}>
+              <div style={{ padding: '32px', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
                 
-                {/* Real Interactive Map Area */}
-                <div style={{ flex: 1, position: 'relative', minHeight: '300px', zIndex: 0 }}>
-                  <ParkingMapClient 
-                    vehicleIconClass={selectedVehicleObj?.icon || 'fa-car'} 
-                    vehicleTitle={selectedVehicleObj?.name || 'Car'}
-                    searchQuery={pickup}
-                  />
-                </div>
-              </div>
+                <button 
+                  onClick={handleBackToFleet} 
+                  style={{ background: 'transparent', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: '15px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', padding: '0 0 24px 0', width: 'fit-content' }}
+                >
+                  <i className="fa-solid fa-arrow-left"></i> Back to Options
+                </button>
 
-              {/* Right Column: Booking Details */}
-              <div style={{ flex: '1 1 350px', background: '#f9fafb', padding: '32px', display: 'flex', flexDirection: 'column' }}>
                 {selectedVehicleObj && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '20px', marginBottom: '24px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
                     <div style={{ width: '56px', height: '56px', borderRadius: '12px', background: selectedVehicleObj.color + '20', color: selectedVehicleObj.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
                       <i className={`fa-solid ${selectedVehicleObj.icon}`}></i>
                     </div>
@@ -280,41 +352,229 @@ export default function ParkingBookingModal({ isOpen, onClose }: ParkingBookingM
                   </div>
                 )}
 
-                <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '24px', flex: 1 }}>
+                <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '800', color: '#111827' }}>Find Nearby Parking</h3>
+                <div style={{ position: 'relative', display: 'flex', gap: '12px', marginBottom: '24px' }}>
+                  <div style={{ position: 'relative', flex: 1 }}>
+                    <i className="fa-solid fa-magnifying-glass" style={{ position: 'absolute', left: '16px', top: '16px', color: '#9ca3af' }}></i>
+                    <input 
+                      type="text" 
+                      style={{ width: '100%', padding: '14px 14px 14px 48px', borderRadius: '12px', border: '1px solid #d1d5db', background: '#f9fafb', color: '#111827', fontSize: '15px', outline: 'none' }} 
+                      placeholder="Search area or landmark" 
+                      value={pickup} 
+                      onChange={e => { setPickup(e.target.value); setIsTyping(true); }} 
+                    />
+                    {suggestions.length > 0 && (
+                      <div style={{ position: 'absolute', top: '100%', left: 0, width: '100%', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '12px', marginTop: '8px', zIndex: 50, boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+                        {suggestions.map((s, i) => (
+                          <div 
+                            key={i} 
+                            style={{ padding: '12px 16px', borderBottom: i === suggestions.length - 1 ? 'none' : '1px solid #e5e7eb', cursor: 'pointer', fontSize: '14px', color: '#374151' }}
+                            onClick={() => { setPickup(s.display_name); setSuggestions([]); setIsTyping(false); }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#f9fafb'}
+                            onMouseLeave={e => e.currentTarget.style.background = '#fff'}
+                          >
+                            <i className="fa-solid fa-location-dot" style={{ marginRight: '8px', color: '#9ca3af' }}></i>
+                            {s.display_name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <button 
+                    onClick={() => { setPickup('Chennai'); setIsTyping(false); setSuggestions([]); }}
+                    style={{ background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '12px', padding: '0 20px', cursor: 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}
+                  >
+                    <i className="fa-solid fa-location-crosshairs"></i> Near Me
+                  </button>
+                </div>
+
+                <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                   <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '800', color: '#111827' }}>Schedule Booking</h3>
                   
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#4b5563', marginBottom: '6px', textTransform: 'uppercase' }}>Check-in Date</label>
-                      <input type="date" style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #d1d5db', background: '#f9fafb', color: '#111827', fontSize: '14px', outline: 'none' }} value={startDate} onChange={e => setStartDate(e.target.value)} />
+                      <input type="date" style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #d1d5db', background: '#f9fafb', color: '#111827', fontSize: '14px', outline: 'none' }} value={startDate} onChange={e => setStartDate(e.target.value)} disabled={isSearched} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#4b5563', marginBottom: '6px', textTransform: 'uppercase' }}>Check-in Time</label>
-                      <input type="time" style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #d1d5db', background: '#f9fafb', color: '#111827', fontSize: '14px', outline: 'none' }} value={startTime} onChange={e => setStartTime(e.target.value)} />
+                      <input type="time" style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #d1d5db', background: '#f9fafb', color: '#111827', fontSize: '14px', outline: 'none' }} value={startTime} onChange={e => setStartTime(e.target.value)} disabled={isSearched} />
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#4b5563', marginBottom: '6px', textTransform: 'uppercase' }}>Check-out Date</label>
-                      <input type="date" style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #d1d5db', background: '#f9fafb', color: '#111827', fontSize: '14px', outline: 'none' }} value={returnDate} onChange={e => setReturnDate(e.target.value)} />
+                      <input type="date" style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #d1d5db', background: '#f9fafb', color: '#111827', fontSize: '14px', outline: 'none' }} value={returnDate} onChange={e => setReturnDate(e.target.value)} disabled={isSearched} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#4b5563', marginBottom: '6px', textTransform: 'uppercase' }}>Check-out Time</label>
-                      <input type="time" style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #d1d5db', background: '#f9fafb', color: '#111827', fontSize: '14px', outline: 'none' }} value={returnTime} onChange={e => setReturnTime(e.target.value)} />
+                      <input type="time" style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #d1d5db', background: '#f9fafb', color: '#111827', fontSize: '14px', outline: 'none' }} value={returnTime} onChange={e => setReturnTime(e.target.value)} disabled={isSearched} />
                     </div>
                   </div>
 
-                  <button 
-                    onClick={handleBook}
-                    style={{ width: '100%', padding: '16px', borderRadius: '12px', background: '#f59e0b', color: '#ffffff', border: 'none', fontSize: '16px', fontWeight: '700', cursor: 'pointer', transition: 'background 0.2s', marginTop: 'auto' }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#d97706'}
-                    onMouseLeave={e => e.currentTarget.style.background = '#f59e0b'}
-                  >
-                    Confirm Parking Slot
-                  </button>
+                  {!isSearched ? (
+                    <button 
+                      onClick={handleSearch}
+                      style={{ width: '100%', padding: '16px', borderRadius: '12px', background: '#111827', color: '#ffffff', border: 'none', fontSize: '16px', fontWeight: '700', cursor: 'pointer', transition: 'background 0.2s', marginTop: 'auto' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#1f2937'}
+                      onMouseLeave={e => e.currentTarget.style.background = '#111827'}
+                    >
+                      Search Parking Slot
+                    </button>
+                  ) : (
+                    <>
+                      <h4 style={{ fontSize: '14px', fontWeight: '800', color: '#111827', marginBottom: '12px', borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>Available Slots</h4>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px', maxHeight: '180px', overflowY: 'auto' }}>
+                        {availableSlots.map(slot => (
+                          <div 
+                            key={slot.id}
+                            onClick={() => setSelectedSlotId(slot.id)}
+                            style={{ 
+                              display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', 
+                              border: selectedSlotId === slot.id ? `2px solid ${slot.color}` : '1px solid #e5e7eb', 
+                              borderRadius: '12px', cursor: 'pointer', background: selectedSlotId === slot.id ? `${slot.color}10` : '#ffffff',
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                              <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: `2px solid ${slot.color}`, background: selectedSlotId === slot.id ? slot.color : 'transparent' }}></div>
+                              <div>
+                                <div style={{ fontSize: '14px', fontWeight: '700', color: '#111827' }}>{slot.label}</div>
+                                <div style={{ fontSize: '12px', color: '#6b7280' }}>{slot.desc}</div>
+                              </div>
+                            </div>
+                            <div style={{ fontSize: '15px', fontWeight: '800', color: slot.color }}>
+                              ₹{getCalculatedPrice(slot.basePrice)}/hr
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <button 
+                        onClick={handleBook}
+                        disabled={!selectedSlotId}
+                        style={{ width: '100%', padding: '16px', borderRadius: '12px', background: selectedSlotId ? '#f59e0b' : '#d1d5db', color: '#ffffff', border: 'none', fontSize: '16px', fontWeight: '700', cursor: selectedSlotId ? 'pointer' : 'not-allowed', transition: 'background 0.2s', marginTop: 'auto' }}
+                      >
+                        {selectedSlotId ? 'Confirm Booking' : 'Select a Slot'}
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
+            </div>
+
+            {/* Right Column: Map Area */}
+            <div style={{ flex: '1 1 500px', position: 'relative', background: '#e5e7eb', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }}>
+                <ParkingMapClient 
+                  vehicleIconClass={selectedVehicleObj?.icon || 'fa-car'} 
+                  vehicleTitle={selectedVehicleObj?.name || 'Car'}
+                  searchQuery={pickup}
+                  isSearched={isSearched}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div style={{ flex: 1, padding: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#e2e8f0', overflowY: 'auto' }}>
+            <div style={{ background: '#fff', padding: '40px', borderRadius: '24px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', width: '100%', maxWidth: '500px', textAlign: 'center', margin: 'auto' }}>
+              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#10b98120', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', margin: '0 auto 24px auto' }}>
+                <i className="fa-solid fa-check"></i>
+              </div>
+              <h2 style={{ margin: '0 0 12px 0', fontSize: '28px', fontWeight: '800', color: '#111827' }}>Confirm Parking Slot</h2>
+              <p style={{ margin: '0 0 32px 0', color: '#6b7280', fontSize: '16px' }}>Please review your booking details before confirming.</p>
+              
+              <div style={{ background: '#f9fafb', border: '1px solid #e5e7eb', padding: '24px', borderRadius: '16px', textAlign: 'left', marginBottom: '32px' }}>
+                <div style={{ display: 'flex', marginBottom: '20px', borderBottom: '1px solid #e5e7eb', paddingBottom: '20px' }}>
+                  <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#f3f4f6', color: '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', marginRight: '16px' }}>
+                    <i className="fa-solid fa-location-dot"></i>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '12px', fontWeight: '700', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Location</div>
+                    <div style={{ fontSize: '15px', fontWeight: '700', color: '#111827', marginTop: '4px', lineHeight: '1.4' }}>{pickup || 'Current Location'}</div>
+                  </div>
+                </div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                  <div style={{ display: 'flex' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#f3f4f6', color: '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', marginRight: '12px' }}>
+                      <i className="fa-regular fa-clock"></i>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '12px', fontWeight: '700', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Check-in</div>
+                      <div style={{ fontSize: '15px', fontWeight: '700', color: '#111827', marginTop: '4px' }}>{startDate} {startTime}</div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#f3f4f6', color: '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', marginRight: '12px' }}>
+                      <i className="fa-solid fa-flag-checkered"></i>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '12px', fontWeight: '700', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Check-out</div>
+                      <div style={{ fontSize: '15px', fontWeight: '700', color: '#111827', marginTop: '4px' }}>{returnDate} {returnTime}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {isConfirming ? (
+                <div style={{ padding: '24px 0' }}>
+                  <div className="spinner" style={{ border: '4px solid #f3f4f6', borderTop: '4px solid #f59e0b', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite', margin: '0 auto 16px auto' }}></div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#111827', margin: '0 0 8px 0' }}>Confirming Booking...</h3>
+                  <p style={{ color: '#6b7280', fontSize: '14px', margin: '0 0 24px 0' }}>Please do not close this window.</p>
+                  
+                  <button 
+                    onClick={cancelConfirmation}
+                    style={{ width: '100%', padding: '16px', borderRadius: '12px', background: '#fee2e2', color: '#ef4444', border: 'none', fontSize: '16px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#fecaca'}
+                    onMouseLeave={e => e.currentTarget.style.background = '#fee2e2'}
+                  >
+                    Cancel Booking Process
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+                    <button 
+                      onClick={handleFinalConfirm}
+                      style={{ flex: 1, padding: '16px', borderRadius: '12px', background: '#f59e0b', color: '#fff', border: 'none', fontSize: '16px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#d97706'}
+                      onMouseLeave={e => e.currentTarget.style.background = '#f59e0b'}
+                    >
+                      Confirm Parking Now
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', gap: '16px' }}>
+                    <button 
+                      onClick={cancelConfirmation}
+                      style={{ flex: 1, padding: '16px', borderRadius: '12px', background: '#f3f4f6', color: '#4b5563', border: 'none', fontSize: '16px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#e5e7eb'}
+                      onMouseLeave={e => e.currentTarget.style.background = '#f3f4f6'}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={() => alert("Calling Parking Owner...")}
+                      style={{ flex: 1, padding: '16px', borderRadius: '12px', background: '#111827', color: '#fff', border: 'none', fontSize: '16px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', transition: 'all 0.2s' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#1f2937'}
+                      onMouseLeave={e => e.currentTarget.style.background = '#111827'}
+                    >
+                      <i className="fa-solid fa-phone"></i> Call
+                    </button>
+                    <button 
+                      onClick={() => alert("Opening Messages...")}
+                      style={{ flex: 1, padding: '16px', borderRadius: '12px', background: '#10b981', color: '#fff', border: 'none', fontSize: '16px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', transition: 'all 0.2s' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#059669'}
+                      onMouseLeave={e => e.currentTarget.style.background = '#10b981'}
+                    >
+                      <i className="fa-solid fa-message"></i> Msg
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}

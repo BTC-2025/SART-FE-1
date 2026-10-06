@@ -167,7 +167,9 @@ export default function RideBookingModal({ isOpen, onClose }: { isOpen: boolean,
   if (!isOpen) return null;
 
   const updateUrl = (path: string) => {
-    if (typeof window !== 'undefined') window.history.pushState(null, '', path);
+    if (typeof window !== 'undefined') {
+      window.history.pushState(null, '', path);
+    }
   };
 
   const handleSelectMasterCategory = (master: any) => {

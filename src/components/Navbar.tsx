@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import './Navbar.css';
 import { useSartStore } from '../store/useSartStore';
 
@@ -11,6 +12,7 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentLocation, setCurrentLocation] = useState('Chennai');
   const profileRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const SEARCH_OPTIONS = [
     { title: 'Road Ride Booking', kw: ['ride', 'taxi', 'car', 'cab', 'economy', 'suv'], modal: 'modal-ride', icon: 'fa-car', color: 'var(--primary)' },
@@ -68,13 +70,34 @@ export default function Navbar() {
       </div>
       
       <nav className="nav-links">
-        <div className={`nav-link ${activeTab === 'home' ? 'active' : ''}`} id="nav-btn-home" onClick={() => setActiveTab('home')}>
+        <div 
+          className={`nav-link ${['home', 'ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking'].includes(activeTab) ? 'active' : ''}`} 
+          id="nav-btn-home" 
+          onClick={() => {
+            setActiveTab('home');
+            router.push('/', { scroll: false });
+          }}
+        >
           <span>Home</span>
         </div>
-        <div className={`nav-link ${activeTab === 'store' ? 'active' : ''}`} id="nav-btn-store" onClick={() => setActiveTab('store')}>
+        <div 
+          className={`nav-link ${activeTab === 'store' ? 'active' : ''}`} 
+          id="nav-btn-store" 
+          onClick={() => {
+            setActiveTab('store');
+            router.push('/store', { scroll: false });
+          }}
+        >
           <span>Store</span>
         </div>
-        <div className={`nav-link ${activeTab === 'booking' ? 'active' : ''}`} id="nav-btn-booking" onClick={() => setActiveTab('booking')}>
+        <div 
+          className={`nav-link ${activeTab === 'booking' ? 'active' : ''}`} 
+          id="nav-btn-booking" 
+          onClick={() => {
+            setActiveTab('booking');
+            router.push('/booking', { scroll: false });
+          }}
+        >
           <span>Booking</span>
         </div>
       </nav>
