@@ -52,6 +52,7 @@ interface SartStore extends AppState {
   addBooking: (booking: Booking) => void;
   addToCart: (item: CartItem) => void;
   removeFromCart: (itemId: string) => void;
+  updateCartQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
   toggleWishlist: (itemId: string) => void;
   setLocation: (loc: string) => void;
@@ -107,6 +108,13 @@ export const useSartStore = create<SartStore>()(
       removeFromCart: (itemId) =>
         set((state) => ({
           cart: state.cart.filter((i) => i.id !== itemId),
+        })),
+        
+      updateCartQuantity: (itemId, quantity) =>
+        set((state) => ({
+          cart: state.cart.map((i) =>
+            i.id === itemId ? { ...i, quantity } : i
+          ),
         })),
 
       clearCart: () => set({ cart: [] }),

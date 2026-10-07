@@ -153,7 +153,7 @@ export default function Navbar() {
         
         <div className="ctrl-btn" onClick={() => {
           if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('openReactModal', { detail: 'modal-bookings-registry' }));
+            window.dispatchEvent(new CustomEvent('openReactModal', { detail: 'modal-cart' }));
           }
         }}>
           <i className="fa-solid fa-bag-shopping"></i>
