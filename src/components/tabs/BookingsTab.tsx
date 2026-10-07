@@ -499,10 +499,10 @@ export default function BookingsTab() {
                     </button>
                   ) : (
                     <div style={{ display: 'flex', gap: '12px', marginTop: 'auto' }}>
-                      <button style={{ flex: 1, padding: '10px', background: 'transparent', color: '#0ea5e9', border: '1px solid #0ea5e9', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+                      <button style={{ flex: 1, padding: '10px 4px', fontSize: '14px', whiteSpace: 'nowrap', background: 'transparent', color: '#0ea5e9', border: '1px solid #0ea5e9', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
                         Download Ticket
                       </button>
-                      <button onClick={() => setSelectedGlobalBooking(booking)} style={{ flex: 1, padding: '10px', background: '#8b5cf6', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+                      <button onClick={() => setSelectedGlobalBooking(booking)} style={{ flex: 1, padding: '10px 4px', fontSize: '14px', whiteSpace: 'nowrap', background: '#8b5cf6', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
                         View Details
                       </button>
                     </div>
