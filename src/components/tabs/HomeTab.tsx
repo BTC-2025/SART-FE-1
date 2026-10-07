@@ -8,6 +8,8 @@ import QuickBookingForm from '@/components/QuickBookingForm';
 import MapEngine from '@/components/MapEngine';
 import NewsFeed from '@/components/NewsFeed';
 import OffersSlider from '@/components/OffersSlider';
+import TravelBlogs from '@/components/TravelBlogs';
+import TopRoutes from '@/components/TopRoutes';
 import './HomeTab.css';
 
 export default function HomeTab() {
@@ -38,41 +40,8 @@ export default function HomeTab() {
   return (
     <section className={`tab-screen ${activeTab === 'home' ? 'active' : ''}`} id="tab-home">
 
-      {/* 🖼️ New Panorama Hero Section */}
-      <div className="new-hero-container">
-        {/* SubNavbar Overlay */}
-        <div className="hero-subnav-overlay">
-          <SubNavbar />
-        </div>
-
-        {/* Modern Full-Width Carousel */}
-        <div className="modern-carousel">
-          {carouselSlides.map((slide, index) => (
-            <div key={slide.id} className={`carousel-slide ${index === currentSlide ? 'active' : ''}`} style={{ backgroundImage: `url(${slide.img})` }}>
-              <div className="carousel-overlay-gradient"></div>
-              <div className="carousel-content">
-                <h2 className="carousel-title">{slide.title}</h2>
-                <p className="carousel-subtitle">{slide.subtitle}</p>
-                <button className="carousel-cta" onClick={() => handleServiceClick(slide.action)}>
-                  {slide.btn} <i className="fa-solid fa-arrow-right"></i>
-                </button>
-              </div>
-            </div>
-          ))}
-
-          <button className="carousel-nav prev" onClick={() => setCurrentSlide(p => p === 0 ? 3 : p - 1)}>
-            <i className="fa-solid fa-chevron-left"></i>
-          </button>
-          <button className="carousel-nav next" onClick={() => setCurrentSlide(p => p === 3 ? 0 : p + 1)}>
-            <i className="fa-solid fa-chevron-right"></i>
-          </button>
-
-          <div className="carousel-dots">
-            {[0, 1, 2, 3].map(i => (
-              <div key={i} className={`dot ${i === currentSlide ? 'active' : ''}`} onClick={() => setCurrentSlide(i)}></div>
-            ))}
-          </div>
-        </div>
+      <div style={{ background: '#111827', padding: '10px 0' }}>
+        <SubNavbar />
       </div>
 
       {/* Quick Services Strip replacing the old image click areas */}
@@ -194,8 +163,44 @@ export default function HomeTab() {
       {/* Yellow Quick Booking Form (Below Services) */}
       <QuickBookingForm />
 
+      {/* 🖼️ New Panorama Hero Section (Moved Below Booking Form) */}
+      <div className="new-hero-container" style={{ marginTop: '20px' }}>
+        {/* Modern Full-Width Carousel */}
+        <div className="modern-carousel">
+          {carouselSlides.map((slide, index) => (
+            <div key={slide.id} className={`carousel-slide ${index === currentSlide ? 'active' : ''}`} style={{ backgroundImage: `url(${slide.img})` }}>
+              <div className="carousel-overlay-gradient"></div>
+              <div className="carousel-content">
+                <h2 className="carousel-title">{slide.title}</h2>
+                <p className="carousel-subtitle">{slide.subtitle}</p>
+                <button className="carousel-cta" onClick={() => handleServiceClick(slide.action)}>
+                  {slide.btn} <i className="fa-solid fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+          ))}
+
+          <button className="carousel-nav prev" onClick={() => setCurrentSlide(p => p === 0 ? 3 : p - 1)}>
+            <i className="fa-solid fa-chevron-left"></i>
+          </button>
+          <button className="carousel-nav next" onClick={() => setCurrentSlide(p => p === 3 ? 0 : p + 1)}>
+            <i className="fa-solid fa-chevron-right"></i>
+          </button>
+
+          <div className="carousel-dots">
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} className={`dot ${i === currentSlide ? 'active' : ''}`} onClick={() => setCurrentSlide(i)}></div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Special Offers Carousel */}
       <OffersSlider />
+
+      {/* Travel Blogs & Top Routes */}
+      <TravelBlogs />
+      <TopRoutes />
 
       <div style={{ display: 'grid', gridTemplateColumns: '7fr 5fr', gap: '24px' }}>
         <MapEngine />

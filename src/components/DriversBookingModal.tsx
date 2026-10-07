@@ -262,6 +262,35 @@ export default function DriversBookingModal({ isOpen, onClose }: DriversBookingM
     );
   };
 
+  let mode = 'ROAD';
+  if (selectedVehicleObj) {
+    if (SEA_DRIVERS[0].vehicles.some(v => v.id === selectedVehicleObj.id)) mode = 'SEA';
+    if (AIR_DRIVERS[0].vehicles.some(v => v.id === selectedVehicleObj.id)) mode = 'AIR';
+    if (RAIL_DRIVERS[0].vehicles.some(v => v.id === selectedVehicleObj.id)) mode = 'RAIL';
+  }
+
+  let pickupLabel = 'Reporting Location';
+  let dropoffLabel = 'Drop-off Location';
+  let locationIcon = 'fa-location-dot';
+  let placeholder = 'Enter pickup address';
+
+  if (mode === 'SEA') {
+    pickupLabel = 'Reporting Port / Marina';
+    dropoffLabel = 'Destination Port';
+    locationIcon = 'fa-anchor';
+    placeholder = 'Enter port name';
+  } else if (mode === 'AIR') {
+    pickupLabel = 'Reporting Airport / Helipad';
+    dropoffLabel = 'Destination Airport';
+    locationIcon = 'fa-plane';
+    placeholder = 'Enter airport code';
+  } else if (mode === 'RAIL') {
+    pickupLabel = 'Reporting Railway Station';
+    dropoffLabel = 'Destination Station';
+    locationIcon = 'fa-train';
+    placeholder = 'Enter station name';
+  }
+
   return (
     <div className="modal-overlay open" style={{ display: 'flex', zIndex: 1000, background: 'rgba(0,0,0,0.6)' }} onClick={handleClose}>
       <div className="modal-sheet centered-modal" style={{ maxWidth: '900px', width: '95%', height: '90vh', display: 'flex', flexDirection: 'column', backgroundColor: '#f9fafb', borderRadius: '24px', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
@@ -345,14 +374,14 @@ export default function DriversBookingModal({ isOpen, onClose }: DriversBookingM
                 <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                   
                   <div style={{ marginBottom: '20px' }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#4b5563', marginBottom: '6px', textTransform: 'uppercase' }}>Reporting Location</label>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#4b5563', marginBottom: '6px', textTransform: 'uppercase' }}>{pickupLabel}</label>
                     <div style={{ display: 'flex', gap: '12px' }}>
                       <div style={{ position: 'relative', flex: 1 }}>
-                        <i className="fa-solid fa-location-dot" style={{ position: 'absolute', left: '16px', top: '16px', color: '#10b981' }}></i>
+                        <i className={`fa-solid ${locationIcon}`} style={{ position: 'absolute', left: '16px', top: '16px', color: '#10b981' }}></i>
                         <input 
                           type="text" 
                           style={{ width: '100%', padding: '14px 14px 14px 44px', borderRadius: '10px', border: '1px solid #d1d5db', background: '#f9fafb', color: '#111827', fontSize: '14px', outline: 'none' }} 
-                          placeholder="Enter pickup address" 
+                          placeholder={placeholder} 
                           value={pickup} 
                           onChange={e => { setPickup(e.target.value); setIsTyping(true); }} 
                         />
@@ -384,9 +413,9 @@ export default function DriversBookingModal({ isOpen, onClose }: DriversBookingM
 
                   {tripType === 'ONE_WAY' ? (
                     <div style={{ marginBottom: '20px', position: 'relative' }}>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#4b5563', marginBottom: '6px', textTransform: 'uppercase' }}>Drop-off Location</label>
-                      <i className="fa-solid fa-location-arrow" style={{ position: 'absolute', left: '16px', top: '38px', color: '#ef4444' }}></i>
-                      <input type="text" style={{ width: '100%', padding: '14px 14px 14px 44px', borderRadius: '10px', border: '1px solid #d1d5db', background: '#f9fafb', color: '#111827', fontSize: '14px', outline: 'none' }} placeholder="Enter drop-off address" value={dropoff} onChange={e => setDropoff(e.target.value)} />
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#4b5563', marginBottom: '6px', textTransform: 'uppercase' }}>{dropoffLabel}</label>
+                      <i className={`fa-solid ${locationIcon}`} style={{ position: 'absolute', left: '16px', top: '38px', color: '#ef4444' }}></i>
+                      <input type="text" style={{ width: '100%', padding: '14px 14px 14px 44px', borderRadius: '10px', border: '1px solid #d1d5db', background: '#f9fafb', color: '#111827', fontSize: '14px', outline: 'none' }} placeholder={`Enter destination`} value={dropoff} onChange={e => setDropoff(e.target.value)} />
                     </div>
                   ) : (
                     <div style={{ marginBottom: '20px' }}>

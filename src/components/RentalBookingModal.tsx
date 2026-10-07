@@ -391,14 +391,24 @@ function RentalBookingModal({ isOpen, onClose }: RentalBookingModalProps) {
                 <>
                   <div style={{ padding: '24px 24px 0 24px' }}>
                     <div style={{ marginBottom: '24px' }}>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#6b7280', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Pick-up Location</label>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#6b7280', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        {activeMaster.type === 'SEA' ? 'Port of Departure' : 
+                         activeMaster.type === 'AIR' ? 'Departure Airport' : 
+                         activeMaster.type === 'RAIL' ? 'Boarding Station' : 
+                         'Pick-up Location'}
+                      </label>
                       <div style={{ position: 'relative' }}>
                         <div style={{ display: 'flex', alignItems: 'center', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '12px 16px' }}>
-                          <i className="fa-solid fa-location-dot" style={{ color: '#10b981', marginRight: '12px', fontSize: '18px' }}></i>
+                          <i className={`fa-solid ${activeMaster.type === 'SEA' ? 'fa-anchor' : activeMaster.type === 'AIR' ? 'fa-plane-departure' : activeMaster.type === 'RAIL' ? 'fa-train' : 'fa-location-dot'}`} style={{ color: '#10b981', marginRight: '12px', fontSize: '18px' }}></i>
                           <input 
                             type="text" 
                             style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '15px', fontWeight: '600', color: '#111827' }} 
-                            placeholder="Enter City, Airport, or Address" 
+                            placeholder={
+                              activeMaster.type === 'SEA' ? 'Enter Port or Marina' : 
+                              activeMaster.type === 'AIR' ? 'Enter Airport or Helipad' : 
+                              activeMaster.type === 'RAIL' ? 'Enter Railway Station' : 
+                              'Enter City, Airport, or Address'
+                            }
                             value={pickup} 
                             onChange={e => {
                               setPickup(e.target.value);

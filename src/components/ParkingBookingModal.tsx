@@ -236,6 +236,35 @@ export default function ParkingBookingModal({ isOpen, onClose }: ParkingBookingM
 
   const selectedVehicleObj = ALL_PARKING.find(v => v.id === selectedVehicle);
 
+  let mode = 'ROAD';
+  if (selectedVehicleObj) {
+    if (SEA_PARKING[0].vehicles.some(v => v.id === selectedVehicleObj.id)) mode = 'SEA';
+    if (AIR_PARKING[0].vehicles.some(v => v.id === selectedVehicleObj.id)) mode = 'AIR';
+    if (RAIL_PARKING[0].vehicles.some(v => v.id === selectedVehicleObj.id)) mode = 'RAIL';
+  }
+
+  let searchLabel = 'Search area or landmark';
+  let titleLabel = 'Find Nearby Parking';
+  let btnLabel = 'Search Parking Slot';
+  let searchIcon = 'fa-location-dot';
+
+  if (mode === 'SEA') {
+    searchLabel = 'Search Port or Marina';
+    titleLabel = 'Find Nearby Dock/Marina';
+    btnLabel = 'Search Docking Slot';
+    searchIcon = 'fa-anchor';
+  } else if (mode === 'AIR') {
+    searchLabel = 'Search Airport or Helipad';
+    titleLabel = 'Find Nearby Hangar/Tie-Down';
+    btnLabel = 'Search Aviation Slot';
+    searchIcon = 'fa-plane';
+  } else if (mode === 'RAIL') {
+    searchLabel = 'Search Railway Station or Yard';
+    titleLabel = 'Find Nearby Depot';
+    btnLabel = 'Search Rail Slot';
+    searchIcon = 'fa-train';
+  }
+
   const renderGridSection = (title: string, icon: string, data: typeof ROAD_PARKING) => {
     const allVehicles = data.map(c => c.vehicles).flat();
     return (
@@ -352,14 +381,14 @@ export default function ParkingBookingModal({ isOpen, onClose }: ParkingBookingM
                   </div>
                 )}
 
-                <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '800', color: '#111827' }}>Find Nearby Parking</h3>
+                <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '800', color: '#111827' }}>{titleLabel}</h3>
                 <div style={{ position: 'relative', display: 'flex', gap: '12px', marginBottom: '24px' }}>
                   <div style={{ position: 'relative', flex: 1 }}>
                     <i className="fa-solid fa-magnifying-glass" style={{ position: 'absolute', left: '16px', top: '16px', color: '#9ca3af' }}></i>
                     <input 
                       type="text" 
                       style={{ width: '100%', padding: '14px 14px 14px 48px', borderRadius: '12px', border: '1px solid #d1d5db', background: '#f9fafb', color: '#111827', fontSize: '15px', outline: 'none' }} 
-                      placeholder="Search area or landmark" 
+                      placeholder={searchLabel}
                       value={pickup} 
                       onChange={e => { setPickup(e.target.value); setIsTyping(true); }} 
                     />
@@ -373,7 +402,7 @@ export default function ParkingBookingModal({ isOpen, onClose }: ParkingBookingM
                             onMouseEnter={e => e.currentTarget.style.background = '#f9fafb'}
                             onMouseLeave={e => e.currentTarget.style.background = '#fff'}
                           >
-                            <i className="fa-solid fa-location-dot" style={{ marginRight: '8px', color: '#9ca3af' }}></i>
+                            <i className={`fa-solid ${searchIcon}`} style={{ marginRight: '8px', color: '#9ca3af' }}></i>
                             {s.display_name}
                           </div>
                         ))}
@@ -420,7 +449,7 @@ export default function ParkingBookingModal({ isOpen, onClose }: ParkingBookingM
                       onMouseEnter={e => e.currentTarget.style.background = '#1f2937'}
                       onMouseLeave={e => e.currentTarget.style.background = '#111827'}
                     >
-                      Search Parking Slot
+                      {btnLabel}
                     </button>
                   ) : (
                     <>
