@@ -524,6 +524,41 @@ function RentalBookingModal({ isOpen, onClose }: RentalBookingModalProps) {
                           );
                         })}
                       </div>
+
+                      {/* Rental Details Breakdown block (Restored for user visibility) */}
+                      {selectedVehicleId && (
+                        <div style={{ marginTop: '24px', padding: '20px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                          <h4 style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: '800', color: '#1e293b' }}>Rental Details</h4>
+                          {(() => {
+                            const v = activeMaster.list.find((v: any) => v.id === selectedVehicleId);
+                            if (!v) return null;
+                            let baseRate = 0;
+                            if (rentalType === 'Hourly') baseRate = Math.max(50, Math.round(v.price / 10)) * multiplier;
+                            else if (rentalType === 'Daily') baseRate = v.price * multiplier;
+                            else if (rentalType === 'Weekly') baseRate = Math.round(v.price * 6) * multiplier;
+                            else if (rentalType === 'Monthly') baseRate = Math.round(v.price * 20) * multiplier;
+                            const taxes = Math.round(baseRate * 0.18);
+                            const total = baseRate + taxes;
+                            return (
+                              <>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                  <span style={{ color: '#64748b', fontSize: '13px' }}>Base Fare ({unitStr})</span>
+                                  <span style={{ fontWeight: '700', color: '#1e293b', fontSize: '13px' }}>₹{baseRate}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                  <span style={{ color: '#64748b', fontSize: '13px' }}>Taxes & Fees (18%)</span>
+                                  <span style={{ fontWeight: '700', color: '#1e293b', fontSize: '13px' }}>₹{taxes}</span>
+                                </div>
+                                <div style={{ borderTop: '1px dashed #cbd5e1', margin: '12px 0' }}></div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  <span style={{ fontWeight: '800', color: '#0f172a', fontSize: '15px' }}>Total Amount</span>
+                                  <span style={{ fontWeight: '900', color: activeMaster.color, fontSize: '18px' }}>₹{total}</span>
+                                </div>
+                              </>
+                            );
+                          })()}
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', color: '#9ca3af' }}>
@@ -533,7 +568,6 @@ function RentalBookingModal({ isOpen, onClose }: RentalBookingModalProps) {
                       <p style={{ margin: 0, fontSize: '14px', fontWeight: '600', maxWidth: '200px' }}>Enter pick-up location and dates to view available vehicles and exact pricing.</p>
                     </div>
                   )}
-                  {/* We no longer need the standalone price breakdown block because it's baked into the vehicle list! */}
                 </>
               ) : step === 3 && !isProcessing && !isConfirmed ? (
                 <div style={{ padding: '24px', flex: 1 }}>

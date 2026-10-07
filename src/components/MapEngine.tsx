@@ -2,7 +2,11 @@
 
 import React from 'react';
 import './MapEngine.css';
+import { useSartStore } from '@/store/useSartStore';
+
 export default function MapEngine() {
+  const setActiveTab = useSartStore(state => state.setActiveTab);
+
   const openGlobalModal = (id: string) => {
     if (typeof window !== 'undefined' && (window as any).openModal) {
       (window as any).openModal(id);
@@ -47,7 +51,13 @@ export default function MapEngine() {
         
         {/* Floating Actions Overlay */}
         <div className="map-floating-bottom-left">
-          <button className="map-action-btn-liked" id="home-liked-btn" onClick={() => openGlobalModal('modal-liked')}>
+          <button className="map-action-btn-liked" id="home-liked-btn" onClick={() => {
+            setActiveTab('favorites');
+            window.history.pushState(null, '', '/favorites');
+            if (typeof window !== 'undefined' && (window as any).closeModal) {
+              (window as any).closeModal('modal-liked');
+            }
+          }}>
             <i className="fa-solid fa-star"></i> LIKED
           </button>
         </div>
@@ -65,7 +75,18 @@ export default function MapEngine() {
         </div>
 
         {/* Floating Active Booking Card overlay on Map */}
-        <div className="map-active-booking-panel floating-map-booking-panel" id="map-active-booking-card" style={{ display: 'none' }}>
+        <div 
+          className="map-active-booking-panel floating-map-booking-panel" 
+          id="map-active-booking-card" 
+          style={{ display: 'none', cursor: 'pointer' }}
+          onClick={() => {
+            setActiveTab('booking');
+            window.history.pushState(null, '', '/booking');
+            if (typeof window !== 'undefined' && (window as any).closeModal) {
+              (window as any).closeModal('modal-bookings-registry');
+            }
+          }}
+        >
           <div className="panel-header-badge">LIVE TRACKING ACTIVE</div>
           <div className="panel-main">
             <div className="panel-icon-wrap" id="map-active-booking-icon-container">
@@ -76,7 +97,19 @@ export default function MapEngine() {
               <p id="map-active-booking-desc">Driver is starting journey...</p>
             </div>
           </div>
-          <button className="cancel-booking-btn" onClick={() => openGlobalModal('modal-bookings-registry')}>Manage Ticket Details</button>
+          <button 
+            className="cancel-booking-btn" 
+            onClick={(e) => {
+              e.stopPropagation(); // prevent card click
+              setActiveTab('booking');
+              window.history.pushState(null, '', '/booking');
+              if (typeof window !== 'undefined' && (window as any).closeModal) {
+                (window as any).closeModal('modal-bookings-registry');
+              }
+            }}
+          >
+            Manage Ticket Details
+          </button>
         </div>
       </div>
     </div>
