@@ -72,7 +72,7 @@ export default function BookingsTab() {
   const handlePnrSearch = () => {
     setSearchError(null);
     if (!pnrInput.trim()) {
-      setSearchError('Please enter a PNR number');
+      setSearchError('Please enter a valid tracking number');
       return;
     }
     const input = pnrInput.trim().toLowerCase();
@@ -90,9 +90,28 @@ export default function BookingsTab() {
     }
 
     if (found) {
+      const type = found.type?.toLowerCase() || '';
+      const title = found.title.toUpperCase();
+      
+      if (trackingType === 'Train — PNR' && type !== 'train' && !title.includes('EXPRESS') && !title.includes('TRAIN')) {
+        setSearchError('Not a valid Train PNR. Please select the correct service.');
+        return;
+      }
+      if (trackingType === 'Airline — Flight Number' && type !== 'aeroplane' && !title.includes('AIR') && !title.includes('FLIGHT') && !title.includes('INDIGO')) {
+        setSearchError('Not a valid Flight Number. Please select the correct service.');
+        return;
+      }
+      if (trackingType === 'Bus — Ticket Number' && type !== 'bus' && !title.includes('BUS')) {
+        setSearchError('Not a valid Bus Ticket Number. Please select the correct service.');
+        return;
+      }
+      if (trackingType === 'Ship / Cruise Ship — IMO Number' && type !== 'ship' && !title.includes('CRUISE') && !title.includes('SHIP')) {
+        setSearchError('Not a valid Ship IMO Number. Please select the correct service.');
+        return;
+      }
       setTrackedBooking(found);
     } else {
-      setSearchError('No booking found for this PNR');
+      setSearchError('No booking found for this tracking number');
     }
   };
 
@@ -311,7 +330,20 @@ export default function BookingsTab() {
                       <button style={{ flex: 1, padding: '10px', background: '#f97316', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                         <i className="fa-solid fa-download"></i> Download Ticket
                       </button>
-                      <button style={{ flex: 1, padding: '10px', background: '#e2e8f0', color: '#334155', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <button 
+                        onClick={() => {
+                          if (navigator.share) {
+                            navigator.share({
+                              title: `${trackedBooking.title} Status`,
+                              text: `Check out my journey status for ${trackedBooking.title} (${trackedBooking.number}) from ${trackedBooking.source} to ${trackedBooking.destination}. Status: ${trackedBooking.statusText}`,
+                              url: window.location.href,
+                            }).catch(console.error);
+                          } else {
+                            alert(`Sharing Status:\n${trackedBooking.title} (${trackedBooking.number})\n${trackedBooking.source} to ${trackedBooking.destination}\nStatus: ${trackedBooking.statusText}`);
+                          }
+                        }}
+                        style={{ flex: 1, padding: '10px', background: '#e2e8f0', color: '#334155', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                      >
                         <i className="fa-solid fa-share-nodes"></i> Share Status
                       </button>
                     </div>
@@ -340,21 +372,21 @@ export default function BookingsTab() {
                 </div>
               ) : (
                 <>
-                  <div style={{ border: '1px solid #e2e8f0', background: 'white', width: '100%', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-                    <div style={{ background: '#f97316', color: 'white', padding: '12px', textAlign: 'center', fontSize: '20px' }}>
+                  <div style={{ border: '1px solid #e2e8f0', background: 'white', width: '100%', maxWidth: '900px', margin: '0 auto', borderRadius: '5px', minHeight: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+                    <div style={{ background: '#f97316', color: 'white', padding: '8px', textAlign: 'center', fontSize: '18px', borderTopLeftRadius: '5px', borderTopRightRadius: '5px' }}>
                       Passenger Current Status Enquiry
                     </div>
-                    <div style={{ padding: '20px' }}>
-                      <p suppressHydrationWarning style={{ fontSize: '12px', color: '#64748b', margin: '0 0 20px 0' }}>
-                        {new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })} [IST]
+                    <div style={{ padding: '10px 16px' }}>
+                      <p suppressHydrationWarning style={{ fontSize: '12px', color: '#64748b', margin: '0 0 4px 0' }}>
+                        {new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}
                       </p>
-                      <p style={{ textAlign: 'center', fontSize: '16px', color: '#334155', margin: '0 0 30px 0' }}>
-                        Enter the details for your booking below to get the current status. You will find it on the top left corner of the ticket.
+                      <p style={{ textAlign: 'center', fontSize: '14px', color: '#334155', margin: '0 0 10px 0' }}>
+                        Enter the details for your booking below to get the current status.
                       </p>
 
-                      {searchError && <p style={{ color: '#ef4444', fontSize: '13px', textAlign: 'center', marginTop: '-10px', marginBottom: '20px' }}>{searchError}</p>}
+                      {searchError && <p style={{ color: '#ef4444', fontSize: '13px', textAlign: 'center', marginTop: '-5px', marginBottom: '10px' }}>{searchError}</p>}
 
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', marginBottom: '20px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', marginBottom: '12px' }}>
                         <select
                           value={trackingType}
                           onChange={(e) => setTrackingType(e.target.value)}
@@ -362,15 +394,16 @@ export default function BookingsTab() {
                         >
                           <option value="Train — PNR">Train — PNR</option>
                           <option value="Airline — Flight Number">Airline — Flight Number</option>
+                          <option value="Bus — Ticket Number">Bus — Ticket Number</option>
                           <option value="Ship / Cruise Ship — IMO Number">Ship / Cruise Ship — IMO Number</option>
                         </select>
 
                         <input
                           type="text"
-                          placeholder={trackingType.includes('PNR') ? 'Enter PNR No.' : trackingType.includes('Flight') ? 'Enter Flight No.' : 'Enter IMO No.'}
+                          placeholder={trackingType.includes('PNR') ? 'Enter PNR No.' : trackingType.includes('Flight') ? 'Enter Flight No.' : trackingType.includes('Ticket') ? 'Enter Ticket No.' : 'Enter IMO No.'}
                           value={pnrInput}
                           onChange={(e) => setPnrInput(e.target.value)}
-                          style={{ border: '1px solid #cbd5e1', padding: '6px 12px', fontSize: '14px', width: '200px', outline: 'none', borderRadius: '4px' }}
+                          style={{ border: '1px solid #cbd5e1', padding: '6px 12px', fontSize: '14px', width: '250px', outline: 'none', borderRadius: '4px' }}
                         />
                       </div>
 
@@ -390,7 +423,7 @@ export default function BookingsTab() {
           </div>
 
           {/* MY BOOKINGS OVERVIEW */}
-          <div style={{ maxWidth: '1000px', margin: '0 auto 40px auto', background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 10px rgba(0,0,0,0.03)' }}>
+          <div style={{ maxWidth: '1400px', margin: '0 auto 40px auto', background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 10px rgba(0,0,0,0.03)' }}>
             <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', marginBottom: '24px' }}>
               <button
                 onClick={() => setOverviewTab('upcoming')}
@@ -412,7 +445,7 @@ export default function BookingsTab() {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
               {MOCK_BOOKINGS.filter(b => {
                  if (overviewTab === 'upcoming') return b.isActive && !b.isCancelled;
                  if (overviewTab === 'past') return !b.isActive && !b.isCancelled;
