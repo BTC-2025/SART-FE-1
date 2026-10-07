@@ -642,3 +642,12 @@
   opacity: 0.9;
   font-weight: 500;
 }
+
+/* Home Content Wrapper for Alignment */
+.home-content-wrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  width: 100%;
+}
+
