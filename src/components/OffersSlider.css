@@ -1,5 +1,5 @@
 .offers-container {
-  margin: 32px 0;
+  margin-bottom: 40px;
   width: 100%;
 }
 
@@ -7,14 +7,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
 
 .offers-header h2 {
   margin: 0;
   font-size: 24px;
-  color: #94a3b8; /* Light slate color to match the image */
-  font-weight: 700;
+  color: #111827;
+  font-weight: 800;
 }
 
 .offers-nav {

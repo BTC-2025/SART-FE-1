@@ -10,7 +10,7 @@ const blogs = [
 
 export default function TravelBlogs() {
   return (
-    <div style={{ padding: '0px 20px 40px 20px', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ marginBottom: '40px', width: '100%' }}>
       <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#111827', marginBottom: '24px' }}>Travel Blogs</h2>
       <div style={{ display: 'flex', gap: '20px', overflowX: 'auto', paddingBottom: '16px', scrollbarWidth: 'none' }}>
         {blogs.map(blog => (

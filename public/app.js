@@ -118,9 +118,9 @@ const AUTO_PRODUCTS = [
 ];
 
 const AUTO_NEWS = [
-  { id: 'news-1', title: 'Solid-State Batteries to Enter Small Scale Production by 2027', source: 'Auto Future Digest', date: 'Today', tag: 'EV Tech', desc: 'Multiple battery startups have announced pilot manufacturing lanes for solid-state cells designed for electric vehicles. This technology promises double the energy density of current lithium-ion batteries.' },
-  { id: 'news-2', title: 'New Dynamic Toll Rates Planned for Metro Expressways', source: 'City Transit Council', date: 'Yesterday', tag: 'Regulation', desc: 'Starting next month, expressway toll rates will adjust dynamically based on live traffic densities. City planners aim to reduce bottleneck congestion.' },
-  { id: 'news-3', title: 'Luxury Yachts: Trends for the Upcoming Sea Ride Season', source: 'Marine World', date: '3 days ago', tag: 'Sea Design', desc: 'Yacht styling is taking cues from modern cyber-punk aesthetics, featuring carbon fibre paneling, integrated diagnostic displays, and smart autopilot systems.' }
+  { id: 'news-1', title: 'Solid-State Batteries to Enter Small Scale Production by 2027', source: 'Auto Future Digest', date: 'Today', tag: 'EV Tech', desc: 'Multiple battery startups have announced pilot manufacturing lanes for solid-state cells designed for electric vehicles. This technology promises double the energy density of current lithium-ion batteries.', img: 'https://images.unsplash.com/photo-1593941707882-a5bba14938cb?auto=format&fit=crop&w=150&q=80' },
+  { id: 'news-2', title: 'New Dynamic Toll Rates Planned for Metro Expressways', source: 'City Transit Council', date: 'Yesterday', tag: 'Regulation', desc: 'Starting next month, expressway toll rates will adjust dynamically based on live traffic densities. City planners aim to reduce bottleneck congestion.', img: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=150&q=80' },
+  { id: 'news-3', title: 'Luxury Yachts: Trends for the Upcoming Sea Ride Season', source: 'Marine World', date: '3 days ago', tag: 'Sea Design', desc: 'Yacht styling is taking cues from modern cyber-punk aesthetics, featuring carbon fibre paneling, integrated diagnostic displays, and smart autopilot systems.', img: 'https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?auto=format&fit=crop&w=150&q=80' }
 ];
 
 // Current pricing selections for modals
@@ -1239,14 +1239,17 @@ function bootstrapLegacyApp() {
     AUTO_NEWS.forEach(n => {
       newsRow.innerHTML += `
         <div class="news-card" onclick="alert('${n.title}\\n\\nSource: ${n.source}\\n\\n${n.desc}')">
-          <div class="news-card-header">
-            <span class="news-card-tag">${n.tag}</span>
-            <span class="news-card-date">${n.date}</span>
-          </div>
-          <div class="news-card-title">${n.title}</div>
-          <div class="news-card-footer">
-            <span>${n.source}</span>
-            <i class="fa-solid fa-arrow-right"></i>
+          <img class="news-card-img" src="${n.img}" alt="${n.tag}" />
+          <div class="news-card-content">
+            <div class="news-card-header">
+              <span class="news-card-tag">${n.tag}</span>
+              <span class="news-card-date">${n.date}</span>
+            </div>
+            <div class="news-card-title">${n.title}</div>
+            <div class="news-card-footer">
+              <span>${n.source}</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </div>
           </div>
         </div>
       `;
