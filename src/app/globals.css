@@ -141,7 +141,7 @@ h6 {
 /* Premium Top Navigation Bar */
 .web-navbar {
   height: 70px;
-  background: #52a5d1;
+  background: #a0522d;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
@@ -1669,7 +1669,7 @@ h6 {
 .nav-links {
   align-items: center !important;
   gap: 8px !important;
-  background: #d16b3d !important;
+  background: #592720 !important;
   border-radius: 50px !important;
   padding: 6px 12px !important;
 }
@@ -1963,7 +1963,7 @@ h6 {
 
 /* FINAL DARK THEME OVERRIDES FOR NAVBAR */
 .web-navbar {
-  background: #52a5d1 !important;
+  background: #a0522d !important;
   color: #ffffff !important;
 }
 
@@ -1991,17 +1991,23 @@ h6 {
 
 /* === USER REQUESTED COLOR CHANGES === */
 .nav-links {
-  background: #d16b3d !important;
+  background: #592720 !important;
 }
 
-.nav-link {
-  color: #000000 !important;
+.nav-link, .nav-link span {
+  color: #ffffff !important;
 }
 
 .nav-link.active,
 .nav-link:hover {
   background: #cbd5e1 !important;
   color: #000000 !important;
+}
+
+.nav-link.active span,
+.nav-link:hover span {
+  color: #000000 !important;
+  background: transparent !important;
 }
 
 .subnav-btn {
