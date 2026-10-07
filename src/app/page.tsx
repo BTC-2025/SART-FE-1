@@ -21,6 +21,7 @@ import DriversBookingModal from '@/components/DriversBookingModal';
 import CommunityModal from '@/components/CommunityModal';
 import MechanicModal from '@/components/MechanicModal';
 import ParkingBookingModal from '@/components/ParkingBookingModal';
+import CartModal from '@/components/CartModal';
 
 export default function Home() {
   const { activeTab, setActiveTab } = useSartStore();
@@ -103,6 +104,7 @@ export default function Home() {
       <Script src="/app.js" strategy="lazyOnload" />
       <CitySelectorModal isOpen={isCityModalOpen} onClose={() => setIsCityModalOpen(false)} />
       <BookingsRegistryModal isOpen={isBookingsModalOpen} onClose={() => setIsBookingsModalOpen(false)} />
+      <CartModal />
     </div>
   );
 }

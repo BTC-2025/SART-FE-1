@@ -10,6 +10,7 @@ import NewsFeed from '@/components/NewsFeed';
 import OffersSlider from '@/components/OffersSlider';
 import TravelBlogs from '@/components/TravelBlogs';
 import TopRoutes from '@/components/TopRoutes';
+import WhyChooseUs from '@/components/WhyChooseUs';
 import './HomeTab.css';
 
 export default function HomeTab() {
@@ -140,6 +141,8 @@ export default function HomeTab() {
         <QuickBookingForm />
         
         <OffersSlider />
+        
+        <WhyChooseUs />
         
         <TravelBlogs />
         

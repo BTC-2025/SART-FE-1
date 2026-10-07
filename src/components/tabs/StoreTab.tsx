@@ -3,220 +3,113 @@ import React, { useEffect, useState } from 'react';
 import './StoreTab.css'; 
 import { useSartStore } from '@/store/useSartStore';
 
-export default function StoreTab() {
-  const { activeTab } = useSartStore();
-  const [mounted, setMounted] = useState(false);
+const STORE_PRODUCTS = [
+  // Accessories
+  { id: 'acc-1', name: 'Smart Fast Charger Pro', price: 18500, icon: 'fa-bolt', category: 'Accessories', badge: 'Top Seller', desc: 'Ultra-compact 7.2kW AC home charger with auto battery cut-off.' },
+  { id: 'acc-2', name: 'GPS Tracker Pro', price: 4200, icon: 'fa-compass', category: 'Accessories', badge: 'New', desc: 'Anti-theft satellite-linked tracker featuring real-time geofence alerts.' },
+  { id: 'acc-3', name: 'Smart Tire Pressure Gauge', price: 2800, icon: 'fa-circle-dot', category: 'Accessories', badge: 'Safety', desc: 'Bluetooth tire valve caps displaying precise PSI diagnostics.' },
+  { id: 'acc-4', name: 'Chauffeur Comfort Cushion', price: 1950, icon: 'fa-couch', category: 'Accessories', badge: 'Upgrade', desc: 'Ergonomic memory foam cushion with orthopedic support.' },
   
-  const [cart, setCart] = useState<{name: string, price: number, qty: number}[]>([]);
+  // Spare Parts
+  { id: 'sp-1', name: 'Ceramic Brake Pads (Set of 4)', price: 4500, icon: 'fa-truck-fast', category: 'Spare Parts', badge: 'OEM Part', desc: 'High-performance ceramic brake pads for superior stopping power and low dust.' },
+  { id: 'sp-2', name: 'HEPA Cabin Air Filter', price: 850, icon: 'fa-wind', category: 'Spare Parts', badge: 'Essential', desc: 'Medical-grade cabin air filtration system blocking 99.9% of urban pollutants.' },
+  { id: 'sp-3', name: 'LED Sports Headlamps', price: 1890, icon: 'fa-lightbulb', category: 'Spare Parts', badge: 'Upgrade', desc: 'High intensity 6500K illumination bulbs delivering 200% brighter beams.' },
+  
+  // Stations & Bunks (Petrol / EV)
+  { id: 'stat-1', name: 'Shell Fast-Charge Pass (100kWh)', price: 1200, icon: 'fa-charging-station', category: 'Stations & Bunks', badge: 'EV', desc: 'Pre-paid 100kWh fast-charging credits valid at all partner EV networks.' },
+  { id: 'stat-2', name: 'Bharat Petrol Top-up Voucher', price: 2500, icon: 'fa-gas-pump', category: 'Stations & Bunks', badge: 'Fuel', desc: '₹2500 pre-paid fuel credits redeemable at any major bunk across the city.' },
+  
+  // Mechanics
+  { id: 'mech-1', name: 'Express Diagnostic Check', price: 999, icon: 'fa-screwdriver-wrench', category: 'Mechanics', badge: 'Service', desc: 'Full vehicle 360° OBD2 diagnostic scan by a SART certified mobile mechanic.' },
+  { id: 'mech-2', name: 'Wheel Alignment & Balancing', price: 1499, icon: 'fa-dharmachakra', category: 'Mechanics', badge: 'Service', desc: 'Precision laser wheel alignment and high-speed balancing at our local workshops.' },
+
+  // Wash & Care
+  { id: 'wash-1', name: 'Premium Foam Water Wash', price: 650, icon: 'fa-shower', category: 'Wash & Care', badge: 'Service', desc: 'Complete exterior snow foam wash, underbody cleaning, and interior vacuum.' },
+  { id: 'wash-2', name: 'Ceramic Coating (1 Year)', price: 8500, icon: 'fa-spray-can-sparkles', category: 'Wash & Care', badge: 'Detailing', desc: '1-year 9H ceramic coating protection for your car exterior paint.' },
+
+  // Air & Tires
+  { id: 'air-1', name: 'Nitrogen Air Filling (4 Tires)', price: 150, icon: 'fa-fan', category: 'Air & Tires', badge: 'Quick Service', desc: 'Pre-book Nitrogen air filling at any partner station to maintain tire life.' },
+  { id: 'air-2', name: 'Puncture Repair Assist', price: 300, icon: 'fa-toolbox', category: 'Air & Tires', badge: 'Emergency', desc: 'On-demand tubeless tire puncture repair by a mobile technician.' }
+];
+
+const CATEGORIES = ['All', 'Accessories', 'Spare Parts', 'Stations & Bunks', 'Mechanics', 'Wash & Care', 'Air & Tires'];
+
+export default function StoreTab() {
+  const { activeTab, addToCart } = useSartStore();
+  const [mounted, setMounted] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('All');
 
   useEffect(() => {
-    // Load state from localStorage if exists
-    const saved = localStorage.getItem('sart_web_state');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.cart) {
-          setCart(parsed.cart || []);
-        }
-      } catch(e) {}
-    }
     setMounted(true);
   }, []);
 
-  // Save to localStorage whenever state changes
-  useEffect(() => {
-    if (!mounted) return;
-    const saved = localStorage.getItem('sart_web_state');
-    let parsed = {} as any;
-    if (saved) {
-      try { parsed = JSON.parse(saved); } catch(e) {}
-    }
-    parsed = {
-      ...parsed,
-      cart
-    };
-    localStorage.setItem('sart_web_state', JSON.stringify(parsed));
-  }, [cart, mounted]);
-
-  const addToCart = (name: string, price: number) => {
-    setCart(prev => {
-      const existing = prev.find(item => item.name === name);
-      if (existing) {
-        return prev.map(item => item.name === name ? { ...item, qty: item.qty + 1 } : item);
-      }
-      return [...prev, { name, price, qty: 1 }];
+  const handleAddToCart = (item: any) => {
+    addToCart({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      icon: item.icon,
+      category: item.category,
+      quantity: 1
     });
-  };
-
-  const removeFromCart = (name: string) => {
-    setCart(prev => prev.filter(item => item.name !== name));
-  };
-
-  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-  const checkoutStoreCart = () => {
-    if (cart.length === 0) {
-      alert("Cart is empty!");
-      return;
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('openReactModal', { detail: 'modal-cart' }));
     }
-    
-    // Check wallet balance
-    const saved = localStorage.getItem('sart_web_state');
-    let parsed = {} as any;
-    if (saved) {
-      try { parsed = JSON.parse(saved); } catch(e) {}
-    }
-    
-    if (!parsed.wallet) {
-      alert("Wallet not initialized.");
-      return;
-    }
-
-    if (parsed.wallet.balance < subtotal) {
-      alert(`Insufficient Wallet Balance! You need ₹${subtotal.toFixed(2)}`);
-      return;
-    }
-
-    // Deduct balance, clear cart
-    parsed.wallet.balance -= subtotal;
-    parsed.wallet.transactions.unshift({
-      id: `tx-${Date.now()}`,
-      title: 'Store Checkout: ' + cart.length + ' Items',
-      amount: subtotal,
-      date: new Date().toLocaleString(),
-      isCredit: false,
-      category: 'Store'
-    });
-    
-    setCart([]);
-    parsed.cart = [];
-    localStorage.setItem('sart_web_state', JSON.stringify(parsed));
-    
-    // Dispatch a custom event in case wallet page needs to re-render
-    window.dispatchEvent(new Event('storage'));
-    
-    alert(`Checkout successful! ₹${subtotal.toFixed(2)} deducted from your wallet.`);
   };
 
   if (!mounted) return null;
 
+  const filteredProducts = activeCategory === 'All' 
+    ? STORE_PRODUCTS 
+    : STORE_PRODUCTS.filter(p => p.category === activeCategory);
 
   return (
     <section className={`tab-screen ${activeTab === 'store' ? 'active' : ''}`} id="tab-store">
       <div className="store-container">
         
+        {/* E-Commerce Hero */}
         <div className="store-hero">
           <div className="store-hero-text">
-            <h1>SART Smart Store</h1>
-            <p>Enhance your commute with certified telemetry upgrades, advanced diagnostics, and premium vehicle accessories.</p>
+            <h1>SART Hub E-Commerce</h1>
+            <p>Your one-stop shop for everything automotive. From telemetry upgrades and certified spare parts to pre-paid charging passes and mechanic bookings.</p>
           </div>
-          <div className="store-hero-image">🔋</div>
+          <div className="store-hero-image"><i className="fa-solid fa-store" style={{ color: '#fff', fontSize: '56px' }}></i></div>
+        </div>
+
+        {/* Categories Navigation */}
+        <div className="store-categories-nav">
+          {CATEGORIES.map(cat => (
+            <button 
+              key={cat} 
+              className={`store-category-pill ${activeCategory === cat ? 'active' : ''}`}
+              onClick={() => setActiveCategory(cat)}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
         
-        <div className="store-grid-layout">
-          {/* Left Products Section */}
-          <div className="store-products-section">
-            <div>
-              <h3 className="store-category-title">Popular Accessories</h3>
-              <div className="store-products-grid">
-                {/* Card 1 */}
-                <div className="store-product-card">
-                  <span className="product-badge">Top Seller</span>
-                  <div className="product-image-container">⚡</div>
-                  <div className="product-info">
-                    <h3>Smart Fast Charger Pro</h3>
-                    <p>Ultra-compact 7.2kW AC home charger with auto battery cut-off and mobile app telemetry link.</p>
-                  </div>
-                  <div className="product-footer">
-                    <span className="product-price">₹18,500</span>
-                    <button className="product-buy-btn" onClick={() => addToCart('Smart Fast Charger Pro', 18500)}>Add to Cart</button>
-                  </div>
-                </div>
-                {/* Card 2 */}
-                <div className="store-product-card">
-                  <span className="product-badge">New</span>
-                  <div className="product-image-container">🧭</div>
-                  <div className="product-info">
-                    <h3>GPS Tracker Pro</h3>
-                    <p>Anti-theft satellite-linked tracker featuring real-time geofence alerts and remote engine lock.</p>
-                  </div>
-                  <div className="product-footer">
-                    <span className="product-price">₹4,200</span>
-                    <button className="product-buy-btn" onClick={() => addToCart('GPS Tracker Pro', 4200)}>Add to Cart</button>
-                  </div>
-                </div>
+        {/* Products Grid */}
+        <div className="store-ecommerce-grid">
+          {filteredProducts.map(product => (
+            <div key={product.id} className="store-product-card">
+              {product.badge && <span className="product-badge">{product.badge}</span>}
+              <div className="product-image-container">
+                <i className={`fa-solid ${product.icon}`}></i>
+              </div>
+              <div className="product-info">
+                <span className="product-category-label">{product.category}</span>
+                <h3>{product.name}</h3>
+                <p>{product.desc}</p>
+              </div>
+              <div className="product-footer">
+                <span className="product-price">₹{product.price.toLocaleString('en-IN')}</span>
+                <button className="product-buy-btn" onClick={() => handleAddToCart(product)}>
+                  {['Accessories', 'Spare Parts'].includes(product.category) ? 'Add to Cart' : 'Book Service'}
+                </button>
               </div>
             </div>
-            
-            <div>
-              <h3 className="store-category-title">Safety & Comfort</h3>
-              <div className="store-products-grid">
-                {/* Card 3 */}
-                <div className="store-product-card">
-                  <span className="product-badge">Safety</span>
-                  <div className="product-image-container">🛞</div>
-                  <div className="product-info">
-                    <h3>Smart Tire Pressure Gauge</h3>
-                    <p>Bluetooth tire valve caps displaying precise PSI diagnostics directly on SART AI dashboard.</p>
-                  </div>
-                  <div className="product-footer">
-                    <span className="product-price">₹2,800</span>
-                    <button className="product-buy-btn" onClick={() => addToCart('Smart Tire Pressure Gauge', 2800)}>Add to Cart</button>
-                  </div>
-                </div>
-                {/* Card 4 */}
-                <div className="store-product-card">
-                  <span className="product-badge">Upgrade</span>
-                  <div className="product-image-container">🛋️</div>
-                  <div className="product-info">
-                    <h3>Chauffeur Comfort Cushion</h3>
-                    <p>Ergonomic memory foam cushion with orthopedic support, tailor-made for long distance trips.</p>
-                  </div>
-                  <div className="product-footer">
-                    <span className="product-price">₹1,950</span>
-                    <button className="product-buy-btn" onClick={() => addToCart('Chauffeur Comfort Cushion', 1950)}>Add to Cart</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Right Cart Panel */}
-          <div className="store-cart-panel">
-            <div className="cart-header">
-              <h3>Shopping Cart</h3>
-              <i className="fa-solid fa-cart-shopping" style={{ color: 'var(--primary)' }}></i>
-            </div>
-            <div className="cart-items-list">
-              {cart.length === 0 ? (
-                <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '30px', fontSize: '12px' }}>Your cart is empty.</div>
-              ) : (
-                cart.map(item => (
-                  <div key={item.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid #e2e8f0' }}>
-                    <div>
-                      <div style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b' }}>{item.name}</div>
-                      <div style={{ fontSize: '12px', color: '#64748b' }}>₹{item.price} x {item.qty}</div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '14px', fontWeight: '800', color: '#1e293b' }}>₹{item.price * item.qty}</span>
-                      <button onClick={() => removeFromCart(item.name)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}><i className="fa-solid fa-trash"></i></button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-            <div className="cart-totals">
-              <div className="cart-total-row">
-                <span>Subtotal</span>
-                <span>₹{subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-              </div>
-              <div className="cart-total-row" style={{ fontWeight: 800, borderTop: '1px solid var(--dark-border)', paddingTop: '10px', marginTop: '5px' }}>
-                <span>Grand Total</span>
-                <span style={{ color: 'var(--primary)' }}>₹{subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-              </div>
-            </div>
-            <button className="checkout-btn" onClick={checkoutStoreCart}>Pay via SART Wallet</button>
-          </div>
+          ))}
         </div>
         
       </div>
