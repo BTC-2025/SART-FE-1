@@ -43,6 +43,7 @@ export default function BookingsTab() {
 
   const [overviewTab, setOverviewTab] = useState<'upcoming' | 'past' | 'cancelled'>('upcoming');
   const [selectedGlobalBooking, setSelectedGlobalBooking] = useState<Booking | null>(null);
+  const [showMoreDestinations, setShowMoreDestinations] = useState(false);
 
   const { activeTab: globalActiveTab, setActiveTab: setGlobalActiveTab } = useSartStore();
 
@@ -92,7 +93,7 @@ export default function BookingsTab() {
     if (found) {
       const type = found.type?.toLowerCase() || '';
       const title = found.title.toUpperCase();
-      
+
       if (trackingType === 'Train — PNR' && type !== 'train' && !title.includes('EXPRESS') && !title.includes('TRAIN')) {
         setSearchError('Not a valid Train PNR. Please select the correct service.');
         return;
@@ -265,8 +266,8 @@ export default function BookingsTab() {
         <div className="bookings-tab-container fleet-selection-container">
 
           {/* TRACKING UI */}
-          <div className="pnr-tracking-section" style={{ marginBottom: '40px', display: 'flex', justifyContent: 'center' }}>
-            <div style={{ width: '100%', maxWidth: '650px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: '40px' }}>
+            <div style={{ width: '100%', maxWidth: '900px' }}>
               {trackedBooking ? (
                 <div className="tracking-result-screen" style={{ width: '100%' }}>
                   <div className="tracking-result-header">
@@ -330,7 +331,7 @@ export default function BookingsTab() {
                       <button style={{ flex: 1, padding: '10px', background: '#f97316', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                         <i className="fa-solid fa-download"></i> Download Ticket
                       </button>
-                      <button 
+                      <button
                         onClick={() => {
                           if (navigator.share) {
                             navigator.share({
@@ -372,25 +373,24 @@ export default function BookingsTab() {
                 </div>
               ) : (
                 <>
-                  <div style={{ border: '1px solid #e2e8f0', background: 'white', width: '100%', maxWidth: '900px', margin: '0 auto', borderRadius: '5px', minHeight: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-                    <div style={{ background: '#f97316', color: 'white', padding: '8px', textAlign: 'center', fontSize: '18px', borderTopLeftRadius: '5px', borderTopRightRadius: '5px' }}>
-                      Passenger Current Status Enquiry
+                  <div style={{ background: '#f0f9ff', maxWidth: '850px', margin: '0 auto', padding: '12px 24px', borderRadius: '16px' }}>
+                    <div style={{ color: '#0f172a', textAlign: 'center', fontSize: '24px', fontWeight: '900', marginBottom: '4px' }}>
+                      Passenger Current Status
                     </div>
-                    <div style={{ padding: '10px 16px' }}>
-                      <p suppressHydrationWarning style={{ fontSize: '12px', color: '#64748b', margin: '0 0 4px 0' }}>
-                        {new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}
-                      </p>
-                      <p style={{ textAlign: 'center', fontSize: '14px', color: '#334155', margin: '0 0 10px 0' }}>
-                        Enter the details for your booking below to get the current status.
-                      </p>
+                    <div>
+                      <div style={{ marginBottom: '4px', textAlign: 'center' }}>
+                        <p suppressHydrationWarning style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>
+                          {new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}
+                        </p>
+                      </div>
 
                       {searchError && <p style={{ color: '#ef4444', fontSize: '13px', textAlign: 'center', marginTop: '-5px', marginBottom: '10px' }}>{searchError}</p>}
 
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '0' }}>
                         <select
                           value={trackingType}
                           onChange={(e) => setTrackingType(e.target.value)}
-                          style={{ padding: '6px 12px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none', background: 'white', fontWeight: 'bold', color: '#334155' }}
+                          style={{ padding: '10px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none', background: '#f8fafc', fontWeight: '600', color: '#334155' }}
                         >
                           <option value="Train — PNR">Train — PNR</option>
                           <option value="Airline — Flight Number">Airline — Flight Number</option>
@@ -403,16 +403,22 @@ export default function BookingsTab() {
                           placeholder={trackingType.includes('PNR') ? 'Enter PNR No.' : trackingType.includes('Flight') ? 'Enter Flight No.' : trackingType.includes('Ticket') ? 'Enter Ticket No.' : 'Enter IMO No.'}
                           value={pnrInput}
                           onChange={(e) => setPnrInput(e.target.value)}
-                          style={{ border: '1px solid #cbd5e1', padding: '6px 12px', fontSize: '14px', width: '250px', outline: 'none', borderRadius: '4px' }}
+                          onKeyDown={(e) => e.key === 'Enter' && handlePnrSearch()}
+                          style={{ border: '1px solid #cbd5e1', padding: '10px 16px', fontSize: '14px', width: '300px', outline: 'none', borderRadius: '8px', background: '#f8fafc' }}
                         />
-                      </div>
 
-                      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-                        <button onClick={handlePnrSearch} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 24px', fontSize: '14px', cursor: 'pointer', borderRadius: '4px' }}>
-                          Submit
+                        <button
+                          onClick={handlePnrSearch}
+                          style={{ background: '#0f172a', color: 'white', border: 'none', padding: '10px 24px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+                        >
+                          Check
                         </button>
-                        <button onClick={() => setPnrInput('')} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 24px', fontSize: '14px', cursor: 'pointer', borderRadius: '4px' }}>
-                          Clear
+
+                        <button
+                          onClick={() => setPnrInput('')}
+                          style={{ background: 'transparent', color: '#64748b', border: '1px solid #cbd5e1', padding: '10px 16px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', borderRadius: '8px' }}
+                        >
+                          <i className="fa-solid fa-rotate-right"></i>
                         </button>
                       </div>
                     </div>
@@ -447,10 +453,10 @@ export default function BookingsTab() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
               {MOCK_BOOKINGS.filter(b => {
-                 if (overviewTab === 'upcoming') return b.isActive && !b.isCancelled;
-                 if (overviewTab === 'past') return !b.isActive && !b.isCancelled;
-                 if (overviewTab === 'cancelled') return b.isCancelled;
-                 return false;
+                if (overviewTab === 'upcoming') return b.isActive && !b.isCancelled;
+                if (overviewTab === 'past') return !b.isActive && !b.isCancelled;
+                if (overviewTab === 'cancelled') return b.isCancelled;
+                return false;
               }).map((booking, idx) => (
                 <div key={idx} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
@@ -512,41 +518,147 @@ export default function BookingsTab() {
             </div>
           </div>
 
-          <div className="fleet-header">
-            <i className="fa-solid fa-car-side fleet-main-icon"></i>
-            <h2>Ride Booking</h2>
-          </div>
-
-          <div className="fleet-tabs">
-            {FLEET_CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                className={`fleet-tab-btn ${selectedFleetCategory === cat ? 'active' : ''}`}
-                onClick={() => setSelectedFleetCategory(cat)}
-              >
-                {cat === 'All Fleet' && <i className="fa-solid fa-globe"></i>}
-                {cat === 'Road' && <i className="fa-solid fa-car"></i>}
-                {cat === 'Sea & Water' && <i className="fa-solid fa-ship"></i>}
-                {cat === 'Air Charters' && <i className="fa-solid fa-plane"></i>}
-                {cat === 'Train & Rail' && <i className="fa-solid fa-train"></i>}
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          <div className="fleet-grid">
-            {displayedFleet.map(item => (
-              <div
-                key={item.id}
-                className="fleet-card"
-                onClick={() => handleSelectFleetItem(item)}
-              >
-                <div className="fleet-img-wrapper">
-                  <img src={item.image} alt={item.name} />
-                </div>
-                <h4>{item.name}</h4>
+          {/* TOP ROUTES */}
+          <div style={{ marginTop: '40px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+              <div>
+                <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#0f172a', margin: 0 }}>Your Rides</h2>
+                <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '14px' }}>Your frequent journeys this year</p>
               </div>
-            ))}
+              <button
+                onClick={() => setShowMoreDestinations(!showMoreDestinations)}
+                style={{ padding: '8px 24px', background: 'transparent', border: '1px solid #0ea5e9', color: '#0ea5e9', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}
+              >
+                {showMoreDestinations ? 'View Less' : 'View All'}
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '40px' }}>
+              {[
+                { from: 'Bengaluru', to: 'Hyderabad', options: '170', img: 'https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&w=500&q=80', mode: 'Flight' },
+                { from: 'Indore', to: 'Bhopal', options: '215', img: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=500&q=80', mode: 'Train' },
+                { from: 'Mumbai Port', to: 'Goa Port', options: '170', img: 'https://images.unsplash.com/photo-1599640842225-85d111c60e6b?auto=format&fit=crop&w=500&q=80', mode: 'Ship' },
+                { from: 'Mumbai', to: 'Chennai', options: '180', img: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=500&q=80', mode: 'Car' },
+                ...(showMoreDestinations ? [
+                  { from: 'Chennai', to: 'Coimbatore', options: '145', img: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=500&q=80', mode: 'Bus' },
+                  { from: 'Mumbai', to: 'Pune', options: '300', img: 'https://thumbs.dreamstime.com/b/passenger-airliner-flight-17934723.jpg', mode: 'Flight' },
+                  { from: 'Kochi', to: 'Trivandrum', options: '120', img: 'https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&w=500&q=80', mode: 'Ship' },
+                  { from: 'Delhi', to: 'Agra', options: '250', img: 'https://imgd-ct.aeplcdn.com/370x208/n/cw/ec/200003/gravite-exterior-right-front-three-quarter-6.jpeg?isig=0&q=80', mode: 'Car' }
+                ] : [])
+              ].map((route, i) => (
+                <div key={i} style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', background: 'white', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ height: '160px', position: 'relative' }}>
+                    <img src={route.img} alt={route.mode} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <div style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>{route.mode}</div>
+                  </div>
+                  <div style={{ padding: '16px' }}>
+                    <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#0f172a', marginBottom: '8px' }}>{route.from} <i className="fa-solid fa-arrow-right" style={{ fontSize: '12px', margin: '0 8px', color: '#94a3b8' }}></i> {route.to}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontSize: '13px', color: '#64748b' }}>{route.options} Options</div>
+                      <a href="#" style={{ color: '#0ea5e9', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none' }}>View <i className="fa-solid fa-angle-right"></i></a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* EXCLUSIVE UPSELL OFFERS HEADER */}
+          <div style={{ marginTop: '60px', marginBottom: '20px', padding: '32px', background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)', borderRadius: '16px', border: '1px solid #fed7aa', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ maxWidth: '80%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                <span style={{ background: '#f97316', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>Special Offers</span>
+                <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#9a3412', margin: 0 }}>Explore New Ways to Travel!</h2>
+              </div>
+              <p style={{ margin: 0, color: '#7c2d12', fontSize: '15px', lineHeight: '1.6' }}>
+                We noticed you travel frequently by train and bus. Why not upgrade your journey? Check out these exclusive, limited-time offers on flights, luxury cruises, and comfortable cabs curated just for you based on your favorite routes.
+              </p>
+            </div>
+            <div style={{ fontSize: '40px', color: '#ea580c' }}>
+              <i className="fa-solid fa-gift"></i>
+            </div>
+          </div>
+
+          {/* DESTINATIONS / DIRECT FLIGHTS */}
+          <div style={{ marginBottom: '40px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+              <div>
+                <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#b91c1c', margin: '0 0 8px 0', textTransform: 'uppercase' }}>Your Journey, Our Best Offers</h2>
+                <p style={{ color: '#475569', margin: 0, maxWidth: '800px', lineHeight: '1.5' }}>Discover great travel offers that make more destinations affordable. Choose where you want to go, compare your travel options, and start your journey .</p>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+              {[
+                { from: 'Dubai', to: 'Thiruvananthapuram', code: 'DXB - TRV', img: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=500&q=80' },
+                { from: 'Hyderabad', to: 'Chennai', code: 'HYD - MAA', img: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=500&q=80' },
+                { from: 'Dubai', to: 'Hyderabad', code: 'DXB - HYD', img: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=500&q=80' },
+                { from: 'Dubai', to: 'Lucknow', code: 'DXB - LKO', img: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=500&q=80' },
+                { from: 'Bangalore', to: 'Singapore', code: 'BLR - SIN', img: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=500&q=80' },
+                { from: 'Dubai', to: 'Amritsar', code: 'DXB - ATQ', img: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=500&q=80' },
+                { from: 'Chennai', to: 'Mangalore', code: 'MAA - IXE', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=500&q=80' },
+                { from: 'Delhi', to: 'Singapore', code: 'DEL - SIN', img: 'https://images.unsplash.com/photo-1565967511849-76a60a516170?auto=format&fit=crop&w=500&q=80' }
+              ].map((route, i) => (
+                <div key={i} style={{ background: 'white', borderRadius: '0', overflow: 'hidden', border: '1px solid #f1f5f9' }}>
+                  <img src={route.img} alt={`${route.from} to ${route.to}`} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
+                  <div style={{ padding: '24px 20px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative' }}>
+                      {/* Dotted line connecting the locations */}
+                      <div style={{ position: 'absolute', left: '7px', top: '16px', bottom: '16px', borderLeft: '2px dotted #cbd5e1' }}></div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '3px solid #cbd5e1', background: 'white', zIndex: 1 }}></div>
+                        <span style={{ fontSize: '15px', color: '#334155', fontWeight: '500' }}>{route.from}</span>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '3px solid #cbd5e1', background: 'white', zIndex: 1 }}></div>
+                        <span style={{ fontSize: '15px', color: '#334155', fontWeight: '500' }}>{route.to}</span>
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: '32px', fontSize: '12px', fontWeight: '700', color: '#e11d48', textTransform: 'uppercase' }}>
+                      {route.code}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* SHIPS / RECOMMENDED FOR YOU */}
+          <div style={{ marginBottom: '60px' }}>
+
+            <h2 style={{ fontSize: '28px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '24px', color: '#0f172a' }}>Recommended For You</h2>
+            <div style={{ display: 'flex', gap: '24px', borderBottom: '1px solid #e2e8f0', marginBottom: '24px' }}>
+              <span style={{ paddingBottom: '12px', borderBottom: '2px solid #2563eb', color: '#2563eb', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>Singapore</span>
+              <span style={{ paddingBottom: '12px', color: '#64748b', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>Shanghai</span>
+              <span style={{ paddingBottom: '12px', color: '#64748b', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>Europe</span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+              {[
+                { title: '2 Nights Weekend Getaway Cruise', ship: 'Navigator of the Seas', loc: 'From Singapore, Singapore', price: '$225 USD', img: 'https://images.unsplash.com/photo-1534008897995-27a23e859048?auto=format&fit=crop&w=400&q=80' },
+                { title: '3 Nights Penang Cruise', ship: 'Navigator of the Seas', loc: 'From Singapore, Singapore', price: '$238 USD', img: 'https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&w=400&q=80' },
+                { title: '3 Nights Penang Cruise', ship: 'Quantum of the Seas', loc: 'From Singapore, Singapore', price: '$269 USD', img: 'https://www.melancong.my/wp-content/uploads/2021/11/Star-Pisces.jpg' },
+                { title: '4 Nights Penang & Phuket Cruise', ship: 'Navigator of the Seas', loc: 'From Singapore, Singapore', price: '$347 USD', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80' }
+              ].map((cruise, i) => (
+                <div key={i}>
+                  <img src={cruise.img} alt={cruise.title} style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '12px', marginBottom: '12px' }} />
+                  <h4 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#0f172a', fontWeight: 'bold' }}>{cruise.title}</h4>
+                  <div style={{ fontSize: '12px', color: '#64748b', display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '16px' }}>
+                    <span><i className="fa-solid fa-ship" style={{ width: '16px' }}></i> {cruise.ship}</span>
+                    <span><i className="fa-solid fa-location-dot" style={{ width: '16px' }}></i> {cruise.loc}</span>
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#64748b' }}>Starting from*</div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                    <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#0f172a' }}>{cruise.price}</span>
+                    <span style={{ fontSize: '11px', color: '#64748b' }}>/person</span>
+                  </div>
+                  <a href="#" style={{ color: '#2563eb', fontSize: '13px', fontWeight: 'bold', display: 'inline-block', marginTop: '8px', textDecoration: 'none' }}>View dates <i className="fa-solid fa-angle-right"></i></a>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* OFFERS SECTION */}
