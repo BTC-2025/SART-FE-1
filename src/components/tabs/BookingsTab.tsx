@@ -590,14 +590,14 @@ export default function BookingsTab() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
               {[
-                { from: 'Dubai', to: 'Thiruvananthapuram', code: 'DXB - TRV', img: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=500&q=80' },
-                { from: 'Hyderabad', to: 'Chennai', code: 'HYD - MAA', img: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=500&q=80' },
-                { from: 'Dubai', to: 'Hyderabad', code: 'DXB - HYD', img: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=500&q=80' },
-                { from: 'Dubai', to: 'Lucknow', code: 'DXB - LKO', img: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=500&q=80' },
-                { from: 'Bangalore', to: 'Singapore', code: 'BLR - SIN', img: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=500&q=80' },
-                { from: 'Dubai', to: 'Amritsar', code: 'DXB - ATQ', img: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=500&q=80' },
-                { from: 'Chennai', to: 'Mangalore', code: 'MAA - IXE', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=500&q=80' },
-                { from: 'Delhi', to: 'Singapore', code: 'DEL - SIN', img: 'https://images.unsplash.com/photo-1565967511849-76a60a516170?auto=format&fit=crop&w=500&q=80' }
+                { from: 'Dubai', to: 'Thiruvananthapuram', img: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=500&q=80', offer: '15% Off with SBI Card' },
+                { from: 'Hyderabad', to: 'Chennai', img: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=500&q=80', offer: 'Festive Sale: 10% Off' },
+                { from: 'Dubai', to: 'Hyderabad', img: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=500&q=80', offer: 'Flat ₹500 Cashback' },
+                { from: 'Dubai', to: 'Lucknow', img: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=500&q=80', offer: 'Zero Cancellation Fee' },
+                { from: 'Bangalore', to: 'Singapore', img: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=500&q=80', offer: 'Zero Cancellation Fee' },
+                { from: 'Dubai', to: 'Amritsar', img: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=500&q=80', offer: 'Flat ₹500 Cashback' },
+                { from: 'Chennai', to: 'Mangalore', img: 'https://mangalore-tourism.com/wp-content/uploads/2025/07/golden-temple.jpg', offer: 'Flat ₹500 Cashback' },
+                { from: 'Delhi', to: 'Singapore', img: 'https://images.unsplash.com/photo-1565967511849-76a60a516170?auto=format&fit=crop&w=500&q=80', offer: 'Zero Cancellation Fee' }
               ].map((route, i) => (
                 <div key={i} style={{ background: 'white', borderRadius: '0', overflow: 'hidden', border: '1px solid #f1f5f9' }}>
                   <img src={route.img} alt={`${route.from} to ${route.to}`} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
@@ -617,9 +617,11 @@ export default function BookingsTab() {
                       </div>
                     </div>
 
-                    <div style={{ marginTop: '32px', fontSize: '12px', fontWeight: '700', color: '#e11d48', textTransform: 'uppercase' }}>
-                      {route.code}
-                    </div>
+                    {route.offer && (
+                      <div style={{ marginTop: '24px', display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: '#fef2f2', color: '#e11d48', fontSize: '11px', fontWeight: '800', borderRadius: '4px', textTransform: 'uppercase' }}>
+                        <i className="fa-solid fa-tag"></i> {route.offer}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -638,10 +640,10 @@ export default function BookingsTab() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
               {[
-                { title: '2 Nights Weekend Getaway Cruise', ship: 'Navigator of the Seas', loc: 'From Singapore, Singapore', price: '$225 USD', img: 'https://images.unsplash.com/photo-1534008897995-27a23e859048?auto=format&fit=crop&w=400&q=80' },
-                { title: '3 Nights Penang Cruise', ship: 'Navigator of the Seas', loc: 'From Singapore, Singapore', price: '$238 USD', img: 'https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&w=400&q=80' },
-                { title: '3 Nights Penang Cruise', ship: 'Quantum of the Seas', loc: 'From Singapore, Singapore', price: '$269 USD', img: 'https://www.melancong.my/wp-content/uploads/2021/11/Star-Pisces.jpg' },
-                { title: '4 Nights Penang & Phuket Cruise', ship: 'Navigator of the Seas', loc: 'From Singapore, Singapore', price: '$347 USD', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80' }
+                { title: '2 Nights Weekend Getaway Cruise', ship: 'Navigator of the Seas', loc: 'From Singapore, Singapore', price: '₹18,500 /person', img: 'https://images.unsplash.com/photo-1534008897995-27a23e859048?auto=format&fit=crop&w=400&q=80' },
+                { title: '3 Nights Penang Cruise', ship: 'Navigator of the Seas', loc: 'From Singapore, Singapore', price: '₹19,900 /person', img: 'https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&w=400&q=80' },
+                { title: '3 Nights Penang Cruise', ship: 'Quantum of the Seas', loc: 'From Singapore, Singapore', price: '₹22,500 /person', img: 'https://www.melancong.my/wp-content/uploads/2021/11/Star-Pisces.jpg' },
+                { title: '4 Nights Penang & Phuket Cruise', ship: 'Navigator of the Seas', loc: 'From Singapore, Singapore', price: '₹28,500 /person', img: 'https://gangwaze.supabase.co/storage/v1/render/image/public/system/ships/navigator-of-the-seas.jpg?resize=cover&width=1400&height=820&quality=80' }
               ].map((cruise, i) => (
                 <div key={i}>
                   <img src={cruise.img} alt={cruise.title} style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '12px', marginBottom: '12px' }} />
