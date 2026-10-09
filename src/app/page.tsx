@@ -88,13 +88,15 @@ export default function Home() {
         
         {/* Service Sub-Pages (Rendered as Tabs) */}
         <div className={`tab-screen ${['ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking'].includes(activeTab) ? 'active' : ''}`} id="tab-service-pages">
-          <RideBookingModal isOpen={activeTab === 'ride'} onClose={() => setActiveTab('home')} />
-          <CarrierBookingModal isOpen={activeTab === 'carrier'} onClose={() => setActiveTab('home')} />
-          <RentalBookingModal isOpen={activeTab === 'rental'} onClose={() => setActiveTab('home')} />
-          <DriversBookingModal isOpen={activeTab === 'drivers'} onClose={() => setActiveTab('home')} />
-          <CommunityModal isOpen={activeTab === 'community'} onClose={() => setActiveTab('home')} />
-          <MechanicModal isOpen={activeTab === 'mechanic'} onClose={() => setActiveTab('home')} />
-          <ParkingBookingModal isOpen={activeTab === 'parking'} onClose={() => setActiveTab('home')} />
+          <React.Suspense fallback={null}>
+            <RideBookingModal isOpen={activeTab === 'ride'} onClose={() => setActiveTab('home')} />
+            <CarrierBookingModal isOpen={activeTab === 'carrier'} onClose={() => setActiveTab('home')} />
+            <RentalBookingModal isOpen={activeTab === 'rental'} onClose={() => setActiveTab('home')} />
+            <DriversBookingModal isOpen={activeTab === 'drivers'} onClose={() => setActiveTab('home')} />
+            <CommunityModal isOpen={activeTab === 'community'} onClose={() => setActiveTab('home')} />
+            <MechanicModal isOpen={activeTab === 'mechanic'} onClose={() => setActiveTab('home')} />
+            <ParkingBookingModal isOpen={activeTab === 'parking'} onClose={() => setActiveTab('home')} />
+          </React.Suspense>
         </div>
 
         {/* Legacy Universal Modals */}

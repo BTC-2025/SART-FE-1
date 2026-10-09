@@ -156,16 +156,73 @@ function RentalBookingModal({ isOpen, onClose }: RentalBookingModalProps) {
   useEffect(() => {
     const handleUrlState = () => {
       const path = window.location.pathname;
+      
+      let searchParamsObj = new URLSearchParams();
+      if (typeof window !== 'undefined') {
+        searchParamsObj = new URLSearchParams(window.location.search);
+      }
+      
+      const subService = searchParamsObj.get('subService') || (typeof searchParams !== 'undefined' ? searchParams.get('subService') : null);
+      const origin = searchParamsObj.get('origin') || (typeof searchParams !== 'undefined' ? searchParams.get('origin') : null);
+      
+      if (subService || path.includes('-rental') || path.startsWith('/home/rental/')) {
+        let masterId = '';
+        if (subService) {
+          masterId = subService.toLowerCase();
+        } else {
+          const parts = path.split('/');
+          const lastPart = parts[parts.length - 1];
+          if (lastPart && lastPart !== 'rental' && lastPart !== 'home') {
+            masterId = decodeURIComponent(lastPart).replace('-rental', '').toLowerCase();
+          }
+        }
+        
+        if (masterId) {
+          // If the ID matches a master category directly (like 'car', 'bike')
+          let foundMaster = RENTAL_MASTER_CATEGORIES.find(m => m.name.toLowerCase().includes(masterId) || m.id.toLowerCase() === masterId);
+          let foundVehicleId = '';
+          
+          // If not found directly, it might be a specific vehicle ID (like 'r-premium-hatch')
+          if (!foundMaster) {
+            for (const category of RENTAL_MASTER_CATEGORIES) {
+               const vehicleMatch = category.list.find((v: any) => v.id.toLowerCase() === masterId || v.name.toLowerCase().includes(masterId));
+               if (vehicleMatch) {
+                 foundMaster = category;
+                 foundVehicleId = vehicleMatch.id;
+                 break;
+               }
+            }
+          }
+
+          if (foundMaster) {
+             setSelectedMasterId(foundMaster.id);
+             if (foundVehicleId) {
+               setSelectedVehicleId(foundVehicleId);
+             } else if (foundMaster.list.length > 0) {
+               setSelectedVehicleId(foundMaster.list[0].id);
+             }
+             
+             if (origin) setPickup(origin);
+             
+             // Aesthetic URL update
+             if (typeof window !== 'undefined' && path === '/home/rental' && subService) {
+                try {
+                  const cleanName = foundMaster.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                  const nativePushState = Object.getPrototypeOf(window.history).pushState;
+                  nativePushState.call(window.history, null, '', `/home/rental/${cleanName}`);
+                } catch (e) {
+                  // Ignore
+                }
+             }
+             
+             setStep(2);
+             return;
+          }
+        }
+      }
+
       if (path.includes('-checkout')) {
         setStep(3);
-      } else if (path.includes('-rental')) {
-        setStep(2);
-        const parts = path.split('/');
-        if (parts.length > 3) {
-          const name = decodeURIComponent(parts[3].split('-')[0]);
-          const found = RENTAL_MASTER_CATEGORIES.find(m => m.name.startsWith(name) || m.id === name);
-          if (found) setSelectedMasterId(found.id);
-        }
       } else if (path === '/home/rental') {
         setStep(1);
       } else if (path === '/' || path === '/home') {
@@ -216,7 +273,12 @@ function RentalBookingModal({ isOpen, onClose }: RentalBookingModalProps) {
 
   const updateUrl = (path: string) => {
     if (typeof window !== 'undefined') {
-      window.history.pushState(null, '', path);
+      try {
+        const nativePushState = Object.getPrototypeOf(window.history).pushState;
+        nativePushState.call(window.history, null, '', path);
+      } catch (e) {
+        window.history.pushState(null, '', path);
+      }
     }
   };
 

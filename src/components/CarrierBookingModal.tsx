@@ -122,14 +122,56 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
   React.useEffect(() => {
     const handleUrlState = () => {
       const path = window.location.pathname;
-      if (path.startsWith('/home/carrier/')) {
-        const subPath = path.split('/')[3];
-        if (subPath && subPath.includes('-booking')) {
-          setStep(2);
+      
+      let searchParamsObj = new URLSearchParams();
+      if (typeof window !== 'undefined') {
+        searchParamsObj = new URLSearchParams(window.location.search);
+      }
+      
+      // Fallback to Next.js searchParams if native is empty (happens during some router syncs)
+      const subService = searchParamsObj.get('subService') || (typeof searchParams !== 'undefined' ? searchParams.get('subService') : null);
+      const origin = searchParamsObj.get('origin') || (typeof searchParams !== 'undefined' ? searchParams.get('origin') : null);
+      const destination = searchParamsObj.get('destination') || (typeof searchParams !== 'undefined' ? searchParams.get('destination') : null);
+      
+      if (subService || path.startsWith('/home/carrier/')) {
+        let vehicleId = '';
+        if (subService) {
+          vehicleId = subService.toLowerCase();
         } else {
-          setStep(1);
+          const parts = path.split('/');
+          const lastPart = parts[parts.length - 1];
+          if (lastPart && lastPart !== 'carrier') {
+            vehicleId = decodeURIComponent(lastPart).replace('-booking', '').toLowerCase();
+          }
         }
-      } else if (path === '/home/carrier') {
+        
+        if (vehicleId) {
+          const foundVehicle = ALL_CARRIERS.find(v => v.id.toLowerCase() === vehicleId || v.name.toLowerCase().includes(vehicleId));
+          
+          if (foundVehicle) {
+            setSelectedVehicle(foundVehicle.id);
+            
+            // Prefill form
+            if (origin) setPickup(origin);
+            if (destination) setDropoff(destination);
+            
+            // Aesthetic URL update
+            if (typeof window !== 'undefined' && path === '/home/carrier' && subService) {
+               try {
+                 const nativePushState = Object.getPrototypeOf(window.history).pushState;
+                 nativePushState.call(window.history, null, '', `/home/carrier/${foundVehicle.id}`);
+               } catch (e) {
+                 window.history.pushState(null, '', `/home/carrier/${foundVehicle.id}`);
+               }
+            }
+            
+            setStep(2);
+            return;
+          }
+        }
+      }
+
+      if (path === '/home/carrier') {
         setStep(1);
       } else if (path === '/' || path === '/home') {
         const { useSartStore } = require('@/store/useSartStore');
@@ -156,7 +198,12 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
 
   const updateUrl = (path: string) => {
     if (typeof window !== 'undefined') {
-      window.history.pushState(null, '', path);
+      try {
+        const nativePushState = Object.getPrototypeOf(window.history).pushState;
+        nativePushState.call(window.history, null, '', path);
+      } catch (e) {
+        window.history.pushState(null, '', path);
+      }
     }
   };
 
@@ -164,8 +211,8 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
     setSelectedVehicle(vehicle.id);
     setStep(2);
     setCargoWeight('');
-    const cleanName = vehicle.name.split('/')[0].trim();
-    updateUrl(`/home/carrier/${encodeURIComponent(cleanName + '-booking')}`);
+    // Use the ID instead of the complex name for a cleaner URL, similar to RideBookingModal
+    updateUrl(`/home/carrier/${vehicle.id}`);
   };
 
   const handleBackToFleet = () => {

@@ -37,12 +37,18 @@
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Bokspot-inspired Colors & Theme variables */
-  --background: #f9fafb;
+  --background: rgba(238, 253, 255, 0.9);
   /* Light grayish background for UI sheets */
   --surface: #ffffff;
   /* Pure white for cards */
-  --primary-header: #b4cee0;
-  /* Light Sky Blue */
+  --navbar-bg: #0A382C;
+  /* CHANGE MAIN NAVBAR COLOR HERE */
+  --nav-center-bg: #06701d;
+  /* CHANGE CENTER PILL COLOR HERE */
+  --nav-btn-active-bg: #D6EBB7;
+  /* CHANGE ACTIVE BUTTON COLOR HERE */
+  --nav-btn-active-text: #000000;
+  /* CHANGE ACTIVE BUTTON TEXT HERE */
   --header-text: #111827;
   /* Dark text for contrast on light blue */
   --primary: #000000;
@@ -93,7 +99,6 @@ body.light-theme {
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--bg-color);
   color: var(--text-primary);
   min-height: 100vh;
   overflow: hidden;
@@ -141,7 +146,7 @@ h6 {
 /* Premium Top Navigation Bar */
 .web-navbar {
   height: 70px;
-  background: #a0522d;
+  background: var(--navbar-bg) !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
@@ -192,7 +197,7 @@ h6 {
   display: flex;
   gap: 6px;
   height: 44px;
-  background: #8f3636;
+  background: var(--nav-center-bg) !important;
   border-radius: 22px;
   padding: 0 8px;
   align-items: center;
@@ -224,8 +229,8 @@ h6 {
 }
 
 .nav-link.active {
-  color: #ffffff !important;
-  background: #000000 !important;
+  color: var(--nav-btn-active-text) !important;
+  background: var(--nav-btn-active-bg) !important;
 }
 
 /* Nav Actions Right */
@@ -360,6 +365,8 @@ h6 {
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
+  background: var(--background);
+  background-attachment: local;
   -ms-overflow-style: none;
   /* IE and Edge */
   scrollbar-width: none;
@@ -1628,16 +1635,7 @@ h6 {
    BOKSPOT STYLING REDESIGN OVERRIDES
    ============================================================================ */
 
-/* Main Header Overrides */
-.web-navbar {
-  background: var(--primary-header) !important;
-  color: var(--header-text) !important;
-  border-bottom: none !important;
-  height: 72px !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
-  padding: 0 24px !important;
-}
-
+/* Main Header Overrides (Merged to top) */
 /* Brand Logo (White rounded box) */
 .nav-brand {
   background: #ffffff !important;
@@ -1961,11 +1959,7 @@ h6 {
   /* hide the modal header with close button */
 }
 
-/* FINAL DARK THEME OVERRIDES FOR NAVBAR */
-.web-navbar {
-  background: #a0522d !important;
-  color: #ffffff !important;
-}
+/* FINAL DARK THEME OVERRIDES FOR NAVBAR (Merged) */
 
 .wallet-badge {
   background: rgba(255, 255, 255, 0.05) !important;
@@ -1991,17 +1985,22 @@ h6 {
 
 /* === USER REQUESTED COLOR CHANGES === */
 .nav-links {
-  background: #592720 !important;
+  background: var(--nav-center-bg) !important;
 }
 
-.nav-link, .nav-link span {
+.nav-link,
+.nav-link span {
   color: #ffffff !important;
 }
 
-.nav-link.active,
+.nav-link.active {
+  background: var(--nav-btn-active-bg) !important;
+  color: var(--nav-btn-active-text) !important;
+}
+
 .nav-link:hover {
-  background: #cbd5e1 !important;
-  color: #000000 !important;
+  background: transparent !important;
+  color: var(--nav-btn-active-text) !important;
 }
 
 .nav-link.active span,
@@ -2059,42 +2058,46 @@ h6 {
   color: #ffffff !important;
 }
 
-.nav-link.active,
+.nav-link.active {
+  background: var(--nav-btn-active-bg) !important;
+  color: var(--nav-btn-active-text) !important;
+}
+
 .nav-link:hover {
-  background: #1f2937 !important;
-  color: #ffffff !important;
+  background: transparent !important;
+  color: var(--nav-btn-active-text) !important;
 }
 
 /* === REVISED CENTER NAV LINKS BASED ON CLARIFICATION === */
 .nav-link {
   background: transparent !important;
-  color: #000000 !important;
+  color: #ffffff !important;
   box-shadow: none !important;
 }
 
 .nav-link i {
-  color: #000000 !important;
+  color: #ffffff !important;
 }
 
 .nav-link.active {
-  background: #fcf8f0 !important;
-  color: #000000 !important;
+  background: var(--nav-btn-active-bg) !important;
+  color: var(--nav-btn-active-text) !important;
 }
 
 .nav-link.active i {
-  color: #000000 !important;
+  color: var(--nav-btn-active-text) !important;
 }
 
 .nav-link:hover {
   background: transparent !important;
-  color: #000000 !important;
+  color: var(--nav-btn-active-text) !important;
   transform: none !important;
   box-shadow: none !important;
 }
 
 .nav-link.active:hover {
-  background: #fcf8f0 !important;
-  color: #000000 !important;
+  background: var(--nav-btn-active-bg) !important;
+  color: var(--nav-btn-active-text) !important;
 }
 
 /* === REVISED PROFILE NAV BTN === */
