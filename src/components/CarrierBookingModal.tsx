@@ -129,9 +129,9 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
       }
       
       // Fallback to Next.js searchParams if native is empty (happens during some router syncs)
-      const subService = searchParamsObj.get('subService') || (typeof searchParams !== 'undefined' ? searchParams.get('subService') : null);
-      const origin = searchParamsObj.get('origin') || (typeof searchParams !== 'undefined' ? searchParams.get('origin') : null);
-      const destination = searchParamsObj.get('destination') || (typeof searchParams !== 'undefined' ? searchParams.get('destination') : null);
+      const subService = searchParamsObj.get('subService');
+      const origin = searchParamsObj.get('origin');
+      const destination = searchParamsObj.get('destination');
       
       if (subService || path.startsWith('/home/carrier/')) {
         let vehicleId = '';

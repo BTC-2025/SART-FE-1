@@ -162,8 +162,8 @@ function RentalBookingModal({ isOpen, onClose }: RentalBookingModalProps) {
         searchParamsObj = new URLSearchParams(window.location.search);
       }
       
-      const subService = searchParamsObj.get('subService') || (typeof searchParams !== 'undefined' ? searchParams.get('subService') : null);
-      const origin = searchParamsObj.get('origin') || (typeof searchParams !== 'undefined' ? searchParams.get('origin') : null);
+      const subService = searchParamsObj.get('subService');
+      const origin = searchParamsObj.get('origin');
       
       if (subService || path.includes('-rental') || path.startsWith('/home/rental/')) {
         let masterId = '';

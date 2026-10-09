@@ -81,8 +81,8 @@ export default function ParkingBookingModal({ isOpen, onClose }: ParkingBookingM
         searchParamsObj = new URLSearchParams(window.location.search);
       }
       
-      const subService = searchParamsObj.get('subService') || (typeof searchParams !== 'undefined' ? searchParams.get('subService') : null);
-      const origin = searchParamsObj.get('origin') || (typeof searchParams !== 'undefined' ? searchParams.get('origin') : null);
+      const subService = searchParamsObj.get('subService');
+      const origin = searchParamsObj.get('origin');
       
       if (subService || path.includes('-booking') || path.startsWith('/home/parking/')) {
         let vehicleId = '';
