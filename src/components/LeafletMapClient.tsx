@@ -18,9 +18,9 @@ function MapUpdater({ bounds, center }: { bounds: L.LatLngBoundsExpression | nul
   const map = useMap();
   useEffect(() => {
     if (bounds) {
-      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14, animate: false });
     } else if (center) {
-      map.setView(center, 13);
+      map.setView(center, 13, { animate: false });
     }
   }, [bounds, center, map]);
   return null;

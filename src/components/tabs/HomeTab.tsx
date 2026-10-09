@@ -17,10 +17,38 @@ export default function HomeTab() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const carouselSlides = [
-    { id: 1, img: '/slider1.jpg', title: 'FUTURE OF COMMUTE', subtitle: 'Experience autonomous luxury', action: 'ride', btn: 'Book a Ride' },
-    { id: 2, img: '/slider2.jpg', title: 'CYBERNETIC LOGISTICS', subtitle: 'Automated freight & cargo', action: 'carrier', btn: 'Hire Carrier' },
-    { id: 3, img: '/slider3.jpg', title: 'UNLEASH FREEDOM', subtitle: 'Premium rentals for every journey', action: 'rental', btn: 'Rent Vehicle' },
-    { id: 4, img: '/slider4.jpg', title: 'ELITE CHAUFFEURS', subtitle: 'Arrive in ultimate style', action: 'drivers', btn: 'Hire Driver' }
+    {
+      id: 1,
+      img: '/slider4.jpg',
+      title1: 'Universal Mobility.',
+      title2: 'Obsidian Prestige.',
+      subtitle: 'Reserve verified chauffeurs, instant executive sedans, and cargo transport backed by uncompromising luxury standards.',
+      action1: 'drivers', btn1: 'HIRE DRIVER'
+    },
+    {
+      id: 2,
+      img: '/slider1.jpg',
+      title1: 'Future of Commute.',
+      title2: 'Autonomous Luxury.',
+      subtitle: 'Experience the next generation of smart city travel with our premium electric fleet.',
+      action1: 'ride', btn1: 'BOOK A RIDE'
+    },
+    {
+      id: 3,
+      img: '/slider2.jpg',
+      title1: 'Cybernetic Logistics.',
+      title2: 'Automated Freight.',
+      subtitle: 'Seamless intra-city cargo and parcel delivery with real-time tracking.',
+      action1: 'carrier', btn1: 'HIRE CARRIER'
+    },
+    {
+      id: 4,
+      img: '/slider3.jpg',
+      title1: 'Unleash Freedom.',
+      title2: 'Premium Rentals.',
+      subtitle: 'Zero-deposit luxury sedans, SUVs & flexible daily fleet for your every journey.',
+      action1: 'rental', btn1: 'RENT VEHICLE'
+    }
   ];
 
   useEffect(() => {
@@ -51,14 +79,20 @@ export default function HomeTab() {
         {/* Modern Full-Width Carousel */}
         <div className="modern-carousel">
           {carouselSlides.map((slide, index) => (
-            <div key={slide.id} className={`carousel-slide ${index === currentSlide ? 'active' : ''}`} style={{ backgroundImage: `url(${slide.img})` }}>
+            <div key={slide.id} className={`carousel-slide ${index === currentSlide ? 'active' : ''}`} style={{ backgroundImage: `url(${slide.img})`, backgroundColor: '#0c2217' }}>
               <div className="carousel-overlay-gradient"></div>
               <div className="carousel-content">
-                <h2 className="carousel-title">{slide.title}</h2>
+                <h2 className="carousel-title">
+                  <span className="title-white">{slide.title1}</span><br />
+                  <span className="title-gold">{slide.title2}</span>
+                </h2>
                 <p className="carousel-subtitle">{slide.subtitle}</p>
-                <button className="carousel-cta" onClick={() => handleServiceClick(slide.action)}>
-                  {slide.btn} <i className="fa-solid fa-arrow-right"></i>
-                </button>
+
+                <div className="hero-actions">
+                  <button className="carousel-cta btn-primary" onClick={() => handleServiceClick(slide.action1)}>
+                    {slide.btn1} <i className="fa-solid fa-arrow-right"></i>
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -93,59 +127,108 @@ export default function HomeTab() {
       </div> */}
       <div className="home-content-wrapper">
         {/* Quick Services Section */}
-        <section className="quick-services-section">
-          <div className="services-heading">
+        <section className="book-service-section">
+          <div className="book-service-header">
             <h2>Book a Service</h2>
-            <div className="heading-line"></div>
+            <p>Select tailored multi-modal transport and logistics crafted for instant urban mobility.</p>
           </div>
+          <div className="book-service-inner-card">
+            <div className="book-service-grid">
+              {/* 1. Road Rides */}
+              <div className="book-card" onClick={() => handleServiceClick('ride')}>
+                <div className="book-badge badge-green"><i className="fa-solid fa-clock"></i> NEAR YOU IN 2 MINS</div>
+                <h3 className="book-title">Rides</h3>
+                <p className="book-desc">Instant taxi, premium sedans & daily auto commutes.</p>
+                <div className="book-footer">
+                  <div className="book-meta">
+                    <span className="meta-label">Fares starting at</span>
+                    <span className="meta-val">₹49 / km <span className="meta-action">Book Ride <i className="fa-solid fa-chevron-right"></i></span></span>
+                  </div>
+                  <div className="book-icon icon-green"><i className="fa-solid fa-car-side"></i></div>
+                </div>
+              </div>
 
-          <div className="quick-services-strip">
-            {/* Rides */}
-            <div className={`service-card ${activeTab === 'ride' ? 'active' : ''}`} onClick={() => handleServiceClick('ride')}>
-              <div className="service-image-wrapper"><img src="https://img.icons8.com/fluency/96/car.png" alt="Rides"/></div>
-              <span>Rides</span>
-            </div>
+              {/* 2. Cargo & Logistics */}
+              <div className="book-card" onClick={() => handleServiceClick('carrier')}>
+                <div className="book-badge badge-orange"><i className="fa-solid fa-bolt"></i> INSTANT DELIVERY</div>
+                <h3 className="book-title">Cargo & Logistics</h3>
+                <p className="book-desc">Freight trucks, intra-city courier vans & rapid parcel drops.</p>
+                <div className="book-footer">
+                  <div className="book-meta">
+                    <span className="meta-label">Payload Up to</span>
+                    <span className="meta-val">2.5 Tonnes <span className="meta-action">Ship Parcel <i className="fa-solid fa-chevron-right"></i></span></span>
+                  </div>
+                  <div className="book-icon icon-orange"><i className="fa-solid fa-truck-fast"></i></div>
+                </div>
+              </div>
 
-            {/* Carrier */}
-            <div className={`service-card ${activeTab === 'carrier' ? 'active' : ''}`} onClick={() => handleServiceClick('carrier')}>
-              <div className="service-image-wrapper"><img src="https://img.icons8.com/fluency/96/delivery.png" alt="Carrier"/></div>
-              <span>Carrier</span>
-            </div>
+              {/* 3. Vehicle Rental */}
+              <div className="book-card" onClick={() => handleServiceClick('rental')}>
+                <div className="book-badge badge-teal"><i className="fa-solid fa-leaf"></i> SELF-DRIVE & EV</div>
+                <h3 className="book-title">Vehicle Rental</h3>
+                <p className="book-desc">Zero-deposit luxury sedans, SUVs & flexible daily fleet.</p>
+                <div className="book-footer">
+                  <div className="book-meta">
+                    <span className="meta-label">Zero Deposit</span>
+                    <span className="meta-val">₹1,999 / day <span className="meta-action">Rent Car <i className="fa-solid fa-chevron-right"></i></span></span>
+                  </div>
+                  <div className="book-icon icon-teal"><i className="fa-solid fa-key"></i></div>
+                </div>
+              </div>
 
-            {/* Rental */}
-            <div className={`service-card ${activeTab === 'rental' ? 'active' : ''}`} onClick={() => handleServiceClick('rental')}>
-              <div className="service-image-wrapper"><img src="https://img.icons8.com/fluency/96/car-rental.png" alt="Rental"/></div>
-              <span>Rental</span>
-            </div>
+              {/* 4. Drivers Hire */}
+              <div className="book-card" onClick={() => handleServiceClick('drivers')}>
+                <div className="book-badge badge-indigo"><i className="fa-solid fa-user-shield"></i> VERIFIED CHAUFFEURS</div>
+                <h3 className="book-title">Drivers Hire</h3>
+                <p className="book-desc">Acting drivers for your own car. Hourly, round-trip or outstation.</p>
+                <div className="book-footer">
+                  <div className="book-meta">
+                    <span className="meta-label">Certified Pros</span>
+                    <span className="meta-val">₹99 / hr <span className="meta-action">Hire Chauffeur <i className="fa-solid fa-chevron-right"></i></span></span>
+                  </div>
+                  <div className="book-icon icon-indigo"><i className="fa-solid fa-user-tie"></i></div>
+                </div>
+              </div>
 
-            {/* Community */}
-            <div className={`service-card ${activeTab === 'community' ? 'active' : ''}`} onClick={() => handleServiceClick('community')}>
-              <div className="service-image-wrapper"><img src="https://img.icons8.com/fluency/96/conference-call.png" alt="Community"/></div>
-              <span>Community</span>
-            </div>
+              {/* 5. Parking Slots */}
+              <div className="book-card" onClick={() => handleServiceClick('parking')}>
+                <div className="book-badge badge-blue"><i className="fa-solid fa-square-parking"></i> LIVE VACANCY</div>
+                <h3 className="book-title">Parking Slots</h3>
+                <p className="book-desc">Real-time automated parking, valet access & EV charger reservation.</p>
+                <div className="book-footer">
+                  <div className="book-meta">
+                    <span className="meta-label">Availability</span>
+                    <span className="meta-val">142 Slots nearby <span className="meta-action">Reserve Slot <i className="fa-solid fa-chevron-right"></i></span></span>
+                  </div>
+                  <div className="book-icon icon-blue"><i className="fa-solid fa-p"></i></div>
+                </div>
+              </div>
 
-            {/* Parking */}
-            <div className={`service-card ${activeTab === 'parking' ? 'active' : ''}`} onClick={() => handleServiceClick('parking')}>
-              <div className="service-image-wrapper"><img src="https://img.icons8.com/fluency/96/parking.png" alt="Parking"/></div>
-              <span>Parking</span>
-            </div>
-
-            {/* Drivers */}
-            <div className={`service-card ${activeTab === 'drivers' ? 'active' : ''}`} onClick={() => handleServiceClick('drivers')}>
-              <div className="service-image-wrapper"><img src="https://img.icons8.com/fluency/96/driver.png" alt="Drivers"/></div>
-              <span>Drivers</span>
+              {/* 6. Communities */}
+              <div className="book-card" onClick={() => handleServiceClick('community')}>
+                <div className="book-badge badge-pink"><i className="fa-solid fa-users"></i> 10K+ MEMBERS</div>
+                <h3 className="book-title">Communities</h3>
+                <p className="book-desc">Driver association, safety guild, welfare union & civic forums.</p>
+                <div className="book-footer">
+                  <div className="book-meta">
+                    <span className="meta-label">Active Chapters</span>
+                    <span className="meta-val">Chennai Central <span className="meta-action">Join Hub <i className="fa-solid fa-chevron-right"></i></span></span>
+                  </div>
+                  <div className="book-icon icon-pink"><i className="fa-solid fa-users"></i></div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
         <QuickBookingForm />
-        
+
         <OffersSlider />
-        
+
         <WhyChooseUs />
-        
+
         <TravelBlogs />
-        
+
         <TopRoutes />
 
         <div style={{ display: 'grid', gridTemplateColumns: '7fr 5fr', gap: '24px', paddingBottom: '60px' }}>

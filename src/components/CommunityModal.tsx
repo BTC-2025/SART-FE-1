@@ -153,7 +153,12 @@ export default function CommunityModal({ isOpen, onClose }: { isOpen: boolean, o
 
   const updateUrl = (path: string) => {
     if (typeof window !== 'undefined') {
-      window.history.pushState(null, '', path);
+      try {
+        const nativePushState = Object.getPrototypeOf(window.history).pushState;
+        nativePushState.call(window.history, null, '', path);
+      } catch (e) {
+        window.history.pushState(null, '', path);
+      }
     }
   };
 

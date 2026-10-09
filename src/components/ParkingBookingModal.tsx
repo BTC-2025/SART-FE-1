@@ -75,14 +75,51 @@ export default function ParkingBookingModal({ isOpen, onClose }: ParkingBookingM
   useEffect(() => {
     const handleUrlState = () => {
       const path = window.location.pathname;
-      if (path.includes('-booking')) {
-        setStep(2);
-        const parts = path.split('/');
-        const last = parts[parts.length - 1];
-        const name = decodeURIComponent(last.replace('-booking', ''));
-        const found = ALL_PARKING.find(v => v.name.startsWith(name));
-        if (found) setSelectedVehicle(found.id);
-      } else if (path === '/home/parking') {
+      
+      let searchParamsObj = new URLSearchParams();
+      if (typeof window !== 'undefined') {
+        searchParamsObj = new URLSearchParams(window.location.search);
+      }
+      
+      const subService = searchParamsObj.get('subService');
+      const origin = searchParamsObj.get('origin');
+      
+      if (subService || path.includes('-booking') || path.startsWith('/home/parking/')) {
+        let vehicleId = '';
+        if (subService) {
+          vehicleId = subService.toLowerCase();
+        } else {
+          const parts = path.split('/');
+          const lastPart = parts[parts.length - 1];
+          if (lastPart && lastPart !== 'parking' && lastPart !== 'home') {
+            vehicleId = decodeURIComponent(lastPart).replace('-booking', '').toLowerCase();
+          }
+        }
+        
+        if (vehicleId) {
+          const found = ALL_PARKING.find(v => v.id.toLowerCase() === vehicleId || v.name.toLowerCase().includes(vehicleId));
+          
+          if (found) {
+             setSelectedVehicle(found.id);
+             if (origin) setPickup(origin);
+             
+             // Aesthetic URL update
+             if (typeof window !== 'undefined' && path === '/home/parking' && subService) {
+                try {
+                  const nativePushState = Object.getPrototypeOf(window.history).pushState;
+                  nativePushState.call(window.history, null, '', `/home/parking/${found.id}`);
+                } catch (e) {
+                  window.history.pushState(null, '', `/home/parking/${found.id}`);
+                }
+             }
+             
+             setStep(2);
+             return;
+          }
+        }
+      }
+
+      if (path === '/home/parking') {
         setStep(1);
       }
     };
@@ -158,7 +195,12 @@ export default function ParkingBookingModal({ isOpen, onClose }: ParkingBookingM
 
   const updateUrl = (path: string) => {
     if (typeof window !== 'undefined') {
-      window.history.pushState(null, '', path);
+      try {
+        const nativePushState = Object.getPrototypeOf(window.history).pushState;
+        nativePushState.call(window.history, null, '', path);
+      } catch (e) {
+        window.history.pushState(null, '', path);
+      }
     }
   };
 

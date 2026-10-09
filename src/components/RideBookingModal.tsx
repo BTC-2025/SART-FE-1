@@ -2,10 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 const LiveTrackerMap = dynamic(
   () => import('./LeafletMapClient'),
-  { ssr: false }
+  { 
+    ssr: false,
+    loading: () => <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6', fontWeight: 600, color: '#6b7280' }}>Loading Map...</div>
+  }
 );
 
 // Step 1: Master Categories
@@ -123,20 +127,61 @@ export default function RideBookingModal({ isOpen, onClose }: { isOpen: boolean,
     return () => clearTimeout(timer);
   }, [isFindingDriver, isDriverFound]);
 
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  
   React.useEffect(() => {
     const handleReset = () => setStep(1);
     
     const handleUrlState = () => {
       const path = window.location.pathname;
-      if (path.startsWith('/home/rides/')) {
-        const masterId = decodeURIComponent(path.split('/rides/')[1]).toLowerCase();
+      const urlParams = new URLSearchParams(window.location.search);
+      const subService = urlParams.get('subService') || searchParams.get('subService');
+      const origin = urlParams.get('origin') || searchParams.get('origin');
+      const destination = urlParams.get('destination') || searchParams.get('destination');
+      const date = urlParams.get('date') || searchParams.get('date');
+
+      if (subService || path.startsWith('/home/rides/') || path.startsWith('/home/ride/')) {
+        let masterId = '';
+        if (subService) {
+          masterId = subService.toLowerCase();
+        } else {
+          // Extract the last part of the path
+          const parts = path.split('/');
+          const lastPart = parts[parts.length - 1];
+          // If it's not 'ride' or 'rides', it must be the vehicle id
+          if (lastPart !== 'ride' && lastPart !== 'rides') {
+             masterId = decodeURIComponent(lastPart).toLowerCase();
+          }
+        }
+        
         if (masterId) {
           const foundMaster = MASTER_CATEGORIES.find(m => m.name.toLowerCase().includes(masterId) || m.id === masterId);
-          if (foundMaster) {
-            setSelectedMasterId(foundMaster.id);
-            const vehicles = VEHICLE_DATABASE[foundMaster.id] || VEHICLE_DATABASE['car'];
+          if (foundMaster || VEHICLE_DATABASE[masterId]) {
+            const finalId = foundMaster ? foundMaster.id : masterId;
+            setSelectedMasterId(finalId);
+            
+            // Prefill form
+            if (origin) setPickup(origin);
+            if (destination) setDropoff(destination);
+            if (date) {
+              setPickupDate(date);
+              setScheduleType('Later');
+            }
+
+            const vehicles = VEHICLE_DATABASE[finalId] || VEHICLE_DATABASE['car'];
             setRelatedVehicles(vehicles);
             if (vehicles.length > 0 && !selectedVehicleId) setSelectedVehicleId(vehicles[0].id);
+            // Aesthetic URL update
+            if (typeof window !== 'undefined' && path === '/home/ride' && subService) {
+               try {
+                 const nativePushState = Object.getPrototypeOf(window.history).pushState;
+                 nativePushState.call(window.history, null, '', `/home/ride/${finalId}`);
+               } catch (e) {
+                 window.history.pushState(null, '', `/home/ride/${finalId}`);
+               }
+            }
+            
             setStep(2);
             return;
           }
@@ -162,13 +207,21 @@ export default function RideBookingModal({ isOpen, onClose }: { isOpen: boolean,
       window.removeEventListener('resetModalSteps', handleReset);
       window.removeEventListener('popstate', handleUrlState);
     };
-  }, [isOpen]);
+  }, [isOpen, searchParams, pathname]);
+
+  const router = useRouter();
 
   if (!isOpen) return null;
 
   const updateUrl = (path: string) => {
     if (typeof window !== 'undefined') {
-      window.history.pushState(null, '', path);
+      try {
+        // Bypass Next.js router monkey-patch to prevent it from reverting our URL
+        const nativePushState = Object.getPrototypeOf(window.history).pushState;
+        nativePushState.call(window.history, null, '', path);
+      } catch (e) {
+        window.history.pushState(null, '', path);
+      }
     }
   };
 
@@ -181,7 +234,7 @@ export default function RideBookingModal({ isOpen, onClose }: { isOpen: boolean,
     setDropoff('');
     setStops([]);
     setStep(2);
-    updateUrl(`/home/rides/${encodeURIComponent(master.id)}`);
+    updateUrl(`/home/ride/${encodeURIComponent(master.id)}`);
   };
 
   const handleBackToFleet = () => {
@@ -191,7 +244,7 @@ export default function RideBookingModal({ isOpen, onClose }: { isOpen: boolean,
 
   const handleClose = () => {
     setStep(1);
-    updateUrl('/');
+    updateUrl('/home');
     onClose();
   };
 
