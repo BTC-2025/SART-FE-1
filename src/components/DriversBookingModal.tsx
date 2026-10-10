@@ -169,11 +169,12 @@ export default function DriversBookingModal({ isOpen, onClose }: DriversBookingM
     }
     const fetchSuggestions = async () => {
       try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&countrycodes=in&limit=5&q=${encodeURIComponent(pickup)}`);
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&countrycodes=in&limit=5&q=${encodeURIComponent(pickup)}&email=demo@sart.com`);
         const data = await res.json();
         setSuggestions(data);
       } catch (e) {
-        console.error("Failed to fetch suggestions", e);
+        // Suppress console.error to prevent Next.js dev overlay on rate limit/CORS errors
+        console.warn("Failed to fetch suggestions:", e);
       }
     };
     const timer = setTimeout(fetchSuggestions, 500);

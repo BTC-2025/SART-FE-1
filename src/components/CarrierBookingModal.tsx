@@ -520,7 +520,68 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
               ) : (
                 <div style={{ flex: 1, padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 
-                {/* 1. Cargo Details */}
+                {/* 2. Route & Locations (Moved Top) */}
+                <div>
+                  <h3 style={{ fontSize: '15px', fontWeight: '800', color: '#111827', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }}>
+                    <span><i className={`fa-solid ${routeIcon}`} style={{ color: '#f59e0b' }}></i> {routeTitle}</span>
+                    <button onClick={handleSwap} style={{ background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '4px 10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', color: '#4b5563', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <i className="fa-solid fa-arrow-right-arrow-left fa-rotate-90"></i> Swap
+                    </button>
+                  </h3>
+                  <div style={{ position: 'relative', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '16px', background: '#ffffff', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+                      <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10b981', marginRight: '16px', flexShrink: 0 }}></div>
+                      <div style={{ flex: 1, position: 'relative' }}>
+                        <div style={{ fontSize: '11px', fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', marginBottom: '2px' }}>Pickup (Sender)</div>
+                        <input 
+                          type="text" 
+                          placeholder={pickupLabel} 
+                          value={pickup} 
+                          onChange={e => {
+                            setPickup(e.target.value);
+                            setShowLocationList(e.target.value.length > 1);
+                            setIsSearching(false);
+                          }} 
+                          style={{ border: 'none', background: 'transparent', width: '100%', fontSize: '15px', fontWeight: '600', color: '#111827', outline: 'none' }} 
+                        />
+                        {showLocationList && pickup.length > 1 && (
+                          <div style={{ position: 'absolute', top: '100%', left: '0', right: '0', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 10, overflow: 'hidden', marginTop: '8px' }}>
+                            <div onClick={() => { setPickup(getFilteredCities(pickup) + (mode === 'AIR' ? ' Airport' : (mode === 'SEA' ? ' Port' : ' Industrial Estate'))); setShowLocationList(false); setIsSearching(false); }} style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', fontSize: '14px', fontWeight: '600' }}><i className={`fa-solid ${routeIcon}`} style={{ color: '#9ca3af', marginRight: '8px' }}></i> {getFilteredCities(pickup)} {mode === 'AIR' ? 'Airport' : (mode === 'SEA' ? 'Port' : 'Industrial Estate')}</div>
+                            <div onClick={() => { setPickup(getFilteredCities(pickup) + ' City Center'); setShowLocationList(false); setIsSearching(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}><i className="fa-solid fa-city" style={{ color: '#9ca3af', marginRight: '8px' }}></i> {getFilteredCities(pickup)} City Center</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div style={{ borderLeft: '2px dashed #e5e7eb', marginLeft: '4px', height: '24px', marginBottom: '12px' }}></div>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <div style={{ width: '10px', height: '10px', background: '#ef4444', marginRight: '16px', flexShrink: 0 }}></div>
+                      <div style={{ flex: 1, position: 'relative' }}>
+                        <div style={{ fontSize: '11px', fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', marginBottom: '2px' }}>Dropoff (Receiver)</div>
+                        <input 
+                          type="text" 
+                          placeholder={dropoffLabel} 
+                          value={dropoff} 
+                          onChange={e => {
+                            setDropoff(e.target.value);
+                            setShowDropoffList(e.target.value.length > 1);
+                            setIsSearching(false);
+                          }} 
+                          style={{ border: 'none', background: 'transparent', width: '100%', fontSize: '15px', fontWeight: '600', color: '#111827', outline: 'none' }} 
+                        />
+                        {showDropoffList && dropoff.length > 1 && (
+                          <div style={{ position: 'absolute', top: '100%', left: '0', right: '0', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 10, overflow: 'hidden', marginTop: '8px' }}>
+                            <div onClick={() => { setDropoff(getFilteredCities(dropoff) + (mode === 'AIR' ? ' Airport' : (mode === 'SEA' ? ' Port' : ' Industrial Estate'))); setShowDropoffList(false); setIsSearching(false); }} style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', fontSize: '14px', fontWeight: '600' }}><i className={`fa-solid ${routeIcon}`} style={{ color: '#9ca3af', marginRight: '8px' }}></i> {getFilteredCities(dropoff)} {mode === 'AIR' ? 'Airport' : (mode === 'SEA' ? 'Port' : 'Industrial Estate')}</div>
+                            <div onClick={() => { setDropoff(getFilteredCities(dropoff) + ' City Center'); setShowDropoffList(false); setIsSearching(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}><i className="fa-solid fa-city" style={{ color: '#9ca3af', marginRight: '8px' }}></i> {getFilteredCities(dropoff)} City Center</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 1. Cargo Details (Moved Bottom) */}
                 <div>
                   <h3 style={{ fontSize: '15px', fontWeight: '800', color: '#111827', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <i className="fa-solid fa-box-open" style={{ color: '#0ea5e9' }}></i> Cargo Details
@@ -585,67 +646,6 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
                         <i className="fa-solid fa-circle-exclamation"></i> {weightError}
                       </div>
                     )}
-                  </div>
-                </div>
-
-                {/* 2. Route & Locations */}
-                <div>
-                  <h3 style={{ fontSize: '15px', fontWeight: '800', color: '#111827', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }}>
-                    <span><i className={`fa-solid ${routeIcon}`} style={{ color: '#f59e0b' }}></i> {routeTitle}</span>
-                    <button onClick={handleSwap} style={{ background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '4px 10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', color: '#4b5563', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <i className="fa-solid fa-arrow-right-arrow-left fa-rotate-90"></i> Swap
-                    </button>
-                  </h3>
-                  <div style={{ position: 'relative', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '16px', background: '#ffffff', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-                      <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10b981', marginRight: '16px', flexShrink: 0 }}></div>
-                      <div style={{ flex: 1, position: 'relative' }}>
-                        <div style={{ fontSize: '11px', fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', marginBottom: '2px' }}>Pickup (Sender)</div>
-                        <input 
-                          type="text" 
-                          placeholder={pickupLabel} 
-                          value={pickup} 
-                          onChange={e => {
-                            setPickup(e.target.value);
-                            setShowLocationList(e.target.value.length > 1);
-                            setIsSearching(false);
-                          }} 
-                          style={{ border: 'none', background: 'transparent', width: '100%', fontSize: '15px', fontWeight: '600', color: '#111827', outline: 'none' }} 
-                        />
-                        {showLocationList && pickup.length > 1 && (
-                          <div style={{ position: 'absolute', top: '100%', left: '0', right: '0', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 10, overflow: 'hidden', marginTop: '8px' }}>
-                            <div onClick={() => { setPickup(getFilteredCities(pickup) + (mode === 'AIR' ? ' Airport' : (mode === 'SEA' ? ' Port' : ' Industrial Estate'))); setShowLocationList(false); setIsSearching(false); }} style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', fontSize: '14px', fontWeight: '600' }}><i className={`fa-solid ${routeIcon}`} style={{ color: '#9ca3af', marginRight: '8px' }}></i> {getFilteredCities(pickup)} {mode === 'AIR' ? 'Airport' : (mode === 'SEA' ? 'Port' : 'Industrial Estate')}</div>
-                            <div onClick={() => { setPickup(getFilteredCities(pickup) + ' City Center'); setShowLocationList(false); setIsSearching(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}><i className="fa-solid fa-city" style={{ color: '#9ca3af', marginRight: '8px' }}></i> {getFilteredCities(pickup)} City Center</div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div style={{ borderLeft: '2px dashed #e5e7eb', marginLeft: '4px', height: '24px', marginBottom: '12px' }}></div>
-                    
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <div style={{ width: '10px', height: '10px', background: '#ef4444', marginRight: '16px', flexShrink: 0 }}></div>
-                      <div style={{ flex: 1, position: 'relative' }}>
-                        <div style={{ fontSize: '11px', fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', marginBottom: '2px' }}>Dropoff (Receiver)</div>
-                        <input 
-                          type="text" 
-                          placeholder={dropoffLabel} 
-                          value={dropoff} 
-                          onChange={e => {
-                            setDropoff(e.target.value);
-                            setShowDropoffList(e.target.value.length > 1);
-                            setIsSearching(false);
-                          }} 
-                          style={{ border: 'none', background: 'transparent', width: '100%', fontSize: '15px', fontWeight: '600', color: '#111827', outline: 'none' }} 
-                        />
-                        {showDropoffList && dropoff.length > 1 && (
-                          <div style={{ position: 'absolute', top: '100%', left: '0', right: '0', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 10, overflow: 'hidden', marginTop: '8px' }}>
-                            <div onClick={() => { setDropoff(getFilteredCities(dropoff) + (mode === 'AIR' ? ' Airport' : (mode === 'SEA' ? ' Port' : ' Industrial Estate'))); setShowDropoffList(false); setIsSearching(false); }} style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', fontSize: '14px', fontWeight: '600' }}><i className={`fa-solid ${routeIcon}`} style={{ color: '#9ca3af', marginRight: '8px' }}></i> {getFilteredCities(dropoff)} {mode === 'AIR' ? 'Airport' : (mode === 'SEA' ? 'Port' : 'Industrial Estate')}</div>
-                            <div onClick={() => { setDropoff(getFilteredCities(dropoff) + ' City Center'); setShowDropoffList(false); setIsSearching(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}><i className="fa-solid fa-city" style={{ color: '#9ca3af', marginRight: '8px' }}></i> {getFilteredCities(dropoff)} City Center</div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
                   </div>
                 </div>
 
