@@ -43,7 +43,7 @@ export default function LeafletMapClient({ vehicleIconClass, pickup = 'Chennai',
       try {
         const getGeo = async (query: string) => {
           if (!query || query === 'Current Location') query = 'Chennai';
-          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`);
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}&email=demo@sart.com`);
           const data = await res.json();
           if (data && data.length > 0) return [parseFloat(data[0].lat), parseFloat(data[0].lon)] as [number, number];
           return null;

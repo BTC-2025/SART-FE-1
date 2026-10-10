@@ -11,6 +11,7 @@ import OffersSlider from '@/components/OffersSlider';
 import TravelBlogs from '@/components/TravelBlogs';
 import TopRoutes from '@/components/TopRoutes';
 import WhyChooseUs from '@/components/WhyChooseUs';
+import CommunityVoices from '@/components/CommunityVoices';
 import './HomeTab.css';
 
 export default function HomeTab() {
@@ -230,6 +231,8 @@ export default function HomeTab() {
         <TravelBlogs />
 
         <TopRoutes />
+
+        <CommunityVoices />
 
         <div style={{ display: 'grid', gridTemplateColumns: '7fr 5fr', gap: '24px', paddingBottom: '60px' }}>
           <MapEngine />
