@@ -42,7 +42,8 @@ const DEFAULT_STATE: AppState = {
   ],
   location: "Indiranagar, Bengaluru",
   activeBookingId: null,
-  activeTab: 'home'
+  activeTab: 'home',
+  activeRideMode: 'train'
 };
 
 interface SartStore extends AppState {
@@ -58,6 +59,7 @@ interface SartStore extends AppState {
   setLocation: (loc: string) => void;
   setActiveBookingId: (id: string | null) => void;
   setActiveTab: (tab: string) => void;
+  setActiveRideMode: (mode: 'bike' | 'auto' | 'car' | 'bus' | 'train' | 'flight') => void;
 }
 
 export const useSartStore = create<SartStore>()(
@@ -163,6 +165,8 @@ export const useSartStore = create<SartStore>()(
           }
         }
       },
+
+      setActiveRideMode: (mode) => set({ activeRideMode: mode }),
     }),
     {
       name: 'sart-storage-v2', // unique name

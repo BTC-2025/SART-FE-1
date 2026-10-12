@@ -155,21 +155,28 @@
   transform: scale(1.05);
 }
 
-/* Mode Tabs (Train / Bus) */
+/* Mode Tabs (Bike / Auto / Car / Bus / Train) */
 .tb-mode-tabs {
   display: flex;
+  align-items: center;
   border-top: 1px solid #f1f5f9;
   background: #fafafa;
   border-bottom-left-radius: 14px;
   border-bottom-right-radius: 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tb-mode-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .tb-mode-tab {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 12px 32px;
+  gap: 8px;
+  padding: 13px 28px;
   font-size: 14px;
   font-weight: 700;
   color: #64748b;
@@ -178,6 +185,12 @@
   cursor: pointer;
   position: relative;
   transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tb-mode-tab:hover {
+  color: #0f172a;
+  background: rgba(0, 0, 0, 0.02);
 }
 
 .tb-mode-tab.active {
@@ -227,8 +240,8 @@
 /* ---------------- Layout: Left Filter + Right Results ---------------- */
 .tb-main-grid {
   display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 24px;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 20px;
   align-items: start;
 }
 
@@ -345,6 +358,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
 }
 
 /* Date Strip Carousel */
@@ -603,6 +617,9 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
@@ -669,14 +686,21 @@
   margin: 4px 0;
 }
 
+.tb-station-tags-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
 .tb-station-tag {
   display: inline-block;
-  padding: 2px 8px;
-  border-radius: 12px;
+  padding: 3px 10px;
+  border-radius: 6px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   background: #e0f2fe;
-  color: #0369a1;
+  color: #0284c7;
   width: fit-content;
 }
 
@@ -693,10 +717,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #fee2e2;
-  color: #991b1b;
-  padding: 8px 16px;
-  border-radius: 20px;
+  background: #fde2dc;
+  color: #0f172a;
+  padding: 9px 18px;
+  border-radius: 24px;
   font-size: 13px;
   font-weight: 700;
   border: none;
@@ -706,40 +730,93 @@
 }
 
 .tb-view-route-btn:hover {
-  background: #fecaca;
-  color: #7f1d1d;
+  background: #fbc7bc;
   transform: translateY(-1px);
 }
 
-/* Availability Classes Row */
-.tb-classes-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 12px;
+/* ---------------- Classes Container & Scrollable Row (Image 1 & Image 2) ---------------- */
+.tb-classes-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
+.tb-classes-scrollable-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 16px 46px 6px 2px;
+  scrollbar-width: none;
+  width: 100%;
+  min-width: 0;
+  scroll-behavior: smooth;
+}
+
+.tb-classes-scrollable-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* Individual Class Card Wrapper */
+.tb-class-card-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 132px;
+  min-width: 132px;
+  cursor: pointer;
+}
+
+/* Tatkal Curved Badge (Image 2) */
+.tb-tatkal-badge {
+  position: absolute;
+  top: -14px;
+  left: 2px;
+  background: #b45309;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  box-shadow: 0 2px 4px rgba(180, 83, 9, 0.25);
+  z-index: 2;
+  line-height: 1.2;
+}
+
+/* Class Card Solid Box */
 .tb-class-card {
   display: flex;
   flex-direction: column;
   border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  overflow: hidden;
   background: #ffffff;
-  padding: 8px 10px;
-  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease;
 }
 
 .tb-class-card:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.12);
   transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
 .tb-class-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  padding: 6px 10px;
+}
+
+.tb-header-avail {
+  background: #a7f3d0; /* Exact mint green from Image 1 & 2 */
+}
+
+.tb-header-wl {
+  background: #fed7aa; /* Exact pastel peach/coral from Image 1 */
 }
 
 .tb-class-code {
@@ -755,16 +832,18 @@
 }
 
 .tb-class-status-box {
-  padding: 10px 8px;
-  border-radius: 6px;
+  padding: 14px 8px;
   text-align: center;
   font-size: 13px;
   font-weight: 800;
-  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
 }
 
 .tb-status-available {
-  background: #dcfce7;
+  background: #e8f7ee;
   color: #15803d;
 }
 
@@ -773,15 +852,340 @@
   color: #c2410c;
 }
 
+.tb-status-update {
+  background: #e8f7ee;
+  color: #0f172a;
+}
+
 .tb-status-regret {
   background: #fee2e2;
   color: #b91c1c;
 }
 
+.tb-update-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tb-update-content span {
+  text-decoration: underline;
+}
+
+.tb-rotate-icon {
+  font-size: 14px;
+  color: #0f172a;
+}
+
 .tb-updated-time {
-  font-size: 10px;
-  color: #94a3b8;
+  font-size: 11px;
+  color: #64748b;
   text-align: center;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* Floating Circular Right Arrow Button (Image 2) */
+.tb-class-scroll-arrow-btn {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0f172a;
+  font-size: 15px;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 0.2s ease;
+}
+
+.tb-class-scroll-arrow-btn:hover {
+  background: #f8fafc;
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+.tb-class-scroll-arrow-btn.active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+/* ---------------- Expanded Train Details Drawer ---------------- */
+.tb-expanded-train-drawer {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeInDrawer 0.25s ease;
+}
+
+@keyframes fadeInDrawer {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tb-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 12px;
+}
+
+.tb-drawer-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tb-drawer-title i {
+  color: #2563eb;
+}
+
+.tb-drawer-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tb-info-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tb-info-chip.green {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.tb-info-chip.blue {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.tb-info-chip.purple {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+/* Coach Track Visuals */
+.tb-coaches-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tb-section-subhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  gap: 6px;
+}
+
+.tb-subhead-hint {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.tb-coaches-track {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 6px 2px;
+  scrollbar-width: thin;
+}
+
+.tb-coach-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 68px;
+  padding: 8px 6px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.15s ease;
+}
+
+.tb-coach-block:hover {
+  transform: translateY(-2px);
+  border-color: #2563eb;
+  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.15);
+}
+
+.tb-coach-block.coach-loco {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.tb-coach-block.coach-sl {
+  background: #ecfdf5;
+  border-color: #86efac;
+}
+
+.tb-coach-block.coach-3a,
+.tb-coach-block.coach-3e {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+}
+
+.tb-coach-block.coach-2a {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+.tb-coach-block.coach-1a {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.tb-coach-block.coach-pc {
+  background: #fae8ff;
+  border-color: #f0abfc;
+}
+
+.tb-coach-block.coach-slr,
+.tb-coach-block.coach-2s {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.tb-coach-code {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.tb-coach-name {
+  font-size: 9px;
+  color: #64748b;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+/* Halts & Amenities Grid */
+.tb-drawer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .tb-drawer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tb-drawer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tb-halts-preview-list {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tb-halt-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 4px 0;
+  border-bottom: 1px dashed #f1f5f9;
+}
+
+.tb-halt-row:last-child {
+  border-bottom: none;
+}
+
+.tb-halt-station {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tb-halt-timing {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.tb-halt-duration {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0284c7;
+  background: #e0f2fe;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.tb-amenities-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tb-amenity-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.tb-amenity-tag i {
+  color: #dc2626;
+  font-size: 12px;
 }
 
 /* ---------------- Responsive ---------------- */

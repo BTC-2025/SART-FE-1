@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import { useSartStore } from '@/store/useSartStore';
 import RideBookingModal from '@/components/RideBookingModal';
+import { getRideModeFromPath } from '@/components/TrainBookingView';
 import CarrierBookingModal from '@/components/CarrierBookingModal';
 import RentalBookingModal from '@/components/RentalBookingModal';
 import UniversalModals from '@/components/modals/UniversalModals';
@@ -24,7 +25,7 @@ import ParkingBookingModal from '@/components/ParkingBookingModal';
 import CartModal from '@/components/CartModal';
 
 export default function Home() {
-  const { activeTab, setActiveTab } = useSartStore();
+  const { activeTab, setActiveTab, setActiveRideMode } = useSartStore();
   const [isCityModalOpen, setIsCityModalOpen] = useState(false);
   const [isBookingsModalOpen, setIsBookingsModalOpen] = useState(false);
 
@@ -36,9 +37,9 @@ export default function Home() {
         setIsBookingsModalOpen(true);
       }
     };
-    
+
     window.addEventListener('openReactModal', handleOpenModal);
-    
+
     return () => {
       window.removeEventListener('openReactModal', handleOpenModal);
     };
@@ -49,18 +50,22 @@ export default function Home() {
   // Handle URL parsing on mount and route changes (Next.js App Router)
   useEffect(() => {
     if (!pathname) return;
-    
+
     if (pathname === '/' || pathname === '/home') {
       setActiveTab('home');
     } else if (pathname.startsWith('/home/')) {
       const parts = pathname.split('/');
       let tab = parts[2]; // e.g., 'ride', 'carrier'
-      
+
       // Handle plural vs singular mismatches
       if (tab === 'rides') tab = 'ride';
 
       if (['ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking'].includes(tab)) {
         setActiveTab(tab as any);
+        if (tab === 'ride') {
+          const mode = getRideModeFromPath(pathname);
+          setActiveRideMode(mode);
+        }
       }
     } else if (pathname.startsWith('/booking/')) {
       setActiveTab('booking');
@@ -76,7 +81,7 @@ export default function Home() {
   return (
     <div className="web-app-layout">
       <Navbar />
-      
+
       <main className="web-main-content">
         <HomeTab />
         <StoreTab />
@@ -85,7 +90,7 @@ export default function Home() {
         <ProfileTab />
         <SupportTab />
         <FavoritesTab />
-        
+
         {/* Service Sub-Pages (Rendered as Tabs) */}
         <div className={`tab-screen ${['ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking'].includes(activeTab) ? 'active' : ''}`} id="tab-service-pages">
           <React.Suspense fallback={null}>

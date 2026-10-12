@@ -1,0 +1,4866 @@
+/* Bus Booking View Scoped Styles */
+.bb-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+/* Promotional Cards Strip */
+.bb-promo-strip {
+  display: grid;
+  grid-templateColumns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+  margin-bottom: 24px;
+}
+
+.bb-promo-card {
+  padding: 16px 20px;
+  border-radius: 12px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 90px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+
+.bb-card-brics {
+  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+}
+
+.bb-card-discount {
+  background: linear-gradient(135deg, #b91c1c, #ef4444);
+}
+
+.bb-card-primo {
+  background: linear-gradient(135deg, #047857, #10b981);
+}
+
+.bb-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.bb-card-title {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+}
+
+.bb-card-sub {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.bb-badge-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.bb-code-tag {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: #ffffff;
+  color: #b91c1c;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* Bus Filter Row */
+.bb-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  background: #ffffff;
+  padding: 14px 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 20px;
+}
+
+.bb-filter-chip {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.bb-filter-chip:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.bb-filter-chip.active {
+  background: #fee2e2;
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+/* Bus Card Layout matching RedBus FRESHBUS reference */
+.bb-bus-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease;
+}
+
+.bb-bus-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Pink Trip Reward Strip */
+.bb-trip-reward-strip {
+  background: #fdf2f8;
+  color: #db2777;
+  padding: 6px 20px;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #fce7f3;
+}
+
+/* Main Bus Card Body */
+.bb-bus-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.bb-operator-section {
+  flex: 1 1 260px;
+}
+
+.bb-operator-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.bb-bus-type {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+/* Stacked Rating Badge */
+.bb-rating-badge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #15803d;
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.bb-rating-count {
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+/* Schedule section */
+.bb-schedule-section {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex: 1 1 320px;
+}
+
+.bb-time-block {
+  text-align: left;
+}
+
+.bb-time-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-loc-val {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.bb-duration-block {
+  text-align: center;
+  font-size: 12px;
+  color: #64748b;
+  min-width: 90px;
+}
+
+.bb-duration-line {
+  height: 2px;
+  background: #cbd5e1;
+  margin: 6px 0;
+  position: relative;
+}
+
+/* Pricing and CTA Button */
+.bb-price-section {
+  text-align: right;
+  flex: 0 0 160px;
+}
+
+.bb-price-val {
+  font-size: 24px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.bb-price-sub {
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
+.bb-view-seats-btn {
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+}
+
+.bb-view-seats-btn:hover {
+  background: #b91c1c;
+}
+
+/* Bottom Links Bar */
+.bb-bus-footer-links {
+  background: #f8fafc;
+  padding: 10px 24px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 12px;
+  color: #475569;
+}
+
+.bb-footer-link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.bb-footer-link:hover,
+.bb-footer-link.active {
+  color: #dc2626;
+}
+
+/* Expandable Drawer */
+.bb-expanded-drawer {
+  background: #ffffff;
+  padding: 18px 24px;
+  border-top: 1px dashed #cbd5e1;
+  font-size: 13px;
+  color: #334155;
+}
+
+/* 0. Top Breadcrumb Bar */
+.bb-top-breadcrumb-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 4px 16px 4px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 16px;
+}
+
+.bb-breadcrumb-back-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #334155;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.bb-breadcrumb-back-btn:hover {
+  background: #f1f5f9;
+}
+
+.bb-breadcrumb-title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-breadcrumb-cities {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+}
+
+.bb-breadcrumb-sub {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Horizontal Date Calendar Strip (Exact Image 2 Reference) */
+.bb-calendar-strip-container {
+  display: flex;
+  align-items: stretch;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+  gap: 12px;
+}
+
+.bb-cal-month-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 14px;
+  border-right: 1.5px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.bb-cal-month-title {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  color: #475569;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.bb-cal-dates-track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+  padding: 4px 2px;
+}
+
+.bb-cal-dates-track::-webkit-scrollbar {
+  display: none;
+}
+
+.bb-cal-date-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  padding: 8px 6px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.bb-cal-date-card:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.bb-cal-date-card.active {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  box-shadow: 0 2px 6px rgba(225, 29, 72, 0.08);
+}
+
+.bb-cal-badge-wrap {
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.bb-cal-dash {
+  display: inline-block;
+  width: 14px;
+  height: 3.5px;
+  border-radius: 2px;
+}
+
+.bb-cal-dash.green {
+  background: #16a34a;
+}
+
+.bb-cal-dash.orange {
+  background: #ea580c;
+}
+
+.bb-cal-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.bb-cal-circle.red {
+  background: #dc2626;
+}
+
+.bb-cal-circle.brown {
+  background: #9a3412;
+}
+
+.bb-cal-day-num {
+  font-size: 16px;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+.bb-cal-weekday {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.bb-cal-date-card.active .bb-cal-weekday {
+  color: #be123c;
+  font-weight: 700;
+}
+
+/* 1. Promotional Tiles Row (Exact Image 3 Reference) */
+.bb-promo-tiles-row {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  scrollbar-width: none;
+}
+
+.bb-promo-tiles-row.in-results {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  overflow-x: visible;
+  padding-bottom: 4px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 1200px) {
+  .bb-promo-tiles-row.in-results {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .bb-promo-tiles-row.in-results {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bb-promo-tiles-row::-webkit-scrollbar {
+  display: none;
+}
+
+.bb-promo-tile {
+  min-width: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.bb-promo-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.bb-tile-all {
+  border-color: #fecdd3;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.bb-tile-all.active {
+  border: 1.5px solid #fda4af;
+}
+
+.bb-tile-circle-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #ffe4e6;
+  color: #e11d48;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.bb-tile-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* Primo Image 3 Card */
+.bb-tile-primo-img3 {
+  background: #1e3a8a;
+  border: 1px solid #172554;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 10px 14px;
+  gap: 4px;
+}
+
+.bb-primo-gold-block {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bb-primo-word {
+  font-size: 20px;
+  font-weight: 900;
+  color: #fbbf24;
+  letter-spacing: -0.5px;
+  font-style: italic;
+}
+
+.bb-primo-star-icon {
+  color: #fbbf24;
+  font-size: 15px;
+}
+
+.bb-primo-sub-ribbon {
+  font-size: 10px;
+  font-weight: 600;
+  color: #93c5fd;
+  white-space: nowrap;
+}
+
+/* Free Cancellation Image 3 Card */
+.bb-tile-cancel-img3 {
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bb-tile-shield-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e11d48;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.bb-tile-bold {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-tile-caption {
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* FlexiTicket Image 3 Card */
+.bb-tile-flexi-img3 {
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 10px 14px;
+  gap: 4px;
+}
+
+.bb-flexi-brand-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bb-flexi-brand-name {
+  font-size: 11px;
+  font-weight: 800;
+  color: #0f766e;
+}
+
+/* 2. Main Two-Column Layout */
+.bb-main-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .bb-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Left Filter Sidebar */
+.bb-filter-sidebar {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  padding: 18px 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.bb-filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.bb-clear-filters-btn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  color: #dc2626;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.bb-clear-filters-btn:hover {
+  background: #fee2e2;
+  text-decoration: underline;
+}
+
+.bb-filter-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+/* AI Smart Filter (Image 1 reference) */
+.bb-ai-smart-filter {
+  margin-bottom: 16px;
+}
+
+.bb-ai-tag {
+  font-size: 10px;
+  font-weight: 800;
+  color: #6366f1;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.bb-ai-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1.5px solid #e0e7ff;
+  border-radius: 10px;
+  padding: 8px 12px;
+  transition: border-color 0.2s ease;
+}
+
+.bb-ai-input-wrap:focus-within {
+  border-color: #6366f1;
+  background: #ffffff;
+}
+
+.bb-ai-input-field {
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  color: #0f172a;
+  outline: none;
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+}
+
+.bb-ai-mic {
+  font-size: 13px;
+  color: #6366f1;
+  cursor: pointer;
+  padding: 2px;
+}
+
+/* Chips Grid */
+.bb-chips-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.bb-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.bb-chip:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.bb-chip.active {
+  border-color: #dc2626;
+  background: #fef2f2;
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.bb-chip i {
+  font-size: 13px;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Accordions with Sub-items */
+.bb-filter-accordions-group {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bb-accordion-item {
+  border-bottom: 1px solid #f8fafc;
+}
+
+.bb-accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.bb-accordion-header:hover {
+  color: #dc2626;
+}
+
+.bb-accordion-header i {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.bb-accordion-content {
+  padding: 6px 4px 12px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: fadeIn 0.2s ease;
+}
+
+.bb-filter-row-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bb-cb-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bb-cb-left input[type="checkbox"] {
+  accent-color: #dc2626;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+.bb-filter-sub-icon {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.bb-time-text-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-time-val-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.bb-time-period-label {
+  font-size: 10px;
+  color: #64748b;
+}
+
+.bb-filter-item-count {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.bb-search-filter-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+}
+
+.bb-search-filter-input-wrap i {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.bb-search-filter-input-wrap input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 11px;
+  color: #0f172a;
+  width: 100%;
+}
+
+.bb-view-all-link {
+  background: none;
+  border: none;
+  color: #dc2626;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  padding: 4px 0 0 0;
+  margin-top: 4px;
+}
+
+.bb-view-all-link:hover {
+  text-decoration: underline;
+}
+
+/* 3.6+ lakh bus routes scalloped banner (Exact Image 3) */
+.bb-operators-scallop-ribbon-img3 {
+  background: #fed7aa;
+  color: #7c2d12;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 18px;
+  position: relative;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+/* Right Feed */
+.bb-results-area {
+  min-width: 0;
+}
+
+.bb-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.bb-count-label {
+  font-size: 18px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.bb-sort-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bb-sort-text {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.bb-sort-btn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.bb-sort-btn.active {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+/* Scalloped ribbon */
+.bb-operators-scallop-ribbon {
+  background: #ffedd5;
+  color: #9a3412;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  text-align: center;
+  margin-bottom: 16px;
+  border: 1px dashed #fdba74;
+}
+
+/* Special Offers Container */
+.bb-special-offers-container {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.bb-special-offers-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.bb-special-offers-head h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-special-coupons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.bb-special-coupon-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ecfdf5;
+  border: 1px dashed #6ee7b7;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.bb-coupon-circle-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #10b981;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.bb-coupon-meta {
+  flex: 1;
+}
+
+.bb-coupon-code-pill {
+  font-size: 13px;
+  font-weight: 900;
+  color: #065f46;
+  border: 1px dashed #059669;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: white;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.bb-coupon-desc {
+  font-size: 11px;
+  color: #047857;
+  display: block;
+}
+
+.bb-coupon-copy-btn {
+  background: white;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bb-coupon-copy-btn:hover {
+  background: #059669;
+  color: white;
+}
+
+/* ============================================================================
+   Image 3 Bus Card Styles (redBus FRESHBUS Reference)
+   ============================================================================ */
+.bb-redbus-card-img3 {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #f1f5f9;
+  margin-bottom: 20px;
+  overflow: hidden;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.bb-redbus-card-img3:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Pink tripReward Banner (Image 3) */
+.bb-trip-reward-banner-img3 {
+  background: #fdf2f8;
+  color: #db2777;
+  padding: 8px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #fce7f3;
+  font-size: 13px;
+}
+
+.bb-reward-icon-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #db2777;
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.bb-reward-icon-pill i {
+  color: #e11d48;
+  font-size: 12px;
+}
+
+.bb-reward-sub-img3 {
+  color: #475569;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.bb-reward-sub-img3 strong {
+  color: #0f172a;
+}
+
+/* Main Bus Card Info Row (Image 3) */
+.bb-card-main-content-img3 {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+/* Column 1: Operator Title & Bus Type */
+.bb-col-operator-img3 {
+  flex: 1 1 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bb-op-title-row-img3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bb-op-title-img3 {
+  font-size: 16px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.2px;
+}
+
+.bb-gps-pin-badge {
+  color: #64748b;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.bb-op-sub-img3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.bb-ev-badge-circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #0d9488;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+}
+
+/* Column 2: Rating Badge in Image 3 */
+.bb-col-rating-img3 {
+  flex: 0 0 auto;
+}
+
+.bb-rating-pill-img3 {
+  background: #15803d;
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 4px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  box-shadow: 0 2px 6px rgba(21, 128, 61, 0.2);
+}
+
+.bb-rating-num-top {
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.bb-rating-count-bottom {
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.95;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+/* Column 3: Departure, Dash, Arrival, Seats */
+.bb-col-schedule-img3 {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.bb-times-range-img3 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bb-time-val-bold {
+  font-size: 18px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.bb-time-dash-sep {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.bb-seats-meta-img3 {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Column 4: Price & Onwards */
+.bb-col-price-img3 {
+  flex: 0 0 auto;
+  text-align: right;
+  min-width: 90px;
+}
+
+.bb-price-val-img3 {
+  font-size: 22px;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.bb-price-onwards-img3 {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Bottom Bar: Links + View seats button */
+.bb-card-bottom-bar-img3 {
+  padding: 12px 24px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.bb-links-group-img3 {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.bb-tab-link-img3 {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+.bb-tab-link-img3:hover {
+  text-decoration: underline;
+  color: #1d4ed8;
+}
+
+.bb-tab-link-img3.active {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.bb-view-seats-cta-img3 {
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 26px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  transition: all 0.2s ease;
+}
+
+.bb-view-seats-cta-img3:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
+}
+
+/* ==========================================================================
+   IMAGE 3: INTERACTIVE SEAT SELECTION MODAL & DECK VISUALS
+   ========================================================================== */
+
+.bb-seat-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: bbFadeIn 0.2s ease-out;
+}
+
+@keyframes bbFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.bb-seat-modal-box-img3 {
+  background: #ffffff;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 1200px;
+  max-height: 94vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: bbScaleUp 0.22s ease-out;
+}
+
+@keyframes bbScaleUp {
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Top Navigation Tabs Bar */
+.bb-modal-top-tabs-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+  height: 52px;
+  flex-shrink: 0;
+}
+
+.bb-modal-top-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  height: 100%;
+}
+
+.bb-modal-nav-tab {
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  height: 100%;
+  padding: 0 4px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s ease;
+}
+
+.bb-modal-nav-tab:hover {
+  color: #0f172a;
+}
+
+.bb-modal-nav-tab.active {
+  color: #dc2626;
+  font-weight: 800;
+}
+
+.bb-modal-nav-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #dc2626;
+  border-radius: 3px 3px 0 0;
+}
+
+.bb-modal-close-icon-btn {
+  background: #f1f5f9;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #475569;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.bb-modal-close-icon-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Modal Two Columns Body */
+.bb-modal-two-col-body {
+  display: grid;
+  grid-template-columns: minmax(380px, 460px) 1fr;
+  gap: 20px;
+  padding: 18px 24px 20px 24px;
+  overflow-y: auto;
+  max-height: calc(94vh - 52px);
+}
+
+@media (max-width: 980px) {
+  .bb-modal-two-col-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------- LEFT COLUMN: Decks & Seats ---------------- */
+.bb-modal-left-decks-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Gender Controls Bar */
+.bb-gender-control-bar {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bb-gender-mode-toggle-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.bb-gender-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.bb-gender-pill {
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.bb-gender-pill.female {
+  color: #db2777;
+}
+
+.bb-gender-pill.female.active {
+  background: #fdf2f8;
+  border-color: #ec4899;
+  color: #be185d;
+  box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.2);
+}
+
+.bb-gender-pill.male {
+  color: #2563eb;
+}
+
+.bb-gender-pill.male.active {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Family Mode Toggle */
+.bb-family-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bb-family-toggle-label input {
+  cursor: pointer;
+  accent-color: #16a34a;
+  width: 16px;
+  height: 16px;
+}
+
+.bb-family-toggle-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Adjacency Alert Banner */
+.bb-adjacency-alert-banner {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #be123c;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.bb-alert-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.4;
+}
+
+.bb-alert-left i {
+  font-size: 15px;
+  color: #e11d48;
+  flex-shrink: 0;
+}
+
+.bb-alert-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.bb-alert-action-btn {
+  background: #e11d48;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bb-alert-close-btn {
+  background: none;
+  border: none;
+  color: #be123c;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Seat Legend */
+.bb-seat-legend-row-img3 {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  flex-wrap: wrap;
+}
+
+.bb-legend-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bb-legend-box {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+.bb-legend-box.available {
+  border: 1.5px solid #10b981;
+  background: #ffffff;
+}
+
+.bb-legend-box.female-selected {
+  border: 1.5px solid #ec4899;
+  background: #fdf2f8;
+}
+
+.bb-legend-box.male-selected {
+  border: 1.5px solid #3b82f6;
+  background: #eff6ff;
+}
+
+.bb-legend-box.booked {
+  border: 1.5px solid #cbd5e1;
+  background: #f1f5f9;
+}
+
+/* Decks side by side */
+.bb-decks-side-by-side {
+  display: flex;
+  gap: 14px;
+}
+
+.bb-deck-card-img3 {
+  flex: 1;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 12px 10px;
+}
+
+.bb-deck-header-img3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 8px 4px;
+  border-bottom: 1px dashed #cbd5e1;
+  margin-bottom: 12px;
+}
+
+.bb-deck-title-text {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-steering-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+}
+
+.bb-deck-body-layout {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+/* Single Sleeper Column (Left) */
+.bb-deck-single-sleepers-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bb-berth-seat-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bb-berth-seat-body {
+  width: 42px;
+  height: 72px;
+  border-radius: 8px;
+  border: 1.5px solid #10b981;
+  background: #ffffff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 4px;
+  transition: all 0.15s ease;
+}
+
+.bb-berth-pillow {
+  width: 80%;
+  height: 12px;
+  border-radius: 4px;
+  background: #e2fbe8;
+  border: 1px solid #a7f3d0;
+  margin-bottom: 2px;
+  transition: background 0.15s ease;
+}
+
+.bb-seat-gender-icon {
+  position: absolute;
+  top: 10px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.bb-seat-price-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #047857;
+  margin-top: 2px;
+}
+
+.bb-seat-price-label.sold {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* Seater chairs column (Right) */
+.bb-deck-seaters-pairs-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bb-seater-row-pair {
+  display: flex;
+  gap: 8px;
+}
+
+.bb-seater-back-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.bb-chair-seat-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bb-chair-seat-body {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1.5px solid #10b981;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  color: #059669;
+  font-size: 15px;
+  transition: all 0.15s ease;
+}
+
+.bb-chair-seat-body .bb-seat-gender-icon {
+  position: absolute;
+  top: -6px;
+  right: -4px;
+  font-size: 10px;
+  background: #ffffff;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+/* Double sleeper column in Upper Deck */
+.bb-deck-double-sleepers-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bb-double-sleeper-pair {
+  display: flex;
+  gap: 8px;
+}
+
+/* SEAT COLOR THEMES: AVAILABLE, FEMALE (PINK), MALE (BLUE), BOOKED */
+
+/* 1. Female Selected Theme (PINK) */
+.bb-berth-seat-wrap.selected-female .bb-berth-seat-body,
+.bb-chair-seat-wrap.selected-female .bb-chair-seat-body {
+  border-color: #ec4899;
+  background: #fdf2f8;
+  color: #db2777;
+  box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.25);
+}
+
+.bb-berth-seat-wrap.selected-female .bb-berth-pillow {
+  background: #fbcfe8;
+  border-color: #f472b6;
+}
+
+.bb-berth-seat-wrap.selected-female .bb-seat-price-label,
+.bb-chair-seat-wrap.selected-female .bb-seat-price-label {
+  color: #db2777;
+  font-weight: 800;
+}
+
+/* 2. Male Selected Theme (BLUE) */
+.bb-berth-seat-wrap.selected-male .bb-berth-seat-body,
+.bb-chair-seat-wrap.selected-male .bb-chair-seat-body {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+.bb-berth-seat-wrap.selected-male .bb-berth-pillow {
+  background: #bfdbfe;
+  border-color: #93c5fd;
+}
+
+.bb-berth-seat-wrap.selected-male .bb-seat-price-label,
+.bb-chair-seat-wrap.selected-male .bb-seat-price-label {
+  color: #1d4ed8;
+  font-weight: 800;
+}
+
+/* 3. Booked / Sold Seats */
+.bb-chair-seat-wrap.booked,
+.bb-berth-seat-wrap.booked {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.bb-chair-seat-wrap.booked-male .bb-chair-seat-body {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+.bb-chair-seat-wrap.booked-female .bb-chair-seat-body {
+  border-color: #fbcfe8;
+  background: #fdf2f8;
+  color: #f472b6;
+}
+
+/* ---------------- RIGHT COLUMN: Bus Details & Real Bus Photos (Image 3) ---------------- */
+.bb-modal-right-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* tripReward Banner */
+.bb-modal-tripreward-banner {
+  background: #fdf2f8;
+  border: 1px solid #fce7f3;
+  border-radius: 12px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bb-reward-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bb-reward-badge {
+  background: #e11d48;
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bb-reward-text {
+  font-size: 12px;
+  color: #475569;
+}
+
+/* Bus Header Details */
+.bb-modal-bus-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.bb-modal-operator-name {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.bb-modal-time-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 2px;
+}
+
+.bb-modal-dot {
+  color: #94a3b8;
+}
+
+.bb-modal-type-name {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.bb-modal-rating-box {
+  background: #15803d;
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 4px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 48px;
+}
+
+.bb-modal-rating-score {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.bb-modal-rating-count {
+  font-size: 10px;
+  opacity: 0.9;
+}
+
+/* Bus Photos Gallery Strip */
+.bb-modal-photos-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.bb-modal-photo-thumb {
+  position: relative;
+  height: 110px;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bb-modal-photo-thumb:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.bb-modal-photo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-photo-caption-badge {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(2px);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Sub-tabs Links Row */
+.bb-modal-subtabs-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 4px;
+  overflow-x: auto;
+}
+
+.bb-modal-subtab-btn {
+  background: none;
+  border: none;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 6px 0;
+  position: relative;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.bb-modal-subtab-btn:hover {
+  color: #0f172a;
+}
+
+.bb-modal-subtab-btn.active {
+  color: #dc2626;
+  font-weight: 800;
+}
+
+.bb-modal-subtab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: #dc2626;
+  border-radius: 2px;
+}
+
+/* Sub-tab Content Area */
+.bb-modal-subtab-display {
+  min-height: 120px;
+}
+
+.bb-highlights-cards-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bb-modal-features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.bb-modal-feature-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bb-modal-feature-card.full-row {
+  grid-column: span 2;
+}
+
+.bb-feat-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-feat-sub {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.bb-feat-icon-ev {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #cffafe;
+  color: #0891b2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
+.bb-feat-icon-safety {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
+.bb-feat-icon-women {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fce7f3;
+  color: #ec4899;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
+/* Return trip banner */
+.bb-modal-return-banner {
+  background: #fefce8;
+  border: 1px solid #fef08a;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bb-return-badge {
+  background: #fef08a;
+  color: #854d0e;
+  border-radius: 6px;
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+
+.bb-ret-line1 {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.bb-ret-line2 {
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.bb-return-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: #713f12;
+}
+
+/* Selected Seats Summary & Checkout Panel */
+.bb-selected-summary-checkout-panel {
+  margin-top: auto;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bb-sel-seats-list-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bb-sel-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-selected-seat-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.bb-selected-seat-chip.female {
+  background: #fdf2f8;
+  border: 1px solid #fbcfe8;
+  color: #be185d;
+}
+
+.bb-selected-seat-chip.male {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+}
+
+.bb-chip-gender-tag {
+  font-size: 10px;
+  opacity: 0.9;
+}
+
+.bb-chip-flip-btn {
+  background: rgba(0,0,0,0.06);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 1px 4px;
+  font-size: 10px;
+  color: inherit;
+}
+
+.bb-chip-fare {
+  font-weight: 800;
+}
+
+.bb-chip-remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 11px;
+  padding: 0;
+}
+
+.bb-fare-and-cta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.bb-total-fare-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-fare-sub {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.bb-fare-amount {
+  font-size: 22px;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+.bb-continue-cta-btn {
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+}
+
+.bb-continue-cta-btn:hover:not(:disabled) {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.bb-continue-cta-btn:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Boarding / Dropping Point Selectors in Modal */
+.bb-modal-tab-content-panel {
+  padding: 20px 24px;
+  overflow-y: auto;
+  max-height: calc(94vh - 52px);
+}
+
+.bb-points-selector-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .bb-points-selector-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bb-points-header-title {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bb-points-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bb-point-option-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bb-point-option-card:hover {
+  background: #f1f5f9;
+}
+
+.bb-point-option-card.selected {
+  background: #ecfdf5;
+  border-color: #10b981;
+}
+
+.bb-point-option-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-opt-time {
+  font-size: 11px;
+  font-weight: 800;
+  color: #059669;
+}
+
+.bb-opt-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Passenger Info Tab */
+.bb-passenger-form-layout {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 820px) {
+  .bb-passenger-form-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bb-passenger-inputs-card,
+.bb-passenger-fare-summary-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+
+.bb-pax-card-title,
+.bb-summary-title {
+  margin: 0 0 16px 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bb-pax-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.bb-pax-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bb-pax-field label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.bb-pax-field input {
+  padding: 10px 12px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  background: #ffffff;
+  transition: border-color 0.15s ease;
+}
+
+.bb-pax-field input:focus {
+  border-color: #dc2626;
+}
+
+.bb-sub-pax-title {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #334155;
+}
+
+.bb-pax-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bb-pax-assignment-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bb-pax-assignment-chip.female {
+  background: #fdf2f8;
+  border: 1px solid #fbcfe8;
+  color: #be185d;
+}
+
+.bb-pax-assignment-chip.male {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+}
+
+.bb-chip-gender-flip {
+  background: rgba(0,0,0,0.08);
+  border: none;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  color: inherit;
+}
+
+/* Fare summary line */
+.bb-fare-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.bb-fare-divider {
+  border-top: 1px dashed #cbd5e1;
+  margin: 14px 0;
+}
+
+.bb-fare-total-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.bb-total-fare-highlight {
+  font-size: 22px;
+  font-weight: 900;
+  color: #dc2626;
+}
+
+.bb-confirm-book-btn {
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  transition: all 0.15s ease;
+}
+
+.bb-confirm-book-btn.full-width {
+  width: 100%;
+}
+
+.bb-confirm-book-btn:hover:not(:disabled) {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.bb-modal-footer-nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 16px;
+}
+
+.bb-nav-back-btn {
+  background: none;
+  border: none;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bb-nav-back-btn:hover {
+  color: #0f172a;
+}
+
+/* Lightbox preview */
+.bb-photo-lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.bb-lightbox-content {
+  position: relative;
+  max-width: 900px;
+  max-height: 85vh;
+}
+
+.bb-lightbox-content img {
+  width: 100%;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.bb-lightbox-close {
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  background: #ffffff;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================================================================
+   1. CLEAN SEAT STYLING (NO CHAIR GLYPH, MODERN GEOMETRIC BUS SEAT)
+   ========================================================================= */
+.bb-clean-seat-headrest {
+  width: 65%;
+  height: 4px;
+  background: #10b981;
+  border-radius: 2px;
+  position: absolute;
+  top: 4px;
+  opacity: 0.85;
+}
+
+.bb-clean-seat-code {
+  font-size: 11px;
+  font-weight: 800;
+  color: #059669;
+  margin-top: 4px;
+}
+
+.bb-chair-seat-wrap.selected-clean .bb-chair-seat-body,
+.bb-berth-seat-wrap.selected-clean .bb-berth-seat-body {
+  border-color: #dc2626 !important;
+  background: #fef2f2 !important;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.25);
+}
+
+.bb-chair-seat-wrap.selected-clean .bb-clean-seat-headrest {
+  background: #dc2626;
+}
+
+.bb-chair-seat-wrap.selected-clean .bb-clean-seat-code,
+.bb-berth-seat-wrap.selected-clean .bb-clean-seat-code {
+  color: #dc2626 !important;
+}
+
+.bb-chair-seat-wrap.selected-clean .bb-seat-price-label,
+.bb-berth-seat-wrap.selected-clean .bb-seat-price-label {
+  color: #dc2626 !important;
+  font-weight: 800;
+}
+
+.bb-chair-seat-wrap.booked .bb-clean-seat-headrest {
+  background: #cbd5e1;
+}
+
+.bb-chair-seat-wrap.booked .bb-clean-seat-code {
+  color: #94a3b8;
+}
+
+.bb-selected-seat-chip.selected-clean {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+/* =========================================================================
+   2. TOP NAV LIVE TRACKING TAB PULSE
+   ========================================================================= */
+.bb-modal-nav-tab.live-track-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bb-live-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #94a3b8;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.bb-live-pulse-dot.gps-on {
+  background: #22c55e;
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  animation: bbPulseGreen 1.5s infinite;
+}
+
+@keyframes bbPulseGreen {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 7px rgba(34, 197, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+/* =========================================================================
+   3. LIVE GPS TRACKING PANEL & ROUTE COLORS
+   ========================================================================= */
+.bb-live-tracking-panel {
+  padding: 18px 24px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  max-height: calc(92vh - 60px);
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.bb-live-tracking-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.bb-live-tracking-panel::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 4px;
+}
+
+.bb-live-tracking-panel::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.bb-live-tracking-panel::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.bb-gps-control-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  border: 1.5px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.bb-gps-control-banner.inactive {
+  background: #fffbeb;
+  border-color: #fef08a;
+}
+
+.bb-gps-control-banner.active {
+  background: #f0fdf4;
+  border-color: #86efac;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.12);
+}
+
+.bb-gps-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bb-gps-radar-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.bb-gps-control-banner.inactive .bb-gps-radar-icon {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.bb-gps-control-banner.active .bb-gps-radar-icon {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.bb-gps-banner-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-gps-banner-desc {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 3px;
+  max-width: 650px;
+}
+
+.bb-gps-toggle-btn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.bb-gps-toggle-btn.btn-turn-on {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.bb-gps-toggle-btn.btn-turn-on:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.bb-gps-toggle-btn.btn-active {
+  background: #16a34a;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+}
+
+.bb-gps-toggle-btn.btn-active:hover {
+  background: #15803d;
+}
+
+/* =========================================================================
+   LIVE GPS SATELLITE MAP CONTAINER & VISUALIZER
+   ========================================================================= */
+.bb-live-tracking-map-container {
+  background: #0f172a;
+  border: 1.5px solid #1e293b;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.bb-map-top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+  color: #f8fafc;
+  font-size: 13px;
+  font-weight: 700;
+  flex-wrap: wrap;
+}
+
+.bb-map-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bb-map-signal-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+  animation: bbPulseGreen 1.5s infinite;
+}
+
+.bb-map-signal-dot.offline {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+  animation: none;
+}
+
+.bb-map-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.bb-map-pill-badge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bb-map-pill-badge.boarding {
+  background: rgba(37, 99, 235, 0.25);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.5);
+}
+
+.bb-map-pill-badge.dropping {
+  background: rgba(37, 99, 235, 0.25);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.5);
+}
+
+.bb-map-pill-badge.terminus {
+  background: rgba(234, 179, 8, 0.2);
+  color: #facc15;
+  border: 1px solid rgba(234, 179, 8, 0.4);
+}
+
+.bb-map-canvas-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 290px;
+  background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* GPS Standby / Locked Overlay */
+.bb-map-gps-standby-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 36px 20px;
+  gap: 14px;
+  z-index: 5;
+}
+
+.bb-radar-scanner-disc {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px dashed #475569;
+  background: rgba(30, 41, 59, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #f59e0b;
+  position: relative;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+}
+
+.bb-radar-scanner-disc::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  animation: bbSonarPing 2.5s infinite;
+}
+
+@keyframes bbSonarPing {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+.bb-standby-title {
+  color: #f8fafc;
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.bb-standby-desc {
+  color: #94a3b8;
+  font-size: 12px;
+  max-width: 480px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.bb-standby-allow-btn {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 24px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+  transition: all 0.2s ease;
+}
+
+.bb-standby-allow-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+/* Active SVG Live Map */
+.bb-map-active-visualizer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-map-svg-frame {
+  width: 100%;
+  height: 290px;
+  display: block;
+}
+
+/* Floating Telemetry Box */
+.bb-map-telemetry-floating-box {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 8px 14px;
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  z-index: 10;
+}
+
+.bb-telemetry-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bb-telemetry-item strong {
+  color: #38bdf8;
+}
+
+.bb-map-controls-floating-row {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+
+.bb-map-icon-btn {
+  background: rgba(30, 41, 59, 0.9);
+  backdrop-filter: blur(4px);
+  border: 1px solid #475569;
+  color: #cbd5e1;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.15s ease;
+}
+
+.bb-map-icon-btn:hover {
+  background: #334155;
+  color: #ffffff;
+}
+
+/* Metrics Row */
+.bb-tracking-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 768px) {
+  .bb-tracking-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bb-metric-stat-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-metric-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.bb-metric-value {
+  font-size: 17px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.bb-metric-value.highlight {
+  color: #16a34a;
+}
+
+.bb-metric-value.blue-text {
+  color: #2563eb;
+}
+
+.bb-metric-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+/* Color Legend Bar */
+.bb-route-color-legend-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: #334155;
+}
+
+.bb-color-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bb-route-legend-badge {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.bb-route-legend-badge.pre-boarding {
+  background: #cbd5e1;
+}
+
+.bb-route-legend-badge.your-route {
+  background: #2563eb;
+}
+
+.bb-route-legend-badge.bus-terminus {
+  background: #facc15;
+  border: 1px solid #ca8a04;
+}
+
+.bb-route-full-visual-timeline {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px 8px 20px;
+  overflow: visible;
+}
+
+.bb-route-stop-card-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  position: relative;
+  padding-bottom: 22px;
+}
+
+.bb-route-stop-card-item:last-child {
+  padding-bottom: 4px;
+}
+
+/* Track column with marker and vertical line */
+.bb-stop-track-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 32px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.bb-stop-circle-marker {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  z-index: 2;
+  transition: all 0.2s ease;
+}
+
+.bb-stop-circle-marker.marker-gray {
+  background: #f1f5f9;
+  border: 2px solid #cbd5e1;
+  color: #64748b;
+}
+
+/* PASSENGER SEGMENT: BLUE */
+.bb-stop-circle-marker.marker-blue {
+  background: #2563eb;
+  border: 2px solid #1d4ed8;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+
+/* BUS TERMINUS: YELLOW */
+.bb-stop-circle-marker.marker-yellow {
+  background: #facc15;
+  border: 2px solid #ca8a04;
+  color: #713f12;
+  box-shadow: 0 2px 10px rgba(250, 204, 21, 0.45);
+}
+
+.bb-track-segment-line {
+  width: 4px;
+  flex-grow: 1;
+  min-height: 42px;
+  position: absolute;
+  top: 32px;
+  bottom: -4px;
+}
+
+.bb-track-segment-line.line-gray {
+  background: #cbd5e1;
+}
+
+/* BLUE CONNECTING TRACK */
+.bb-track-segment-line.line-blue {
+  background: #2563eb;
+  box-shadow: 0 0 6px rgba(37, 99, 235, 0.4);
+}
+
+/* YELLOW CONNECTING TRACK (REMAINING STOPS) */
+.bb-track-segment-line.line-yellow {
+  background: #facc15;
+  box-shadow: 0 0 6px rgba(250, 204, 21, 0.45);
+}
+
+.bb-stop-badge.remaining-yellow-badge {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fde047;
+}
+
+.bb-stop-details-col {
+  flex-grow: 1;
+  padding-top: 4px;
+}
+
+.bb-stop-header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.bb-stop-time {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-stop-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-stop-landmark-text {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 3px;
+}
+
+.bb-stop-badge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bb-stop-badge.current-bus-badge {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.bb-radar-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #16a34a;
+  animation: bbPulseGreen 1.5s infinite;
+}
+
+.bb-stop-badge.boarding-pax-badge {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #93c5fd;
+}
+
+.bb-stop-badge.dropping-pax-badge {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+/* TERMINUS YELLOW BADGE */
+.bb-stop-badge.ending-yellow-badge {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fde047;
+}
+
+.bb-stop-proximity-alert {
+  margin-top: 6px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.bb-pulse-bus-icon {
+  color: #ffffff;
+  animation: bbPulseGreen 1.5s infinite;
+}
+
+/* =========================================================================
+   4. BOARDING / DROPPING PANEL & MODAL TABS SCROLLING
+   ========================================================================= */
+.bb-modal-tab-content-panel {
+  padding: 18px 24px 28px 24px;
+  overflow-y: auto;
+  max-height: calc(92vh - 60px);
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.bb-modal-tab-content-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.bb-modal-tab-content-panel::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 4px;
+}
+
+.bb-modal-tab-content-panel::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.bb-modal-tab-content-panel::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.bb-boarding-dropping-panel-img5 {
+  padding: 18px 24px 28px 24px;
+  overflow-y: auto;
+  max-height: calc(92vh - 60px);
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.bb-img5-subtabs-bar {
+  display: flex;
+  gap: 12px;
+  border-bottom: 1.5px solid #e2e8f0;
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+.bb-img5-subtab-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.bb-img5-subtab-btn.active {
+  background: #ffffff;
+  border-color: #dc2626;
+  color: #dc2626;
+  font-weight: 800;
+  box-shadow: 0 1px 4px rgba(220, 38, 38, 0.15);
+}
+
+.bb-img5-points-content-scroll {
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.bb-img5-section-title {
+  font-size: 16px;
+  font-weight: 900;
+  color: #0f172a;
+  margin: 0 0 14px 0;
+}
+
+.bb-img5-timeline-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-img5-timeline-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.bb-img5-time-col {
+  display: flex;
+  flex-direction: column;
+  width: 70px;
+  flex-shrink: 0;
+}
+
+.bb-img5-time {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-img5-date {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.bb-img5-node-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  width: 24px;
+  flex-shrink: 0;
+}
+
+.bb-img5-radio-wrap {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.bb-img5-radio-wrap input {
+  display: none;
+}
+
+.bb-img5-radio-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #64748b;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.bb-img5-radio-wrap input:checked + .bb-img5-radio-circle {
+  border-color: #334155;
+  background: #334155;
+  box-shadow: inset 0 0 0 3px #ffffff;
+}
+
+.bb-img5-track-line {
+  width: 2px;
+  background: #cbd5e1;
+  position: absolute;
+  top: 20px;
+  bottom: -4px;
+}
+
+.bb-img5-info-col {
+  flex-grow: 1;
+  cursor: pointer;
+}
+
+.bb-img5-point-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-img5-point-landmark {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.bb-img5-view-more-btn {
+  background: #fbcfe8;
+  border: none;
+  border-radius: 8px;
+  color: #be185d;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 10px 20px;
+  width: 100%;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bb-img5-view-more-btn:hover {
+  background: #f9a8d4;
+}
+
+/* Cancellation Policy Table in Image 5 */
+.bb-img5-cancel-table-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.bb-img5-table-header-row {
+  background: #f8fafc;
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1.5px solid #e2e8f0;
+  font-size: 12px;
+  color: #1e293b;
+}
+
+.bb-img5-sub-th {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.bb-img5-table-body-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+}
+
+.bb-img5-table-body-row:last-child {
+  border-bottom: none;
+}
+
+.bb-img5-td-time {
+  font-weight: 600;
+  color: #334155;
+}
+
+.bb-img5-td-refund {
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-footer-right-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bb-nav-live-track-btn {
+  background: #eff6ff;
+  border: 1.5px solid #bfdbfe;
+  color: #1d4ed8;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.bb-nav-live-track-btn:hover {
+  background: #dbeafe;
+}
+
+/* =========================================================================
+   5. PASSENGER INFO SCREEN (EXACT IMAGE 4 REFERENCE)
+   ========================================================================= */
+.bb-passenger-info-screen-img4 {
+  padding: 8px 0;
+}
+
+.bb-pax-img4-two-col-layout {
+  display: grid;
+  grid-template-columns: 1.45fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 860px) {
+  .bb-pax-img4-two-col-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bb-pax-img4-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.bb-pax-img4-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+/* Contact Details Card */
+.bb-contact-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.bb-contact-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.bb-contact-subtitle {
+  margin: 3px 0 0 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.bb-contact-edit-btn {
+  background: none;
+  border: none;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.bb-contact-phone-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.bb-contact-phone-row i {
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.bb-contact-edit-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.bb-phone-input-edit {
+  flex-grow: 1;
+  padding: 8px 12px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+}
+
+.bb-save-phone-btn {
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.bb-contact-location-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #334155;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.bb-contact-whatsapp-pill {
+  background: #dcfce7;
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #15803d;
+}
+
+.bb-contact-whatsapp-pill i {
+  font-size: 14px;
+}
+
+.bb-wa-checkbox {
+  margin-left: auto;
+  cursor: pointer;
+}
+
+/* Passenger details dynamic cards */
+.bb-passengers-main-title {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.bb-pax-single-card-block {
+  border-top: 1px dashed #e2e8f0;
+  padding-top: 16px;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bb-pax-single-card-block:first-of-type {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.bb-pax-header-strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bb-pax-user-icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  font-size: 13px;
+}
+
+.bb-pax-meta-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-pax-num-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-pax-seat-code-sub {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.bb-pax-acc-icon {
+  margin-left: auto;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.bb-pax-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bb-pax-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.bb-pax-input-box {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.bb-pax-input-box:focus {
+  border-color: #0f172a;
+}
+
+.bb-pax-gender-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bb-pax-gender-pills-wrap {
+  display: flex;
+  gap: 10px;
+}
+
+.bb-pax-radio-pill {
+  flex: 1;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.bb-pax-radio-pill.selected {
+  border-color: #0f172a;
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.bb-radio-circle {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #94a3b8;
+  display: inline-block;
+  transition: all 0.15s ease;
+}
+
+.bb-pax-radio-pill.selected .bb-radio-circle {
+  border-color: #dc2626;
+  background: #dc2626;
+  box-shadow: inset 0 0 0 2.5px #ffffff;
+}
+
+/* tripReward Card Matching Image 4 */
+.bb-tripreward-bottom-card {
+  background: #fdf2f8;
+  border: 1px solid #fbcfe8;
+}
+
+.bb-tripreward-header-badge {
+  color: #e11d48;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.bb-tripreward-bold-title {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.bb-tripreward-subtext {
+  margin: 0 0 16px 0;
+  font-size: 12px;
+  color: #475569;
+}
+
+.bb-tripreward-inner-box {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.bb-step-dots-row {
+  display: flex;
+  gap: 8px;
+}
+
+.bb-step-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bb-step-dot.active {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+.bb-trip-step-label {
+  font-size: 12px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.bb-optin-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-tripreward-cta-btn {
+  background: #fecdd3;
+  color: #9f1239;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 24px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.15s ease;
+}
+
+.bb-tripreward-cta-btn.opted-in {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.bb-how-it-works-link {
+  font-size: 12px;
+  font-weight: 700;
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* Right Summary Card in Image 4 */
+.bb-pax-img4-summary-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.bb-summary-operator-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.bb-summary-bus-type-meta {
+  margin: 4px 0 16px 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.bb-summary-timeline-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-timeline-stop-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.bb-tl-time {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+  width: 45px;
+  flex-shrink: 0;
+}
+
+.bb-tl-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.bb-tl-dot.start {
+  background: #16a34a;
+}
+
+.bb-tl-dot.end {
+  background: #dc2626;
+}
+
+.bb-tl-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-tl-stop-name {
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.bb-tl-landmark {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.bb-timeline-duration-spacer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0 8px 50px;
+}
+
+.bb-tl-vertical-line {
+  width: 2px;
+  height: 24px;
+  background: #cbd5e1;
+}
+
+.bb-tl-duration-badge {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.bb-summary-divider {
+  border-top: 1px solid #f1f5f9;
+  margin: 16px 0;
+}
+
+.bb-seat-details-header {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-seat-count-sub {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+  margin-bottom: 10px;
+}
+
+.bb-green-seat-pills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bb-green-seat-pill {
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.bb-summary-fare-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.bb-fare-label-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.bb-fare-amount-total {
+  font-size: 20px;
+  font-weight: 900;
+  color: #dc2626;
+}
+
+/* =========================================================================
+   EXACT USER SCREENSHOTS REPLICATION STYLES (IMAGES 1, 3, 4, 5)
+   ========================================================================= */
+
+/* Cancellation Policy Table & Card (Exact Image 4) */
+.bb-cancel-img-box {
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 12px;
+}
+
+.bb-cancel-card-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #0f172a;
+  margin: 0 0 16px 0;
+}
+
+.bb-cancel-card-table-wrap {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  background: #ffffff;
+}
+
+.bb-exact-cancel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.bb-exact-cancel-table thead th {
+  background: #f8fafc;
+  padding: 14px 16px;
+  font-weight: 800;
+  color: #1e293b;
+  border-bottom: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.bb-exact-cancel-table thead th:last-child {
+  border-right: none;
+}
+
+.bb-exact-cancel-table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  border-right: 1px solid #f1f5f9;
+  color: #334155;
+}
+
+.bb-exact-cancel-table tbody td:last-child {
+  border-right: none;
+}
+
+.bb-exact-cancel-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.bb-cancel-time-cell {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.bb-cancel-without-cell {
+  text-align: center;
+  font-weight: 600;
+  color: #475569;
+}
+
+.bb-cancel-with-cell {
+  text-align: center;
+  background: #f0fdf4;
+}
+
+.bb-cancel-badge-green {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #15803d;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.bb-cancel-badge-zero {
+  color: #15803d;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.bb-cancel-promo-pink-banner {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: #0f172a;
+  margin-bottom: 18px;
+}
+
+.bb-cancel-shield-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #e11d48;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.bb-cancel-disclaimers-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bb-cancel-disclaimers-list li {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* Boarding & Dropping Points Card List (Exact Image 1 & Image 5) */
+.bb-points-split-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.bb-points-card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bb-points-hdr-title {
+  font-size: 15px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.bb-points-hdr-sub {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.bb-points-items-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.bb-point-tile-row {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  gap: 16px;
+}
+
+.bb-point-tile-row:last-child {
+  border-bottom: none;
+}
+
+.bb-point-tile-row:hover {
+  background: #f8fafc;
+}
+
+.bb-point-tile-row.selected {
+  background: #fff1f2;
+}
+
+.bb-pt-left-time {
+  width: 55px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #0f172a;
+  flex-shrink: 0;
+}
+
+.bb-pt-center-info {
+  flex: 1;
+}
+
+.bb-pt-name-bold {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-pt-landmark-sub {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.bb-pt-right-radio {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bb-pt-radio-bull {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #64748b;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.bb-pt-radio-bull.active-target {
+  border-color: #dc2626;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 4px #ffffff, inset 0 0 0 7px #dc2626;
+}
+
+.bb-pt-time-reach-tag {
+  font-size: 11px;
+  color: #2563eb;
+  font-weight: 700;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Boarding ETA Card */
+.bb-boarding-eta-card {
+  margin: 12px 16px 14px 16px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.bb-eta-icon-col {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.bb-eta-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1e3a8a;
+  margin-bottom: 3px;
+}
+
+.bb-eta-desc {
+  font-size: 11.5px;
+  color: #3b82f6;
+  line-height: 1.45;
+}
+
+/* Subtab Map Banner */
+.bb-subtab-map-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bb-subtab-map-badge {
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bb-subtab-map-eta {
+  color: #059669;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* =========================================================================
+   EXACT IMAGE 2 REPRODUCTION: Bus route list
+   Format: "City CMBT Koyambedu - 17:00", "Ashok Pillar Metro - 17:25", etc.
+   ========================================================================= */
+.bb-route-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 4px 14px 4px;
+}
+
+.bb-route-stop {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.bb-route-stop:hover {
+  background: #f8fafc;
+}
+
+.bb-route-stop.is-boarding {
+  background: #eff6ff;
+  border-left: 3px solid #2563eb;
+}
+
+.bb-route-stop.is-dropping {
+  background: #fefce8;
+  border-left: 3px solid #ca8a04;
+}
+
+.bb-stop-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #64748b;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.bb-stop-dot.start {
+  background: #16a34a;
+  box-shadow: 0 0 6px rgba(22, 163, 74, 0.5);
+}
+
+.bb-stop-dot.end {
+  background: #dc2626;
+  box-shadow: 0 0 6px rgba(220, 38, 38, 0.5);
+}
+
+.bb-stop-dot.board {
+  background: #2563eb;
+  box-shadow: 0 0 6px rgba(37, 99, 235, 0.6);
+}
+
+.bb-stop-dot.drop {
+  background: #eab308;
+  box-shadow: 0 0 6px rgba(234, 179, 8, 0.6);
+}
+
+.bb-route-stop-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bb-route-stop-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: #0f172a;
+}
+
+.bb-stop-name-txt {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bb-stop-time-txt {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.bb-stop-tag {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.bb-stop-tag.origin-tag {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.bb-stop-tag.end-tag {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.bb-stop-tag.board-tag {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.bb-stop-tag.drop-tag {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+/* =========================================================================
+   5. LIVE TRACKING INTERACTIVE ROUTE MAP (GPS GATED)
+   ========================================================================= */
+.bb-live-tracking-map-container {
+  margin: 16px 0 20px 0;
+  background: #0f172a;
+  border: 1.5px solid #1e293b;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.4), 0 8px 10px -6px rgba(15, 23, 42, 0.3);
+}
+
+.bb-map-top-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+  color: #ffffff;
+}
+
+.bb-map-title-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.bb-map-live-ping-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: bbPulseGreen 1.5s infinite;
+}
+
+.bb-map-gps-pill {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bb-map-gps-pill.active {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+}
+
+.bb-map-gps-pill.disabled {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.4);
+}
+
+.bb-map-canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+  overflow: hidden;
+}
+
+/* Standby screen when GPS is NOT allowed */
+.bb-map-gps-standby-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+}
+
+.bb-radar-scanner-disc {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 2px dashed #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.bb-radar-scanner-disc::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(59, 130, 246, 0.4);
+  animation: bbRadarSweep 2.5s infinite linear;
+}
+
+@keyframes bbRadarSweep {
+  0% { transform: rotate(0deg); opacity: 0.8; }
+  50% { opacity: 0.3; }
+  100% { transform: rotate(360deg); opacity: 0.8; }
+}
+
+.bb-standby-satellite-icon {
+  font-size: 36px;
+  color: #94a3b8;
+}
+
+.bb-standby-heading {
+  margin: 0 0 8px 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.bb-standby-subtext {
+  font-size: 13px;
+  color: #94a3b8;
+  max-width: 440px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.bb-allow-gps-action-btn {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 24px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45);
+  transition: all 0.2s ease;
+}
+
+.bb-allow-gps-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+/* Active Map Visualizer (When GPS is ON) */
+.bb-map-active-visualizer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.bb-map-svg-frame {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Floating Telemetry Box */
+.bb-map-telemetry-floating-box {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: #ffffff;
+  display: flex;
+  gap: 16px;
+  z-index: 5;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.bb-map-telemetry-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-map-telemetry-item .telem-label {
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.bb-map-telemetry-item .telem-val {
+  font-size: 13px;
+  font-weight: 900;
+  color: #38bdf8;
+}
+
+/* Map Controls Floating */
+.bb-map-controls-floating-row {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  display: flex;
+  gap: 8px;
+  z-index: 5;
+}
+
+.bb-map-control-btn {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  color: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.15s ease;
+}
+
+.bb-map-control-btn:hover {
+  background: #2563eb;
+  border-color: #3b82f6;
+}
+
+/* Map Route Legend Floating Overlay */
+.bb-map-legend-floating-overlay {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  border-radius: 10px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 5;
+  font-size: 11px;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.bb-map-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.bb-map-legend-dot.blue {
+  background: #3b82f6;
+  box-shadow: 0 0 6px #3b82f6;
+}
+
+.bb-map-legend-dot.yellow {
+  background: #facc15;
+  box-shadow: 0 0 6px #facc15;
+}
+
+.bb-map-legend-dot.green {
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
