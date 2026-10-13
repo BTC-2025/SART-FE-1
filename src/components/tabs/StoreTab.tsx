@@ -10,7 +10,121 @@ import { useSartStore } from '@/store/useSartStore';
 
 export type EquipmentOption = { name: string; price: number };
 export type VehicleType = 'Car' | 'Bike' | 'Auto' | 'Van' | 'Lorry' | 'Bus' | 'EV' | 'Universal';
-export type MainCategory = 'All' | 'Spare Parts' | 'Accessories' | 'Maintenance' | 'Wash & Care' | 'Emergency';
+export type MainCategory = 
+  | 'All' 
+  | 'Spare Parts' 
+  | 'Accessories' 
+  | 'Maintenance' 
+  | 'Service Center' 
+  | 'Mechanic Service' 
+  | 'Vehicle Modification' 
+  | 'Wash & Care' 
+  | 'Emergency';
+
+export const VEHICLE_SPECIFIC_CATEGORIES: Record<string, string[]> = {
+  Car: [
+    'All Categories',
+    'Engine & Transmission',
+    'Brakes & Rotors',
+    'Suspension & Steering',
+    'Periodic Maintenance Service',
+    'Authorized Service Center Work',
+    'Doorstep Mechanic Repair',
+    'Custom Modification & Body Kits',
+    'Car Accessories & Dashcams',
+    'Ceramic Coating & Detailing',
+    'AC Gas & Cooling Service',
+    'Batteries & Electricals',
+    'Tyres & Alloy Wheels',
+    'Emergency Breakdown & Towing'
+  ],
+  Bike: [
+    'All Categories',
+    'Bike Engine Oil & Filters',
+    'Chain & Sprocket Overhaul',
+    'Brake Pads & Disc Rotors',
+    'Clutch & Cables',
+    'Two-Wheeler Service Center',
+    'Bike Mechanic Breakdown Service',
+    'Superbike Custom Modification',
+    'Bike Exhaust & Performance Tuning',
+    'Helmets & Riding Accessories',
+    'Bike Detailing & Foam Wash',
+    'Bike Tyres & Tubes',
+    'Roadside Puncture & Towing'
+  ],
+  Auto: [
+    'All Categories',
+    'Auto CNG System & Tuning',
+    'Engine & Gearbox Spares',
+    'Clutch Plate & Friction Discs',
+    'Auto Mechanic Repair & Tuning',
+    'Commercial Auto Service Station',
+    'Audio, Meter & Mod Accessories',
+    'Heavy Auto Batteries & Starters',
+    'Tyres, Rims & Brake Shoes',
+    'Auto Towing & Breakdown Help'
+  ],
+  Van: [
+    'All Categories',
+    'Van Engine & Fuel Injection',
+    'Passenger Seat & Interior Mods',
+    'Van Periodic Maintenance',
+    'Suspension & Leaf Springs',
+    'Van Service Center Diagnostic',
+    'Doorstep Van Mechanic',
+    'Accessories & Luggage Carriers',
+    'Brakes, Clutch & Radiator',
+    'Fleet Emergency Roadside'
+  ],
+  Lorry: [
+    'All Categories',
+    'Heavy Diesel Engine Overhaul',
+    'Air Brake Chambers & Linings',
+    'Leaf Spring & Axle Suspension',
+    'Commercial Fleet Service Center',
+    'Heavy Highway Truck Mechanic',
+    'Custom Cabin & Body Modification',
+    'Transmission & Heavy Gear Oil',
+    'Heavy Vehicle Tyres & Rims',
+    'Heavy Crane & Highway Recovery'
+  ],
+  Bus: [
+    'All Categories',
+    'Bus Engine & Cooling Radiators',
+    'Air Conditioning & Vent Service',
+    'Air Brake & Pneumatic Spares',
+    'Bus Service Depot Inspection',
+    'Fleet Mechanic & Triage',
+    'Luxury Coach Modification & Seats',
+    'Door Mechanisms & Electrics',
+    'Heavy Duty Batteries',
+    '24/7 Breakdown & Recovery'
+  ],
+  EV: [
+    'All Categories',
+    'EV Fast Chargers & Type-2 Cables',
+    'Lithium Battery Health Diagnostics',
+    'Electric Motor Tuning & Service',
+    'EV Authorized Service Center',
+    'Doorstep EV Mechanic & Tech Support',
+    'EV Custom Styling & Aero Mods',
+    'Regenerative Braking Systems',
+    'Infotainment & Smart Gadgets',
+    'Emergency Mobile EV Charging Unit'
+  ],
+  Universal: [
+    'All Categories',
+    'Spare Parts',
+    'Accessories',
+    'Maintenance & Service',
+    'Service Center Booking',
+    'Nearby Mechanic Service',
+    'Vehicle Modification Studio',
+    'Wash & Detailing',
+    'Emergency Roadside'
+  ]
+};
 
 export interface StoreProduct {
   id: string;
@@ -43,6 +157,7 @@ export interface NearbyStore {
   id: string;
   name: string;
   type: string;
+  hubCategory: 'store' | 'mechanic' | 'service_center' | 'modification';
   distance: string;
   rating: number;
   reviews: number;
@@ -165,6 +280,7 @@ const NEARBY_STORES: NearbyStore[] = [
     id: 'store-1',
     name: 'SART Express Indiranagar Hub',
     type: 'Authorized Mega Store & Fitment Garage',
+    hubCategory: 'store',
     distance: '1.2 km away',
     rating: 4.9,
     reviews: 428,
@@ -175,9 +291,52 @@ const NEARBY_STORES: NearbyStore[] = [
     partsInStock: 3450,
   },
   {
+    id: 'mech-1',
+    name: 'SpeedyCare Doorstep & Garage Mechanic',
+    type: 'Certified On-Demand Mechanic & Triage Station',
+    hubCategory: 'mechanic',
+    distance: '0.8 km away',
+    rating: 4.88,
+    reviews: 512,
+    address: '12th Main Road, HAL 2nd Stage, Indiranagar',
+    phone: '+91 98450 77112',
+    openStatus: 'Open Now • 24x7 Emergency Mechanic On-Call',
+    servicesAvailable: ['Roadside Breakdown', 'Brake & Clutch Repair', 'Instant Oil Change', 'Jumpstart & Puncture'],
+    partsInStock: 1200,
+  },
+  {
+    id: 'sc-1',
+    name: 'SART Multi-Brand Authorized Service Center',
+    type: 'OEM Master Service Station & Bodyshop',
+    hubCategory: 'service_center',
+    distance: '2.1 km away',
+    rating: 4.92,
+    reviews: 840,
+    address: 'Old Airport Road, Kodihalli, Bengaluru',
+    phone: '+91 98451 44556',
+    openStatus: 'Open Now • Closes 8:30 PM',
+    servicesAvailable: ['Periodic Scheduled Service', 'Engine Overhaul & Diagnostics', 'Automated Wheel Alignment', 'Cashless Insurance Claims'],
+    partsInStock: 6800,
+  },
+  {
+    id: 'mod-1',
+    name: 'Autocraft Custom Studio & Performance Mod Garage',
+    type: 'Custom Vehicle Modification, Body Kits & Remapping',
+    hubCategory: 'modification',
+    distance: '3.4 km away',
+    rating: 4.96,
+    reviews: 395,
+    address: 'Double Road, Indiranagar Stage 1, Bengaluru',
+    phone: '+91 98452 99001',
+    openStatus: 'Open Now • Closes 9:00 PM',
+    servicesAvailable: ['Full Body Wrap & PPF', 'Performance ECU Remap & Exhaust', 'Custom Off-road Lift Kits', 'Ambient RGB & Audio Tuning'],
+    partsInStock: 2900,
+  },
+  {
     id: 'store-2',
     name: 'Koramangala AutoZone & Spare Hub',
     type: 'Premier Multi-Vehicle Parts Center',
+    hubCategory: 'store',
     distance: '2.8 km away',
     rating: 4.8,
     reviews: 612,
@@ -188,9 +347,52 @@ const NEARBY_STORES: NearbyStore[] = [
     partsInStock: 4890,
   },
   {
+    id: 'mech-2',
+    name: 'Koramangala 24/7 Mobile Mechanic Patrol',
+    type: 'Express Bike & Car Breakdown Mechanic',
+    hubCategory: 'mechanic',
+    distance: '2.5 km away',
+    rating: 4.85,
+    reviews: 380,
+    address: '5th Block, Jyoti Nivas College Road, Koramangala',
+    phone: '+91 98453 66778',
+    openStatus: 'Open 24 Hours • 15 Mins Dispatch',
+    servicesAvailable: ['Mobile Mechanic Van', 'Flat Tyre Replacement', 'Radiator Leak Fix', 'Electrical Wiring'],
+    partsInStock: 1650,
+  },
+  {
+    id: 'sc-2',
+    name: 'Bosch Car & Bike Premier Service Hub',
+    type: 'Certified Service Center & Computerized Lab',
+    hubCategory: 'service_center',
+    distance: '3.1 km away',
+    rating: 4.89,
+    reviews: 640,
+    address: 'Intermediate Ring Road, Koramangala, Bengaluru',
+    phone: '+91 98452 33441',
+    openStatus: 'Open Now • Closes 9:00 PM',
+    servicesAvailable: ['Bosch Diagnostics', 'Suspension Overhaul', 'Climate Control AC Refill', 'Tyre Balancing'],
+    partsInStock: 5200,
+  },
+  {
+    id: 'mod-2',
+    name: 'Torque Beast 4x4, Superbike & Thar Modifiers',
+    type: 'Specialized Bike, Car & SUV Vehicle Modification Studio',
+    hubCategory: 'modification',
+    distance: '4.2 km away',
+    rating: 4.95,
+    reviews: 310,
+    address: '100 Feet Road, 6th Block, Koramangala',
+    phone: '+91 98453 88123',
+    openStatus: 'Open Now • Closes 10:00 PM',
+    servicesAvailable: ['Thar & Off-Road Armor Customization', 'Superbike Exhaust & Tuning', 'Matte Paint Protection Film (PPF)', 'Custom Alloy Wheels'],
+    partsInStock: 1850,
+  },
+  {
     id: 'store-3',
-    name: 'Whitefield Heavy Fleet & Car World',
-    type: 'Cars, Commercial Trucks & Bus Depot',
+    name: 'Whitefield Heavy Fleet, Mechanic & Service Depot',
+    type: 'Commercial Trucks, Buses, Cars & EV Depot',
+    hubCategory: 'service_center',
     distance: '5.4 km away',
     rating: 4.7,
     reviews: 295,
@@ -199,19 +401,6 @@ const NEARBY_STORES: NearbyStore[] = [
     openStatus: 'Open 24x7 Emergency Depot',
     servicesAvailable: ['Heavy Commercial Spares', 'Lorry & Bus Fitment', '24x7 Roadside Dispatch', 'EV Fast Charging'],
     partsInStock: 8200,
-  },
-  {
-    id: 'store-4',
-    name: 'HSR Layout Bosch & Two-Wheeler Junction',
-    type: 'Bike & Car Express Workshop',
-    distance: '3.9 km away',
-    rating: 4.85,
-    reviews: 380,
-    address: '27th Main Road, Sector 1, HSR Layout, Bengaluru',
-    phone: '+91 98453 11223',
-    openStatus: 'Open Now • Closes 9:00 PM',
-    servicesAvailable: ['Superbike Tuning', 'Suspension Overhaul', 'Ceramic Detailing Bay'],
-    partsInStock: 2600,
   },
 ];
 
@@ -855,9 +1044,197 @@ const CATALOG_ITEMS: StoreProduct[] = [
       { name: 'Headlight Fog & Yellowing Restoration', price: 600 },
     ],
   },
+  {
+    id: 'srv-9',
+    name: 'Nearby Doorstep Mechanic On-Demand Inspection & Tune-Up',
+    price: 499,
+    originalPrice: 850,
+    rating: 4.9,
+    reviewsCount: 1540,
+    icon: 'fa-wrench',
+    image: 'https://crawfordsautoservice.com/wp-content/uploads/2020/03/service-writer-auto-repair.jpg',
+    vehicle: 'Universal',
+    category: 'Mechanic Service',
+    section: 'Nearby Mechanic Services',
+    badge: 'DOORSTEP MECHANIC',
+    badgeType: 'bestseller',
+    desc: 'Expert certified technician visits your home/office. Complete 35-point health diagnostics, minor fault fixes & fluids top-up.',
+    duration: '1 Hr',
+    warranty: 'Workmanship Guaranteed',
+    isService: true,
+    includes: ['Doorstep mechanic inspection', 'OBD scanner diagnostic error clearance', 'Battery terminals cleaning', 'Coolant & brake fluid check', 'Fan belt & wiper triage'],
+    equipmentOptions: [
+      { name: 'Spark Plug Set Replacement', price: 550 },
+      { name: 'Engine Oil Flush (3.5L)', price: 950 },
+      { name: 'Brake Fluid Bleed (500ml)', price: 300 },
+    ],
+  },
+  {
+    id: 'srv-10',
+    name: 'Authorized Service Center Master Overhaul & Stamp',
+    price: 2999,
+    originalPrice: 4800,
+    rating: 4.94,
+    reviewsCount: 920,
+    icon: 'fa-building-shield',
+    image: 'https://blogs.gomechanic.com/wp-content/uploads/2024/09/car-service_web_what-is-car-servicing.png',
+    vehicle: 'Car',
+    category: 'Service Center',
+    section: 'Authorized Service Centers',
+    badge: 'OEM CERTIFIED',
+    badgeType: 'trending',
+    desc: 'Dealer-grade full bay inspection at SART authorized service station. Factory diagnostics, digital logbook stamping & warranty preservation.',
+    duration: '4.5 Hrs',
+    warranty: '12 Months OEM Warranty',
+    isService: true,
+    includes: ['Comprehensive mechanical audit', 'Computerized ECU fault scan', 'High-pressure underchassis wash', 'Wheel alignment & computerized balancing', 'Official service logbook stamping'],
+    equipmentOptions: [
+      { name: 'Synthetic Motul 5W-40 Upgrade', price: 1400 },
+      { name: 'Cabin Carbon HEPA Pollen Filter', price: 650 },
+      { name: 'Throttle Body Ultrasonic Cleaning', price: 750 },
+    ],
+  },
+  {
+    id: 'srv-11',
+    name: 'Custom Vehicle Modification: Full Matte / Gloss Vinyl Wrap & PPF',
+    price: 18500,
+    originalPrice: 28000,
+    rating: 4.97,
+    reviewsCount: 410,
+    icon: 'fa-paint-roller',
+    image: 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?auto=format&fit=crop&w=600&q=80',
+    vehicle: 'Car',
+    category: 'Vehicle Modification',
+    section: 'Custom Vehicle Modification Studio',
+    badge: 'CUSTOM MODS',
+    badgeType: 'new',
+    desc: 'Transform your vehicle with premium Avery Dennison / 3M exterior color-shift vinyl wrap or self-healing TPU paint protection film.',
+    duration: '2 Days',
+    warranty: '5 Years Film Warranty',
+    isService: true,
+    includes: ['Full exterior surface clay bar prep', 'Edge wrapping & precision cutting', 'Heat gun bonding treatment', 'UV & scratch proof clear coat shield'],
+    equipmentOptions: [
+      { name: 'Roof Gloss Black De-Chrome Wrap', price: 2800 },
+      { name: 'Smoked Headlight & Taillight PPF Tint', price: 1600 },
+      { name: 'Alloy Wheels Hyper-Dip Matte Bronze', price: 3500 },
+    ],
+  },
+  {
+    id: 'srv-12',
+    name: 'Performance Tuning: Stage 1 ECU Remap & Free-Flow Exhaust',
+    price: 12500,
+    originalPrice: 19500,
+    rating: 4.95,
+    reviewsCount: 290,
+    icon: 'fa-gauge-simple-high',
+    image: 'https://images.unsplash.com/photo-1503376710356-70d6943f65e2?auto=format&fit=crop&w=600&q=80',
+    vehicle: 'Universal',
+    category: 'Vehicle Modification',
+    section: 'Custom Vehicle Modification Studio',
+    badge: '+25% HP BOOST',
+    badgeType: 'bestseller',
+    desc: 'Unleash up to 25% extra horsepower and 30% torque with custom engine ECU flashing. Smooth power band with improved highway fuel efficiency.',
+    duration: '4 Hrs',
+    warranty: 'Safe Dyno-Tested Map',
+    isService: true,
+    includes: ['Dyno baseline power run', 'Custom fuel & boost map flash', 'Speed limiter removal', 'OBD performance health check'],
+    equipmentOptions: [
+      { name: 'High-Flow Cold Air Intake Cone', price: 3400 },
+      { name: 'Valvetronic Exhaust System Cutout', price: 6500 },
+      { name: 'Iridium Racing Spark Plugs Set', price: 1200 },
+    ],
+  },
+  {
+    id: 'srv-13',
+    name: 'Interior Luxury Mod: Ambient 64-Color RGB LED & Starry Starlight Headliner',
+    price: 5499,
+    originalPrice: 8900,
+    rating: 4.88,
+    reviewsCount: 360,
+    icon: 'fa-wand-magic-sparkles',
+    image: 'https://images.unsplash.com/photo-1517524285303-d6fc683dddf8?auto=format&fit=crop&w=600&q=80',
+    vehicle: 'Car',
+    category: 'Vehicle Modification',
+    section: 'Custom Vehicle Modification Studio',
+    badge: 'LUXURY RETROFIT',
+    badgeType: 'trending',
+    desc: 'Rolls-Royce inspired fiber-optic shooting star roof liner and app-controlled 64-color acrylic hidden ambient light strips.',
+    duration: '5 Hrs',
+    warranty: '2 Years Wiring Warranty',
+    isService: true,
+    includes: ['64-Color smartphone synced ambient bars', 'Dashboard, doors & footwell wiring', 'Optical starlight fiber harness', 'Fuse tap safety box with zero wire-cutting'],
+    equipmentOptions: [
+      { name: 'Shooting Meteor Star Effect Addon', price: 2100 },
+      { name: 'Illuminated Door Sill Scuff Plates', price: 1400 },
+      { name: 'Underglow Chassis RGB Neon Kit', price: 2200 },
+    ],
+  },
+  {
+    id: 'srv-14',
+    name: 'Two-Wheeler Service Center Periodic Check & Injector Clean',
+    price: 699,
+    originalPrice: 1100,
+    rating: 4.91,
+    reviewsCount: 880,
+    icon: 'fa-motorcycle',
+    image: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=600&q=80',
+    vehicle: 'Bike',
+    category: 'Service Center',
+    section: 'Authorized Service Centers',
+    badge: 'BIKE SERVICE',
+    badgeType: 'bestseller',
+    desc: 'Authorized bike service bay inspection. Ultrasonic fuel injector clean, brake bleeding, clutch adjustment & electrical test.',
+    duration: '2 Hrs',
+    warranty: '90 Days Service Warranty',
+    isService: true,
+    includes: ['Ultrasonic fuel injector clean', 'Brake pad surface de-glaze', 'Clutch cable play adjust', 'Drive chain degrease & Motul lube'],
+    equipmentOptions: [
+      { name: 'Motul 7100 100% Synthetic Oil (1L)', price: 850 },
+      { name: 'K&N High Flow Air Filter', price: 1800 },
+    ],
+  },
+  {
+    id: 'srv-15',
+    name: 'Emergency Roadside Mechanic Breakdown SOS Dispatch',
+    price: 699,
+    originalPrice: 1200,
+    rating: 4.98,
+    reviewsCount: 2240,
+    icon: 'fa-truck-medical',
+    image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=600&q=80',
+    vehicle: 'Universal',
+    category: 'Mechanic Service',
+    section: 'Nearby Mechanic Services',
+    badge: '15-MINS ARRIVAL',
+    badgeType: 'emergency',
+    emergency: true,
+    desc: 'Nearest mobile mechanic dispatched to your live GPS location. Quick spot fix for battery dead, flat tyre, clutch wire snap or engine heat up.',
+    duration: '15 Mins Arrival',
+    warranty: 'Instant On-Spot Triage',
+    isService: true,
+    includes: ['Priority technician dispatch', 'On-spot battery jump start', 'Puncture tube repair', 'Overheating radiator triage'],
+    equipmentOptions: [
+      { name: 'Emergency Fuel Can (5 Litres)', price: 650 },
+      { name: 'Battery Replacement Exchange', price: 3800 },
+    ],
+  },
 ];
 
 const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`;
+
+export {
+  NEW_LAUNCH_PRODUCTS,
+  TRENDING_PRODUCTS,
+  TOP_SELLING_PRODUCTS,
+  CATALOG_ITEMS,
+};
+
+export const ALL_STORE_PRODUCTS: StoreProduct[] = [
+  ...NEW_LAUNCH_PRODUCTS,
+  ...TRENDING_PRODUCTS,
+  ...TOP_SELLING_PRODUCTS,
+  ...CATALOG_ITEMS,
+];
 
 /* ------------------------------------------------------------------ */
 /* Component Implementation                                           */
@@ -870,17 +1247,69 @@ export default function StoreTab() {
 
   // Top Vehicle Selector State
   const [selectedVehicleType, setSelectedVehicleType] = useState<string>('Car');
+  const [selectedVehicleCategory, setSelectedVehicleCategory] = useState<string>('All Categories');
   const [selectedBrand, setSelectedBrand] = useState<string>('Maruti Suzuki');
   const [selectedModel, setSelectedModel] = useState<string>('Swift');
   const [selectedYear, setSelectedYear] = useState<string>('2023');
   const [selectedFuel, setSelectedFuel] = useState<string>('Petrol');
 
-  // Garage Selection Active Flag
+  // Browse Mode: 'general' (All products & services across all vehicles) vs 'my_vehicle' (Filtered to user's vehicle)
+  const [storeBrowseMode, setStoreBrowseMode] = useState<'general' | 'my_vehicle'>('my_vehicle');
+
+  // Garage Active Flag
   const [garageActive, setGarageActive] = useState<boolean>(true);
+
+  // Saved Garage Vehicles List
+  interface SavedGarageVehicle {
+    id: string;
+    type: string;
+    brand: string;
+    model: string;
+    year: string;
+    fuel: string;
+    regNumber?: string;
+    nickname?: string;
+  }
+
+  const [savedVehicles, setSavedVehicles] = useState<SavedGarageVehicle[]>([
+    {
+      id: 'v-1',
+      type: 'Car',
+      brand: 'Maruti Suzuki',
+      model: 'Swift',
+      year: '2023',
+      fuel: 'Petrol',
+      nickname: 'Daily Swift',
+      regNumber: 'TN 09 BX 2023',
+    },
+    {
+      id: 'v-2',
+      type: 'Bike',
+      brand: 'Royal Enfield',
+      model: 'Classic 350',
+      year: '2022',
+      fuel: 'Petrol',
+      nickname: 'Bullet 350',
+      regNumber: 'TN 07 AB 3500',
+    },
+  ]);
+
+  const [activeVehicleId, setActiveVehicleId] = useState<string>('v-1');
+
+  // Add Vehicle Modal State
+  const [showAddVehicleModal, setShowAddVehicleModal] = useState<boolean>(false);
+  const [newVehicleType, setNewVehicleType] = useState<string>('Car');
+  const [newVehicleBrand, setNewVehicleBrand] = useState<string>('Hyundai');
+  const [newVehicleModel, setNewVehicleModel] = useState<string>('Creta');
+  const [newVehicleYear, setNewVehicleYear] = useState<string>('2024');
+  const [newVehicleFuel, setNewVehicleFuel] = useState<string>('Petrol');
+  const [newVehicleNickname, setNewVehicleNickname] = useState<string>('');
+  const [newVehicleReg, setNewVehicleReg] = useState<string>('');
 
   // Store fulfillment mode: 'delivery' vs 'nearby'
   const [fulfillmentMode, setFulfillmentMode] = useState<'delivery' | 'nearby'>('delivery');
   const [showStoreLocatorModal, setShowStoreLocatorModal] = useState<boolean>(false);
+  const [nearbyStoreFilter, setNearbyStoreFilter] = useState<'all' | 'store' | 'mechanic' | 'service_center' | 'modification'>('all');
   const [preferredStore, setPreferredStore] = useState<NearbyStore>(NEARBY_STORES[0]);
 
   // Search & Category Filters
@@ -893,10 +1322,31 @@ export default function StoreTab() {
   const [expandedIncludes, setExpandedIncludes] = useState<Record<string, boolean>>({});
   const [activeDetailId, setActiveDetailId] = useState<string | null>(null);
 
+  // Dedicated Product Detail Modal when clicking ANY card
+  const [selectedProductModal, setSelectedProductModal] = useState<StoreProduct | null>(null);
+
   // Carousel references for scrolling with left and right buttons
   const newLaunchRef = useRef<HTMLDivElement>(null);
   const trendingRef = useRef<HTMLDivElement>(null);
   const topSellingRef = useRef<HTMLDivElement>(null);
+  const catalogSectionRef = useRef<HTMLElement>(null);
+
+  // Active Applied Vehicle Filter for search results
+  const [appliedVehicleSearch, setAppliedVehicleSearch] = useState<{
+    type: string;
+    brand: string;
+    model: string;
+    year: string;
+    fuel: string;
+    category: string;
+  } | null>({
+    type: 'Car',
+    brand: 'Maruti Suzuki',
+    model: 'Swift',
+    year: '2023',
+    fuel: 'Petrol',
+    category: 'All Categories',
+  });
 
   // Toast notification
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -915,9 +1365,40 @@ export default function StoreTab() {
     return MODELS_BY_BRAND[selectedBrand] || ['All Models / Universal'];
   }, [selectedBrand]);
 
-  // When vehicle type changes, sync brand and model
+  // Vehicle-specific categories based on selected vehicle type
+  const availableVehicleCategories = useMemo(() => {
+    return VEHICLE_SPECIFIC_CATEGORIES[selectedVehicleType] || VEHICLE_SPECIFIC_CATEGORIES['Universal'] || ['All Categories'];
+  }, [selectedVehicleType]);
+
+  // Modal available brands & models based on newVehicleType
+  const modalAvailableBrands = useMemo(() => {
+    return BRANDS_BY_VEHICLE[newVehicleType] || ['Universal Brands'];
+  }, [newVehicleType]);
+
+  const modalAvailableModels = useMemo(() => {
+    return MODELS_BY_BRAND[newVehicleBrand] || ['All Models / Universal'];
+  }, [newVehicleBrand]);
+
+  // When modal vehicle type changes
+  const handleModalVehicleTypeChange = (type: string) => {
+    setNewVehicleType(type);
+    const brands = BRANDS_BY_VEHICLE[type] || [];
+    const firstBrand = brands[0] || 'Universal';
+    setNewVehicleBrand(firstBrand);
+    const models = MODELS_BY_BRAND[firstBrand] || [];
+    setNewVehicleModel(models[0] || 'All Models');
+  };
+
+  const handleModalBrandChange = (brand: string) => {
+    setNewVehicleBrand(brand);
+    const models = MODELS_BY_BRAND[brand] || [];
+    setNewVehicleModel(models[0] || 'All Models');
+  };
+
+  // When vehicle type changes, sync brand, model, and category
   const handleVehicleTypeChange = (type: string) => {
     setSelectedVehicleType(type);
+    setSelectedVehicleCategory('All Categories');
     const brands = BRANDS_BY_VEHICLE[type] || [];
     const firstBrand = brands[0] || 'Universal';
     setSelectedBrand(firstBrand);
@@ -931,18 +1412,113 @@ export default function StoreTab() {
     setSelectedModel(models[0] || 'All Models');
   };
 
+  // Switch to a saved vehicle
+  const handleSelectSavedVehicle = (v: SavedGarageVehicle) => {
+    setActiveVehicleId(v.id);
+    setSelectedVehicleType(v.type);
+    setSelectedBrand(v.brand);
+    setSelectedModel(v.model);
+    setSelectedYear(v.year);
+    setSelectedFuel(v.fuel);
+    setSelectedVehicleCategory('All Categories');
+    setGarageActive(true);
+    setStoreBrowseMode('my_vehicle');
+    setAppliedVehicleSearch({
+      type: v.type,
+      brand: v.brand,
+      model: v.model,
+      year: v.year,
+      fuel: v.fuel,
+      category: 'All Categories',
+    });
+    showToast(`Switched to your ${v.nickname || `${v.brand} ${v.model}`}`);
+  };
+
+  // Save New Vehicle from Modal
+  const handleSaveNewVehicle = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newId = `v-${Date.now()}`;
+    const newVeh: SavedGarageVehicle = {
+      id: newId,
+      type: newVehicleType,
+      brand: newVehicleBrand,
+      model: newVehicleModel,
+      year: newVehicleYear,
+      fuel: newVehicleFuel,
+      nickname: newVehicleNickname.trim() || `${newVehicleBrand} ${newVehicleModel}`,
+      regNumber: newVehicleReg.trim().toUpperCase(),
+    };
+
+    setSavedVehicles((prev) => [newVeh, ...prev]);
+    setActiveVehicleId(newId);
+    setSelectedVehicleType(newVeh.type);
+    setSelectedBrand(newVeh.brand);
+    setSelectedModel(newVeh.model);
+    setSelectedYear(newVeh.year);
+    setSelectedFuel(newVeh.fuel);
+    setSelectedVehicleCategory('All Categories');
+    setGarageActive(true);
+    setStoreBrowseMode('my_vehicle');
+    setAppliedVehicleSearch({
+      type: newVeh.type,
+      brand: newVeh.brand,
+      model: newVeh.model,
+      year: newVeh.year,
+      fuel: newVeh.fuel,
+      category: 'All Categories',
+    });
+
+    setShowAddVehicleModal(false);
+    setNewVehicleNickname('');
+    setNewVehicleReg('');
+    showToast(`Vehicle Added! Showing exact parts & services for ${newVeh.brand} ${newVeh.model}`);
+
+    // Scroll to results
+    setTimeout(() => {
+      if (catalogSectionRef.current) {
+        catalogSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 200);
+  };
+
   const handleApplyVehicleSearch = () => {
     setGarageActive(true);
-    showToast(`Vehicle configured: ${selectedYear} ${selectedBrand} ${selectedModel} (${selectedVehicleType})`);
+    setStoreBrowseMode('my_vehicle');
+    setAppliedVehicleSearch({
+      type: selectedVehicleType,
+      brand: selectedBrand,
+      model: selectedModel,
+      year: selectedYear,
+      fuel: selectedFuel,
+      category: selectedVehicleCategory,
+    });
+    showToast(`Showing parts & services for: ${selectedYear} ${selectedBrand} ${selectedModel} (${selectedVehicleType}) • ${selectedVehicleCategory}`);
+
+    // Smooth scroll to catalog results section below
+    setTimeout(() => {
+      if (catalogSectionRef.current) {
+        catalogSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 150);
   };
 
   const handleResetVehicle = () => {
     setSelectedVehicleType('Car');
+    setSelectedVehicleCategory('All Categories');
     setSelectedBrand('Maruti Suzuki');
     setSelectedModel('Swift');
     setSelectedYear('2023');
     setGarageActive(false);
+    setAppliedVehicleSearch(null);
+    setStoreBrowseMode('general');
+    showToast('Switched to General Store Catalog (All Products)');
   };
+
+  // Filtered nearby stores list based on modal category filter tab
+  const filteredNearbyStores = useMemo(() => {
+    if (nearbyStoreFilter === 'all') return NEARBY_STORES;
+    return NEARBY_STORES.filter((s) => s.hubCategory === nearbyStoreFilter);
+  }, [nearbyStoreFilter]);
 
   // Scroll carousel helper
   const scrollCarousel = (ref: React.RefObject<HTMLDivElement | null>, direction: 'left' | 'right') => {
@@ -1019,13 +1595,62 @@ export default function StoreTab() {
     const q = search.trim().toLowerCase();
 
     return CATALOG_ITEMS.filter((item) => {
+      // Main Category Pill Filter
       const matchCat =
         activeCategory === 'All' ||
         (activeCategory === 'Spare Parts' && item.category === 'Spare Parts') ||
         (activeCategory === 'Accessories' && item.category === 'Accessories') ||
         (activeCategory === 'Maintenance' && item.category === 'Maintenance') ||
+        (activeCategory === 'Service Center' && (item.category === 'Service Center' || item.name.toLowerCase().includes('service center') || item.desc.toLowerCase().includes('service center'))) ||
+        (activeCategory === 'Mechanic Service' && (item.category === 'Mechanic Service' || item.name.toLowerCase().includes('mechanic') || item.desc.toLowerCase().includes('mechanic'))) ||
+        (activeCategory === 'Vehicle Modification' && (item.category === 'Vehicle Modification' || item.name.toLowerCase().includes('modification') || item.name.toLowerCase().includes('remap') || item.name.toLowerCase().includes('wrap'))) ||
         (activeCategory === 'Wash & Care' && item.category === 'Wash & Care') ||
         (activeCategory === 'Emergency' && item.category === 'Emergency');
+
+      // Vehicle-Specific Top Category Filter
+      let matchVehicleCat = true;
+      if (storeBrowseMode === 'my_vehicle' && selectedVehicleCategory && selectedVehicleCategory !== 'All Categories') {
+        const vCat = selectedVehicleCategory.toLowerCase();
+        const itemBlob = `${item.name} ${item.desc} ${item.category} ${item.section} ${(item.includes || []).join(' ')}`.toLowerCase();
+        
+        if (vCat.includes('mechanic')) {
+          matchVehicleCat = itemBlob.includes('mechanic') || item.category === 'Mechanic Service';
+        } else if (vCat.includes('service center')) {
+          matchVehicleCat = itemBlob.includes('service center') || item.category === 'Service Center';
+        } else if (vCat.includes('modification') || vCat.includes('tuning') || vCat.includes('body kit') || vCat.includes('exhaust')) {
+          matchVehicleCat = itemBlob.includes('modification') || itemBlob.includes('mod') || itemBlob.includes('tuning') || item.category === 'Vehicle Modification';
+        } else if (vCat.includes('brake') || vCat.includes('rotor')) {
+          matchVehicleCat = itemBlob.includes('brake') || itemBlob.includes('disc') || itemBlob.includes('shoe');
+        } else if (vCat.includes('engine') || vCat.includes('transmission') || vCat.includes('gear')) {
+          matchVehicleCat = itemBlob.includes('engine') || itemBlob.includes('gear') || itemBlob.includes('clutch') || itemBlob.includes('oil');
+        } else if (vCat.includes('suspension') || vCat.includes('spring') || vCat.includes('steering')) {
+          matchVehicleCat = itemBlob.includes('suspension') || itemBlob.includes('steering') || itemBlob.includes('spring');
+        } else if (vCat.includes('detailing') || vCat.includes('wash') || vCat.includes('ceramic') || vCat.includes('coating')) {
+          matchVehicleCat = itemBlob.includes('wash') || itemBlob.includes('coating') || itemBlob.includes('detailing') || itemBlob.includes('polish');
+        } else if (vCat.includes('accessories') || vCat.includes('dashcam') || vCat.includes('helmet')) {
+          matchVehicleCat = itemBlob.includes('accessories') || itemBlob.includes('dashcam') || itemBlob.includes('charger') || item.category === 'Accessories';
+        } else if (vCat.includes('ev') || vCat.includes('charger') || vCat.includes('battery')) {
+          matchVehicleCat = itemBlob.includes('charger') || itemBlob.includes('battery') || itemBlob.includes('ev') || item.vehicle === 'EV';
+        } else if (vCat.includes('emergency') || vCat.includes('breakdown') || vCat.includes('towing') || vCat.includes('puncture')) {
+          matchVehicleCat = itemBlob.includes('emergency') || itemBlob.includes('breakdown') || itemBlob.includes('towing') || item.category === 'Emergency';
+        } else {
+          // general token match
+          const firstWord = vCat.split(' ')[0];
+          matchVehicleCat = itemBlob.includes(firstWord);
+        }
+      }
+
+      // Vehicle-Type Fitment Match (Only enforced when in 'my_vehicle' mode)
+      let matchVehicleType = true;
+      if (storeBrowseMode === 'my_vehicle') {
+        const activeVehicleTypeToFilter = appliedVehicleSearch ? appliedVehicleSearch.type : selectedVehicleType;
+        matchVehicleType =
+          !activeVehicleTypeToFilter ||
+          activeVehicleTypeToFilter === 'Universal' ||
+          item.vehicle === 'Universal' ||
+          item.vehicle === activeVehicleTypeToFilter ||
+          (item.compatibleWith && item.compatibleWith.toLowerCase().includes(activeVehicleTypeToFilter.toLowerCase()));
+      }
 
       const matchQuery =
         !q ||
@@ -1033,9 +1658,9 @@ export default function StoreTab() {
           .toLowerCase()
           .includes(q);
 
-      return matchCat && matchQuery;
+      return matchCat && matchVehicleCat && matchVehicleType && matchQuery;
     });
-  }, [activeCategory, search]);
+  }, [activeCategory, selectedVehicleCategory, selectedVehicleType, appliedVehicleSearch, search, storeBrowseMode]);
 
   if (!mounted) return null;
 
@@ -1111,19 +1736,116 @@ export default function StoreTab() {
 
           {/* 1. TOP FORM: VEHICLE SELECTOR (Clean White Card) */}
           <div className="vehicle-selector-card-white">
+            {/* Dual Mode Switcher Bar: General Search vs Your Vehicle Based */}
+            <div className="store-mode-toggle-banner">
+              <div className="store-mode-tabs">
+                <button
+                  type="button"
+                  className={`store-mode-tab-btn ${storeBrowseMode === 'general' ? 'active' : ''}`}
+                  onClick={() => {
+                    setStoreBrowseMode('general');
+                    showToast('Switched to General Search (All Vehicle Parts & Universal Catalog)');
+                  }}
+                >
+                  <i className="fa-solid fa-globe"></i>
+                  <span>General Search (All Parts)</span>
+                  <span className="mode-badge">Universal</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`store-mode-tab-btn ${storeBrowseMode === 'my_vehicle' ? 'active' : ''}`}
+                  onClick={() => {
+                    setStoreBrowseMode('my_vehicle');
+                    setGarageActive(true);
+                    setAppliedVehicleSearch({
+                      type: selectedVehicleType,
+                      brand: selectedBrand,
+                      model: selectedModel,
+                      year: selectedYear,
+                      fuel: selectedFuel,
+                      category: selectedVehicleCategory,
+                    });
+                    showToast(`Switched to Your Vehicle: ${selectedBrand} ${selectedModel}`);
+                  }}
+                >
+                  <i className="fa-solid fa-car-side"></i>
+                  <span>Your Vehicle Based ({selectedBrand} {selectedModel})</span>
+                  <span className="mode-badge active-pill">Guaranteed Fit</span>
+                </button>
+              </div>
+
+              {/* Add Vehicle Button */}
+              <div className="store-add-vehicle-action">
+                <button
+                  type="button"
+                  className="btn-add-vehicle-trigger"
+                  onClick={() => setShowAddVehicleModal(true)}
+                  aria-label="Add Your Vehicle"
+                >
+                  <i className="fa-solid fa-circle-plus"></i>
+                  <span>Add Your Vehicle</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Saved Garage Vehicles Quick Switcher */}
+            {savedVehicles.length > 0 && (
+              <div className="saved-garage-strip">
+                <span className="saved-strip-label">
+                  <i className="fa-solid fa-warehouse"></i> My Garage Vehicles:
+                </span>
+                <div className="saved-vehicle-chips-wrap">
+                  {savedVehicles.map((v) => {
+                    const isSelected = activeVehicleId === v.id && storeBrowseMode === 'my_vehicle';
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        className={`saved-vehicle-chip ${isSelected ? 'active' : ''}`}
+                        onClick={() => handleSelectSavedVehicle(v)}
+                      >
+                        <i className={`fa-solid ${v.type === 'Bike' ? 'fa-motorcycle' : v.type === 'Scooter' ? 'fa-moped' : v.type === 'Truck' ? 'fa-truck' : 'fa-car'}`}></i>
+                        <span className="chip-name">{v.nickname || `${v.brand} ${v.model}`}</span>
+                        <span className="chip-meta">{v.year} • {v.fuel}</span>
+                        {isSelected && <i className="fa-solid fa-circle-check check-icon"></i>}
+                      </button>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    className="saved-vehicle-chip-add"
+                    onClick={() => setShowAddVehicleModal(true)}
+                    title="Add another vehicle"
+                  >
+                    <i className="fa-solid fa-plus"></i>
+                    <span>Add New</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="vehicle-selector-header">
               <div className="v-header-left">
                 <i className="fa-solid fa-car-tunnel"></i>
                 <div>
-                  <h3>Select Your Vehicle for Exact Fitment</h3>
-                  <p>Guaranteed compatible parts, lubricants, filters &amp; services</p>
+                  <h3>
+                    {storeBrowseMode === 'my_vehicle'
+                      ? `Your Vehicle Fitment: ${selectedBrand} ${selectedModel} (${selectedYear})`
+                      : 'General Search & Vehicle Fitment Filter'}
+                  </h3>
+                  <p>
+                    {storeBrowseMode === 'my_vehicle'
+                      ? `Displaying 100% matched parts, fluids & workshop services for your ${selectedBrand} ${selectedModel}.`
+                      : 'Browsing universal catalog. Choose your vehicle type and brand anytime to narrow results.'}
+                  </p>
                 </div>
               </div>
-              {garageActive && (
+              {garageActive && storeBrowseMode === 'my_vehicle' && (
                 <div className="active-vehicle-tag">
                   <i className="fa-solid fa-circle-check"></i>
                   <span>Fitment Active: <strong>{selectedBrand} {selectedModel} ({selectedYear})</strong></span>
-                  <button type="button" className="btn-clear-garage" onClick={handleResetVehicle} title="Reset">
+                  <button type="button" className="btn-clear-garage" onClick={handleResetVehicle} title="Switch to General Search">
                     <i className="fa-solid fa-xmark"></i>
                   </button>
                 </div>
@@ -1158,7 +1880,28 @@ export default function StoreTab() {
                 </div>
               </div>
 
-              {/* Field 2: Brand / Make */}
+              {/* Field 2: Choose Category (Vehicle Based) */}
+              <div className="form-group-field field-category-picker">
+                <label>
+                  <i className="fa-solid fa-layer-group"></i> Choose Category
+                </label>
+                <div className="select-wrapper">
+                  <select
+                    value={selectedVehicleCategory}
+                    onChange={(e) => setSelectedVehicleCategory(e.target.value)}
+                    aria-label="Choose Category"
+                  >
+                    {availableVehicleCategories.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                  <i className="fa-solid fa-chevron-down select-arrow"></i>
+                </div>
+              </div>
+
+              {/* Field 3: Brand / Make */}
               <div className="form-group-field">
                 <label>
                   <i className="fa-solid fa-certificate"></i> Brand / Make
@@ -1179,7 +1922,7 @@ export default function StoreTab() {
                 </div>
               </div>
 
-              {/* Field 3: Model */}
+              {/* Field 4: Model */}
               <div className="form-group-field">
                 <label>
                   <i className="fa-solid fa-car-side"></i> Model
@@ -1200,7 +1943,7 @@ export default function StoreTab() {
                 </div>
               </div>
 
-              {/* Field 4: Year */}
+              {/* Field 5: Year */}
               <div className="form-group-field field-year">
                 <label>
                   <i className="fa-regular fa-calendar"></i> Year
@@ -1221,7 +1964,7 @@ export default function StoreTab() {
                 </div>
               </div>
 
-              {/* Field 5: Fuel / Engine */}
+              {/* Field 6: Fuel / Engine */}
               <div className="form-group-field field-fuel">
                 <label>
                   <i className="fa-solid fa-gas-pump"></i> Fuel Type
@@ -1266,6 +2009,28 @@ export default function StoreTab() {
                 </button>
               ))}
             </div>
+
+            {/* Quick Vehicle Categories Pills Row (Dynamic based on selected vehicle) */}
+            <div className="quick-category-pills">
+              <span className="pills-label">
+                <i className="fa-solid fa-tags"></i> {selectedVehicleType} Categories:
+              </span>
+              <div className="category-scroll-chips">
+                {availableVehicleCategories.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    className={`cat-chip-btn ${selectedVehicleCategory === cat ? 'active' : ''}`}
+                    onClick={() => {
+                      setSelectedVehicleCategory(cat);
+                      showToast(`Filtered by ${selectedVehicleType} > ${cat}`);
+                    }}
+                  >
+                    <span>{cat}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1309,7 +2074,11 @@ export default function StoreTab() {
           {/* Horizontal Slider Track */}
           <div className="carousel-slider-track" ref={newLaunchRef}>
             {NEW_LAUNCH_PRODUCTS.map((item) => (
-              <div key={item.id} className="store-product-slide-card">
+              <div
+                key={item.id}
+                className="store-product-slide-card cursor-pointer"
+                onClick={() => setSelectedProductModal(item)}
+              >
                 <div className="product-media-wrapper">
                   <span className="product-ribbon-badge badge-new">{item.badge}</span>
                   <button
@@ -1375,7 +2144,10 @@ export default function StoreTab() {
                     <button
                       type="button"
                       className="btn-add-cart-primary"
-                      onClick={() => handleAddToCart(item)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(item);
+                      }}
                     >
                       <i className="fa-solid fa-cart-plus"></i>
                       <span>Add</span>
@@ -1423,7 +2195,11 @@ export default function StoreTab() {
           {/* Horizontal Slider Track */}
           <div className="carousel-slider-track" ref={trendingRef}>
             {TRENDING_PRODUCTS.map((item) => (
-              <div key={item.id} className="store-product-slide-card card-trending">
+              <div
+                key={item.id}
+                className="store-product-slide-card card-trending cursor-pointer"
+                onClick={() => setSelectedProductModal(item)}
+              >
                 <div className="product-media-wrapper">
                   <span className="product-ribbon-badge badge-trending">{item.badge}</span>
                   <button
@@ -1489,7 +2265,10 @@ export default function StoreTab() {
                     <button
                       type="button"
                       className="btn-add-cart-primary"
-                      onClick={() => handleAddToCart(item)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(item);
+                      }}
                     >
                       <i className="fa-solid fa-cart-plus"></i>
                       <span>Add</span>
@@ -1537,7 +2316,11 @@ export default function StoreTab() {
           {/* Horizontal Slider Track */}
           <div className="carousel-slider-track" ref={topSellingRef}>
             {TOP_SELLING_PRODUCTS.map((item) => (
-              <div key={item.id} className="store-product-slide-card card-bestseller">
+              <div
+                key={item.id}
+                className="store-product-slide-card card-bestseller cursor-pointer"
+                onClick={() => setSelectedProductModal(item)}
+              >
                 <div className="product-media-wrapper">
                   <span className="product-ribbon-badge badge-bestseller">{item.badge}</span>
                   <button
@@ -1603,7 +2386,10 @@ export default function StoreTab() {
                     <button
                       type="button"
                       className="btn-add-cart-primary"
-                      onClick={() => handleAddToCart(item)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(item);
+                      }}
                     >
                       <i className="fa-solid fa-cart-plus"></i>
                       <span>Add</span>
@@ -1616,12 +2402,58 @@ export default function StoreTab() {
         </section>
 
         {/* 5. UNIVERSAL WORKSHOP SERVICES & SPARE PARTS CATALOG */}
-        <section className="store-catalog-section">
+        <section className="store-catalog-section" ref={catalogSectionRef} id="section-catalog-parts">
+          {/* Active Applied Search Banner */}
+          {appliedVehicleSearch && (
+            <div className="applied-search-result-banner animate-pop">
+              <div className="banner-left">
+                <div className="banner-badge">
+                  <i className="fa-solid fa-circle-check"></i>
+                  <span>MATCHING RESULTS FOUND</span>
+                </div>
+                <h3>
+                  Showing Parts &amp; Services for{' '}
+                  <span className="vehicle-highlight">
+                    {appliedVehicleSearch.year} {appliedVehicleSearch.brand} {appliedVehicleSearch.model}
+                  </span>
+                </h3>
+                <div className="banner-pills">
+                  <span className="spec-pill">
+                    <i className="fa-solid fa-shapes"></i> {appliedVehicleSearch.type}
+                  </span>
+                  <span className="spec-pill">
+                    <i className="fa-solid fa-gas-pump"></i> {appliedVehicleSearch.fuel}
+                  </span>
+                  <span className="spec-pill category-spec">
+                    <i className="fa-solid fa-layer-group"></i> {appliedVehicleSearch.category}
+                  </span>
+                  <span className="results-count-pill">
+                    <i className="fa-solid fa-boxes-stacked"></i> {filteredCatalog.length} Matching Items
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn-clear-search-banner"
+                onClick={handleResetVehicle}
+              >
+                <i className="fa-solid fa-xmark"></i>
+                <span>Clear Filter</span>
+              </button>
+            </div>
+          )}
+
           <div className="catalog-header-bar">
             <div>
-              <h2 className="section-title">All-in-One Vehicle Services &amp; Spares</h2>
+              <h2 className="section-title">
+                {appliedVehicleSearch
+                  ? `Compatible Spares & Services (${appliedVehicleSearch.brand} ${appliedVehicleSearch.model})`
+                  : 'All-in-One Vehicle Services & Spares'}
+              </h2>
               <p className="section-desc">
-                Order parts for home delivery or book complete certified mechanic service at your doorstep or nearby garage.
+                {appliedVehicleSearch
+                  ? `Filtered specifically for ${appliedVehicleSearch.brand} ${appliedVehicleSearch.model} • Guaranteed fitment parts & verified services.`
+                  : 'Order parts for home delivery or book complete certified mechanic service at your doorstep or nearby garage.'}
               </p>
             </div>
 
@@ -1649,7 +2481,7 @@ export default function StoreTab() {
 
           {/* Category Tabs Strip */}
           <div className="catalog-categories-bar">
-            {(['All', 'Spare Parts', 'Accessories', 'Maintenance', 'Wash & Care', 'Emergency'] as MainCategory[]).map(
+            {(['All', 'Spare Parts', 'Accessories', 'Maintenance', 'Service Center', 'Mechanic Service', 'Vehicle Modification', 'Wash & Care', 'Emergency'] as MainCategory[]).map(
               (category) => (
                 <button
                   key={category}
@@ -1672,7 +2504,11 @@ export default function StoreTab() {
               const isDetailOpen = activeDetailId === product.id;
 
               return (
-                <div key={product.id} className="catalog-item-card">
+                <div
+                  key={product.id}
+                  className="catalog-item-card cursor-pointer"
+                  onClick={() => setSelectedProductModal(product)}
+                >
                   {/* Left: Thumbnail & Badges */}
                   <div className="catalog-item-media">
                     <button
@@ -1740,7 +2576,10 @@ export default function StoreTab() {
                       <button
                         type="button"
                         className="btn-see-more-action"
-                        onClick={() => setActiveDetailId(product.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedProductModal(product);
+                        }}
                       >
                         <span>See More &amp; Parts</span>
                         <i className="fa-solid fa-chevron-right"></i>
@@ -1764,7 +2603,10 @@ export default function StoreTab() {
                       <button
                         type="button"
                         className="btn-add-catalog-cart"
-                        onClick={() => handleAddToCart(product)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddToCart(product);
+                        }}
                       >
                         <i className="fa-solid fa-cart-shopping"></i>
                         <span>Add</span>
@@ -1958,8 +2800,29 @@ export default function StoreTab() {
             </div>
 
             <div className="modal-body-stores">
+              {/* Hub Category Filter Tabs */}
+              <div className="modal-hub-filter-tabs">
+                {[
+                  { id: 'all', label: 'All Locations', icon: 'fa-location-dot' },
+                  { id: 'mechanic', label: 'Nearby Mechanics', icon: 'fa-wrench' },
+                  { id: 'service_center', label: 'Service Centers', icon: 'fa-building-shield' },
+                  { id: 'modification', label: 'Vehicle Modification', icon: 'fa-wand-magic-sparkles' },
+                  { id: 'store', label: 'Auto Parts Stores', icon: 'fa-shop' },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    className={`hub-filter-tab-btn ${nearbyStoreFilter === tab.id ? 'active' : ''}`}
+                    onClick={() => setNearbyStoreFilter(tab.id as any)}
+                  >
+                    <i className={`fa-solid ${tab.icon}`}></i>
+                    <span>{tab.label}</span>
+                  </button>
+                ))}
+              </div>
+
               <div className="store-list-container">
-                {NEARBY_STORES.map((store) => (
+                {filteredNearbyStores.map((store) => (
                   <div
                     key={store.id}
                     className={`store-item-card ${preferredStore.id === store.id ? 'selected' : ''}`}
@@ -1972,7 +2835,15 @@ export default function StoreTab() {
                   >
                     <div className="store-item-header">
                       <div>
-                        <h4 className="store-item-name">{store.name}</h4>
+                        <div className="store-name-row">
+                          <h4 className="store-item-name">{store.name}</h4>
+                          <span className={`hub-category-tag tag-${store.hubCategory}`}>
+                            {store.hubCategory === 'mechanic' && '🛠️ On-Demand Mechanic'}
+                            {store.hubCategory === 'service_center' && '🏢 Authorized Service Center'}
+                            {store.hubCategory === 'modification' && '✨ Modification & Tuning Studio'}
+                            {store.hubCategory === 'store' && '📦 Auto Spares Hub'}
+                          </span>
+                        </div>
                         <span className="store-type-badge">{store.type}</span>
                       </div>
                       <div className="store-distance-box">
@@ -2018,6 +2889,371 @@ export default function StoreTab() {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ADD VEHICLE MODAL */}
+      {showAddVehicleModal && (
+        <div className="store-locator-backdrop animate-pop" onClick={() => setShowAddVehicleModal(false)}>
+          <div
+            className="store-locator-modal add-vehicle-modal-card animate-scale"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-add-vehicle-title"
+          >
+            <div className="store-modal-header">
+              <div className="modal-header-left">
+                <div className="modal-icon-badge">
+                  <i className="fa-solid fa-car-side"></i>
+                </div>
+                <div>
+                  <h3 id="modal-add-vehicle-title">Add Your Vehicle</h3>
+                  <p>Save your vehicle to get exact compatible spare parts &amp; verified workshop services</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn-modal-close"
+                onClick={() => setShowAddVehicleModal(false)}
+                aria-label="Close Modal"
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <form className="add-vehicle-modal-form" onSubmit={handleSaveNewVehicle}>
+              {/* Vehicle Type */}
+              <div className="modal-form-group">
+                <label className="modal-form-label">
+                  <i className="fa-solid fa-shapes"></i> Vehicle Type
+                </label>
+                <div className="modal-type-chips">
+                  {VEHICLE_TYPES.map((v) => (
+                    <button
+                      key={v.id}
+                      type="button"
+                      className={`modal-type-btn ${newVehicleType === v.id ? 'active' : ''}`}
+                      onClick={() => handleModalVehicleTypeChange(v.id)}
+                    >
+                      <i className={`fa-solid ${v.icon}`}></i>
+                      <span>{v.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Brand and Model Row */}
+              <div className="modal-form-row">
+                <div className="modal-form-group">
+                  <label className="modal-form-label">
+                    <i className="fa-solid fa-industry"></i> Brand / Manufacturer
+                  </label>
+                  <div className="select-wrapper">
+                    <select
+                      value={newVehicleBrand}
+                      onChange={(e) => handleModalBrandChange(e.target.value)}
+                      aria-label="Select Brand"
+                    >
+                      {modalAvailableBrands.map((brand) => (
+                        <option key={brand} value={brand}>
+                          {brand}
+                        </option>
+                      ))}
+                    </select>
+                    <i className="fa-solid fa-chevron-down select-arrow"></i>
+                  </div>
+                </div>
+
+                <div className="modal-form-group">
+                  <label className="modal-form-label">
+                    <i className="fa-solid fa-car-rear"></i> Model
+                  </label>
+                  <div className="select-wrapper">
+                    <select
+                      value={newVehicleModel}
+                      onChange={(e) => setNewVehicleModel(e.target.value)}
+                      aria-label="Select Model"
+                    >
+                      {modalAvailableModels.map((model) => (
+                        <option key={model} value={model}>
+                          {model}
+                        </option>
+                      ))}
+                    </select>
+                    <i className="fa-solid fa-chevron-down select-arrow"></i>
+                  </div>
+                </div>
+              </div>
+
+              {/* Year and Fuel Row */}
+              <div className="modal-form-row">
+                <div className="modal-form-group">
+                  <label className="modal-form-label">
+                    <i className="fa-regular fa-calendar"></i> Year
+                  </label>
+                  <div className="select-wrapper">
+                    <select
+                      value={newVehicleYear}
+                      onChange={(e) => setNewVehicleYear(e.target.value)}
+                      aria-label="Select Year"
+                    >
+                      {YEARS_LIST.map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
+                    </select>
+                    <i className="fa-solid fa-chevron-down select-arrow"></i>
+                  </div>
+                </div>
+
+                <div className="modal-form-group">
+                  <label className="modal-form-label">
+                    <i className="fa-solid fa-gas-pump"></i> Fuel / Engine Type
+                  </label>
+                  <div className="select-wrapper">
+                    <select
+                      value={newVehicleFuel}
+                      onChange={(e) => setNewVehicleFuel(e.target.value)}
+                      aria-label="Select Fuel"
+                    >
+                      <option value="Petrol">Petrol</option>
+                      <option value="Diesel">Diesel</option>
+                      <option value="CNG">CNG</option>
+                      <option value="Electric">Electric / EV</option>
+                      <option value="Hybrid">Hybrid</option>
+                    </select>
+                    <i className="fa-solid fa-chevron-down select-arrow"></i>
+                  </div>
+                </div>
+              </div>
+
+              {/* Optional Registration Number & Nickname */}
+              <div className="modal-form-row">
+                <div className="modal-form-group">
+                  <label className="modal-form-label">
+                    <i className="fa-solid fa-id-card"></i> Vehicle Number (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={newVehicleReg}
+                    onChange={(e) => setNewVehicleReg(e.target.value)}
+                    placeholder="e.g. TN 09 BK 2024"
+                    className="modal-text-input"
+                  />
+                </div>
+
+                <div className="modal-form-group">
+                  <label className="modal-form-label">
+                    <i className="fa-solid fa-tag"></i> Nickname (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={newVehicleNickname}
+                    onChange={(e) => setNewVehicleNickname(e.target.value)}
+                    placeholder="e.g. My Weekend Beast"
+                    className="modal-text-input"
+                  />
+                </div>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="modal-form-actions">
+                <button
+                  type="button"
+                  className="btn-modal-cancel"
+                  onClick={() => setShowAddVehicleModal(false)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn-modal-submit">
+                  <i className="fa-solid fa-car-circle-check"></i>
+                  <span>Save &amp; View Vehicle Parts</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* PRODUCT QUICK-VIEW & BOOKING DETAIL MODAL */}
+      {selectedProductModal && (
+        <div
+          className="store-locator-backdrop animate-pop"
+          onClick={() => setSelectedProductModal(null)}
+        >
+          <div
+            className="store-locator-modal product-quickview-modal-card animate-scale"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-product-title"
+          >
+            {/* Modal Header */}
+            <div className="store-modal-header">
+              <div className="modal-header-left">
+                <div className="modal-icon-badge">
+                  <i className={`fa-solid ${selectedProductModal.icon || 'fa-box'}`}></i>
+                </div>
+                <div>
+                  <h3 id="modal-product-title">{selectedProductModal.name}</h3>
+                  <p>
+                    Category: <strong>{selectedProductModal.category}</strong> • Vehicle: <strong>{selectedProductModal.vehicle}</strong>
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn-modal-close"
+                onClick={() => setSelectedProductModal(null)}
+                aria-label="Close modal"
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="product-quickview-body">
+              {/* Product Media & Core Specs */}
+              <div className="quickview-media-grid">
+                <div className="quickview-image-box">
+                  <img
+                    src={selectedProductModal.image}
+                    alt={selectedProductModal.name}
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=600&q=80';
+                    }}
+                  />
+                  {selectedProductModal.badge && (
+                    <span className="catalog-card-badge">{selectedProductModal.badge}</span>
+                  )}
+                </div>
+
+                <div className="quickview-summary-box">
+                  <div className="quickview-price-banner">
+                    <div>
+                      <span className="total-label">Total Price:</span>
+                      <div className="catalog-price-wrap">
+                        <span className="quickview-current-price">
+                          {formatPrice(getProductTotalPrice(selectedProductModal))}
+                        </span>
+                        {selectedProductModal.originalPrice && (
+                          <span className="catalog-strike-price">
+                            {formatPrice(selectedProductModal.originalPrice)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {selectedProductModal.originalPrice && (
+                      <span className="discount-tag">
+                        Save {Math.round(((selectedProductModal.originalPrice - selectedProductModal.price) / selectedProductModal.originalPrice) * 100)}%
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="quickview-desc">{selectedProductModal.desc}</p>
+
+                  <div className="quickview-meta-badges">
+                    {selectedProductModal.warranty && (
+                      <span className="warranty-tag">
+                        <i className="fa-solid fa-shield-halved"></i> Warranty: {selectedProductModal.warranty}
+                      </span>
+                    )}
+                    {selectedProductModal.duration && (
+                      <span className="duration-pill">
+                        <i className="fa-regular fa-clock"></i> Duration: {selectedProductModal.duration}
+                      </span>
+                    )}
+                    <span className="pickup-tag">
+                      <i className="fa-solid fa-truck-ramp-box"></i> {fulfillmentMode === 'nearby' ? preferredStore.name : 'Doorstep Service / Delivery'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Inclusions List */}
+              {(selectedProductModal.includes || []).length > 0 && (
+                <div className="quickview-section">
+                  <h4 className="quickview-section-title">
+                    <i className="fa-solid fa-circle-check"></i> What's Included:
+                  </h4>
+                  <div className="quickview-inc-grid">
+                    {selectedProductModal.includes?.map((inc) => (
+                      <div key={inc} className="quickview-inc-item">
+                        <i className="fa-solid fa-check"></i>
+                        <span>{inc}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Equipment & Recommended Add-ons */}
+              {(selectedProductModal.equipmentOptions || []).length > 0 && (
+                <div className="quickview-section">
+                  <h4 className="quickview-section-title">
+                    <i className="fa-solid fa-toolbox"></i> Optional Equipment &amp; Add-ons:
+                  </h4>
+                  <div className="quickview-addons-grid">
+                    {selectedProductModal.equipmentOptions?.map((opt) => {
+                      const isSelected = (selectedEquipment[selectedProductModal.id] ?? []).includes(opt.name);
+                      return (
+                        <label key={opt.name} className={`quickview-addon-label ${isSelected ? 'active' : ''}`}>
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleEquipmentOption(selectedProductModal.id, opt.name)}
+                          />
+                          <span className="addon-text">{opt.name}</span>
+                          <span className="addon-price">+{formatPrice(opt.price)}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Vehicle Compatibility Banner */}
+              <div className="quickview-fitment-bar">
+                <i className="fa-solid fa-shield-cat"></i>
+                <div>
+                  <strong>Guaranteed Fitment:</strong> Compatible with {selectedProductModal.compatibleWith || selectedProductModal.vehicle || 'all verified models'}.
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className="product-quickview-footer">
+              <button
+                type="button"
+                className={`btn-quickview-wishlist ${wishlist.includes(selectedProductModal.id) ? 'active' : ''}`}
+                onClick={() => {
+                  toggleWishlist(selectedProductModal.id);
+                  showToast(
+                    wishlist.includes(selectedProductModal.id)
+                      ? `Removed from Wishlist: ${selectedProductModal.name}`
+                      : `Added to Wishlist: ${selectedProductModal.name}`
+                  );
+                }}
+              >
+                <i className={wishlist.includes(selectedProductModal.id) ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
+                <span>{wishlist.includes(selectedProductModal.id) ? 'In Wishlist' : 'Add to Wishlist'}</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn-quickview-add-cart"
+                onClick={() => {
+                  handleAddToCart(selectedProductModal);
+                  setSelectedProductModal(null);
+                }}
+              >
+                <i className="fa-solid fa-cart-shopping"></i>
+                <span>Add To Cart • {formatPrice(getProductTotalPrice(selectedProductModal))}</span>
+              </button>
             </div>
           </div>
         </div>

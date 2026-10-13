@@ -6,7 +6,7 @@ import './Navbar.css';
 import { useSartStore } from '../store/useSartStore';
 
 export default function Navbar() {
-  const { wallet, activeTab, setActiveTab } = useSartStore();
+  const { wallet, activeTab, setActiveTab, wishlist, cart } = useSartStore();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -147,16 +147,26 @@ export default function Navbar() {
           <i className="fa-solid fa-magnifying-glass"></i>
         </div>
         
-        <div className={`ctrl-btn ${activeTab === 'favorites' ? 'active' : ''}`} onClick={() => setActiveTab('favorites')}>
+        <div
+          className={`ctrl-btn ${activeTab === 'favorites' ? 'active' : ''}`}
+          onClick={() => setActiveTab('favorites')}
+          title="Favorites & Wishlist"
+        >
           <i className="fa-solid fa-heart"></i>
+          {wishlist.length > 0 && <span className="ctrl-badge">{wishlist.length}</span>}
         </div>
         
-        <div className="ctrl-btn" onClick={() => {
-          if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('openReactModal', { detail: 'modal-cart' }));
-          }
-        }}>
+        <div
+          className="ctrl-btn"
+          onClick={() => {
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('openReactModal', { detail: 'modal-cart' }));
+            }
+          }}
+          title="Shopping Cart"
+        >
           <i className="fa-solid fa-bag-shopping"></i>
+          {cart.length > 0 && <span className="ctrl-badge">{cart.length}</span>}
         </div>
         
         <div ref={profileRef}>
