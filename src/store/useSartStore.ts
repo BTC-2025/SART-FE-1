@@ -64,7 +64,7 @@ interface SartStore extends AppState {
 
 export const useSartStore = create<SartStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...DEFAULT_STATE,
 
       addTransaction: (tx) =>
@@ -145,8 +145,16 @@ export const useSartStore = create<SartStore>()(
           
           if (topLevelTabs.includes(tab)) {
             newUrl = `/${tab}`;
+          } else if (tab === 'ride') {
+            // Keep specific ride mode if already on /home/ride/xxx, otherwise default to /home/ride/train
+            if (window.location.pathname.startsWith('/home/ride/') && window.location.pathname !== '/home/ride') {
+              newUrl = window.location.pathname;
+            } else {
+              const currentMode = get().activeRideMode || 'train';
+              newUrl = `/home/ride/${currentMode}`;
+            }
           } else if (tab !== 'home') {
-            // It's a sub-page of home (like ride, carrier, etc.)
+            // It's a sub-page of home (like carrier, rental, etc.)
             newUrl = `/home/${tab}`;
           }
           

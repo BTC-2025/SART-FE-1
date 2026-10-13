@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import './TrainBookingView.css';
 import BusBookingView from './BusBookingView';
+import RideBookingView from './RideBookingView';
 import { useSartStore } from '@/store/useSartStore';
 
 interface TrainClassOption {
@@ -39,24 +40,49 @@ interface TrainItem {
   coaches?: { code: string; label: string; type: string }[];
 }
 
-const INDIAN_STATIONS = [
-  { code: 'MAS', name: 'Chennai', full: 'Mgr Chennai Ctl - MAS' },
-  { code: 'BZA', name: 'Vijayawada', full: 'Vijayawada Jn - BZA' },
-  { code: 'HYD', name: 'Hyderabad', full: 'Secunderabad / Hyderabad - HYD' },
-  { code: 'BLR', name: 'Bengaluru', full: 'KSR Bengaluru - SBC' },
-  { code: 'KPD', name: 'Katpadi', full: 'Katpadi Jn - KPD' },
-  { code: 'VLR', name: 'Vellore', full: 'Vellore Cantt - VLR' },
-  { code: 'TPTY', name: 'Tirupati', full: 'Tirupati Central - TPTY' },
-  { code: 'VSKP', name: 'Visakhapatnam', full: 'Visakhapatnam Jn - VSKP' },
-  { code: 'CBE', name: 'Coimbatore', full: 'Coimbatore Jn - CBE' },
-  { code: 'MDU', name: 'Madurai', full: 'Madurai Jn - MDU' },
-  { code: 'TRZ', name: 'Trichy', full: 'Tiruchchirappalli Jn - TPJ' },
-  { code: 'PUNE', name: 'Pune', full: 'Pune Jn - PUNE' },
-  { code: 'MUM', name: 'Mumbai', full: 'CSMT Mumbai - CSMT' },
-  { code: 'DEL', name: 'Delhi', full: 'New Delhi - NDLS' },
-  { code: 'GOA', name: 'Goa', full: 'Madgaon Goa - MAO' },
-  { code: 'KOC', name: 'Kochi', full: 'Ernakulam Kochi - ERS' }
+export interface BikeStopItem {
+  id: string;
+  name: string;
+  purpose: string;
+  coords?: { x: number; y: number };
+}
+
+export interface CityLocation {
+  name: string;
+  state: string;
+  code?: string;
+  isOnlineResult?: boolean;
+}
+
+export const POPULAR_CITIES: CityLocation[] = [
+  { name: 'Hyderabad', state: 'Telangana', code: 'HYD' },
+  { name: 'Bengaluru', state: 'Karnataka', code: 'BLR' },
+  { name: 'Chennai', state: 'Tamil Nadu', code: 'MAS' },
+  { name: 'Goa', state: 'Goa', code: 'GOA' },
+  { name: 'Vijayawada', state: 'Andhra Pradesh', code: 'BZA' },
+  { name: 'Nellore', state: 'Andhra Pradesh', code: 'NLR' },
+  { name: 'Tirupati', state: 'Andhra Pradesh', code: 'TPTY' },
+  { name: 'Visakhapatnam', state: 'Andhra Pradesh', code: 'VSKP' },
+  { name: 'Coimbatore', state: 'Tamil Nadu', code: 'CBE' },
+  { name: 'Madurai', state: 'Tamil Nadu', code: 'MDU' },
+  { name: 'Pune', state: 'Maharashtra', code: 'PUNE' },
+  { name: 'Mumbai', state: 'Maharashtra', code: 'MUM' },
+  { name: 'Delhi', state: 'Delhi', code: 'DEL' },
+  { name: 'Kochi', state: 'Kerala', code: 'KOC' },
+  { name: 'Kurnool', state: 'Andhra Pradesh', code: 'KNL' },
+  { name: 'Warangal', state: 'Telangana', code: 'WL' },
+  { name: 'Guntur', state: 'Andhra Pradesh', code: 'GNT' },
+  { name: 'Pondicherry', state: 'Puducherry', code: 'PDY' },
+  { name: 'Mysore', state: 'Karnataka', code: 'MYS' },
+  { name: 'Mangalore', state: 'Karnataka', code: 'MAQ' },
+  { name: 'Salem', state: 'Tamil Nadu', code: 'SA' },
+  { name: 'Trichy', state: 'Tamil Nadu', code: 'TRZ' },
+  { name: 'Vellore', state: 'Tamil Nadu', code: 'VLR' },
+  { name: 'Jaipur', state: 'Rajasthan', code: 'JP' },
+  { name: 'Kolkata', state: 'West Bengal', code: 'HWH' }
 ];
+
+const INDIAN_STATIONS = POPULAR_CITIES;
 
 const INITIAL_TRAINS: TrainItem[] = [
   // 1. Nilagiri Sf Exp (Exact match to Image 1)
@@ -272,6 +298,423 @@ const INITIAL_TRAINS: TrainItem[] = [
   }
 ];
 
+// Curated authentic trains operating on major Indian railway corridors
+const EXPANDED_CORRIDOR_TRAINS: TrainItem[] = [
+  // --- CHENNAI to VIJAYAWADA corridor trains ---
+  {
+    id: '12603',
+    number: '12603',
+    name: 'Chennai - Hyderabad SF Exp',
+    runningDays: 'M T W T F S S',
+    departureTime: '04:45 PM',
+    departureStation: 'Mgr Chennai Ctl (MAS)',
+    departureStationCode: 'MAS',
+    departureTag: 'Starting station',
+    duration: '06 h 15 min',
+    arrivalTime: '11:00 PM',
+    arrivalStation: 'Vijayawada Jn. (BZA)',
+    arrivalStationCode: 'BZA',
+    arrivalTag: '10 min halt',
+    distance: '431 km',
+    avgSpeed: '70 km/h',
+    punctuality: '95% On Time',
+    pantryAvailable: true,
+    classes: [
+      { code: 'SL', fare: 275, status: 'Available 38', statusType: 'available', updated: '20 mins ago' },
+      { code: '3A', fare: 735, status: 'Available 14', statusType: 'available', updated: '1 hr ago' },
+      { code: '2A', fare: 1045, status: 'Available 4', statusType: 'available', updated: '2 hr ago' },
+      { code: '1A', fare: 1750, status: 'WL 2', statusType: 'wl', updated: '30 mins ago' },
+    ],
+    stops: [
+      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '04:45 PM', halt: 'Starts' },
+      { station: 'Sullurupeta', code: 'SPE', arr: '05:53 PM', dep: '05:55 PM', halt: '2 min' },
+      { station: 'Gudur Jn', code: 'GDR', arr: '06:48 PM', dep: '06:50 PM', halt: '2 min' },
+      { station: 'Nellore', code: 'NLR', arr: '07:23 PM', dep: '07:25 PM', halt: '2 min' },
+      { station: 'Ongole', code: 'OGL', arr: '08:58 PM', dep: '09:00 PM', halt: '2 min' },
+      { station: 'Tenali Jn', code: 'TEL', arr: '10:18 PM', dep: '10:20 PM', halt: '2 min' },
+      { station: 'Vijayawada Jn', code: 'BZA', arr: '11:00 PM', dep: '11:10 PM', halt: '10 min' },
+      { station: 'Hyderabad Deccan', code: 'HYB', arr: '05:45 AM', dep: '--', halt: 'Ends' }
+    ]
+  },
+  {
+    id: '12842',
+    number: '12842',
+    name: 'Coromandel Express',
+    runningDays: 'M T W T F S S',
+    departureTime: '07:00 AM',
+    departureStation: 'Mgr Chennai Ctl (MAS)',
+    departureStationCode: 'MAS',
+    departureTag: 'Starting station',
+    duration: '06 h 05 min',
+    arrivalTime: '01:05 PM',
+    arrivalStation: 'Vijayawada Jn. (BZA)',
+    arrivalStationCode: 'BZA',
+    arrivalTag: '10 min halt',
+    distance: '431 km',
+    avgSpeed: '72 km/h',
+    punctuality: '92% On Time',
+    pantryAvailable: true,
+    classes: [
+      { code: 'SL', fare: 275, status: 'Available 19', statusType: 'available', updated: '40 mins ago' },
+      { code: '3A', fare: 735, status: 'Available 22', statusType: 'available', updated: '15 mins ago' },
+      { code: '2A', fare: 1045, status: 'Available 8', statusType: 'available', updated: '1 hr ago' },
+      { code: '1A', fare: 1750, status: 'Available 2', statusType: 'available', updated: '2 hr ago' },
+    ],
+    stops: [
+      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '07:00 AM', halt: 'Starts' },
+      { station: 'Nellore', code: 'NLR', arr: '09:18 AM', dep: '09:20 AM', halt: '2 min' },
+      { station: 'Ongole', code: 'OGL', arr: '10:48 AM', dep: '10:50 AM', halt: '2 min' },
+      { station: 'Vijayawada Jn', code: 'BZA', arr: '01:05 PM', dep: '01:15 PM', halt: '10 min' },
+      { station: 'Visakhapatnam', code: 'VSKP', arr: '06:50 PM', dep: '07:10 PM', halt: '20 min' },
+      { station: 'Howrah Jn', code: 'HWH', arr: '11:50 AM', dep: '--', halt: 'Ends' }
+    ]
+  },
+  {
+    id: '20677',
+    number: '20677',
+    name: 'Vande Bharat Express',
+    runningDays: 'M T W T F S',
+    departureTime: '05:30 AM',
+    departureStation: 'Mgr Chennai Ctl (MAS)',
+    departureStationCode: 'MAS',
+    departureTag: 'Starting station',
+    duration: '04 h 10 min',
+    arrivalTime: '09:40 AM',
+    arrivalStation: 'Vijayawada Jn. (BZA)',
+    arrivalStationCode: 'BZA',
+    arrivalTag: 'Starting point in AP',
+    distance: '431 km',
+    avgSpeed: '103 km/h',
+    punctuality: '98% On Time',
+    classes: [
+      { code: 'CC', fare: 1140, status: 'Available 65', statusType: 'available', updated: '5 mins ago' },
+      { code: 'EC', fare: 2190, status: 'Available 14', statusType: 'available', updated: '10 mins ago' },
+    ],
+    stops: [
+      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '05:30 AM', halt: 'Starts' },
+      { station: 'Nellore', code: 'NLR', arr: '07:28 AM', dep: '07:30 AM', halt: '2 min' },
+      { station: 'Ongole', code: 'OGL', arr: '08:38 AM', dep: '08:40 AM', halt: '2 min' },
+      { station: 'Tenali Jn', code: 'TEL', arr: '09:18 AM', dep: '09:20 AM', halt: '2 min' },
+      { station: 'Vijayawada Jn', code: 'BZA', arr: '09:40 AM', dep: '--', halt: 'Ends' }
+    ]
+  },
+  {
+    id: '12759',
+    number: '12759',
+    name: 'Charminar SF Express',
+    runningDays: 'M T W T F S S',
+    departureTime: '06:10 PM',
+    departureStation: 'Tambaram (TBM)',
+    departureStationCode: 'TBM',
+    departureTag: 'Originates at TBM',
+    duration: '06 h 45 min',
+    arrivalTime: '12:55 AM',
+    arrivalStation: 'Vijayawada Jn. (BZA)',
+    arrivalStationCode: 'BZA',
+    arrivalTag: '10 min halt',
+    distance: '455 km',
+    avgSpeed: '68 km/h',
+    punctuality: '94% On Time',
+    pantryAvailable: true,
+    classes: [
+      { code: 'SL', fare: 285, status: 'Available 12', statusType: 'available', updated: '1 hr ago' },
+      { code: '3A', fare: 750, status: 'Available 9', statusType: 'available', updated: '30 mins ago' },
+      { code: '2A', fare: 1070, status: 'Available 3', statusType: 'available', updated: '45 mins ago' },
+      { code: '1A', fare: 1790, status: 'Available 1', statusType: 'available', updated: '2 hr ago' }
+    ],
+    stops: [
+      { station: 'Tambaram', code: 'TBM', arr: '--', dep: '06:10 PM', halt: 'Starts' },
+      { station: 'Chennai Egmore', code: 'MS', arr: '06:40 PM', dep: '06:45 PM', halt: '5 min' },
+      { station: 'Gudur Jn', code: 'GDR', arr: '09:03 PM', dep: '09:05 PM', halt: '2 min' },
+      { station: 'Nellore', code: 'NLR', arr: '09:38 PM', dep: '09:40 PM', halt: '2 min' },
+      { station: 'Ongole', code: 'OGL', arr: '11:08 PM', dep: '11:10 PM', halt: '2 min' },
+      { station: 'Vijayawada Jn', code: 'BZA', arr: '12:55 AM', dep: '01:05 AM', halt: '10 min' },
+      { station: 'Secunderabad', code: 'SC', arr: '07:15 AM', dep: '--', halt: 'Ends' }
+    ]
+  },
+  {
+    id: '12840',
+    number: '12840',
+    name: 'Howrah Mail',
+    runningDays: 'M T W T F S S',
+    departureTime: '11:45 PM',
+    departureStation: 'Mgr Chennai Ctl (MAS)',
+    departureStationCode: 'MAS',
+    departureTag: 'Overnight Superfast',
+    duration: '06 h 20 min',
+    arrivalTime: '06:05 AM',
+    arrivalStation: 'Vijayawada Jn. (BZA)',
+    arrivalStationCode: 'BZA',
+    arrivalTag: '15 min halt',
+    distance: '431 km',
+    avgSpeed: '69 km/h',
+    punctuality: '93% On Time',
+    pantryAvailable: true,
+    classes: [
+      { code: 'SL', fare: 275, status: 'Available 45', statusType: 'available', updated: '1 hr ago' },
+      { code: '3A', fare: 735, status: 'Available 28', statusType: 'available', updated: '2 hr ago' },
+      { code: '2A', fare: 1045, status: 'Available 6', statusType: 'available', updated: '15 mins ago' },
+      { code: '2S', fare: 165, status: 'Available 85', statusType: 'available', updated: '10 mins ago' }
+    ],
+    stops: [
+      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '11:45 PM', halt: 'Starts' },
+      { station: 'Nellore', code: 'NLR', arr: '02:08 AM', dep: '02:10 AM', halt: '2 min' },
+      { station: 'Ongole', code: 'OGL', arr: '03:48 AM', dep: '03:50 AM', halt: '2 min' },
+      { station: 'Tenali Jn', code: 'TEL', arr: '05:18 AM', dep: '05:20 AM', halt: '2 min' },
+      { station: 'Vijayawada Jn', code: 'BZA', arr: '06:05 AM', dep: '06:20 AM', halt: '15 min' }
+    ]
+  },
+  {
+    id: '12615',
+    number: '12615',
+    name: 'Grand Trunk Express',
+    runningDays: 'M T W T F S S',
+    departureTime: '06:40 PM',
+    departureStation: 'Mgr Chennai Ctl (MAS)',
+    departureStationCode: 'MAS',
+    departureTag: 'Legendary Express',
+    duration: '06 h 30 min',
+    arrivalTime: '01:10 AM',
+    arrivalStation: 'Vijayawada Jn. (BZA)',
+    arrivalStationCode: 'BZA',
+    arrivalTag: '10 min halt',
+    distance: '431 km',
+    avgSpeed: '67 km/h',
+    punctuality: '96% On Time',
+    pantryAvailable: true,
+    classes: [
+      { code: 'SL', fare: 275, status: 'Available 22', statusType: 'available', updated: '25 mins ago' },
+      { code: '3A', fare: 735, status: 'Available 16', statusType: 'available', updated: '30 mins ago' },
+      { code: '2A', fare: 1045, status: 'Available 5', statusType: 'available', updated: '1 hr ago' },
+      { code: '1A', fare: 1750, status: 'Available 3', statusType: 'available', updated: '1 hr ago' }
+    ],
+    stops: [
+      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '06:40 PM', halt: 'Starts' },
+      { station: 'Gudur Jn', code: 'GDR', arr: '08:58 PM', dep: '09:00 PM', halt: '2 min' },
+      { station: 'Nellore', code: 'NLR', arr: '09:33 PM', dep: '09:35 PM', halt: '2 min' },
+      { station: 'Ongole', code: 'OGL', arr: '11:03 PM', dep: '11:05 PM', halt: '2 min' },
+      { station: 'Vijayawada Jn', code: 'BZA', arr: '01:10 AM', dep: '01:20 AM', halt: '10 min' },
+      { station: 'New Delhi', code: 'NDLS', arr: '06:30 AM', dep: '--', halt: 'Ends' }
+    ]
+  },
+  {
+    id: '12621',
+    number: '12621',
+    name: 'Tamil Nadu SF Express',
+    runningDays: 'M T W T F S S',
+    departureTime: '10:00 PM',
+    departureStation: 'Mgr Chennai Ctl (MAS)',
+    departureStationCode: 'MAS',
+    departureTag: 'Premier Superfast',
+    duration: '05 h 55 min',
+    arrivalTime: '03:55 AM',
+    arrivalStation: 'Vijayawada Jn. (BZA)',
+    arrivalStationCode: 'BZA',
+    arrivalTag: '10 min halt',
+    distance: '431 km',
+    avgSpeed: '74 km/h',
+    punctuality: '97% On Time',
+    pantryAvailable: true,
+    classes: [
+      { code: 'SL', fare: 285, status: 'Available 31', statusType: 'available', updated: '12 mins ago' },
+      { code: '3A', fare: 750, status: 'Available 18', statusType: 'available', updated: '20 mins ago' },
+      { code: '2A', fare: 1065, status: 'Available 7', statusType: 'available', updated: '45 mins ago' },
+      { code: '1A', fare: 1780, status: 'Available 4', statusType: 'available', updated: '1 hr ago' }
+    ],
+    stops: [
+      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '10:00 PM', halt: 'Starts' },
+      { station: 'Vijayawada Jn', code: 'BZA', arr: '03:55 AM', dep: '04:05 AM', halt: '10 min' },
+      { station: 'Warangal', code: 'WL', arr: '06:40 AM', dep: '06:42 AM', halt: '2 min' },
+      { station: 'New Delhi', code: 'NDLS', arr: '06:30 AM', dep: '--', halt: 'Ends' }
+    ]
+  },
+  {
+    id: '12830',
+    number: '12830',
+    name: 'Chennai - Bhubaneswar SF Exp',
+    runningDays: 'Th',
+    departureTime: '09:00 PM',
+    departureStation: 'Mgr Chennai Ctl (MAS)',
+    departureStationCode: 'MAS',
+    departureTag: 'Superfast Express',
+    duration: '06 h 15 min',
+    arrivalTime: '03:15 AM',
+    arrivalStation: 'Vijayawada Jn. (BZA)',
+    arrivalStationCode: 'BZA',
+    arrivalTag: '10 min halt',
+    distance: '431 km',
+    avgSpeed: '69 km/h',
+    punctuality: '91% On Time',
+    pantryAvailable: true,
+    classes: [
+      { code: 'SL', fare: 275, status: 'Available 8', statusType: 'available', updated: '15 mins ago' },
+      { code: '3A', fare: 735, status: 'Available 11', statusType: 'available', updated: '1 hr ago' },
+      { code: '2A', fare: 1045, status: 'Available 2', statusType: 'available', updated: '2 hr ago' }
+    ],
+    stops: [
+      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '09:00 PM', halt: 'Starts' },
+      { station: 'Gudur Jn', code: 'GDR', arr: '11:13 PM', dep: '11:15 PM', halt: '2 min' },
+      { station: 'Nellore', code: 'NLR', arr: '11:48 PM', dep: '11:50 PM', halt: '2 min' },
+      { station: 'Vijayawada Jn', code: 'BZA', arr: '03:15 AM', dep: '03:25 AM', halt: '10 min' },
+      { station: 'Bhubaneswar', code: 'BBS', arr: '05:55 PM', dep: '--', halt: 'Ends' }
+    ]
+  }
+];
+
+// Corridors lookup dictionary: finds trains traveling between origin and destination
+function getCorridorTrains(src: string, dest: string): TrainItem[] {
+  const s = src.toLowerCase().trim();
+  const d = dest.toLowerCase().trim();
+
+  // 1. Chennai <-> Katpadi / Vellore / Bangalore route
+  const isChennaiToVellore =
+    (s.includes('chennai') || s.includes('mas') || s.includes('ms') || s.includes('perambur') || s.includes('tbm')) &&
+    (d.includes('katpadi') || d.includes('vellore') || d.includes('kpd') || d.includes('vlr') || d.includes('bengaluru') || d.includes('bangalore') || d.includes('mys'));
+
+  // 2. Chennai <-> Vijayawada / Andhra / Kolkata route
+  const isChennaiToVijayawada =
+    (s.includes('chennai') || s.includes('mas') || s.includes('ms') || s.includes('tbm')) &&
+    (d.includes('vijayawada') || d.includes('bza') || d.includes('guntur') || d.includes('vizag') || d.includes('visakhapatnam') || d.includes('nellore') || d.includes('howrah'));
+
+  if (isChennaiToVijayawada) {
+    return EXPANDED_CORRIDOR_TRAINS;
+  }
+  if (isChennaiToVellore) {
+    return INITIAL_TRAINS;
+  }
+
+  // Generic directional match: check if train stops cover src and dest in order
+  const allKnown = [...INITIAL_TRAINS, ...EXPANDED_CORRIDOR_TRAINS];
+  const matched = allKnown.filter(t => {
+    const srcIndex = t.stops.findIndex(st => st.station.toLowerCase().includes(s) || st.code.toLowerCase().includes(s));
+    const destIndex = t.stops.findIndex(st => st.station.toLowerCase().includes(d) || st.code.toLowerCase().includes(d));
+    return srcIndex !== -1 && destIndex !== -1 && srcIndex < destIndex;
+  });
+
+  if (matched.length > 0) return matched;
+
+  // Fallback: Dynamically generate tailored trains specifically running between src and dest
+  const srcName = src.replace(/\s*-\s*[A-Z0-9]+$/i, '').trim() || 'Origin';
+  const destName = dest.replace(/\s*-\s*[A-Z0-9]+$/i, '').trim() || 'Destination';
+  const srcCode = src.slice(0, 3).toUpperCase();
+  const destCode = dest.slice(0, 3).toUpperCase();
+
+  return [
+    {
+      id: '12801',
+      number: '12801',
+      name: `${srcName} - ${destName} SF Express`,
+      runningDays: 'M T W T F S S',
+      departureTime: '06:30 AM',
+      departureStation: `${srcName} Jn (${srcCode})`,
+      departureStationCode: srcCode,
+      departureTag: 'Daily Superfast',
+      duration: '04 h 45 min',
+      arrivalTime: '11:15 AM',
+      arrivalStation: `${destName} Jn (${destCode})`,
+      arrivalStationCode: destCode,
+      arrivalTag: 'On Time record',
+      distance: '340 km',
+      avgSpeed: '72 km/h',
+      punctuality: '95% On Time',
+      pantryAvailable: true,
+      classes: [
+        { code: 'SL', fare: 245, status: 'Available 35', statusType: 'available', updated: '15 mins ago' },
+        { code: '3A', fare: 650, status: 'Available 12', statusType: 'available', updated: '1 hr ago' },
+        { code: '2A', fare: 920, status: 'Available 4', statusType: 'available', updated: '2 hr ago' },
+        { code: '2S', fare: 140, status: 'Available 54', statusType: 'available', updated: '30 mins ago' },
+      ],
+      stops: [
+        { station: `${srcName} Jn`, code: srcCode, arr: '--', dep: '06:30 AM', halt: 'Starts' },
+        { station: 'Intermediate Halt 1', code: 'INT1', arr: '08:15 AM', dep: '08:17 AM', halt: '2 min' },
+        { station: 'Intermediate Halt 2', code: 'INT2', arr: '09:40 AM', dep: '09:42 AM', halt: '2 min' },
+        { station: `${destName} Jn`, code: destCode, arr: '11:15 AM', dep: '--', halt: 'Ends' }
+      ]
+    },
+    {
+      id: '20805',
+      number: '20805',
+      name: `Vande Bharat (${srcName} - ${destName})`,
+      runningDays: 'M T W T F S',
+      departureTime: '05:40 AM',
+      departureStation: `${srcName} (${srcCode})`,
+      departureStationCode: srcCode,
+      departureTag: 'Fastest in route',
+      duration: '03 h 30 min',
+      arrivalTime: '09:10 AM',
+      arrivalStation: `${destName} (${destCode})`,
+      arrivalStationCode: destCode,
+      arrivalTag: 'High Speed',
+      distance: '340 km',
+      avgSpeed: '97 km/h',
+      punctuality: '99% On Time',
+      classes: [
+        { code: 'CC', fare: 980, status: 'Available 48', statusType: 'available', updated: '5 mins ago' },
+        { code: 'EC', fare: 1890, status: 'Available 16', statusType: 'available', updated: '10 mins ago' }
+      ],
+      stops: [
+        { station: srcName, code: srcCode, arr: '--', dep: '05:40 AM', halt: 'Starts' },
+        { station: `${destName} Jn`, code: destCode, arr: '09:10 AM', dep: '--', halt: 'Ends' }
+      ]
+    },
+    {
+      id: '12803',
+      number: '12803',
+      name: `${destName} Mail Express`,
+      runningDays: 'M T W T F S S',
+      departureTime: '09:20 PM',
+      departureStation: `${srcName} Jn (${srcCode})`,
+      departureStationCode: srcCode,
+      departureTag: 'Overnight Service',
+      duration: '05 h 10 min',
+      arrivalTime: '02:30 AM',
+      arrivalStation: `${destName} (${destCode})`,
+      arrivalStationCode: destCode,
+      arrivalTag: 'Daily Mail',
+      distance: '340 km',
+      avgSpeed: '66 km/h',
+      punctuality: '92% On Time',
+      pantryAvailable: true,
+      classes: [
+        { code: 'SL', fare: 245, status: 'Available 18', statusType: 'available', updated: '40 mins ago' },
+        { code: '3A', fare: 650, status: 'Available 8', statusType: 'available', updated: '1 hr ago' },
+        { code: '2A', fare: 920, status: 'WL 3', statusType: 'wl', updated: '15 mins ago' },
+        { code: '1A', fare: 1540, status: 'Available 2', statusType: 'available', updated: '2 hr ago' }
+      ],
+      stops: [
+        { station: srcName, code: srcCode, arr: '--', dep: '09:20 PM', halt: 'Starts' },
+        { station: `${destName} Jn`, code: destCode, arr: '02:30 AM', dep: '--', halt: 'Ends' }
+      ]
+    },
+    {
+      id: '12807',
+      number: '12807',
+      name: `${srcName} Intercity SF`,
+      runningDays: 'M T W T F S S',
+      departureTime: '03:15 PM',
+      departureStation: `${srcName} (${srcCode})`,
+      departureStationCode: srcCode,
+      departureTag: 'Day Commuter',
+      duration: '04 h 50 min',
+      arrivalTime: '08:05 PM',
+      arrivalStation: `${destName} (${destCode})`,
+      arrivalStationCode: destCode,
+      arrivalTag: 'Popular',
+      distance: '340 km',
+      avgSpeed: '70 km/h',
+      punctuality: '96% On Time',
+      classes: [
+        { code: '2S', fare: 135, status: 'Available 92', statusType: 'available', updated: '10 mins ago' },
+        { code: 'CC', fare: 480, status: 'Available 24', statusType: 'available', updated: '25 mins ago' }
+      ],
+      stops: [
+        { station: srcName, code: srcCode, arr: '--', dep: '03:15 PM', halt: 'Starts' },
+        { station: `${destName} Jn`, code: destCode, arr: '08:05 PM', dep: '--', halt: 'Ends' }
+      ]
+    }
+  ];
+}
+
 export type RideMode = 'bike' | 'auto' | 'car' | 'bus' | 'train' | 'flight';
 
 export function getRideModeFromPath(urlPath?: string): RideMode {
@@ -291,10 +734,21 @@ export function getRideModeFromPath(urlPath?: string): RideMode {
 export default function TrainBookingView() {
   const pathname = usePathname();
   const router = useRouter();
-  const { setActiveTab } = useSartStore();
+  const { setActiveTab, setActiveRideMode } = useSartStore();
 
-  // Navigation & Mode - initialized reliably from the current path
+  // Navigation & Mode - single source of truth initialized from path
   const [activeMode, setActiveMode] = useState<RideMode>(() => getRideModeFromPath(pathname));
+  const [isLoadingMode, setIsLoadingMode] = useState<boolean>(false);
+  const activeReqIdRef = useRef<number>(0);
+
+  // Sync mode with pathname changes immediately
+  useEffect(() => {
+    const currentPathMode = getRideModeFromPath(pathname);
+    if (currentPathMode !== activeMode) {
+      setActiveMode(currentPathMode);
+      setActiveRideMode(currentPathMode);
+    }
+  }, [pathname, setActiveRideMode]);
 
   // Synchronize activeMode with browser Back/Forward (popstate)
   useEffect(() => {
@@ -302,54 +756,82 @@ export default function TrainBookingView() {
       if (typeof window !== 'undefined') {
         const mode = getRideModeFromPath(window.location.pathname);
         setActiveMode(mode);
+        setActiveRideMode(mode);
+        setIsLoadingMode(false);
       }
     };
     window.addEventListener('popstate', handlePopState);
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
-  }, []);
+  }, [setActiveRideMode]);
 
+  // Mode change handler: updates UI tab immediately, shows skeleton loader, updates URL consistently
   const handleModeChange = (mode: RideMode) => {
+    if (mode === activeMode && !isLoadingMode) return;
+
+    // 1. Immediately update active tab highlight
     setActiveMode(mode);
+    setActiveRideMode(mode);
+    setRideBookingStep('select_service');
+    if (mode === 'bike') setSelectedRideService('bike');
+    if (mode === 'auto') setSelectedRideService('auto');
+    if (mode === 'car') setSelectedRideService('cab_economy');
+
+    // 2. Consistent URL navigation: /home/ride/[mode]
     const targetUrl = `/home/ride/${mode}`;
     if (typeof window !== 'undefined') {
       window.history.pushState({ mode }, '', targetUrl);
     }
     router.push(targetUrl);
+
+    // 3. Show loading transition state & cancel stale responses
+    const reqId = ++activeReqIdRef.current;
+    setIsLoadingMode(true);
+
+    // Simulate clean data fetch / view render cycle with stale check
+    setTimeout(() => {
+      if (reqId === activeReqIdRef.current) {
+        setIsLoadingMode(false);
+      }
+    }, 180);
   };
 
   // Cab / Quick Ride State for Bike, Auto, Car
-  const [selectedRideId, setSelectedRideId] = useState<string>('std-1');
+  const [selectedRideService, setSelectedRideService] = useState<'bike' | 'auto' | 'cab_economy' | 'cab_premium' | 'cab_xl'>('bike');
+  const [rideBookingStep, setRideBookingStep] = useState<'select_service' | 'map_confirm'>('select_service');
   const [rideBookedModal, setRideBookedModal] = useState<any | null>(null);
 
-  // Search Fields
-  const getCleanPlaceName = (name: string) => {
+  // Bike specific stops & vehicles state
+  const [bikePickup, setBikePickup] = useState('41EB, Thiruvallam, Tamil Nadu 632515, India');
+  const [bikeDestination, setBikeDestination] = useState('Central Square, Anna Salai, Chennai, Tamil Nadu 600002');
+  const [bikeStops, setBikeStops] = useState<BikeStopItem[]>([
+    { id: 'stop-1', name: '41EB, Thiruvallam, Tamil Nadu 632515', purpose: 'Quick halt & parcel drop' }
+  ]);
+  const [newStopName, setNewStopName] = useState('');
+  const [newStopPurpose, setNewStopPurpose] = useState('');
+  const [showAddStopForm, setShowAddStopForm] = useState(false);
+  const [selectedBikeType, setSelectedBikeType] = useState<'scooty' | 'bike'>('scooty');
+  const [activeMapPinTarget, setActiveMapPinTarget] = useState<'pickup' | 'stop' | 'destination' | null>(null);
+  const [showBikeRoutePopup, setShowBikeRoutePopup] = useState(false);
+
+  // Unified Station / Place Name Formatter (Consistent across all modes)
+  const formatStationName = (name: string) => {
     return name.replace(/\s*-\s*[A-Z0-9]+$/i, '').trim();
   };
 
-  const [source, setSource] = useState(() =>
-    getRideModeFromPath(pathname) === 'bus' ? 'Mgr Chennai Ctl' : 'Mgr Chennai Ctl - MAS'
-  );
-  const [destination, setDestination] = useState(() =>
-    getRideModeFromPath(pathname) === 'bus' ? 'Katpadi Jn' : 'Katpadi Jn - KPD'
-  );
+  const [source, setSource] = useState('Chennai');
+  const [destination, setDestination] = useState('Vijayawada');
   const [dateOfJourney, setDateOfJourney] = useState('14 Oct, 2026');
   const [selectedDay, setSelectedDay] = useState('14');
 
-  // Keep source & destination formatted as place name only when in bus mode
-  useEffect(() => {
-    if (activeMode === 'bus') {
-      setSource(prev => getCleanPlaceName(prev));
-      setDestination(prev => getCleanPlaceName(prev));
-    }
-  }, [activeMode]);
-
-  // Calendar Picker State
+  // Calendar Picker & Dropdown Refs
   const [showCalendarPicker, setShowCalendarPicker] = useState(false);
   const [calMonth, setCalMonth] = useState(9); // 0-indexed: 9 = October
   const [calYear, setCalYear] = useState(2026);
   const calendarRef = useRef<HTMLDivElement>(null);
+  const sourceRef = useRef<HTMLDivElement>(null);
+  const destRef = useRef<HTMLDivElement>(null);
 
   const MONTH_NAMES = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -367,20 +849,24 @@ export default function TrainBookingView() {
     return new Date(year, month, 1).getDay();
   };
 
-  // Close calendar popup when clicking outside
+  // Close calendar popup & dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (calendarRef.current && !calendarRef.current.contains(e.target as Node)) {
         setShowCalendarPicker(false);
       }
+      if (sourceRef.current && !sourceRef.current.contains(e.target as Node)) {
+        setShowSourceDropdown(false);
+      }
+      if (destRef.current && !destRef.current.contains(e.target as Node)) {
+        setShowDestDropdown(false);
+      }
     };
-    if (showCalendarPicker) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showCalendarPicker]);
+  }, []);
 
   const toggleCalendarPicker = () => {
     // Sync current month/year from dateOfJourney if possible
@@ -410,6 +896,88 @@ export default function TrainBookingView() {
   // Auto-complete dropdown states
   const [showSourceDropdown, setShowSourceDropdown] = useState(false);
   const [showDestDropdown, setShowDestDropdown] = useState(false);
+  const [sourceOnlineResults, setSourceOnlineResults] = useState<CityLocation[]>([]);
+  const [destOnlineResults, setDestOnlineResults] = useState<CityLocation[]>([]);
+  const [isSearchingSource, setIsSearchingSource] = useState(false);
+  const [isSearchingDest, setIsSearchingDest] = useState(false);
+
+  // Debounced online map search for source location
+  useEffect(() => {
+    const q = formatStationName(source).trim();
+    if (!q || q.length < 2) {
+      setSourceOnlineResults([]);
+      setIsSearchingSource(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        setIsSearchingSource(true);
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&countrycodes=in&limit=6&addressdetails=1`);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            const mapped: CityLocation[] = data.map((item: any) => {
+              const placeName = item.name || item.display_name?.split(',')[0]?.trim() || q;
+              const stateName = item.address?.state || item.address?.county || 'India';
+              return {
+                name: placeName,
+                state: stateName,
+                isOnlineResult: true
+              };
+            });
+            const unique = mapped.filter(m => !POPULAR_CITIES.some(p => p.name.toLowerCase() === m.name.toLowerCase()));
+            setSourceOnlineResults(unique);
+          }
+        }
+      } catch (err) {
+        // Fallback silently if offline or blocked
+      } finally {
+        setIsSearchingSource(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [source]);
+
+  // Debounced online map search for destination location
+  useEffect(() => {
+    const q = formatStationName(destination).trim();
+    if (!q || q.length < 2) {
+      setDestOnlineResults([]);
+      setIsSearchingDest(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        setIsSearchingDest(true);
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&countrycodes=in&limit=6&addressdetails=1`);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            const mapped: CityLocation[] = data.map((item: any) => {
+              const placeName = item.name || item.display_name?.split(',')[0]?.trim() || q;
+              const stateName = item.address?.state || item.address?.county || 'India';
+              return {
+                name: placeName,
+                state: stateName,
+                isOnlineResult: true
+              };
+            });
+            const unique = mapped.filter(m => !POPULAR_CITIES.some(p => p.name.toLowerCase() === m.name.toLowerCase()));
+            setDestOnlineResults(unique);
+          }
+        }
+      } catch (err) {
+        // Fallback silently
+      } finally {
+        setIsSearchingDest(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [destination]);
 
   // Sorting state
   const [sortBy, setSortBy] = useState<'Default' | 'Availability' | 'Duration' | 'Departure' | 'Arrival'>('Default');
@@ -420,13 +988,22 @@ export default function TrainBookingView() {
   const [filterTatkal, setFilterTatkal] = useState(false);
   const [filterAltTrip, setFilterAltTrip] = useState(false);
 
+  // Detailed Filter Accordion States
+  const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
+  const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
+  const [selectedQuota, setSelectedQuota] = useState<'general' | 'tatkal' | 'ladies' | 'senior'>('general');
+  const [selectedDepTimeRanges, setSelectedDepTimeRanges] = useState<string[]>([]);
+  const [selectedArrTimeRanges, setSelectedArrTimeRanges] = useState<string[]>([]);
+  const [selectedDepStations, setSelectedDepStations] = useState<string[]>([]);
+  const [selectedArrStations, setSelectedArrStations] = useState<string[]>([]);
+
   // Free cancellation toggle
   const [freeCancel, setFreeCancel] = useState(false);
 
-  // Accordion open/close states
+  // Accordion open/close states (default open first 3 for great UX)
   const [openAccordions, setOpenAccordions] = useState<Record<string, boolean>>({
-    availability: false,
-    ticketClass: false,
+    availability: true,
+    ticketClass: true,
     quota: false,
     departureTime: false,
     arrivalTime: false,
@@ -474,23 +1051,149 @@ export default function TrainBookingView() {
     { num: '28', day: 'Wed', pip: 'green' },
   ];
 
-  // Filtered & Sorted Trains
-  let displayedTrains = [...INITIAL_TRAINS];
+  // Dynamic station lists available for current corridor
+  const corridorTrains = React.useMemo(() => {
+    return getCorridorTrains(source, destination);
+  }, [source, destination]);
 
+  const availableDepartingStations = React.useMemo(() => {
+    const map = new Map<string, string>();
+    corridorTrains.forEach(t => {
+      map.set(t.departureStation, t.departureStationCode);
+    });
+    return Array.from(map.entries()).map(([name, code]) => ({ name, code }));
+  }, [corridorTrains]);
+
+  const availableArrivingStations = React.useMemo(() => {
+    const map = new Map<string, string>();
+    corridorTrains.forEach(t => {
+      map.set(t.arrivalStation, t.arrivalStationCode);
+    });
+    return Array.from(map.entries()).map(([name, code]) => ({ name, code }));
+  }, [corridorTrains]);
+
+  // Helper to parse time string like '07:25 AM' or '21:10' into minutes from midnight
+  const parseTimeToMinutes = (timeStr: string): number => {
+    if (!timeStr) return 0;
+    const clean = timeStr.trim().toUpperCase();
+    const isPM = clean.includes('PM');
+    const isAM = clean.includes('AM');
+    const parts = clean.replace(/[APM]/g, '').trim().split(':');
+    let hours = parseInt(parts[0], 10) || 0;
+    const minutes = parseInt(parts[1], 10) || 0;
+    if (isPM && hours < 12) hours += 12;
+    if (isAM && hours === 12) hours = 0;
+    return hours * 60 + minutes;
+  };
+
+  const matchesTimeRange = (timeStr: string, rangeKey: string): boolean => {
+    const mins = parseTimeToMinutes(timeStr);
+    switch (rangeKey) {
+      case 'early_morning': // 00:00 - 06:00
+        return mins >= 0 && mins < 6 * 60;
+      case 'morning': // 06:00 - 12:00
+        return mins >= 6 * 60 && mins < 12 * 60;
+      case 'afternoon': // 12:00 - 18:00
+        return mins >= 12 * 60 && mins < 18 * 60;
+      case 'night': // 18:00 - 24:00
+        return mins >= 18 * 60 && mins <= 24 * 60;
+      default:
+        return true;
+    }
+  };
+
+  // Filtered & Sorted Trains
+  let displayedTrains = [...corridorTrains];
+
+  // 1. Quick Filters & Tatkal
   if (filterAvailable) {
     displayedTrains = displayedTrains.filter(t => t.classes.some(c => c.statusType === 'available'));
   }
   if (filterAC) {
     displayedTrains = displayedTrains.filter(t => t.classes.some(c => ['1A', '2A', '3A', '3E', 'CC', 'EC'].includes(c.code)));
   }
+  if (filterTatkal || selectedQuota === 'tatkal') {
+    displayedTrains = displayedTrains.filter(t => t.classes.some(c => c.isTatkal));
+  }
+  if (filterAltTrip) {
+    // Show trains with connecting stops or alternate halts
+    displayedTrains = displayedTrains.filter(t => t.stops && t.stops.length > 3);
+  }
 
+  // 2. Ticket Class Filter
+  if (selectedClasses.length > 0) {
+    displayedTrains = displayedTrains.filter(t => t.classes.some(c => selectedClasses.includes(c.code)));
+  }
+
+  // 3. Availability Accordion Filter
+  if (selectedAvailability.length > 0) {
+    displayedTrains = displayedTrains.filter(t => {
+      return t.classes.some(c => {
+        if (selectedAvailability.includes('available') && c.statusType === 'available') return true;
+        if (selectedAvailability.includes('rac') && (c.status.toUpperCase().includes('RAC') || c.statusType === 'update')) return true;
+        if (selectedAvailability.includes('wl') && (c.statusType === 'wl' || c.status.toUpperCase().includes('WL'))) return true;
+        return false;
+      });
+    });
+  }
+
+  // 4. Departure Time Filter
+  if (selectedDepTimeRanges.length > 0) {
+    displayedTrains = displayedTrains.filter(t => {
+      return selectedDepTimeRanges.some(r => matchesTimeRange(t.departureTime, r));
+    });
+  }
+
+  // 5. Arrival Time Filter
+  if (selectedArrTimeRanges.length > 0) {
+    displayedTrains = displayedTrains.filter(t => {
+      return selectedArrTimeRanges.some(r => matchesTimeRange(t.arrivalTime, r));
+    });
+  }
+
+  // 6. Departing Stations Filter
+  if (selectedDepStations.length > 0) {
+    displayedTrains = displayedTrains.filter(t => {
+      return selectedDepStations.includes(t.departureStation) || selectedDepStations.includes(t.departureStationCode);
+    });
+  }
+
+  // 7. Arriving Stations Filter
+  if (selectedArrStations.length > 0) {
+    displayedTrains = displayedTrains.filter(t => {
+      return selectedArrStations.includes(t.arrivalStation) || selectedArrStations.includes(t.arrivalStationCode);
+    });
+  }
+
+  // Sorting
   if (sortBy === 'Duration') {
     displayedTrains.sort((a, b) => a.duration.localeCompare(b.duration));
   } else if (sortBy === 'Departure') {
-    displayedTrains.sort((a, b) => a.departureTime.localeCompare(b.departureTime));
+    displayedTrains.sort((a, b) => parseTimeToMinutes(a.departureTime) - parseTimeToMinutes(b.departureTime));
   } else if (sortBy === 'Arrival') {
-    displayedTrains.sort((a, b) => a.arrivalTime.localeCompare(b.arrivalTime));
+    displayedTrains.sort((a, b) => parseTimeToMinutes(a.arrivalTime) - parseTimeToMinutes(b.arrivalTime));
+  } else if (sortBy === 'Availability') {
+    displayedTrains.sort((a, b) => {
+      const aAvail = a.classes.filter(c => c.statusType === 'available').length;
+      const bAvail = b.classes.filter(c => c.statusType === 'available').length;
+      return bAvail - aAvail;
+    });
   }
+
+  // Clear all filters handler
+  const handleClearAllFilters = () => {
+    setFilterAvailable(false);
+    setFilterAC(false);
+    setFilterTatkal(false);
+    setFilterAltTrip(false);
+    setSelectedAvailability([]);
+    setSelectedClasses([]);
+    setSelectedQuota('general');
+    setSelectedDepTimeRanges([]);
+    setSelectedArrTimeRanges([]);
+    setSelectedDepStations([]);
+    setSelectedArrStations([]);
+  };
 
   // Handle final booking confirmation
   const handleConfirmTicketBooking = () => {
@@ -566,14 +1269,14 @@ export default function TrainBookingView() {
         </button>
         <div>
           <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span>{source.split('-')[0].trim()}</span>
+            <span>{formatStationName(source)}</span>
             <i className="fa-solid fa-arrow-right" style={{ fontSize: '13px', color: '#64748b' }}></i>
-            <span>{destination.split('-')[0].trim()}</span>
+            <span>{formatStationName(destination)}</span>
           </div>
           <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
-            {activeMode === 'bus' ? '213 buses available' :
-              activeMode === 'train' ? '65 trains available' :
-                activeMode === 'flight' ? '18 flights available' :
+            {activeMode === 'bus' ? 'Buses available' :
+              activeMode === 'train' ? `${displayedTrains.length} ${displayedTrains.length === 1 ? 'train' : 'trains'} running on this route` :
+                activeMode === 'flight' ? 'Flights available' :
                   'Instant ride captains nearby'}
           </div>
         </div>
@@ -583,20 +1286,20 @@ export default function TrainBookingView() {
       <div className="tb-search-card">
         <div className="tb-search-row">
           {/* Source Input */}
-          <div className="tb-search-field">
+          <div className="tb-search-field" ref={sourceRef}>
             <i className={`fa-solid ${activeMode === 'bike' ? 'fa-motorcycle' :
-                activeMode === 'auto' ? 'fa-taxi' :
-                  activeMode === 'car' ? 'fa-car' :
-                    activeMode === 'bus' ? 'fa-bus' :
-                      activeMode === 'flight' ? 'fa-plane' :
-                        'fa-train-subway'
+              activeMode === 'auto' ? 'fa-taxi' :
+                activeMode === 'car' ? 'fa-car' :
+                  activeMode === 'bus' ? 'fa-bus' :
+                    activeMode === 'flight' ? 'fa-plane' :
+                      'fa-train-subway'
               } tb-field-icon`}></i>
             <div className="tb-field-content">
               <span className="tb-field-label">Source</span>
               <input
                 type="text"
                 className="tb-field-input"
-                value={activeMode === 'bus' ? getCleanPlaceName(source) : source}
+                value={formatStationName(source)}
                 onChange={(e) => { setSource(e.target.value); setShowSourceDropdown(true); }}
                 onFocus={() => setShowSourceDropdown(true)}
                 placeholder="From Station / Location"
@@ -605,25 +1308,69 @@ export default function TrainBookingView() {
 
             {showSourceDropdown && (
               <div className="tb-suggestions-popup">
-                {INDIAN_STATIONS.filter(st => {
-                  const q = (activeMode === 'bus' ? getCleanPlaceName(source) : source).trim().toLowerCase();
+                <div className="tb-suggestions-header">
+                  <span>Popular Cities</span>
+                  <i className="fa-solid fa-city" style={{ color: '#94a3b8' }}></i>
+                </div>
+                {POPULAR_CITIES.filter(city => {
+                  const q = formatStationName(source).trim().toLowerCase();
                   if (!q) return true;
-                  return st.name.toLowerCase().includes(q) || st.code.toLowerCase().includes(q) || st.full.toLowerCase().includes(q);
-                }).map(st => (
+                  return city.name.toLowerCase().includes(q) || city.state.toLowerCase().includes(q);
+                }).map(city => (
                   <div
-                    key={st.code}
-                    className="tb-suggestion-item"
+                    key={city.name}
+                    className="tb-city-suggestion-item"
                     onClick={() => {
-                      setSource(activeMode === 'bus' ? st.name : st.full);
+                      setSource(city.name);
                       setShowSourceDropdown(false);
                     }}
                   >
-                    <span style={{ fontWeight: 700, color: '#0f172a' }}>{st.name}</span>
-                    {activeMode !== 'bus' && (
-                      <span style={{ fontSize: '11px', color: '#64748b', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>{st.code}</span>
-                    )}
+                    <div className="tb-city-icon-wrap">
+                      <i className="fa-solid fa-city"></i>
+                    </div>
+                    <div className="tb-city-text-wrap">
+                      <span className="tb-city-main-name">{city.name}</span>
+                      <span className="tb-city-sub-name">{city.state}</span>
+                    </div>
                   </div>
                 ))}
+
+                {isSearchingSource && (
+                  <div className="tb-searching-indicator">
+                    <i className="fa-solid fa-spinner fa-spin" style={{ color: '#2563eb' }}></i>
+                    <span>Finding places on map...</span>
+                  </div>
+                )}
+
+                {sourceOnlineResults.length > 0 && (
+                  <>
+                    <div className="tb-suggestions-header tb-suggestions-header-online">
+                      <span>Online Map Places</span>
+                      <i className="fa-solid fa-map-location-dot"></i>
+                    </div>
+                    {sourceOnlineResults.map((place, pIdx) => (
+                      <div
+                        key={`src-online-${pIdx}`}
+                        className="tb-city-suggestion-item"
+                        onClick={() => {
+                          setSource(place.name);
+                          setShowSourceDropdown(false);
+                        }}
+                      >
+                        <div className="tb-city-icon-wrap" style={{ color: '#2563eb' }}>
+                          <i className="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div className="tb-city-text-wrap">
+                          <span className="tb-city-main-name">{place.name}</span>
+                          <span className="tb-city-sub-name">{place.state}</span>
+                        </div>
+                        <span className="tb-online-map-tag">
+                          <i className="fa-solid fa-earth-asia"></i> Map
+                        </span>
+                      </div>
+                    ))}
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -634,47 +1381,92 @@ export default function TrainBookingView() {
           </button>
 
           {/* Destination Input */}
-          <div className="tb-search-field">
+          <div className="tb-search-field" ref={destRef}>
             <i className={`fa-solid ${activeMode === 'bike' ? 'fa-motorcycle' :
-                activeMode === 'auto' ? 'fa-taxi' :
-                  activeMode === 'car' ? 'fa-car' :
-                    activeMode === 'bus' ? 'fa-bus' :
-                      activeMode === 'flight' ? 'fa-plane' :
-                        'fa-train-subway'
+              activeMode === 'auto' ? 'fa-taxi' :
+                activeMode === 'car' ? 'fa-car' :
+                  activeMode === 'bus' ? 'fa-bus' :
+                    activeMode === 'flight' ? 'fa-plane' :
+                      'fa-train-subway'
               } tb-field-icon`}></i>
             <div className="tb-field-content">
               <span className="tb-field-label">Destination</span>
               <input
                 type="text"
                 className="tb-field-input"
-                value={activeMode === 'bus' ? getCleanPlaceName(destination) : destination}
+                value={formatStationName(destination)}
                 onChange={(e) => { setDestination(e.target.value); setShowDestDropdown(true); }}
                 onFocus={() => setShowDestDropdown(true)}
+                onKeyDown={(e) => { if (e.key === 'Enter') setShowDestDropdown(false); }}
                 placeholder="To Station / Location"
               />
             </div>
 
             {showDestDropdown && (
               <div className="tb-suggestions-popup">
-                {INDIAN_STATIONS.filter(st => {
-                  const q = (activeMode === 'bus' ? getCleanPlaceName(destination) : destination).trim().toLowerCase();
+                <div className="tb-suggestions-header">
+                  <span>Popular Cities</span>
+                  <i className="fa-solid fa-city" style={{ color: '#94a3b8' }}></i>
+                </div>
+                {POPULAR_CITIES.filter(city => {
+                  const q = formatStationName(destination).trim().toLowerCase();
                   if (!q) return true;
-                  return st.name.toLowerCase().includes(q) || st.code.toLowerCase().includes(q) || st.full.toLowerCase().includes(q);
-                }).map(st => (
+                  return city.name.toLowerCase().includes(q) || city.state.toLowerCase().includes(q);
+                }).map(city => (
                   <div
-                    key={st.code}
-                    className="tb-suggestion-item"
+                    key={city.name}
+                    className="tb-city-suggestion-item"
                     onClick={() => {
-                      setDestination(activeMode === 'bus' ? st.name : st.full);
+                      setDestination(city.name);
                       setShowDestDropdown(false);
                     }}
                   >
-                    <span style={{ fontWeight: 700, color: '#0f172a' }}>{st.name}</span>
-                    {activeMode !== 'bus' && (
-                      <span style={{ fontSize: '11px', color: '#64748b', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>{st.code}</span>
-                    )}
+                    <div className="tb-city-icon-wrap">
+                      <i className="fa-solid fa-city"></i>
+                    </div>
+                    <div className="tb-city-text-wrap">
+                      <span className="tb-city-main-name">{city.name}</span>
+                      <span className="tb-city-sub-name">{city.state}</span>
+                    </div>
                   </div>
                 ))}
+
+                {isSearchingDest && (
+                  <div className="tb-searching-indicator">
+                    <i className="fa-solid fa-spinner fa-spin" style={{ color: '#2563eb' }}></i>
+                    <span>Finding places on map...</span>
+                  </div>
+                )}
+
+                {destOnlineResults.length > 0 && (
+                  <>
+                    <div className="tb-suggestions-header tb-suggestions-header-online">
+                      <span>Online Map Places</span>
+                      <i className="fa-solid fa-map-location-dot"></i>
+                    </div>
+                    {destOnlineResults.map((place, pIdx) => (
+                      <div
+                        key={`dst-online-${pIdx}`}
+                        className="tb-city-suggestion-item"
+                        onClick={() => {
+                          setDestination(place.name);
+                          setShowDestDropdown(false);
+                        }}
+                      >
+                        <div className="tb-city-icon-wrap" style={{ color: '#2563eb' }}>
+                          <i className="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div className="tb-city-text-wrap">
+                          <span className="tb-city-main-name">{place.name}</span>
+                          <span className="tb-city-sub-name">{place.state}</span>
+                        </div>
+                        <span className="tb-online-map-tag">
+                          <i className="fa-solid fa-earth-asia"></i> Map
+                        </span>
+                      </div>
+                    ))}
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -900,10 +1692,23 @@ export default function TrainBookingView() {
         </div>
       </div>
 
-      {activeMode === 'bus' && (
+      {/* ---------------- Mode Loading Skeleton State (Prevents showing stale previous content) ---------------- */}
+      {isLoadingMode ? (
+        <div className="tb-mode-skeleton-container">
+          <div className="tb-skeleton-pulse tb-skeleton-banner"></div>
+          <div className="tb-skeleton-grid">
+            <div className="tb-skeleton-pulse tb-skeleton-sidebar"></div>
+            <div className="tb-skeleton-cards-col">
+              <div className="tb-skeleton-pulse tb-skeleton-card"></div>
+              <div className="tb-skeleton-pulse tb-skeleton-card"></div>
+              <div className="tb-skeleton-pulse tb-skeleton-card"></div>
+            </div>
+          </div>
+        </div>
+      ) : activeMode === 'bus' ? (
         <BusBookingView
-          source={getCleanPlaceName(source)}
-          destination={getCleanPlaceName(destination)}
+          source={formatStationName(source)}
+          destination={formatStationName(destination)}
           dateOfJourney={dateOfJourney}
           onDateChange={(newDate) => {
             setDateOfJourney(newDate);
@@ -911,9 +1716,7 @@ export default function TrainBookingView() {
             setSelectedDay(d);
           }}
         />
-      )}
-
-      {activeMode === 'train' && (
+      ) : activeMode === 'train' ? (
         <div className="tb-main-grid">
           {/* Left Filter Results Sidebar */}
           <aside className="tb-filter-sidebar">
@@ -958,14 +1761,41 @@ export default function TrainBookingView() {
                 {openAccordions.availability && (
                   <div className="tb-accordion-body">
                     <label className="tb-filter-checkbox-label">
-                      <input type="checkbox" checked={filterAvailable} onChange={(e) => setFilterAvailable(e.target.checked)} />
+                      <input
+                        type="checkbox"
+                        checked={filterAvailable || selectedAvailability.includes('available')}
+                        onChange={(e) => {
+                          setFilterAvailable(e.target.checked);
+                          setSelectedAvailability(prev =>
+                            e.target.checked ? [...prev.filter(x => x !== 'available'), 'available'] : prev.filter(x => x !== 'available')
+                          );
+                        }}
+                      />
                       Confirmed Available Only
                     </label>
                     <label className="tb-filter-checkbox-label">
-                      <input type="checkbox" /> RAC (Reservation Against Cancellation)
+                      <input
+                        type="checkbox"
+                        checked={selectedAvailability.includes('rac')}
+                        onChange={(e) => {
+                          setSelectedAvailability(prev =>
+                            e.target.checked ? [...prev, 'rac'] : prev.filter(x => x !== 'rac')
+                          );
+                        }}
+                      />
+                      RAC (Reservation Against Cancellation)
                     </label>
                     <label className="tb-filter-checkbox-label">
-                      <input type="checkbox" /> Waitlist (WL / PQWL / GNWL)
+                      <input
+                        type="checkbox"
+                        checked={selectedAvailability.includes('wl')}
+                        onChange={(e) => {
+                          setSelectedAvailability(prev =>
+                            e.target.checked ? [...prev, 'wl'] : prev.filter(x => x !== 'wl')
+                          );
+                        }}
+                      />
+                      Waitlist (WL / PQWL / GNWL)
                     </label>
                   </div>
                 )}
@@ -979,13 +1809,28 @@ export default function TrainBookingView() {
                 </div>
                 {openAccordions.ticketClass && (
                   <div className="tb-accordion-body">
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> 1A (AC First Class)</label>
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> 2A (AC 2-Tier)</label>
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> 3A (AC 3-Tier)</label>
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> 3E (AC 3 Economy)</label>
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> SL (Sleeper Class)</label>
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> CC (AC Chair Car)</label>
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> 2S (Second Sitting)</label>
+                    {[
+                      { code: '1A', label: '1A (AC First Class)' },
+                      { code: '2A', label: '2A (AC 2-Tier)' },
+                      { code: '3A', label: '3A (AC 3-Tier)' },
+                      { code: '3E', label: '3E (AC 3 Economy)' },
+                      { code: 'SL', label: 'SL (Sleeper Class)' },
+                      { code: 'CC', label: 'CC (AC Chair Car)' },
+                      { code: '2S', label: '2S (Second Sitting)' }
+                    ].map(cls => (
+                      <label key={cls.code} className="tb-filter-checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={selectedClasses.includes(cls.code)}
+                          onChange={(e) => {
+                            setSelectedClasses(prev =>
+                              e.target.checked ? [...prev, cls.code] : prev.filter(x => x !== cls.code)
+                            );
+                          }}
+                        />
+                        {cls.label}
+                      </label>
+                    ))}
                   </div>
                 )}
               </div>
@@ -998,10 +1843,26 @@ export default function TrainBookingView() {
                 </div>
                 {openAccordions.quota && (
                   <div className="tb-accordion-body">
-                    <label className="tb-filter-checkbox-label"><input type="radio" name="quota" defaultChecked /> General Quota</label>
-                    <label className="tb-filter-checkbox-label"><input type="radio" name="quota" /> Tatkal Quota</label>
-                    <label className="tb-filter-checkbox-label"><input type="radio" name="quota" /> Ladies Quota</label>
-                    <label className="tb-filter-checkbox-label"><input type="radio" name="quota" /> Senior Citizen / Lower Berth</label>
+                    {[
+                      { key: 'general', label: 'General Quota' },
+                      { key: 'tatkal', label: 'Tatkal Quota' },
+                      { key: 'ladies', label: 'Ladies Quota' },
+                      { key: 'senior', label: 'Senior Citizen / Lower Berth' }
+                    ].map(q => (
+                      <label key={q.key} className="tb-filter-checkbox-label">
+                        <input
+                          type="radio"
+                          name="quota"
+                          checked={selectedQuota === q.key}
+                          onChange={() => {
+                            setSelectedQuota(q.key as any);
+                            if (q.key === 'tatkal') setFilterTatkal(true);
+                            else setFilterTatkal(false);
+                          }}
+                        />
+                        {q.label}
+                      </label>
+                    ))}
                   </div>
                 )}
               </div>
@@ -1014,10 +1875,25 @@ export default function TrainBookingView() {
                 </div>
                 {openAccordions.departureTime && (
                   <div className="tb-accordion-body">
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> Early Morning (00:00 - 06:00)</label>
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> Morning (06:00 - 12:00)</label>
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> Afternoon (12:00 - 18:00)</label>
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> Night (18:00 - 24:00)</label>
+                    {[
+                      { key: 'early_morning', label: 'Early Morning (00:00 - 06:00)' },
+                      { key: 'morning', label: 'Morning (06:00 - 12:00)' },
+                      { key: 'afternoon', label: 'Afternoon (12:00 - 18:00)' },
+                      { key: 'night', label: 'Night (18:00 - 24:00)' }
+                    ].map(t => (
+                      <label key={t.key} className="tb-filter-checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={selectedDepTimeRanges.includes(t.key)}
+                          onChange={(e) => {
+                            setSelectedDepTimeRanges(prev =>
+                              e.target.checked ? [...prev, t.key] : prev.filter(x => x !== t.key)
+                            );
+                          }}
+                        />
+                        {t.label}
+                      </label>
+                    ))}
                   </div>
                 )}
               </div>
@@ -1030,9 +1906,25 @@ export default function TrainBookingView() {
                 </div>
                 {openAccordions.arrivalTime && (
                   <div className="tb-accordion-body">
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> Morning (06:00 - 12:00)</label>
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> Afternoon (12:00 - 18:00)</label>
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> Night (18:00 - 24:00)</label>
+                    {[
+                      { key: 'early_morning', label: 'Early Morning (00:00 - 06:00)' },
+                      { key: 'morning', label: 'Morning (06:00 - 12:00)' },
+                      { key: 'afternoon', label: 'Afternoon (12:00 - 18:00)' },
+                      { key: 'night', label: 'Night (18:00 - 24:00)' }
+                    ].map(t => (
+                      <label key={t.key} className="tb-filter-checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={selectedArrTimeRanges.includes(t.key)}
+                          onChange={(e) => {
+                            setSelectedArrTimeRanges(prev =>
+                              e.target.checked ? [...prev, t.key] : prev.filter(x => x !== t.key)
+                            );
+                          }}
+                        />
+                        {t.label}
+                      </label>
+                    ))}
                   </div>
                 )}
               </div>
@@ -1045,9 +1937,26 @@ export default function TrainBookingView() {
                 </div>
                 {openAccordions.departingStations && (
                   <div className="tb-accordion-body">
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" defaultChecked /> Mgr Chennai Ctl (MAS)</label>
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> Chennai Egmore (MS)</label>
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> Tambaram (TBM)</label>
+                    {availableDepartingStations.length > 0 ? (
+                      availableDepartingStations.map(st => (
+                        <label key={st.name} className="tb-filter-checkbox-label">
+                          <input
+                            type="checkbox"
+                            checked={selectedDepStations.includes(st.name) || selectedDepStations.includes(st.code)}
+                            onChange={(e) => {
+                              setSelectedDepStations(prev =>
+                                e.target.checked
+                                  ? [...prev, st.name, st.code]
+                                  : prev.filter(x => x !== st.name && x !== st.code)
+                              );
+                            }}
+                          />
+                          {st.name} ({st.code})
+                        </label>
+                      ))
+                    ) : (
+                      <span style={{ fontSize: '12px', color: '#64748b' }}>No stations available</span>
+                    )}
                   </div>
                 )}
               </div>
@@ -1060,8 +1969,26 @@ export default function TrainBookingView() {
                 </div>
                 {openAccordions.arrivingStations && (
                   <div className="tb-accordion-body">
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" defaultChecked /> Katpadi Jn (KPD)</label>
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> Vellore Cantt (VLR)</label>
+                    {availableArrivingStations.length > 0 ? (
+                      availableArrivingStations.map(st => (
+                        <label key={st.name} className="tb-filter-checkbox-label">
+                          <input
+                            type="checkbox"
+                            checked={selectedArrStations.includes(st.name) || selectedArrStations.includes(st.code)}
+                            onChange={(e) => {
+                              setSelectedArrStations(prev =>
+                                e.target.checked
+                                  ? [...prev, st.name, st.code]
+                                  : prev.filter(x => x !== st.name && x !== st.code)
+                              );
+                            }}
+                          />
+                          {st.name} ({st.code})
+                        </label>
+                      ))
+                    ) : (
+                      <span style={{ fontSize: '12px', color: '#64748b' }}>No stations available</span>
+                    )}
                   </div>
                 )}
               </div>
@@ -1074,12 +2001,45 @@ export default function TrainBookingView() {
                 </div>
                 {openAccordions.alternateTrip && (
                   <div className="tb-accordion-body">
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> Connecting Trains Via AJJ</label>
-                    <label className="tb-filter-checkbox-label"><input type="checkbox" /> Same-day Bus Return</label>
+                    <label className="tb-filter-checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={filterAltTrip}
+                        onChange={(e) => setFilterAltTrip(e.target.checked)}
+                      />
+                      Connecting Trains & Stops
+                    </label>
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Clear Filters Button */}
+            {(filterAvailable || filterAC || filterTatkal || filterAltTrip || selectedClasses.length > 0 || selectedAvailability.length > 0 || selectedDepTimeRanges.length > 0 || selectedArrTimeRanges.length > 0 || selectedDepStations.length > 0 || selectedArrStations.length > 0 || selectedQuota !== 'general') && (
+              <button
+                type="button"
+                onClick={handleClearAllFilters}
+                style={{
+                  marginTop: '16px',
+                  width: '100%',
+                  padding: '10px 14px',
+                  background: '#fef2f2',
+                  color: '#dc2626',
+                  border: '1px solid #fecaca',
+                  borderRadius: '10px',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <i className="fa-solid fa-rotate-left"></i> Reset All Filters
+              </button>
+            )}
           </aside>
 
           {/* Right Main Results Area */}
@@ -1111,7 +2071,9 @@ export default function TrainBookingView() {
 
             {/* Results Header (Count + Sorting) */}
             <div className="tb-results-header">
-              <span className="tb-trains-count">65 {activeMode === 'train' ? 'Trains' : 'Buses'}</span>
+              <span className="tb-trains-count">
+                {displayedTrains.length} {displayedTrains.length === 1 ? 'Train' : 'Trains'}
+              </span>
 
               <div className="tb-sort-group">
                 <span className="tb-sort-label">Sort By:</span>
@@ -1127,27 +2089,59 @@ export default function TrainBookingView() {
               </div>
             </div>
 
-            {/* Free Cancellation Banner */}
-            <div className="tb-free-cancel-banner">
-              <div className="tb-free-cancel-left">
-                <div className="tb-cancel-icon-circle">
-                  <i className="fa-solid fa-indian-rupee-sign"></i>
+            {/* Empty State when no trains match filters */}
+            {displayedTrains.length === 0 ? (
+              <div
+                style={{
+                  background: 'white',
+                  borderRadius: '16px',
+                  padding: '48px 24px',
+                  textAlign: 'center',
+                  border: '1px dashed #cbd5e1',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.03)',
+                  marginTop: '16px'
+                }}
+              >
+                <div
+                  style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    background: '#f1f5f9',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '28px',
+                    color: '#64748b',
+                    margin: '0 auto 16px auto'
+                  }}
+                >
+                  <i className="fa-solid fa-train"></i>
                 </div>
-                <div>
-                  <h4 className="tb-cancel-title">Free Cancellation</h4>
-                  <p className="tb-cancel-subtitle">₹0 cancellation fee...</p>
-                </div>
+                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: '0 0 8px 0' }}>
+                  No trains found matching your filters
+                </h3>
+                <p style={{ fontSize: '14px', color: '#64748b', maxWidth: '420px', margin: '0 auto 20px auto' }}>
+                  Try relaxing your departure time, ticket classes, or availability filters to see available trains on this corridor.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearAllFilters}
+                  style={{
+                    padding: '10px 24px',
+                    background: '#2563eb',
+                    color: 'white',
+                    fontWeight: 700,
+                    borderRadius: '10px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(37,99,235,0.25)'
+                  }}
+                >
+                  Reset All Filters
+                </button>
               </div>
-
-              <label className="tb-toggle-switch">
-                <input
-                  type="checkbox"
-                  checked={freeCancel}
-                  onChange={(e) => setFreeCancel(e.target.checked)}
-                />
-                <span className="tb-toggle-slider"></span>
-              </label>
-            </div>
+            ) : null}
 
             {/* Train Cards List */}
             {displayedTrains.map((train) => (
@@ -1261,264 +2255,31 @@ export default function TrainBookingView() {
                           container.scrollBy({ left: 220, behavior: 'smooth' });
                         }
                       }
-                      // Toggle expanded train details drawer
-                      setExpandedTrainId(prev => prev === train.id ? null : train.id);
                     }}
-                    title={expandedTrainId === train.id ? "Close train details" : "View more details for this train"}
+                    title="View more classes"
                   >
-                    <i className={`fa-solid ${expandedTrainId === train.id ? 'fa-chevron-up' : 'fa-chevron-right'}`}></i>
+                    <i className="fa-solid fa-chevron-right"></i>
                   </button>
                 </div>
-
-                {/* Expanded Train Details Drawer when arrow is clicked */}
-                {expandedTrainId === train.id && (
-                  <div className="tb-expanded-train-drawer">
-                    <div className="tb-drawer-header">
-                      <div className="tb-drawer-title">
-                        <i className="fa-solid fa-train"></i>
-                        <span>Live Train Insights: <strong>{train.name} ({train.number})</strong></span>
-                      </div>
-                      <div className="tb-drawer-badges">
-                        {train.punctuality && (
-                          <span className="tb-info-chip green">
-                            <i className="fa-solid fa-clock"></i> {train.punctuality}
-                          </span>
-                        )}
-                        {train.avgSpeed && (
-                          <span className="tb-info-chip blue">
-                            <i className="fa-solid fa-gauge-high"></i> Avg Speed: {train.avgSpeed}
-                          </span>
-                        )}
-                        {train.distance && (
-                          <span className="tb-info-chip purple">
-                            <i className="fa-solid fa-route"></i> Distance: {train.distance}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Coach Layout Visual Track */}
-                    {train.coaches && train.coaches.length > 0 && (
-                      <div className="tb-coaches-section">
-                        <div className="tb-section-subhead">
-                          <span>Coach Composition & Position:</span>
-                          <span className="tb-subhead-hint">Engine to Guard (Click any class above to book)</span>
-                        </div>
-                        <div className="tb-coaches-track">
-                          {train.coaches.map((coach, cIdx) => (
-                            <div key={cIdx} className={`tb-coach-block coach-${coach.type}`}>
-                              <span className="tb-coach-code">{coach.code}</span>
-                              <span className="tb-coach-name">{coach.label}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Key Halts & On-board Amenities Grid */}
-                    <div className="tb-drawer-grid">
-                      <div className="tb-drawer-col">
-                        <div className="tb-section-subhead">
-                          <i className="fa-solid fa-list-check"></i> Key Halts & Timings:
-                        </div>
-                        <div className="tb-halts-preview-list">
-                          {train.stops.slice(0, 5).map((st, sIdx) => (
-                            <div key={sIdx} className="tb-halt-row">
-                              <span className="tb-halt-station">{st.station} ({st.code})</span>
-                              <span className="tb-halt-timing">Arr: {st.arr} | Dep: {st.dep}</span>
-                              <span className="tb-halt-duration">{st.halt}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="tb-drawer-col">
-                        <div className="tb-section-subhead">
-                          <i className="fa-solid fa-bell-concierge"></i> Amenities & Quota Rules:
-                        </div>
-                        <div className="tb-amenities-tags">
-                          <span className="tb-amenity-tag"><i className="fa-solid fa-utensils"></i> {train.pantryAvailable ? 'Pantry Car & E-Catering' : 'Station Catering'}</span>
-                          <span className="tb-amenity-tag"><i className="fa-solid fa-plug"></i> Charging Sockets Available</span>
-                          <span className="tb-amenity-tag"><i className="fa-solid fa-shield-halved"></i> Bio-Toilets Fitted</span>
-                          <span className="tb-amenity-tag"><i className="fa-solid fa-ticket"></i> Tatkal Quota: Opens 10:00 AM (AC) / 11:00 AM (Non-AC)</span>
-                          <span className="tb-amenity-tag"><i className="fa-solid fa-rotate-left"></i> Free Cancellation with ₹0 Deductions</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             ))}
           </main>
         </div>
-      )}
+      ) : null}
 
-      {/* ---------------- Bike / Auto / Car On-Demand Ride Views ---------------- */}
-      {(activeMode === 'bike' || activeMode === 'auto' || activeMode === 'car') && (
-        <div className="tb-ride-cab-container" style={{ marginTop: '24px' }}>
-          <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '16px', marginBottom: '20px' }}>
-              <div>
-                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <i className={`fa-solid ${activeMode === 'bike' ? 'fa-motorcycle' : activeMode === 'auto' ? 'fa-taxi' : 'fa-car'}`} style={{ color: '#dc2626' }}></i>
-                  Available {activeMode === 'bike' ? 'Bike Taxi' : activeMode === 'auto' ? 'Auto Rickshaws' : 'Cabs & Cars'} Near You
-                </h2>
-                <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
-                  Pickup from <strong>{source.split('-')[0].trim()}</strong> • Drop to <strong>{destination.split('-')[0].trim()}</strong>
-                </p>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '12px', background: '#dcfce7', color: '#16a34a', padding: '6px 12px', borderRadius: '20px', fontWeight: 700 }}>
-                  <i className="fa-solid fa-circle-check"></i> High Captain Availability
-                </span>
-              </div>
-            </div>
-
-            {/* Ride Cards Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
-              {activeMode === 'bike' && [
-                { id: 'b1', name: 'Rapido Bike Taxi', eta: '2 mins', fare: 45, rating: 4.8, trips: '1.2k', desc: 'Fastest commute through traffic • Helmet provided', icon: 'fa-motorcycle', tag: 'Fastest' },
-                { id: 'b2', name: 'Electric EV Bike', eta: '4 mins', fare: 39, rating: 4.9, trips: '850', desc: '100% Green Electric • Quiet & smooth ride', icon: 'fa-bolt', tag: 'Eco Friendly' },
-                { id: 'b3', name: 'Express Bike Priority', eta: '1 min', fare: 55, rating: 4.8, trips: '2.4k', desc: 'Top verified captain • Direct priority pickup', icon: 'fa-fire', tag: 'Popular' }
-              ].map(ride => (
-                <div
-                  key={ride.id}
-                  onClick={() => setSelectedRideId(ride.id)}
-                  style={{
-                    border: selectedRideId === ride.id ? '2px solid #dc2626' : '1px solid #e2e8f0',
-                    borderRadius: '12px',
-                    padding: '18px',
-                    cursor: 'pointer',
-                    background: selectedRideId === ride.id ? '#fef2f2' : '#ffffff',
-                    transition: 'all 0.2s ease',
-                    boxShadow: selectedRideId === ride.id ? '0 6px 16px rgba(220, 38, 38, 0.12)' : 'none'
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#fee2e2', color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
-                        <i className={`fa-solid ${ride.icon}`}></i>
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 800, fontSize: '15px', color: '#0f172a' }}>{ride.name}</div>
-                        <div style={{ fontSize: '12px', color: '#64748b' }}>ETA: <strong style={{ color: '#16a34a' }}>{ride.eta}</strong> • ★ {ride.rating}</div>
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a' }}>₹{ride.fare}</div>
-                      <span style={{ fontSize: '10px', background: '#f1f5f9', color: '#475569', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>{ride.tag}</span>
-                    </div>
-                  </div>
-                  <p style={{ margin: '10px 0 12px 0', fontSize: '12px', color: '#64748b' }}>{ride.desc}</p>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setRideBookedModal({ ...ride, type: 'Bike Taxi', captain: 'Vikram Singh', plate: 'TN 02 BY 4120', otp: '4821' });
-                    }}
-                    style={{ width: '100%', padding: '10px', background: selectedRideId === ride.id ? '#dc2626' : '#0f172a', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}
-                  >
-                    Book This Bike
-                  </button>
-                </div>
-              ))}
-
-              {activeMode === 'auto' && [
-                { id: 'a1', name: 'Auto Standard', eta: '3 mins', fare: 75, rating: 4.7, trips: '3.4k', desc: 'Meter standard fare • Up to 3 passengers', icon: 'fa-taxi', tag: 'Affordable' },
-                { id: 'a2', name: 'Electric E-Rickshaw', eta: '5 mins', fare: 65, rating: 4.8, trips: '1.2k', desc: 'Zero emissions • Silent & comfortable', icon: 'fa-charging-station', tag: 'Eco Green' },
-                { id: 'a3', name: 'Auto Prime Comfort', eta: '2 mins', fare: 95, rating: 4.9, trips: '2.8k', desc: 'Spacious 4-seater • Top-rated driver', icon: 'fa-star', tag: 'Top Rated' }
-              ].map(ride => (
-                <div
-                  key={ride.id}
-                  onClick={() => setSelectedRideId(ride.id)}
-                  style={{
-                    border: selectedRideId === ride.id ? '2px solid #dc2626' : '1px solid #e2e8f0',
-                    borderRadius: '12px',
-                    padding: '18px',
-                    cursor: 'pointer',
-                    background: selectedRideId === ride.id ? '#fef2f2' : '#ffffff',
-                    transition: 'all 0.2s ease',
-                    boxShadow: selectedRideId === ride.id ? '0 6px 16px rgba(220, 38, 38, 0.12)' : 'none'
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#fef3c7', color: '#b45309', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
-                        <i className={`fa-solid ${ride.icon}`}></i>
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 800, fontSize: '15px', color: '#0f172a' }}>{ride.name}</div>
-                        <div style={{ fontSize: '12px', color: '#64748b' }}>ETA: <strong style={{ color: '#16a34a' }}>{ride.eta}</strong> • ★ {ride.rating}</div>
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a' }}>₹{ride.fare}</div>
-                      <span style={{ fontSize: '10px', background: '#f1f5f9', color: '#475569', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>{ride.tag}</span>
-                    </div>
-                  </div>
-                  <p style={{ margin: '10px 0 12px 0', fontSize: '12px', color: '#64748b' }}>{ride.desc}</p>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setRideBookedModal({ ...ride, type: 'Auto Rickshaw', captain: 'Ramesh Babu', plate: 'TN 05 AT 9821', otp: '3914' });
-                    }}
-                    style={{ width: '100%', padding: '10px', background: selectedRideId === ride.id ? '#dc2626' : '#0f172a', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}
-                  >
-                    Book This Auto
-                  </button>
-                </div>
-              ))}
-
-              {activeMode === 'car' && [
-                { id: 'c1', name: 'Go Mini (AC)', eta: '3 mins', fare: 149, rating: 4.7, trips: '5.8k', desc: 'Compact hatchback • Economical everyday rides', icon: 'fa-car', tag: 'Economical' },
-                { id: 'c2', name: 'Prime Sedan', eta: '4 mins', fare: 199, rating: 4.9, trips: '6.2k', desc: 'Spacious AC sedan • Top-rated drivers & Wi-Fi', icon: 'fa-car-side', tag: 'Most Popular' },
-                { id: 'c3', name: 'Prime SUV (6 Seater)', eta: '5 mins', fare: 299, rating: 4.8, trips: '3.1k', desc: 'Spacious SUV • Extra legroom & large luggage trunk', icon: 'fa-truck-pickup', tag: 'Extra Space' },
-                { id: 'c4', name: 'Outstation Intercity Cab', eta: '15 mins', fare: 1450, rating: 4.9, trips: '940', desc: 'One-way / Round trip • Dedicated chauffeur & toll included', icon: 'fa-route', tag: 'Intercity' }
-              ].map(ride => (
-                <div
-                  key={ride.id}
-                  onClick={() => setSelectedRideId(ride.id)}
-                  style={{
-                    border: selectedRideId === ride.id ? '2px solid #dc2626' : '1px solid #e2e8f0',
-                    borderRadius: '12px',
-                    padding: '18px',
-                    cursor: 'pointer',
-                    background: selectedRideId === ride.id ? '#fef2f2' : '#ffffff',
-                    transition: 'all 0.2s ease',
-                    boxShadow: selectedRideId === ride.id ? '0 6px 16px rgba(220, 38, 38, 0.12)' : 'none'
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#e0f2fe', color: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
-                        <i className={`fa-solid ${ride.icon}`}></i>
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 800, fontSize: '15px', color: '#0f172a' }}>{ride.name}</div>
-                        <div style={{ fontSize: '12px', color: '#64748b' }}>ETA: <strong style={{ color: '#16a34a' }}>{ride.eta}</strong> • ★ {ride.rating}</div>
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a' }}>₹{ride.fare}</div>
-                      <span style={{ fontSize: '10px', background: '#f1f5f9', color: '#475569', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>{ride.tag}</span>
-                    </div>
-                  </div>
-                  <p style={{ margin: '10px 0 12px 0', fontSize: '12px', color: '#64748b' }}>{ride.desc}</p>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setRideBookedModal({ ...ride, type: 'Car / Cab', captain: 'Suresh Kumar', plate: 'TN 01 CB 7741', otp: '5192' });
-                    }}
-                    style={{ width: '100%', padding: '10px', background: selectedRideId === ride.id ? '#dc2626' : '#0f172a', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}
-                  >
-                    Book This Car
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
+      {/* ---------------- Bike / Auto / Car Unified On-Demand Ride View ---------------- */}
+      {(activeMode === 'bike' || activeMode === 'auto' || activeMode === 'car') ? (
+        <RideBookingView
+          mode={activeMode as 'bike' | 'auto' | 'car'}
+          onBackToHome={() => {
+            setActiveTab('home');
+            if (typeof window !== 'undefined') {
+              window.history.pushState(null, '', '/home');
+            }
+            router.push('/home');
+          }}
+        />
+      ) : null}
       {/* ---------------- Flight Booking View ---------------- */}
       {activeMode === 'flight' && (
         <div className="tb-flight-view-container" style={{ marginTop: '24px' }}>
@@ -1692,7 +2453,7 @@ export default function TrainBookingView() {
         </div>
       )}
 
-      {/* ---------------- Booking Ticket Confirmation Modal ---------------- */}
+
       {bookingClassModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.7)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'white', borderRadius: '16px', maxWidth: '520px', width: '100%', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)' }}>
