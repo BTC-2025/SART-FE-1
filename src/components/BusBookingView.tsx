@@ -47,6 +47,185 @@ export const CALENDAR_DATES = [
   { day: '27', weekday: 'Tue', badgeType: 'green-dash' }
 ];
 
+export interface GovtRtcCardItem {
+  code: string;
+  fullName: string;
+  bgImage: string;
+  emblemSvg: React.ReactNode;
+}
+
+export const GOVT_RTC_CARDS: GovtRtcCardItem[] = [
+  {
+    code: 'APSRTC',
+    fullName: 'Andhra Pradesh State Road Transport Corporation',
+    bgImage: 'https://images.unsplash.com/photo-1596178065887-1198b6148b2b?auto=format&fit=crop&w=600&q=80',
+    emblemSvg: (
+      <svg viewBox="0 0 100 100" width="100%" height="100%">
+        <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#e11d48" strokeWidth="3" />
+        <circle cx="50" cy="50" r="42" fill="#fff1f2" />
+        <path d="M50 15 L58 35 L80 35 L62 48 L68 70 L50 56 L32 70 L38 48 L20 35 L42 35 Z" fill="#e11d48" />
+        <circle cx="50" cy="46" r="16" fill="#facc15" stroke="#b45309" strokeWidth="1.5" />
+        <text x="50" y="44" textAnchor="middle" fill="#b91c1c" fontSize="7.5" fontWeight="900" fontFamily="sans-serif">
+          AP
+        </text>
+        <text x="50" y="52" textAnchor="middle" fill="#b91c1c" fontSize="7.5" fontWeight="900" fontFamily="sans-serif">
+          SRTC
+        </text>
+        <path id="apsrtc_arc" d="M 20 78 A 36 36 0 0 0 80 78" fill="none" stroke="#e11d48" strokeWidth="3.5" />
+        <text fontSize="4.5" fontWeight="800" fill="#0f172a" textAnchor="middle">
+          <textPath href="#apsrtc_arc" startOffset="50%">ఆంధ్రప్రదేశ్ RTC</textPath>
+        </text>
+      </svg>
+    )
+  },
+  {
+    code: 'TGSRTC',
+    fullName: 'Telangana State Road Transport Corporation',
+    bgImage: 'https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?auto=format&fit=crop&w=600&q=80',
+    emblemSvg: (
+      <svg viewBox="0 0 100 100" width="100%" height="100%">
+        <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#15803d" strokeWidth="3" />
+        <circle cx="50" cy="50" r="42" fill="#f0fdf4" />
+        <path d="M26 68 L26 40 Q50 22 74 40 L74 68 Z" fill="none" stroke="#16a34a" strokeWidth="3.5" strokeLinecap="round" />
+        <path d="M34 68 L34 46 Q50 32 66 46 L66 68" fill="none" stroke="#eab308" strokeWidth="2.5" />
+        <rect x="42" y="52" width="16" height="16" fill="#15803d" rx="2" />
+        <path d="M46 64 L46 56 L54 56 L54 64" fill="#ffffff" />
+        <circle cx="50" cy="30" r="4" fill="#dc2626" />
+        <text x="50" y="82" textAnchor="middle" fill="#15803d" fontSize="6.5" fontWeight="900" fontFamily="sans-serif">
+          TGSRTC
+        </text>
+      </svg>
+    )
+  },
+  {
+    code: 'Kerala RTC',
+    fullName: 'Kerala Road Transport Corporation',
+    bgImage: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=600&q=80',
+    emblemSvg: (
+      <svg viewBox="0 0 100 100" width="100%" height="100%">
+        <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#15803d" strokeWidth="3" />
+        <circle cx="50" cy="50" r="42" fill="#fef08a" />
+        <path d="M50 18 L68 28 L68 56 Q50 76 50 76 Q32 56 32 28 Z" fill="#b91c1c" stroke="#f59e0b" strokeWidth="1.5" />
+        <ellipse cx="43" cy="46" rx="6" ry="7" fill="#ffffff" />
+        <path d="M40 46 C37 46 36 54 35 60 C37 59 39 55 41 52" fill="#ffffff" />
+        <ellipse cx="57" cy="46" rx="6" ry="7" fill="#ffffff" />
+        <path d="M60 46 C63 46 64 54 65 60 C63 59 61 55 59 52" fill="#ffffff" />
+        <circle cx="50" cy="32" r="5" fill="#fef08a" stroke="#ffffff" strokeWidth="1" />
+        <rect x="25" y="78" width="50" height="12" rx="3" fill="#15803d" />
+        <text x="50" y="87" textAnchor="middle" fill="#ffffff" fontSize="6" fontWeight="900" fontFamily="sans-serif">
+          KSRTC
+        </text>
+      </svg>
+    )
+  },
+  {
+    code: 'GSRTC',
+    fullName: 'Gujarat State Road Transport Corporation',
+    bgImage: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80',
+    emblemSvg: (
+      <svg viewBox="0 0 100 100" width="100%" height="100%">
+        <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#047857" strokeWidth="3" />
+        <circle cx="50" cy="50" r="42" fill="#ecfdf5" />
+        <circle cx="50" cy="48" r="28" fill="#047857" />
+        <path d="M38 38 Q50 34 62 40 Q64 52 58 58 Q46 62 38 52 Z" fill="#ffffff" opacity="0.9" />
+        <circle cx="50" cy="48" r="8" fill="#f59e0b" />
+        <circle cx="50" cy="48" r="5" fill="none" stroke="#047857" strokeWidth="1.5" />
+        <line x1="50" y1="43" x2="50" y2="53" stroke="#047857" strokeWidth="1.5" />
+        <line x1="45" y1="48" x2="55" y2="48" stroke="#047857" strokeWidth="1.5" />
+        <text x="50" y="87" textAnchor="middle" fill="#047857" fontSize="7" fontWeight="900" fontFamily="sans-serif">
+          GSRTC
+        </text>
+      </svg>
+    )
+  },
+  {
+    code: 'KSRTC',
+    fullName: 'Karnataka State Road Transport Corporation',
+    bgImage: 'https://images.unsplash.com/photo-1590766940554-634a7ed41450?auto=format&fit=crop&w=600&q=80',
+    emblemSvg: (
+      <svg viewBox="0 0 100 100" width="100%" height="100%">
+        <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#b91c1c" strokeWidth="3" />
+        <circle cx="50" cy="50" r="42" fill="#fff7ed" />
+        <circle cx="50" cy="45" r="24" fill="#ea580c" />
+        <path d="M50 32 L54 44 L64 36 L58 48 L68 52 L56 56 L58 64 L50 58 L42 64 L44 56 L32 52 L42 48 L36 36 L46 44 Z" fill="#fef08a" />
+        <text x="50" y="86" textAnchor="middle" fill="#b91c1c" fontSize="7" fontWeight="900" fontFamily="sans-serif">
+          KSRTC
+        </text>
+      </svg>
+    )
+  },
+  {
+    code: 'MSRTC',
+    fullName: 'Maharashtra State Road Transport Corporation',
+    bgImage: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=600&q=80',
+    emblemSvg: (
+      <svg viewBox="0 0 100 100" width="100%" height="100%">
+        <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#b91c1c" strokeWidth="3" />
+        <circle cx="50" cy="50" r="42" fill="#fef2f2" />
+        <path d="M50 20 L76 34 L76 66 L50 80 L24 66 L24 34 Z" fill="#b91c1c" />
+        <circle cx="50" cy="50" r="14" fill="#ffffff" />
+        <circle cx="50" cy="50" r="10" fill="#f59e0b" />
+        <text x="50" y="53" textAnchor="middle" fill="#b91c1c" fontSize="8" fontWeight="900" fontFamily="sans-serif">
+          ST
+        </text>
+        <text x="50" y="86" textAnchor="middle" fill="#b91c1c" fontSize="6.5" fontWeight="900" fontFamily="sans-serif">
+          MSRTC
+        </text>
+      </svg>
+    )
+  },
+  {
+    code: 'TNSTC',
+    fullName: 'Tamil Nadu State Transport Corporation',
+    bgImage: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80',
+    emblemSvg: (
+      <svg viewBox="0 0 100 100" width="100%" height="100%">
+        <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#1d4ed8" strokeWidth="3" />
+        <circle cx="50" cy="50" r="42" fill="#eff6ff" />
+        <path d="M38 68 L42 46 L46 46 L47 34 L49 34 L50 24 L51 34 L53 34 L54 46 L58 46 L62 68 Z" fill="#1e40af" />
+        <circle cx="50" cy="48" r="8" fill="#f59e0b" />
+        <text x="50" y="86" textAnchor="middle" fill="#1e40af" fontSize="7" fontWeight="900" fontFamily="sans-serif">
+          TNSTC
+        </text>
+      </svg>
+    )
+  },
+  {
+    code: 'RSRTC',
+    fullName: 'Rajasthan State Road Transport Corporation',
+    bgImage: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=600&q=80',
+    emblemSvg: (
+      <svg viewBox="0 0 100 100" width="100%" height="100%">
+        <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#c026d3" strokeWidth="3" />
+        <circle cx="50" cy="50" r="42" fill="#fdf4ff" />
+        <circle cx="50" cy="46" r="22" fill="#7e22ce" />
+        <path d="M42 34 Q50 24 58 34 Q66 48 50 62 Q34 48 42 34 Z" fill="#facc15" />
+        <circle cx="50" cy="44" r="5" fill="#dc2626" />
+        <text x="50" y="86" textAnchor="middle" fill="#7e22ce" fontSize="7" fontWeight="900" fontFamily="sans-serif">
+          RSRTC
+        </text>
+      </svg>
+    )
+  },
+  {
+    code: 'UPSRTC',
+    fullName: 'Uttar Pradesh State Road Transport Corporation',
+    bgImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=600&q=80',
+    emblemSvg: (
+      <svg viewBox="0 0 100 100" width="100%" height="100%">
+        <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#b91c1c" strokeWidth="3" />
+        <circle cx="50" cy="50" r="42" fill="#fef2f2" />
+        <circle cx="50" cy="46" r="22" fill="#dc2626" />
+        <path d="M38 46 Q50 36 62 46" fill="none" stroke="#fef08a" strokeWidth="2.5" />
+        <line x1="50" y1="34" x2="50" y2="58" stroke="#fef08a" strokeWidth="2" />
+        <text x="50" y="86" textAnchor="middle" fill="#b91c1c" fontSize="7" fontWeight="900" fontFamily="sans-serif">
+          UPSRTC
+        </text>
+      </svg>
+    )
+  }
+];
+
 const INITIAL_BUSES: BusItem[] = [
   {
     id: 'bus-freshbus-1',
@@ -442,6 +621,55 @@ export function getRouteAndPointsForPlaces(sourcePlace: string = 'Chennai', dest
         { name: 'NAD Junction Flyover', landmark: 'Airport Road Hub' },
         { name: 'Visakhapatnam RTC Complex', landmark: 'Dwaraka Bus Station (Bus Ending Point)' }
       ]
+    },
+    nellore: {
+      boarding: [
+        { name: 'Nellore RTC Bus Station Platform 4', landmark: 'Main APSRTC Depot' },
+        { name: 'Mini Bypass Road Junction', landmark: 'Near VRC Ground Gate' },
+        { name: 'Nellore Toll Plaza Highway', landmark: 'NH-16 Highway Flyover' }
+      ],
+      dropping: [
+        { name: 'Nellore Mini Bypass Road', landmark: 'Opposite Highway Food Plaza' },
+        { name: 'Nellore RTC Central Terminal', landmark: 'Arrival Platform 2 (Bus Ending Point)' }
+      ]
+    },
+    goa: {
+      boarding: [
+        { name: 'Panjim KTC Bus Stand Platform 3', landmark: 'Kadamba Transport Corporation' },
+        { name: 'Mapusa KTC Bus Stand', landmark: 'North Goa Highway Terminal' },
+        { name: 'Madgaon KTC Bus Station', landmark: 'South Goa Central Depot' }
+      ],
+      dropping: [
+        { name: 'Mapusa Bypass Junction', landmark: 'Highway Service Road' },
+        { name: 'Panjim Central KTC Stand', landmark: 'Arrival Bay (Bus Ending Point)' },
+        { name: 'Madgaon KTC Terminal', landmark: 'Railway Station Road (Bus Ending Point)' }
+      ]
+    },
+    mumbai: {
+      boarding: [
+        { name: 'Borivali West Gokul Hotel', landmark: 'Near Western Express Highway' },
+        { name: 'Andheri East Bisleri Compound', landmark: 'Opposite Metro Station' },
+        { name: 'Sion Circle Chunabhatti', landmark: 'Eastern Express Highway Bridge' },
+        { name: 'Vashi Plaza Highway Bay', landmark: 'Near Vashi Railway Station' }
+      ],
+      dropping: [
+        { name: 'Vashi Highway Toll Point', landmark: 'Navi Mumbai Entry' },
+        { name: 'Maitri Park Chembur', landmark: 'Eastern Freeway Exit' },
+        { name: 'Dadar TT Circle Terminal', landmark: 'Pritam Hotel (Bus Ending Point)' }
+      ]
+    },
+    pune: {
+      boarding: [
+        { name: 'Swargate Bus Stand Platform 1', landmark: 'MSRTC Intercity Terminal' },
+        { name: 'Shivajinagar Station Gate', landmark: 'Near CoEP Hostel Gate' },
+        { name: 'Wakad Hinjewadi Bridge', landmark: 'Bangalore-Mumbai Highway Bay' },
+        { name: 'Katraj Bypass Tunnel Hub', landmark: 'Opposite Wonder City' }
+      ],
+      dropping: [
+        { name: 'Hinjewadi Flyover Bridge', landmark: 'IT Park Expressway Exit' },
+        { name: 'Shivajinagar Drop Point', landmark: 'Near Metro Station' },
+        { name: 'Swargate Central Bus Terminal', landmark: 'Main Station (Bus Ending Point)' }
+      ]
     }
   };
 
@@ -461,12 +689,12 @@ export function getRouteAndPointsForPlaces(sourcePlace: string = 'Chennai', dest
   const rawBoarding = srcKey
     ? cityStopsMap[srcKey].boarding
     : [
-        { name: `${cleanSrc} Central CMBT`, landmark: `Main Bus Terminus, Platform 1, ${cleanSrc}` },
-        { name: `${cleanSrc} Metro Junction`, landmark: `Under Metro Station, ${cleanSrc}` },
-        { name: `${cleanSrc} City Hub`, landmark: `Flyover Towards Highway, ${cleanSrc}` },
-        { name: `${cleanSrc} Outer Ring Road`, landmark: `Highway Express Service Road, ${cleanSrc}` },
-        { name: `${cleanSrc} Highway Toll Plaza`, landmark: 'Expressway Food Court & Rest Stop' }
-      ];
+      { name: `${cleanSrc} Central CMBT`, landmark: `Main Bus Terminus, Platform 1, ${cleanSrc}` },
+      { name: `${cleanSrc} Metro Junction`, landmark: `Under Metro Station, ${cleanSrc}` },
+      { name: `${cleanSrc} City Hub`, landmark: `Flyover Towards Highway, ${cleanSrc}` },
+      { name: `${cleanSrc} Outer Ring Road`, landmark: `Highway Express Service Road, ${cleanSrc}` },
+      { name: `${cleanSrc} Highway Toll Plaza`, landmark: 'Expressway Food Court & Rest Stop' }
+    ];
 
   const boardingPoints = rawBoarding.map((b, idx) => ({
     id: `bp-${idx + 1}`,
@@ -480,11 +708,11 @@ export function getRouteAndPointsForPlaces(sourcePlace: string = 'Chennai', dest
   const rawDropping = dstKey
     ? cityStopsMap[dstKey].dropping
     : [
-        { name: `${cleanDst} Highway Toll Entry`, landmark: 'Expressway Flyover' },
-        { name: `${cleanDst} Bypass Junction`, landmark: `Highway Service Road, ${cleanDst}` },
-        { name: `${cleanDst} Green Circle`, landmark: `Station Circle Hub, ${cleanDst}` },
-        { name: `${cleanDst} Main Central Stand`, landmark: `Terminus Platform, ${cleanDst} (Bus Ending Point)` }
-      ];
+      { name: `${cleanDst} Highway Toll Entry`, landmark: 'Expressway Flyover' },
+      { name: `${cleanDst} Bypass Junction`, landmark: `Highway Service Road, ${cleanDst}` },
+      { name: `${cleanDst} Green Circle`, landmark: `Station Circle Hub, ${cleanDst}` },
+      { name: `${cleanDst} Main Central Stand`, landmark: `Terminus Platform, ${cleanDst} (Bus Ending Point)` }
+    ];
 
   const droppingPoints = rawDropping.map((d, idx) => ({
     id: `dp-${idx + 1}`,
@@ -575,6 +803,391 @@ export const BUS_GALLERY_IMAGES = [
   }
 ];
 
+export function generateBusesForRoute(sourcePlace: string = 'Chennai', destPlace: string = 'Vijayawada'): BusItem[] {
+  const cleanSrc = sourcePlace.replace(/\s*-\s*[A-Z0-9]+$/i, '').trim() || 'Chennai';
+  const cleanDst = destPlace.replace(/\s*-\s*[A-Z0-9]+$/i, '').trim() || 'Vijayawada';
+  const srcKey = cleanSrc.toLowerCase();
+  const dstKey = cleanDst.toLowerCase();
+  const routeKey = `${srcKey}-${dstKey}`;
+
+  // Known routes table
+  const ROUTE_INFO: Record<string, { duration: string; baseFare: number }> = {
+    'hyderabad-chennai': { duration: '11h 30m', baseFare: 999 },
+    'chennai-hyderabad': { duration: '11h 15m', baseFare: 999 },
+    'hyderabad-bengaluru': { duration: '9h 30m', baseFare: 899 },
+    'bengaluru-hyderabad': { duration: '9h 45m', baseFare: 899 },
+    'hyderabad-vijayawada': { duration: '5h 30m', baseFare: 550 },
+    'vijayawada-hyderabad': { duration: '5h 45m', baseFare: 550 },
+    'chennai-bengaluru': { duration: '5h 45m', baseFare: 599 },
+    'bengaluru-chennai': { duration: '5h 30m', baseFare: 599 },
+    'chennai-vijayawada': { duration: '7h 30m', baseFare: 750 },
+    'vijayawada-chennai': { duration: '7h 45m', baseFare: 750 },
+    'chennai-nellore': { duration: '3h 15m', baseFare: 350 },
+    'nellore-chennai': { duration: '3h 15m', baseFare: 350 },
+    'hyderabad-goa': { duration: '13h 00m', baseFare: 1250 },
+    'goa-hyderabad': { duration: '13h 15m', baseFare: 1250 },
+    'bengaluru-goa': { duration: '11h 30m', baseFare: 1100 },
+    'goa-bengaluru': { duration: '11h 45m', baseFare: 1100 },
+    'mumbai-goa': { duration: '11h 45m', baseFare: 1050 },
+    'goa-mumbai': { duration: '12h 00m', baseFare: 1050 },
+    'mumbai-pune': { duration: '3h 30m', baseFare: 320 },
+    'pune-mumbai': { duration: '3h 30m', baseFare: 320 },
+    'pune-goa': { duration: '9h 15m', baseFare: 850 },
+    'goa-pune': { duration: '9h 30m', baseFare: 850 },
+    'chennai-coimbatore': { duration: '8h 30m', baseFare: 780 },
+    'coimbatore-chennai': { duration: '8h 15m', baseFare: 780 },
+    'chennai-madurai': { duration: '7h 45m', baseFare: 720 },
+    'madurai-chennai': { duration: '7h 30m', baseFare: 720 },
+    'vijayawada-nellore': { duration: '4h 45m', baseFare: 480 },
+    'nellore-vijayawada': { duration: '4h 30m', baseFare: 480 },
+    'chennai-vellore': { duration: '2h 30m', baseFare: 449 }
+  };
+
+  const routeConfig = ROUTE_INFO[routeKey] || { duration: '6h 30m', baseFare: 650 };
+  const durStr = routeConfig.duration;
+  const baseFare = routeConfig.baseFare;
+
+  // Boarding and dropping locations for source and destination
+  const bpList = [
+    { name: `${cleanSrc} Central Bus Stand`, time: '08:45 AM' },
+    { name: `${cleanSrc} Highway Bypass Point`, time: '09:15 AM' }
+  ];
+  const dpList = [
+    { name: `${cleanDst} Bypass Junction`, time: '05:30 PM' },
+    { name: `${cleanDst} Central Terminal`, time: '06:00 PM' }
+  ];
+
+  return [
+    {
+      id: `bus-kaveri-${srcKey}-${dstKey}`,
+      operator: 'V Kaveri Travels',
+      busType: 'VOLVO 9600 AC Multiaxle Sleeper (2 + 1)',
+      isElectric: false,
+      hasLiveTracking: true,
+      hasTripReward: true,
+      isPrimo: true,
+      hasFreeCancellation: true,
+      rating: 3.9,
+      totalRatings: 540,
+      depTime: '22:00',
+      arrTime: '09:30',
+      duration: durStr,
+      depLocation: `${cleanSrc} Central Hub`,
+      arrLocation: `${cleanDst} Terminal`,
+      availableSeats: 16, // > 15 -> Normal Green (Image 2)
+      singleSeats: 3,
+      fare: Math.round(baseFare * 1.39),
+      highlights: ['Abhi Assured', '1 Month Old Bus', 'Bus Safety Check', 'Live GPS Tracking', '3 Single Berths (LB-2, UB-1)'],
+      boardingPoints: bpList,
+      droppingPoints: dpList
+    },
+    {
+      id: `bus-intrcity-${srcKey}-${dstKey}`,
+      operator: 'IntrCity SmartBus',
+      busType: 'AC Sleeper (2 + 1)',
+      isElectric: false,
+      hasLiveTracking: true,
+      hasTripReward: true,
+      isPrimo: true,
+      hasFreeCancellation: true,
+      rating: 4.0,
+      totalRatings: 694,
+      depTime: '18:10',
+      arrTime: '04:45',
+      duration: durStr,
+      depLocation: `${cleanSrc} Bus Bay`,
+      arrLocation: `${cleanDst} Drop Point`,
+      availableSeats: 13, // <= 15 -> LOW SEATS ORANGE (Image 3)
+      singleSeats: 5,
+      fare: Math.round(baseFare),
+      highlights: ['Abhi Assured', 'Most Trusted', 'Toilet', 'Helpful Staff', 'Clean & Hygienic', '5 Single Berths (LB-1, UB-4)'],
+      boardingPoints: bpList,
+      droppingPoints: dpList
+    },
+    {
+      id: `bus-srm-${srcKey}-${dstKey}`,
+      operator: 'SRM TRANSPORTS',
+      busType: 'Volvo Multi-Axle AC Sleeper (2+1)',
+      isElectric: false,
+      hasLiveTracking: true,
+      hasTripReward: true,
+      isPrimo: true,
+      hasFreeCancellation: true,
+      rating: 4.9,
+      totalRatings: 2100,
+      depTime: '01:30',
+      arrTime: '04:00',
+      duration: durStr,
+      depLocation: `${cleanSrc} CMBT / Highway`,
+      arrLocation: `${cleanDst} Bypass`,
+      availableSeats: 22, // > 15 -> Normal Green (Image 1)
+      singleSeats: 5,
+      fare: Math.round(baseFare * 1.25),
+      highlights: ['Primo Certified', 'Ultra Luxury Sleeper', 'High Speed WiFi', 'Free Cancellation'],
+      boardingPoints: bpList,
+      droppingPoints: dpList
+    },
+    {
+      id: `bus-orange-${srcKey}-${dstKey}`,
+      operator: 'ORANGE TOURS AND TRAVELS',
+      busType: 'Scania Multi-Axle AC Sleeper (2+1)',
+      isElectric: false,
+      hasLiveTracking: true,
+      hasTripReward: true,
+      isPrimo: false,
+      hasFreeCancellation: true,
+      rating: 4.6,
+      totalRatings: 1840,
+      depTime: '20:45',
+      arrTime: '07:15',
+      duration: durStr,
+      depLocation: `${cleanSrc} Ring Road`,
+      arrLocation: `${cleanDst} Green Circle`,
+      availableSeats: 8, // <= 15 -> LOW SEATS ORANGE!
+      singleSeats: 2,
+      fare: Math.round(baseFare * 1.15),
+      highlights: ['Direct Highway Express', 'High Speed WiFi', 'Charging Sockets', 'Water Bottle Provided'],
+      boardingPoints: bpList,
+      droppingPoints: dpList
+    },
+    {
+      id: `bus-freshbus-${srcKey}-${dstKey}`,
+      operator: 'FRESHBUS',
+      busType: 'Electric A/C Seater/Sleeper (2+1)',
+      isElectric: true,
+      hasLiveTracking: true,
+      hasTripReward: true,
+      isPrimo: true,
+      hasFreeCancellation: true,
+      rating: 4.8,
+      totalRatings: 920,
+      depTime: '08:45',
+      arrTime: '19:15',
+      duration: durStr,
+      depLocation: `${cleanSrc} EV Terminal`,
+      arrLocation: `${cleanDst} Hub`,
+      availableSeats: 32, // > 15 -> Normal Green
+      singleSeats: 8,
+      fare: Math.round(baseFare * 0.9),
+      highlights: ['100% Electric EV Bus', 'Primo Certified', 'Free Cancellation', 'Zero Carbon Emission'],
+      boardingPoints: bpList,
+      droppingPoints: dpList
+    },
+    {
+      id: `bus-morningstar-${srcKey}-${dstKey}`,
+      operator: 'Morning Star Travels',
+      busType: 'Bharat Benz AC Sleeper (2+1)',
+      isElectric: false,
+      hasLiveTracking: true,
+      hasTripReward: false,
+      isPrimo: false,
+      hasFreeCancellation: true,
+      rating: 4.5,
+      totalRatings: 1220,
+      depTime: '21:15',
+      arrTime: '08:00',
+      duration: durStr,
+      depLocation: `${cleanSrc} Bypass Toll`,
+      arrLocation: `${cleanDst} Junction`,
+      availableSeats: 11, // <= 15 -> LOW SEATS ORANGE!
+      singleSeats: 3,
+      fare: Math.round(baseFare * 1.1),
+      highlights: ['Deep Cleaned', 'Experienced Crew', 'Emergency Exits', 'Punctual Service'],
+      boardingPoints: bpList,
+      droppingPoints: dpList
+    },
+    {
+      id: `bus-jabbar-${srcKey}-${dstKey}`,
+      operator: 'Jabbar Travels',
+      busType: 'Volvo AC Semi-Sleeper (2+2)',
+      isElectric: false,
+      hasLiveTracking: false,
+      hasTripReward: false,
+      isPrimo: false,
+      hasFreeCancellation: false,
+      rating: 4.3,
+      totalRatings: 860,
+      depTime: '15:30',
+      arrTime: '02:00',
+      duration: durStr,
+      depLocation: `${cleanSrc} Station Gate`,
+      arrLocation: `${cleanDst} City Entrance`,
+      availableSeats: 28, // > 15 -> Normal Green
+      singleSeats: 0,
+      fare: Math.round(baseFare * 0.85),
+      highlights: ['AC Semi-Sleeper Recliner', 'Reading Lights', 'Luggage Compartment Assist'],
+      boardingPoints: bpList,
+      droppingPoints: dpList
+    },
+    {
+      id: `bus-kpn-${srcKey}-${dstKey}`,
+      operator: 'KPN TRAVELS',
+      busType: 'AC Sleeper (2+1)',
+      isElectric: false,
+      hasLiveTracking: true,
+      hasTripReward: true,
+      isPrimo: false,
+      hasFreeCancellation: true,
+      rating: 4.6,
+      totalRatings: 1480,
+      depTime: '23:30',
+      arrTime: '10:00',
+      duration: durStr,
+      depLocation: `${cleanSrc} Main Road`,
+      arrLocation: `${cleanDst} Stand`,
+      availableSeats: 14, // <= 15 -> LOW SEATS ORANGE!
+      singleSeats: 4,
+      fare: Math.round(baseFare * 1.18),
+      highlights: ['Night AC Sleeper', 'Free Blanket & Pillow', 'Free Cancellation', 'Individual Charging'],
+      boardingPoints: bpList,
+      droppingPoints: dpList
+    },
+    {
+      id: `bus-apsrtc-${srcKey}-${dstKey}`,
+      operator: 'APSRTC Garuda Plus (RTC)',
+      busType: 'Multi-Axle AC Sleeper / Semi-Sleeper',
+      isElectric: false,
+      hasLiveTracking: true,
+      hasTripReward: false,
+      isPrimo: true,
+      hasFreeCancellation: false,
+      isRTC: true,
+      rating: 4.7,
+      totalRatings: 3400,
+      depTime: '19:30',
+      arrTime: '06:15',
+      duration: durStr,
+      depLocation: `${cleanSrc} RTC Bus Station`,
+      arrLocation: `${cleanDst} RTC Complex`,
+      availableSeats: 6, // <= 15 -> LOW SEATS ORANGE!
+      singleSeats: 2,
+      fare: Math.round(baseFare * 0.95),
+      highlights: ['Government Certified State Transport', 'Professional Drivers', 'No Surge Pricing'],
+      boardingPoints: bpList,
+      droppingPoints: dpList
+    },
+    {
+      id: `bus-tgsrtc-${srcKey}-${dstKey}`,
+      operator: 'TGSRTC Lahari Express (RTC)',
+      busType: 'AC Sleeper / Seater Non-Stop',
+      isElectric: false,
+      hasLiveTracking: true,
+      hasTripReward: false,
+      isPrimo: true,
+      hasFreeCancellation: true,
+      isRTC: true,
+      rating: 4.8,
+      totalRatings: 2890,
+      depTime: '20:15',
+      arrTime: '06:45',
+      duration: durStr,
+      depLocation: `${cleanSrc} MGBS Bay 8`,
+      arrLocation: `${cleanDst} Central Stand`,
+      availableSeats: 12, // <= 15 -> LOW SEATS ORANGE!
+      singleSeats: 4,
+      fare: Math.round(baseFare * 0.98),
+      highlights: ['Telangana State Govt RTC', 'On-Time Guaranteed', 'Live GPS Tracking'],
+      boardingPoints: bpList,
+      droppingPoints: dpList
+    },
+    {
+      id: `bus-keralartc-${srcKey}-${dstKey}`,
+      operator: 'Kerala RTC Swift Deluxe (RTC)',
+      busType: 'Air-Conditioned Scania / Semi-Sleeper',
+      isElectric: false,
+      hasLiveTracking: true,
+      hasTripReward: false,
+      isPrimo: true,
+      hasFreeCancellation: true,
+      isRTC: true,
+      rating: 4.6,
+      totalRatings: 1980,
+      depTime: '21:00',
+      arrTime: '07:30',
+      duration: durStr,
+      depLocation: `${cleanSrc} KSRTC Terminal`,
+      arrLocation: `${cleanDst} KSRTC Depot`,
+      availableSeats: 22,
+      singleSeats: 6,
+      fare: Math.round(baseFare * 0.92),
+      highlights: ['Kerala RTC Swift', 'Official Govt Transport', 'Water Bottle Provided'],
+      boardingPoints: bpList,
+      droppingPoints: dpList
+    },
+    {
+      id: `bus-gsrtc-${srcKey}-${dstKey}`,
+      operator: 'GSRTC Gurjarnagri Express (RTC)',
+      busType: 'Volvo AC Sleeper / Semi-Sleeper',
+      isElectric: false,
+      hasLiveTracking: true,
+      hasTripReward: false,
+      isPrimo: false,
+      hasFreeCancellation: false,
+      isRTC: true,
+      rating: 4.5,
+      totalRatings: 1650,
+      depTime: '18:45',
+      arrTime: '05:30',
+      duration: durStr,
+      depLocation: `${cleanSrc} GSRTC Central Bus Port`,
+      arrLocation: `${cleanDst} Bus Depot`,
+      availableSeats: 8,
+      singleSeats: 2,
+      fare: Math.round(baseFare * 0.88),
+      highlights: ['Gujarat State Road Transport', 'Affordable Govt Fares', 'Luggage Assistance'],
+      boardingPoints: bpList,
+      droppingPoints: dpList
+    },
+    {
+      id: `bus-ksrtc-${srcKey}-${dstKey}`,
+      operator: 'KSRTC Airavat Club Class (RTC)',
+      busType: 'Volvo Multi-Axle AC Semi-Sleeper',
+      isElectric: false,
+      hasLiveTracking: true,
+      hasTripReward: true,
+      isPrimo: true,
+      hasFreeCancellation: true,
+      isRTC: true,
+      rating: 4.9,
+      totalRatings: 4210,
+      depTime: '22:15',
+      arrTime: '06:00',
+      duration: durStr,
+      depLocation: `${cleanSrc} Majestic KSRTC Bay`,
+      arrLocation: `${cleanDst} Satellite Stand`,
+      availableSeats: 19,
+      singleSeats: 5,
+      fare: Math.round(baseFare * 1.05),
+      highlights: ['Karnataka RTC Flagship', 'Airavat Club Class Luxury', 'Water & Blankets'],
+      boardingPoints: bpList,
+      droppingPoints: dpList
+    },
+    {
+      id: `bus-srs-${srcKey}-${dstKey}`,
+      operator: 'SRS Travels',
+      busType: 'NONAC Sleeper (2+1)',
+      isElectric: false,
+      hasLiveTracking: false,
+      hasTripReward: false,
+      isPrimo: false,
+      hasFreeCancellation: false,
+      rating: 4.2,
+      totalRatings: 650,
+      depTime: '17:00',
+      arrTime: '03:30',
+      duration: durStr,
+      depLocation: `${cleanSrc} Outer Ring`,
+      arrLocation: `${cleanDst} Ring Road`,
+      availableSeats: 25, // > 15 -> Normal Green
+      singleSeats: 5,
+      fare: Math.max(350, Math.round(baseFare * 0.7)),
+      highlights: ['Budget Sleeper', 'Economical Travel', 'Wide Clean Berths', 'Highway Non-Stop'],
+      boardingPoints: bpList,
+      droppingPoints: dpList
+    }
+  ];
+}
+
 export default function BusBookingView({
   source = 'Chennai (CMBT / Koyambedu)',
   destination = 'Vellore (Katpadi)',
@@ -588,7 +1201,12 @@ export default function BusBookingView({
 }) {
   const router = useRouter();
   const { setActiveTab } = useSartStore();
-  const [buses] = useState<BusItem[]>(INITIAL_BUSES);
+  const [buses, setBuses] = useState<BusItem[]>(() => generateBusesForRoute(source, destination));
+
+  // Dynamically update buses when source or destination changes
+  useEffect(() => {
+    setBuses(generateBusesForRoute(source, destination));
+  }, [source, destination]);
   const [filterSearch, setFilterSearch] = useState('');
   const [aiFilterText, setAiFilterText] = useState('');
   const [sortBy, setSortBy] = useState<'Ratings' | 'Duration' | 'Departure' | 'Price'>('Ratings');
@@ -606,6 +1224,7 @@ export default function BusBookingView({
   const [filterHighRated, setFilterHighRated] = useState(false);
   const [filterLiveTrack, setFilterLiveTrack] = useState(false);
   const [filterVolvo, setFilterVolvo] = useState(false);
+  const [selectedGovtRtc, setSelectedGovtRtc] = useState<string | null>(null);
 
   // Accordion open/close states
   const [accordionsOpen, setAccordionsOpen] = useState<Record<string, boolean>>({
@@ -732,6 +1351,7 @@ export default function BusBookingView({
     setSelectedDropping([]);
     setAiFilterText('');
     setFilterSearch('');
+    setSelectedGovtRtc(null);
   };
 
   const toggleCardTab = (busId: string, tab: string) => {
@@ -785,6 +1405,7 @@ export default function BusBookingView({
     if (filterHighRated && b.rating < 4.5) return false;
     if (filterLiveTrack && !b.hasLiveTracking) return false;
     if (filterVolvo && !b.busType.toLowerCase().includes('volvo') && !b.busType.toLowerCase().includes('multi-axle')) return false;
+    if (selectedGovtRtc && !b.operator.toLowerCase().includes(selectedGovtRtc.toLowerCase())) return false;
 
     // Checkboxes inside accordions
     if (selectedDepTimes.length > 0) {
@@ -1485,62 +2106,73 @@ export default function BusBookingView({
             </div>
           </div>
 
-          {/* 2. Promotional Tiles Row (Exact Image 3 Reference) - Adjusted beside Filter Sidebar and above 210 buses found */}
-          <div className="bb-promo-tiles-row in-results">
-            {/* 1. All buses */}
-            <div
-              className={`bb-promo-tile bb-tile-all ${!filterPrimo && !filterFreeCancel && !filterAC && !filterNonAC && !filterSleeper && !filterSeater ? 'active' : ''}`}
-              onClick={clearAllFilters}
-              title="Show all buses"
-            >
-              <div className="bb-tile-circle-icon">
-                <i className="fa-solid fa-bus"></i>
-              </div>
-              <span className="bb-tile-title">All buses</span>
-            </div>
-
-            {/* 2. Primo Rising Stars on redBus */}
-            <div
-              className={`bb-promo-tile bb-tile-primo-img3 ${filterPrimo ? 'active' : ''}`}
-              onClick={() => setFilterPrimo(!filterPrimo)}
-              title="Filter Primo buses"
-            >
-              <div className="bb-primo-gold-block">
-                <span className="bb-primo-word">Primo</span>
-                <i className="fa-solid fa-star bb-primo-star-icon"></i>
-              </div>
-              <div className="bb-primo-sub-ribbon">Rising Stars on redBus</div>
-            </div>
-
-            {/* 3. Free Cancellation */}
-            <div
-              className={`bb-promo-tile bb-tile-cancel-img3 ${filterFreeCancel ? 'active' : ''}`}
-              onClick={() => setFilterFreeCancel(!filterFreeCancel)}
-              title="Filter Free Cancellation"
-            >
-              <div className="bb-tile-shield-icon">
-                <i className="fa-solid fa-indian-rupee-sign"></i>
-              </div>
-              <div className="bb-tile-text-col">
-                <div className="bb-tile-bold">Free Cancellation</div>
-                <div className="bb-tile-caption">Get a full refund if you cancel</div>
+          {/* Government Bus Ticket Booking Section (Exact Image 2 Reference) */}
+          <div className="bb-govt-section">
+            <div className="bb-govt-section-header">
+              <h2 className="bb-govt-section-title">Government Bus Ticket Booking</h2>
+              <div className="bb-govt-carousel-arrows">
+                <button
+                  type="button"
+                  className="bb-govt-arrow-btn left"
+                  onClick={() => {
+                    const track = document.getElementById('govtBusTrack');
+                    if (track) track.scrollBy({ left: -300, behavior: 'smooth' });
+                  }}
+                  title="Scroll left"
+                >
+                  <i className="fa-solid fa-chevron-left"></i>
+                </button>
+                <button
+                  type="button"
+                  className="bb-govt-arrow-btn right"
+                  onClick={() => {
+                    const track = document.getElementById('govtBusTrack');
+                    if (track) track.scrollBy({ left: 300, behavior: 'smooth' });
+                  }}
+                  title="Scroll right"
+                >
+                  <i className="fa-solid fa-chevron-right"></i>
+                </button>
               </div>
             </div>
 
-            {/* 4. FlexiTicket / FREE DATE */}
-            <div
-              className={`bb-promo-tile bb-tile-flexi-img3 ${filterFreeCancel ? 'active' : ''}`}
-              onClick={() => setFilterFreeCancel(!filterFreeCancel)}
-              title="FlexiTicket offers"
-            >
-              <div className="bb-flexi-brand-head">
-                <i className="fa-solid fa-hourglass-half" style={{ color: '#0d9488' }}></i>
-                <span className="bb-flexi-brand-name">FlexiTicket</span>
-              </div>
-              <div className="bb-tile-text-col">
-                <div className="bb-tile-bold">FREE DATE</div>
-                <div className="bb-tile-caption">Min 50% refund if you cancel</div>
-              </div>
+            <div className="bb-govt-carousel-track" id="govtBusTrack">
+              {GOVT_RTC_CARDS.map((card) => {
+                const isSelected = selectedGovtRtc === card.code;
+                return (
+                  <div
+                    key={card.code}
+                    className={`bb-govt-card ${isSelected ? 'active' : ''}`}
+                    onClick={() => {
+                      if (selectedGovtRtc === card.code) {
+                        setSelectedGovtRtc(null);
+                        setFilterSearch('');
+                      } else {
+                        setSelectedGovtRtc(card.code);
+                        setFilterSearch(card.code);
+                      }
+                    }}
+                    title={`View ${card.fullName} (${card.code}) buses`}
+                  >
+                    {/* Background scenic photo representing state */}
+                    <div
+                      className="bb-govt-card-bg"
+                      style={{ backgroundImage: `url(${card.bgImage})` }}
+                    />
+
+                    {/* Circular Emblem badge centered near top */}
+                    <div className="bb-govt-card-emblem-badge">
+                      {card.emblemSvg}
+                    </div>
+
+                    {/* Bottom gradient overlay with text */}
+                    <div className="bb-govt-card-bottom">
+                      <div className="bb-govt-card-code">{card.code}</div>
+                      <div className="bb-govt-card-name">{card.fullName}</div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -1570,9 +2202,7 @@ export default function BusBookingView({
           </div>
 
           {/* 3.6+ lakh bus routes on redBus peach scalloped banner (Image 3) */}
-          <div className="bb-operators-scallop-ribbon-img3">
-            <span><strong>3.6+ lakh</strong> bus routes on redBus</span>
-          </div>
+
 
           {/* Bus Cards List */}
           <div className="bb-bus-list">
@@ -1651,7 +2281,11 @@ export default function BusBookingView({
                         <span className="bb-time-val-bold">{bus.arrTime}</span>
                       </div>
                       <div className="bb-seats-meta-img3">
-                        {bus.duration} • {bus.availableSeats} Seats ({bus.singleSeats} Single)
+                        {bus.duration} •{' '}
+                        <span className={bus.availableSeats <= 15 ? 'bb-seats-highlight-low' : 'bb-seats-highlight-normal'}>
+                          {bus.availableSeats} Seats
+                        </span>{' '}
+                        ({bus.singleSeats} Single)
                       </div>
                     </div>
 
@@ -1662,31 +2296,37 @@ export default function BusBookingView({
                     </div>
                   </div>
 
-                  {/* 3. Bottom Bar with Red View Seats Button */}
+                  {/* 3. Bottom Bar with Red Select Seats Button & Seats Left Pill */}
                   <div className="bb-card-bottom-bar-img3">
-                    <button
-                      type="button"
-                      className="bb-view-seats-cta-img3"
-                      onClick={() => {
-                        setSelectedBus(bus);
-                        setSelectedSeats(['L-S1A']);
-                        setPassengers({
-                          'L-S1A': { name: '', age: '', gender: 'Male' }
-                        });
-                        setModalTopTab('select_seats');
-                        setModalSubTab('Highlights');
-                        setSelectedBoardingPoint('Semmancherry');
-                        setSelectedDroppingPoint('Vellore Bypass');
-                        setBookingConfirmed(false);
-                      }}
-                    >
-                      View seats
-                    </button>
+                    <div className="bb-action-col-wrap">
+                      <button
+                        type="button"
+                        className="bb-view-seats-cta-img3"
+                        onClick={() => {
+                          setSelectedBus(bus);
+                          setSelectedSeats(['L-S1A']);
+                          setPassengers({
+                            'L-S1A': { name: '', age: '', gender: 'Male' }
+                          });
+                          setModalTopTab('select_seats');
+                          setModalSubTab('Highlights');
+                          setSelectedBoardingPoint(bus.boardingPoints?.[0]?.name || 'Boarding Point');
+                          setSelectedDroppingPoint(bus.droppingPoints?.[bus.droppingPoints.length - 1]?.name || 'Dropping Point');
+                          setBookingConfirmed(false);
+                        }}
+                      >
+                        Select Seats
+                      </button>
+                      <div className={`bb-seats-left-pill ${bus.availableSeats <= 15 ? 'low-seats' : 'normal-seats'}`}>
+                        <i className="fa-solid fa-couch"></i>
+                        <span>{bus.availableSeats} Seats Left</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </React.Fragment>
-          ))}
-        </div>
+            ))}
+          </div>
         </main>
       </div>
 
@@ -2140,7 +2780,7 @@ export default function BusBookingView({
                             type="button"
                             className="bb-map-control-btn"
                             title="Recenter on Bus"
-                            onClick={() => {}}
+                            onClick={() => { }}
                           >
                             <i className="fa-solid fa-crosshairs"></i>
                           </button>
@@ -2192,16 +2832,14 @@ export default function BusBookingView({
                       return (
                         <div
                           key={stop.id}
-                          className={`bb-route-stop-card-item ${
-                            isInPassengerSegment ? 'passenger-blue-zone' : 'remaining-yellow-zone'
-                          }`}
+                          className={`bb-route-stop-card-item ${isInPassengerSegment ? 'passenger-blue-zone' : 'remaining-yellow-zone'
+                            }`}
                         >
                           {/* Left node and connecting track line */}
                           <div className="bb-stop-track-col">
                             <div
-                              className={`bb-stop-circle-marker ${
-                                isInPassengerSegment ? 'marker-blue' : 'marker-yellow'
-                              }`}
+                              className={`bb-stop-circle-marker ${isInPassengerSegment ? 'marker-blue' : 'marker-yellow'
+                                }`}
                             >
                               {isCurrentBusStop && isGpsEnabled ? (
                                 <i className="fa-solid fa-bus-simple bb-pulse-bus-icon"></i>
@@ -2217,9 +2855,8 @@ export default function BusBookingView({
                             </div>
                             {index < activeFullRoute.length - 1 && (
                               <div
-                                className={`bb-track-segment-line ${
-                                  isConnectingBlue ? 'line-blue' : 'line-yellow'
-                                }`}
+                                className={`bb-track-segment-line ${isConnectingBlue ? 'line-blue' : 'line-yellow'
+                                  }`}
                               ></div>
                             )}
                           </div>
