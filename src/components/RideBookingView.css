@@ -1,0 +1,1381 @@
+/* RideBookingView.css - Unified Styling for Bike, Auto, and Car booking views */
+
+.rb-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 8px 16px 40px 16px;
+  animation: rbFadeIn 0.25s ease-out;
+}
+
+@keyframes rbFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header Card */
+.rb-header-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 18px 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.rb-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.rb-back-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #0f172a;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.rb-back-btn:hover {
+  background: #f8fafc;
+  transform: translateX(-2px);
+}
+
+.rb-mode-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.rb-mode-badge {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #ffedd5;
+  color: #c2410c;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+.rb-status-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rb-main-heading {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.rb-header-route-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #334155;
+}
+
+.rb-header-route-stat i {
+  font-size: 20px;
+  color: #ea580c;
+}
+
+.rb-header-route-stat div {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ================= GRID: INPUTS & MAP ================= */
+.rb-booking-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 22px;
+}
+
+@media (max-width: 900px) {
+  .rb-booking-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rb-route-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Route boxes matching Image 2 */
+.rb-route-boxes-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.rb-input-box {
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 10px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.rb-input-box.focus-target {
+  border-color: #ea580c;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+}
+
+.rb-input-box.stop-box {
+  background: #fffbf7;
+  border-color: #fdba74;
+}
+
+.rb-box-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rb-box-label.green { color: #16a34a; }
+.rb-box-label.orange { color: #ea580c; }
+.rb-box-label.red { color: #dc2626; }
+
+.rb-remove-stop-cross {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #94a3b8;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.rb-remove-stop-cross:hover {
+  color: #dc2626;
+}
+
+.rb-box-field-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rb-point-bullet {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 3px solid;
+  background: white;
+  flex-shrink: 0;
+}
+
+.rb-point-bullet.green {
+  border-color: #16a34a;
+}
+
+.rb-point-bullet.red {
+  border-color: #dc2626;
+}
+
+.rb-point-diamond {
+  width: 18px;
+  height: 18px;
+  background: #000000;
+  transform: rotate(45deg);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rb-point-diamond span {
+  transform: rotate(-45deg);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.rb-input-element {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.rb-input-element.standard {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-weight: 500;
+}
+
+.rb-input-element::placeholder {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Inside-Input Map Pin Button */
+.rb-input-map-icon-btn {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0284c7;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.rb-input-map-icon-btn:hover {
+  background: #e0f2fe;
+  color: #0369a1;
+  transform: scale(1.05);
+}
+
+.rb-input-map-icon-btn.active {
+  background: #ea580c;
+  color: white;
+  border-color: #ea580c;
+  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.2);
+}
+
+.rb-route-dotted-v-line {
+  width: 2px;
+  height: 20px;
+  border-left: 2px dotted #94a3b8;
+  margin-left: 22px;
+}
+
+/* Stop purpose row */
+.rb-stop-purpose-pill-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: #fed7aa26;
+  border: 1px dashed #fdba74;
+  border-radius: 6px;
+  color: #c2410c;
+  font-size: 12px;
+}
+
+.rb-stop-purpose-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9a3412;
+}
+
+/* Action pills */
+.rb-actions-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.rb-pill-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 9999px;
+  padding: 8px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.rb-pill-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.rb-pill-btn.active {
+  background: #fff7ed;
+  border-color: #ea580c;
+  color: #ea580c;
+}
+
+.rb-pill-diamond {
+  background: #000000;
+  color: #ffffff;
+  width: 17px;
+  height: 17px;
+  border-radius: 3px;
+  transform: rotate(45deg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+/* Add stop panel */
+.rb-add-stop-panel {
+  background: #ffffff;
+  border: 1px solid #fed7aa;
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.08);
+}
+
+.rb-add-stop-badge-title {
+  background: #fff7ed;
+  border: 1.5px dashed #ea580c;
+  border-radius: 10px;
+  padding: 9px 14px;
+  color: #ea580c;
+  font-weight: 800;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.rb-add-stop-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rb-field-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rb-field-map-btn {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: #ea580c;
+  cursor: pointer;
+}
+
+.rb-add-stop-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.rb-btn-confirm-stop {
+  background: #ea580c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.rb-btn-cancel-stop {
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ================= MAP COLUMN ================= */
+.rb-map-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
+.rb-map-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: #334155;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rb-map-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.rb-active-pin-notice {
+  color: #ea580c;
+  font-weight: 800;
+}
+
+.rb-map-route-tag {
+  background: #ffedd5;
+  color: #c2410c;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rb-map-engine-switch {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 4px;
+}
+
+.rb-engine-btn {
+  background: transparent;
+  border: none;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.rb-active-selecting-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffedd5;
+  color: #c2410c;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid #fed7aa;
+}
+
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ea580c;
+  animation: rbPulseDot 1.2s infinite ease-in-out;
+}
+
+@keyframes rbPulseDot {
+  0%, 100% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.4); opacity: 1; }
+}
+
+.rb-interactive-map-canvas {
+  position: relative;
+  min-height: 380px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  background: #e2e8f0;
+}
+
+.rb-interactive-map-canvas.selecting-active {
+  cursor: crosshair;
+  box-shadow: 0 0 0 2px #ea580c;
+}
+
+.rb-map-click-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.08);
+  cursor: crosshair;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rb-map-selection-tooltip {
+  background: rgba(15, 23, 42, 0.88);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.rb-map-iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 380px;
+  border: none;
+  pointer-events: none;
+  filter: contrast(1.05) saturate(1.1);
+}
+
+.rb-map-iframe-google {
+  width: 100%;
+  height: 100%;
+  min-height: 380px;
+  border: none;
+  display: block;
+}
+
+/* Small pencil line in blue color connecting pickup to dropoff */
+.rb-map-pencil-line-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.rb-blue-pencil-line {
+  stroke: #2563eb;
+  stroke-width: 1.8;
+  filter: drop-shadow(0 1px 2px rgba(37, 99, 235, 0.5));
+}
+
+.rb-box-sub-hint {
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* ================= BELOW MAP ROUTE & DISTANCE CARD ================= */
+.rb-map-below-distance-card {
+  margin-top: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rb-map-distance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rb-map-distance-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rb-map-distance-pill i {
+  color: #2563eb;
+  font-size: 14px;
+}
+
+.rb-map-time-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rb-map-time-pill i {
+  color: #16a34a;
+  font-size: 14px;
+}
+
+.rb-map-route-points-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.rb-map-point-preview {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12.5px;
+}
+
+.rb-map-point-preview .rb-point-text {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.rb-map-point-preview .rb-point-title {
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.rb-map-point-preview.green .rb-point-title {
+  color: #15803d;
+}
+
+.rb-map-point-preview.orange .rb-point-title {
+  color: #c2410c;
+}
+
+.rb-map-point-preview.red .rb-point-title {
+  color: #b91c1c;
+}
+
+.rb-map-point-preview .rb-point-address {
+  color: #475569;
+  font-weight: 600;
+}
+
+.google-nav-btn {
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border-color: #bfdbfe !important;
+  text-decoration: none;
+}
+
+.google-nav-btn:hover {
+  background: #dbeafe !important;
+}
+
+/* Matching Map Pin Badges */
+.rb-map-live-pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35));
+  z-index: 10;
+}
+
+.rb-pin-bubble {
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  margin-bottom: 3px;
+}
+
+.rb-pin-bubble.green { background: #16a34a; }
+.rb-pin-bubble.orange { background: #ea580c; }
+.rb-pin-bubble.red { background: #dc2626; }
+
+.rb-pin-dot-wrap {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: white;
+  border: 4px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rb-pin-dot-wrap.green { border-color: #16a34a; }
+.rb-pin-dot-wrap.red { border-color: #dc2626; }
+
+.rb-pin-dot-inner {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0f172a;
+}
+
+.rb-pin-diamond-wrap {
+  width: 20px;
+  height: 20px;
+  background: #000000;
+  transform: rotate(45deg);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rb-pin-diamond-wrap span {
+  transform: rotate(-45deg);
+  color: white;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+/* Zoom buttons (+ / -) */
+.rb-map-zoom-controls {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+}
+
+.rb-zoom-btn {
+  background: #ffffff;
+  border: none;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 900;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.rb-zoom-btn:hover {
+  background: #f1f5f9;
+}
+
+.rb-zoom-btn:first-child {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Floating Quick Setter Bar */
+.rb-map-floating-quick-bar {
+  position: absolute;
+  bottom: 28px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(4px);
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.rb-quick-btn {
+  flex: 1;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e293b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.rb-quick-btn:hover {
+  background: #f8fafc;
+}
+
+.rb-quick-btn.active {
+  border-color: #ea580c;
+  color: #ea580c;
+  background: #fff7ed;
+}
+
+.rb-quick-btn .bullet {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.rb-quick-btn .bullet.green { background: #16a34a; }
+.rb-quick-btn .bullet.orange { background: #ea580c; }
+.rb-quick-btn .bullet.red { background: #dc2626; }
+
+.rb-map-brand-footer {
+  position: absolute;
+  bottom: 6px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9px;
+  color: #475569;
+  pointer-events: none;
+}
+
+.rb-google-logo {
+  font-weight: 800;
+  font-size: 12px;
+  color: #4285f4;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+/* ================= VEHICLE SELECTION CARDS ================= */
+.rb-vehicle-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rb-vehicle-section-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rb-vehicle-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.rb-vehicle-cards-grid.two-cards {
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 768px) {
+  .rb-vehicle-cards-grid,
+  .rb-vehicle-cards-grid.two-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rb-vehicle-card {
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 18px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rb-vehicle-card:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.rb-vehicle-card.active {
+  border-color: #ea580c;
+  background: #fffaf5;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.2), 0 8px 20px rgba(234, 88, 12, 0.08);
+}
+
+.rb-vehicle-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.rb-vehicle-badge.popular {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.rb-vehicle-badge.premium {
+  background: #fef08a;
+  color: #854d0e;
+}
+
+.rb-vehicle-media {
+  height: 140px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.rb-vehicle-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.rb-vehicle-card:hover .rb-vehicle-img {
+  transform: scale(1.05);
+}
+
+.rb-vehicle-emoji {
+  font-size: 64px;
+}
+
+.rb-vehicle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rb-vehicle-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rb-vehicle-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.rb-vehicle-price {
+  font-size: 19px;
+  font-weight: 900;
+  color: #ea580c;
+}
+
+.rb-vehicle-specs-row {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  flex-wrap: wrap;
+}
+
+.rb-vehicle-desc {
+  margin: 0;
+  font-size: 11.5px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* ================= FOOTER BAR ================= */
+.rb-footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 18px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.rb-footer-payment-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #334155;
+}
+
+.rb-continue-booking-btn {
+  background: #facc15;
+  color: #000000;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 28px;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(250, 204, 21, 0.35);
+  transition: all 0.2s ease;
+}
+
+.rb-continue-booking-btn:hover {
+  background: #eab308;
+  transform: translateY(-1px);
+}
+
+/* ================= MODAL ITINERARY ================= */
+.rb-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.rb-modal-card {
+  background: #ffffff;
+  border-radius: 18px;
+  max-width: 780px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: rbModalFadeIn 0.25s ease-out;
+}
+
+.rb-modal-card.success {
+  max-width: 480px;
+}
+
+@keyframes rbModalFadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.rb-modal-header {
+  padding: 18px 24px;
+  background: #0f172a;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rb-modal-header.success {
+  background: #16a34a;
+}
+
+.rb-modal-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rb-modal-sub {
+  font-size: 12px;
+  color: #cbd5e1;
+  margin-top: 2px;
+  display: block;
+}
+
+.rb-modal-close-btn {
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.rb-modal-content {
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rb-modal-map-view {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.rb-modal-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.rb-legend-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rb-legend-pill .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.rb-legend-pill .dot.green { background: #16a34a; }
+.rb-legend-pill .dot.orange { background: #ea580c; }
+.rb-legend-pill .dot.red { background: #dc2626; }
+
+.rb-modal-map-canvas {
+  position: relative;
+  height: 230px;
+}
+
+.rb-modal-itinerary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rb-itinerary-heading {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.rb-itin-card {
+  display: flex;
+  gap: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  align-items: flex-start;
+}
+
+.rb-itin-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.rb-itin-icon.green { background: #16a34a; }
+.rb-itin-icon.orange { background: #ea580c; }
+.rb-itin-icon.red { background: #dc2626; }
+
+.rb-itin-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rb-itin-title {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.rb-itin-title.green { color: #16a34a; }
+.rb-itin-title.orange { color: #ea580c; }
+.rb-itin-title.red { color: #dc2626; }
+
+.rb-itin-address {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.rb-itin-purpose-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff7ed;
+  color: #c2410c;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  width: fit-content;
+}
+
+.rb-itin-time {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.rb-modal-footer {
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.rb-modal-fare-group {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.rb-modal-fare-label {
+  font-size: 13px;
+  color: #475569;
+  font-weight: 600;
+}
+
+.rb-modal-fare-val {
+  font-size: 22px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.rb-modal-fare-note {
+  font-size: 11px;
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.rb-modal-confirm-btn {
+  background: #facc15;
+  color: #000000;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-weight: 900;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rb-modal-confirm-btn:hover {
+  background: #eab308;
+}
+
+.rb-modal-confirm-btn.full {
+  width: 100%;
+}
+
+/* Success Card details */
+.rb-success-summary-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.rb-success-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #64748b;
+}
+
+.rb-success-row strong {
+  color: #0f172a;
+}
+
+.rb-success-row.otp {
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 8px;
+}
+
+.rb-otp-code {
+  color: #dc2626 !important;
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+.rb-success-row.total {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 8px;
+}
+
+.rb-total-fare {
+  color: #16a34a !important;
+  font-size: 18px;
+}

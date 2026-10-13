@@ -478,189 +478,178 @@
   font-weight: 700;
 }
 
-/* 1. Promotional Tiles Row (Exact Image 3 Reference) */
-.bb-promo-tiles-row {
-  display: flex;
-  gap: 14px;
-  overflow-x: auto;
-  padding-bottom: 14px;
-  margin-bottom: 18px;
-  scrollbar-width: none;
+/* Government Bus Ticket Booking Section (Exact Image 2 Reference) */
+.bb-govt-section {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 20px 20px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f5f9;
+  position: relative;
 }
 
-.bb-promo-tiles-row.in-results {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  overflow-x: visible;
-  padding-bottom: 4px;
+.bb-govt-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 16px;
 }
 
-@media (max-width: 1200px) {
-  .bb-promo-tiles-row.in-results {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.bb-govt-section-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
+  letter-spacing: -0.2px;
 }
 
-@media (max-width: 600px) {
-  .bb-promo-tiles-row.in-results {
-    grid-template-columns: 1fr;
-  }
-}
-
-.bb-promo-tiles-row::-webkit-scrollbar {
-  display: none;
-}
-
-.bb-promo-tile {
-  min-width: 0;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 12px 14px;
+.bb-govt-carousel-arrows {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+}
+
+.bb-govt-arrow-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #ea580c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+.bb-govt-arrow-btn:hover {
+  background: #fff7ed;
+  border-color: #fdba74;
+  color: #c2410c;
+  transform: scale(1.08);
+}
+
+.bb-govt-carousel-track {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.bb-govt-carousel-track::-webkit-scrollbar {
+  height: 6px;
+}
+
+.bb-govt-carousel-track::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bb-govt-carousel-track::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 6px;
+}
+
+/* Individual State Transport Card (Exact Image 2 Structure) */
+.bb-govt-card {
+  flex: 0 0 220px;
+  height: 240px;
+  border-radius: 16px;
   position: relative;
   overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+  user-select: none;
+  border: 2px solid transparent;
 }
 
-.bb-promo-tile:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+.bb-govt-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
 }
 
-.bb-tile-all {
-  border-color: #fecdd3;
+.bb-govt-card.active {
+  border-color: #ea580c;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.25), 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Scenic Photo Background */
+.bb-govt-card-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.4s ease;
+}
+
+.bb-govt-card:hover .bb-govt-card-bg {
+  transform: scale(1.05);
+}
+
+/* Circular Emblem Badge Centered Near Top */
+.bb-govt-card-emblem-badge {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
   background: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  padding: 4px;
+  z-index: 2;
+  transition: transform 0.25s ease;
 }
 
-.bb-tile-all.active {
-  border: 1.5px solid #fda4af;
+.bb-govt-card:hover .bb-govt-card-emblem-badge {
+  transform: translateX(-50%) scale(1.06);
 }
 
-.bb-tile-circle-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: #ffe4e6;
-  color: #e11d48;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-}
-
-.bb-tile-title {
-  font-size: 14px;
-  font-weight: 800;
-  color: #0f172a;
-}
-
-/* Primo Image 3 Card */
-.bb-tile-primo-img3 {
-  background: #1e3a8a;
-  border: 1px solid #172554;
-  color: white;
+/* Bottom Gradient Overlay & Typography */
+.bb-govt-card-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 38px 14px 14px 14px;
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.75) 55%, transparent 100%);
+  z-index: 2;
+  color: #ffffff;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 10px 14px;
-  gap: 4px;
+  gap: 3px;
 }
 
-.bb-primo-gold-block {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.bb-primo-word {
-  font-size: 20px;
-  font-weight: 900;
-  color: #fbbf24;
-  letter-spacing: -0.5px;
-  font-style: italic;
-}
-
-.bb-primo-star-icon {
-  color: #fbbf24;
+.bb-govt-card-code {
   font-size: 15px;
-}
-
-.bb-primo-sub-ribbon {
-  font-size: 10px;
-  font-weight: 600;
-  color: #93c5fd;
-  white-space: nowrap;
-}
-
-/* Free Cancellation Image 3 Card */
-.bb-tile-cancel-img3 {
-  background: #fff5f5;
-  border: 1px solid #fecaca;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.bb-tile-shield-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #e11d48;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
   font-weight: 800;
-  flex-shrink: 0;
+  letter-spacing: 0.3px;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
 }
 
-.bb-tile-bold {
-  font-size: 13px;
-  font-weight: 800;
-  color: #0f172a;
-}
-
-.bb-tile-caption {
-  font-size: 10px;
-  color: #64748b;
-  margin-top: 2px;
-}
-
-/* FlexiTicket Image 3 Card */
-.bb-tile-flexi-img3 {
-  background: #f0fdfa;
-  border: 1px solid #99f6e4;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 10px 14px;
-  gap: 4px;
-}
-
-.bb-flexi-brand-head {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.bb-flexi-brand-name {
+.bb-govt-card-name {
   font-size: 11px;
-  font-weight: 800;
-  color: #0f766e;
+  font-weight: 500;
+  color: #f1f5f9;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 /* 2. Main Two-Column Layout */
@@ -675,6 +664,10 @@
   .bb-main-grid {
     grid-template-columns: 1fr;
   }
+  .bb-filter-sidebar {
+    position: static !important;
+    max-height: none !important;
+  }
 }
 
 /* Left Filter Sidebar */
@@ -684,6 +677,31 @@
   border: 1px solid #e2e8f0;
   padding: 18px 16px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  z-index: 10;
+}
+
+.bb-filter-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.bb-filter-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bb-filter-sidebar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.bb-filter-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .bb-filter-header {
@@ -1357,6 +1375,60 @@
   background: #b91c1c;
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
+}
+
+/* Seat availability pill container under CTA button (matching Image 2 & 3) */
+.bb-action-col-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.bb-seats-left-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+/* Plentiful seats (> 15) -> Soft green badge with green border & text (Image 2) */
+.bb-seats-left-pill.normal-seats {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #15803d;
+}
+
+.bb-seats-left-pill.normal-seats i {
+  color: #16a34a;
+}
+
+/* Low seats (<= 15) -> Warm orange badge with orange border & text (Image 3) */
+.bb-seats-left-pill.low-seats {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #c2410c;
+}
+
+.bb-seats-left-pill.low-seats i {
+  color: #ea580c;
+}
+
+/* Seat highlight classes for schedule row */
+.bb-seats-highlight-low {
+  color: #ea580c;
+  font-weight: 800;
+}
+
+.bb-seats-highlight-normal {
+  color: #16a34a;
+  font-weight: 800;
 }
 
 /* ==========================================================================
