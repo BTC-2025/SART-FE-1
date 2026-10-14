@@ -3,6 +3,18 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './StoreTab.css';
 import { useSartStore } from '@/store/useSartStore';
+import {
+  VEHICLE_SHOWCASE_DATA,
+  VehicleShowcaseItem,
+  COMPARISON_VEHICLES,
+  ComparisonVehicle,
+  LIVE_FUEL_PRICES,
+  EV_CHARGING_STATIONS,
+  INSURANCE_QUOTES,
+  InsuranceQuote,
+  LOCATION_BASED_STATIONS,
+  LocationFuelEvStation
+} from './storeData';
 
 /* ------------------------------------------------------------------ */
 /* Types & Interfaces                                                  */
@@ -10,6 +22,15 @@ import { useSartStore } from '@/store/useSartStore';
 
 export type EquipmentOption = { name: string; price: number };
 export type VehicleType = 'Car' | 'Bike' | 'Auto' | 'Van' | 'Lorry' | 'Bus' | 'EV' | 'Universal';
+export type StoreHubTab = 
+  | 'buy_sell' 
+  | 'spare_parts' 
+  | 'mechanic_service' 
+  | 'emergency_sos' 
+  | 'compare_vehicles' 
+  | 'ev_fuel_stations' 
+  | 'finance_insurance';
+
 export type MainCategory = 
   | 'All' 
   | 'Spare Parts' 
@@ -1256,6 +1277,23 @@ export default function StoreTab() {
   // Browse Mode: 'general' (All products & services across all vehicles) vs 'my_vehicle' (Filtered to user's vehicle)
   const [storeBrowseMode, setStoreBrowseMode] = useState<'general' | 'my_vehicle'>('my_vehicle');
 
+  // Applied Vehicle Search
+  const [appliedVehicleSearch, setAppliedVehicleSearch] = useState<{
+    type: string;
+    brand: string;
+    model: string;
+    year: string;
+    fuel: string;
+    category: string;
+  } | null>({
+    type: 'Car',
+    brand: 'Maruti Suzuki',
+    model: 'Swift',
+    year: '2023',
+    fuel: 'Petrol',
+    category: 'All Categories',
+  });
+
   // Garage Active Flag
   const [garageActive, setGarageActive] = useState<boolean>(true);
 
@@ -1331,25 +1369,104 @@ export default function StoreTab() {
   const topSellingRef = useRef<HTMLDivElement>(null);
   const catalogSectionRef = useRef<HTMLElement>(null);
 
-  // Active Applied Vehicle Filter for search results
-  const [appliedVehicleSearch, setAppliedVehicleSearch] = useState<{
-    type: string;
-    brand: string;
-    model: string;
-    year: string;
-    fuel: string;
-    category: string;
-  } | null>({
-    type: 'Car',
+  // Active SART Automotive Hub Tab
+  const [activeHubTab, setActiveHubTab] = useState<StoreHubTab>('buy_sell');
+
+  // Filter state for Spare Parts & Accessories (Boodmo / Autoduken style)
+  const [partsCategoryFilter, setPartsCategoryFilter] = useState<string>('All Spares & Accessories');
+
+  // Filter state for Mechanic & Garage Services (GoMechanic style)
+  const [mechanicCategoryFilter, setMechanicCategoryFilter] = useState<string>('All Services');
+
+  // CarDekho Buy / Sell view mode: 'buy' vs 'sell'
+  const [cardekhoViewMode, setCardekhoViewMode] = useState<'buy' | 'sell'>('buy');
+  // SART Universal Vehicle Selector for Buy / Sell Hub
+  const [cardekhoSelectedType, setCardekhoSelectedType] = useState<string>('All'); // All, Car, Bike, Auto, Van, Lorry, Bus, EV
+  const [cardekhoVehicleCondition, setCardekhoVehicleCondition] = useState<'new' | 'used'>('new');
+  const [cardekhoSearchBy, setCardekhoSearchBy] = useState<'budget' | 'brand'>('budget');
+  const [cardekhoBudgetFilter, setCardekhoBudgetFilter] = useState<string>('All Budgets');
+  const [cardekhoBodyTypeFilter, setCardekhoBodyTypeFilter] = useState<string>('All');
+  const [cardekhoBrandFilter, setCardekhoBrandFilter] = useState<string>('All Brands');
+  const [cardekhoNavCategory, setCardekhoNavCategory] = useState<string>('all');
+  const [cardekhoFormOpen, setCardekhoFormOpen] = useState<boolean>(true);
+  const [sellFormVehicle, setSellFormVehicle] = useState({
     brand: 'Maruti Suzuki',
     model: 'Swift',
-    year: '2023',
-    fuel: 'Petrol',
-    category: 'All Categories',
+    year: '2021',
+    kms: '35,000 km',
+    expectedPrice: '5.5 Lakh',
+    phone: '',
   });
+
+  // Vehicle Showcase (CarDekho / BikeDekho) filters
+  const [vehicleShowcaseType, setVehicleShowcaseType] = useState<'all' | 'Car' | 'Bike' | 'EV'>('all');
+  const [vehicleShowcaseStatus, setVehicleShowcaseStatus] = useState<'all' | 'popular' | 'electric' | 'upcoming' | 'used'>('all');
+  const [vehicleBudgetMax, setVehicleBudgetMax] = useState<number>(30); // in Lakhs
+
+  // Vehicle Comparison Selector
+  const [compareVehicleA, setCompareVehicleA] = useState<ComparisonVehicle>(COMPARISON_VEHICLES[0]);
+  const [compareVehicleB, setCompareVehicleB] = useState<ComparisonVehicle>(COMPARISON_VEHICLES[1]);
+
+  // Fuel Price Selected City
+  const [selectedFuelCity, setSelectedFuelCity] = useState<string>('New Delhi');
+  const [stationFilterCategory, setStationFilterCategory] = useState<string>('all');
+
+  // CarDekho-style EMI Calculator States (User Image 3 Reference)
+  const [emiCarBrand, setEmiCarBrand] = useState<string>('Tata');
+  const [emiCarModel, setEmiCarModel] = useState<string>('Sierra');
+  const [emiCarVariant, setEmiCarVariant] = useState<string>('Smart Plus (Petrol) 14.34 Lakh');
+  const [emiOnRoadPrice, setEmiOnRoadPrice] = useState<number>(1434347);
+  const [emiDownPayment, setEmiDownPayment] = useState<number>(143000);
+  const [emiInterestRate, setEmiInterestRate] = useState<number>(9.8);
+  const [emiLoanTenureYears, setEmiLoanTenureYears] = useState<number>(5);
+  const [emiDailyKm, setEmiDailyKm] = useState<number>(20);
+  const [activeTrendingTab, setActiveTrendingTab] = useState<'popular' | 'upcoming'>('popular');
+  const [activeReviewFilter, setActiveReviewFilter] = useState<string>('All (509)');
+
+  // EMI Calculator States
+  const [loanAmount, setLoanAmount] = useState<number>(800000); // 8 Lakhs
+  const [downPayment, setDownPayment] = useState<number>(150000); // 1.5 Lakhs
+  const [loanTenureMonths, setLoanTenureMonths] = useState<number>(60); // 5 Years
+  const [interestRate, setInterestRate] = useState<number>(9.5); // 9.5%
+
+  // Calculated EMI
+  const calculatedEmi = useMemo(() => {
+    const principal = Math.max(0, loanAmount - downPayment);
+    if (principal <= 0) return { emi: 0, totalInterest: 0, totalPayment: 0 };
+    const monthlyRate = interestRate / 12 / 100;
+    const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, loanTenureMonths)) / 
+                (Math.pow(1 + monthlyRate, loanTenureMonths) - 1);
+    const totalPayment = emi * loanTenureMonths;
+    const totalInterest = totalPayment - principal;
+    return {
+      emi: Math.round(emi),
+      totalInterest: Math.round(totalInterest),
+      totalPayment: Math.round(totalPayment),
+      principal
+    };
+  }, [loanAmount, downPayment, loanTenureMonths, interestRate]);
 
   // Toast notification
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // 24/7 Roadside SOS State
+  const [sosVehicleType, setSosVehicleType] = useState<string>('All');
+  const [sosEmergencyIssue, setSosEmergencyIssue] = useState<string>('all');
+  const [sosLocationName, setSosLocationName] = useState<string>('Anna Salai, Guindy, Chennai • NH-45 Highway km 18');
+  const [showSosDispatchModal, setShowSosDispatchModal] = useState<boolean>(false);
+  const [selectedSosService, setSelectedSosService] = useState<{
+    title: string;
+    icon: string;
+    time: string;
+    price: string;
+    categoryTag: string;
+    desc: string;
+    features: string[];
+    assignedUnit: string;
+    driverName: string;
+    driverPhone: string;
+  } | null>(null);
+  const [sosDispatchStage, setSosDispatchStage] = useState<'finding' | 'assigned' | 'en_route'>('finding');
 
   useEffect(() => {
     setMounted(true);
@@ -1677,360 +1794,31 @@ export default function StoreTab() {
       {/* TOP CLEAN WHITE HEADER: NEARBY LOCATION BASED CHOOSER + VEHICLE SELECTOR */}
       <div className="store-top-bar-clean">
         <div className="store-top-bar-content">
-          {/* Nearby Location Chooser Option */}
-          <div className="store-nearby-location-bar">
-            <div className="location-bar-left">
-              <div className="location-pin-icon-wrap">
-                <i className="fa-solid fa-location-dot"></i>
-              </div>
-              <div className="location-details">
-                <span className="location-choose-title">Choose Nearby Location / Auto Store:</span>
-                <div className="location-current-selection">
-                  <span className="store-strong-name">{preferredStore.name}</span>
-                  <span className="store-distance-tag">
-                    <i className="fa-solid fa-person-walking"></i> {preferredStore.distance}
-                  </span>
-                  <span className="store-open-tag">
-                    <i className="fa-solid fa-circle-check"></i> {preferredStore.openStatus}
-                  </span>
-                  <span className="store-addr-tag">
-                    • {preferredStore.address}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="location-bar-right">
-              {/* Quick Dropdown Chooser */}
-              <div className="location-quick-dropdown">
-                <select
-                  value={preferredStore.id}
-                  onChange={(e) => {
-                    const found = NEARBY_STORES.find((s) => s.id === e.target.value);
-                    if (found) {
-                      setPreferredStore(found);
-                      showToast(`Nearby store set: ${found.name}`);
-                    }
-                  }}
-                  aria-label="Choose Nearby Location"
-                >
-                  {NEARBY_STORES.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      📍 {s.name} ({s.distance})
-                    </option>
-                  ))}
-                </select>
-                <i className="fa-solid fa-chevron-down select-arrow"></i>
-              </div>
-
+          <div className="sart-super-hub-nav">
+            {[
+              { id: 'buy_sell', label: 'Buy / Sell Vehicle', icon: 'fa-car-side' },
+              { id: 'spare_parts', label: 'Spare Parts & Accessories', icon: 'fa-gears' },
+              { id: 'mechanic_service', label: 'Mechanic & Service', icon: 'fa-wrench' },
+              { id: 'emergency_sos', label: '24/7 Roadside SOS', icon: 'fa-truck-medical' },
+              { id: 'compare_vehicles', label: 'Compare Vehicles', icon: 'fa-code-compare' },
+              { id: 'ev_fuel_stations', label: 'EV & Fuel Prices', icon: 'fa-charging-station' },
+              { id: 'finance_insurance', label: 'EMI & Insurance', icon: 'fa-calculator' },
+            ].map((tab) => (
               <button
+                key={tab.id}
                 type="button"
-                className="btn-change-location-hub"
-                onClick={() => setShowStoreLocatorModal(true)}
+                className={`super-hub-tab-btn ${activeHubTab === tab.id ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveHubTab(tab.id as StoreHubTab);
+                  showToast(`Opened ${tab.label}`);
+                }}
               >
-                <i className="fa-solid fa-map-location-dot"></i>
-                <span>Change Location</span>
+                <div className="tab-icon-pill">
+                  <i className={`fa-solid ${tab.icon}`}></i>
+                </div>
+                <span className="tab-main-label">{tab.label}</span>
               </button>
-            </div>
-          </div>
-
-          {/* 1. TOP FORM: VEHICLE SELECTOR (Clean White Card) */}
-          <div className="vehicle-selector-card-white">
-            {/* Dual Mode Switcher Bar: General Search vs Your Vehicle Based */}
-            <div className="store-mode-toggle-banner">
-              <div className="store-mode-tabs">
-                <button
-                  type="button"
-                  className={`store-mode-tab-btn ${storeBrowseMode === 'general' ? 'active' : ''}`}
-                  onClick={() => {
-                    setStoreBrowseMode('general');
-                    showToast('Switched to General Search (All Vehicle Parts & Universal Catalog)');
-                  }}
-                >
-                  <i className="fa-solid fa-globe"></i>
-                  <span>General Search (All Parts)</span>
-                  <span className="mode-badge">Universal</span>
-                </button>
-
-                <button
-                  type="button"
-                  className={`store-mode-tab-btn ${storeBrowseMode === 'my_vehicle' ? 'active' : ''}`}
-                  onClick={() => {
-                    setStoreBrowseMode('my_vehicle');
-                    setGarageActive(true);
-                    setAppliedVehicleSearch({
-                      type: selectedVehicleType,
-                      brand: selectedBrand,
-                      model: selectedModel,
-                      year: selectedYear,
-                      fuel: selectedFuel,
-                      category: selectedVehicleCategory,
-                    });
-                    showToast(`Switched to Your Vehicle: ${selectedBrand} ${selectedModel}`);
-                  }}
-                >
-                  <i className="fa-solid fa-car-side"></i>
-                  <span>Your Vehicle Based ({selectedBrand} {selectedModel})</span>
-                  <span className="mode-badge active-pill">Guaranteed Fit</span>
-                </button>
-              </div>
-
-              {/* Add Vehicle Button */}
-              <div className="store-add-vehicle-action">
-                <button
-                  type="button"
-                  className="btn-add-vehicle-trigger"
-                  onClick={() => setShowAddVehicleModal(true)}
-                  aria-label="Add Your Vehicle"
-                >
-                  <i className="fa-solid fa-circle-plus"></i>
-                  <span>Add Your Vehicle</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Saved Garage Vehicles Quick Switcher */}
-            {savedVehicles.length > 0 && (
-              <div className="saved-garage-strip">
-                <span className="saved-strip-label">
-                  <i className="fa-solid fa-warehouse"></i> My Garage Vehicles:
-                </span>
-                <div className="saved-vehicle-chips-wrap">
-                  {savedVehicles.map((v) => {
-                    const isSelected = activeVehicleId === v.id && storeBrowseMode === 'my_vehicle';
-                    return (
-                      <button
-                        key={v.id}
-                        type="button"
-                        className={`saved-vehicle-chip ${isSelected ? 'active' : ''}`}
-                        onClick={() => handleSelectSavedVehicle(v)}
-                      >
-                        <i className={`fa-solid ${v.type === 'Bike' ? 'fa-motorcycle' : v.type === 'Scooter' ? 'fa-moped' : v.type === 'Truck' ? 'fa-truck' : 'fa-car'}`}></i>
-                        <span className="chip-name">{v.nickname || `${v.brand} ${v.model}`}</span>
-                        <span className="chip-meta">{v.year} • {v.fuel}</span>
-                        {isSelected && <i className="fa-solid fa-circle-check check-icon"></i>}
-                      </button>
-                    );
-                  })}
-                  <button
-                    type="button"
-                    className="saved-vehicle-chip-add"
-                    onClick={() => setShowAddVehicleModal(true)}
-                    title="Add another vehicle"
-                  >
-                    <i className="fa-solid fa-plus"></i>
-                    <span>Add New</span>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="vehicle-selector-header">
-              <div className="v-header-left">
-                <i className="fa-solid fa-car-tunnel"></i>
-                <div>
-                  <h3>
-                    {storeBrowseMode === 'my_vehicle'
-                      ? `Your Vehicle Fitment: ${selectedBrand} ${selectedModel} (${selectedYear})`
-                      : 'General Search & Vehicle Fitment Filter'}
-                  </h3>
-                  <p>
-                    {storeBrowseMode === 'my_vehicle'
-                      ? `Displaying 100% matched parts, fluids & workshop services for your ${selectedBrand} ${selectedModel}.`
-                      : 'Browsing universal catalog. Choose your vehicle type and brand anytime to narrow results.'}
-                  </p>
-                </div>
-              </div>
-              {garageActive && storeBrowseMode === 'my_vehicle' && (
-                <div className="active-vehicle-tag">
-                  <i className="fa-solid fa-circle-check"></i>
-                  <span>Fitment Active: <strong>{selectedBrand} {selectedModel} ({selectedYear})</strong></span>
-                  <button type="button" className="btn-clear-garage" onClick={handleResetVehicle} title="Switch to General Search">
-                    <i className="fa-solid fa-xmark"></i>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <form
-              className="vehicle-selector-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleApplyVehicleSearch();
-              }}
-            >
-              {/* Field 1: Vehicle Type */}
-              <div className="form-group-field">
-                <label>
-                  <i className="fa-solid fa-shapes"></i> Vehicle Type
-                </label>
-                <div className="select-wrapper">
-                  <select
-                    value={selectedVehicleType}
-                    onChange={(e) => handleVehicleTypeChange(e.target.value)}
-                    aria-label="Select Vehicle Type"
-                  >
-                    {VEHICLE_TYPES.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {v.label}
-                      </option>
-                    ))}
-                  </select>
-                  <i className="fa-solid fa-chevron-down select-arrow"></i>
-                </div>
-              </div>
-
-              {/* Field 2: Choose Category (Vehicle Based) */}
-              <div className="form-group-field field-category-picker">
-                <label>
-                  <i className="fa-solid fa-layer-group"></i> Choose Category
-                </label>
-                <div className="select-wrapper">
-                  <select
-                    value={selectedVehicleCategory}
-                    onChange={(e) => setSelectedVehicleCategory(e.target.value)}
-                    aria-label="Choose Category"
-                  >
-                    {availableVehicleCategories.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
-                  <i className="fa-solid fa-chevron-down select-arrow"></i>
-                </div>
-              </div>
-
-              {/* Field 3: Brand / Make */}
-              <div className="form-group-field">
-                <label>
-                  <i className="fa-solid fa-certificate"></i> Brand / Make
-                </label>
-                <div className="select-wrapper">
-                  <select
-                    value={selectedBrand}
-                    onChange={(e) => handleBrandChange(e.target.value)}
-                    aria-label="Select Brand"
-                  >
-                    {availableBrands.map((brand) => (
-                      <option key={brand} value={brand}>
-                        {brand}
-                      </option>
-                    ))}
-                  </select>
-                  <i className="fa-solid fa-chevron-down select-arrow"></i>
-                </div>
-              </div>
-
-              {/* Field 4: Model */}
-              <div className="form-group-field">
-                <label>
-                  <i className="fa-solid fa-car-side"></i> Model
-                </label>
-                <div className="select-wrapper">
-                  <select
-                    value={selectedModel}
-                    onChange={(e) => setSelectedModel(e.target.value)}
-                    aria-label="Select Model"
-                  >
-                    {availableModels.map((model) => (
-                      <option key={model} value={model}>
-                        {model}
-                      </option>
-                    ))}
-                  </select>
-                  <i className="fa-solid fa-chevron-down select-arrow"></i>
-                </div>
-              </div>
-
-              {/* Field 5: Year */}
-              <div className="form-group-field field-year">
-                <label>
-                  <i className="fa-regular fa-calendar"></i> Year
-                </label>
-                <div className="select-wrapper">
-                  <select
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(e.target.value)}
-                    aria-label="Select Year"
-                  >
-                    {YEARS_LIST.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
-                  <i className="fa-solid fa-chevron-down select-arrow"></i>
-                </div>
-              </div>
-
-              {/* Field 6: Fuel / Engine */}
-              <div className="form-group-field field-fuel">
-                <label>
-                  <i className="fa-solid fa-gas-pump"></i> Fuel Type
-                </label>
-                <div className="select-wrapper">
-                  <select
-                    value={selectedFuel}
-                    onChange={(e) => setSelectedFuel(e.target.value)}
-                    aria-label="Select Fuel"
-                  >
-                    <option value="Petrol">Petrol</option>
-                    <option value="Diesel">Diesel</option>
-                    <option value="CNG">CNG</option>
-                    <option value="Electric">Electric / EV</option>
-                    <option value="Hybrid">Hybrid</option>
-                  </select>
-                  <i className="fa-solid fa-chevron-down select-arrow"></i>
-                </div>
-              </div>
-
-              {/* Search Button */}
-              <div className="form-action-field">
-                <button type="submit" className="btn-search-parts">
-                  <i className="fa-solid fa-magnifying-glass"></i>
-                  <span>Find Parts &amp; Services</span>
-                </button>
-              </div>
-            </form>
-
-            {/* Quick Vehicle Type Icons Row */}
-            <div className="quick-vehicle-pills">
-              <span className="pills-label">Browse by Vehicle:</span>
-              {VEHICLE_TYPES.map((v) => (
-                <button
-                  key={v.id}
-                  type="button"
-                  className={`vehicle-pill-chip ${selectedVehicleType === v.id ? 'active' : ''}`}
-                  onClick={() => handleVehicleTypeChange(v.id)}
-                >
-                  <i className={`fa-solid ${v.icon}`}></i>
-                  <span>{v.label}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* Quick Vehicle Categories Pills Row (Dynamic based on selected vehicle) */}
-            <div className="quick-category-pills">
-              <span className="pills-label">
-                <i className="fa-solid fa-tags"></i> {selectedVehicleType} Categories:
-              </span>
-              <div className="category-scroll-chips">
-                {availableVehicleCategories.map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    className={`cat-chip-btn ${selectedVehicleCategory === cat ? 'active' : ''}`}
-                    onClick={() => {
-                      setSelectedVehicleCategory(cat);
-                      showToast(`Filtered by ${selectedVehicleType} > ${cat}`);
-                    }}
-                  >
-                    <span>{cat}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
@@ -2038,708 +1826,2605 @@ export default function StoreTab() {
       {/* MAIN CONTAINER */}
       <div className="store-container">
 
-        {/* 2. SECTION: NEW LAUNCH (Scroll with left and right arrow buttons) */}
-        <section className="store-showcase-section" id="section-new-launch">
-          <div className="section-header-row">
-            <div className="section-title-wrap">
-              <div className="badge-flair">
-                <i className="fa-solid fa-bolt-lightning"></i> NEW RELEASES
-              </div>
-              <h2 className="section-title">New Launch</h2>
-              <p className="section-desc">
-                Latest automotive innovations, smart dashcams, LED upgrades, portable EV chargers &amp; high-tech accessories.
-              </p>
-            </div>
-            {/* Left and Right Scroll Navigation */}
-            <div className="carousel-nav-arrows">
-              <button
-                type="button"
-                className="btn-carousel-arrow btn-prev"
-                onClick={() => scrollCarousel(newLaunchRef, 'left')}
-                aria-label="Scroll New Launches Left"
-              >
-                <i className="fa-solid fa-chevron-left"></i>
-              </button>
-              <button
-                type="button"
-                className="btn-carousel-arrow btn-next"
-                onClick={() => scrollCarousel(newLaunchRef, 'right')}
-                aria-label="Scroll New Launches Right"
-              >
-                <i className="fa-solid fa-chevron-right"></i>
-              </button>
-            </div>
-          </div>
-
-          {/* Horizontal Slider Track */}
-          <div className="carousel-slider-track" ref={newLaunchRef}>
-            {NEW_LAUNCH_PRODUCTS.map((item) => (
-              <div
-                key={item.id}
-                className="store-product-slide-card cursor-pointer"
-                onClick={() => setSelectedProductModal(item)}
-              >
-                <div className="product-media-wrapper">
-                  <span className="product-ribbon-badge badge-new">{item.badge}</span>
-                  <button
-                    type="button"
-                    className={`btn-card-wishlist ${wishlist.includes(item.id) ? 'active' : ''}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleWishlist(item.id);
-                      showToast(
-                        wishlist.includes(item.id)
-                          ? `Removed from Wishlist: ${item.name}`
-                          : `Added to Wishlist: ${item.name}`
-                      );
-                    }}
-                    aria-label="Wishlist"
-                    title={wishlist.includes(item.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                  >
-                    <i className={wishlist.includes(item.id) ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
-                  </button>
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    loading="lazy"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=600&q=80';
-                    }}
-                  />
-                  <div className="media-overlay-tags">
-                    <span className="fitment-chip">
-                      <i className="fa-solid fa-check"></i> {item.compatibleWith}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="product-card-body">
-                  <div className="rating-stock-row">
-                    <div className="rating-pill">
-                      <i className="fa-solid fa-star"></i> {item.rating} <span>({item.reviewsCount})</span>
-                    </div>
-                    <span className="stock-pill">
-                      <i className="fa-solid fa-box-open"></i> {item.deliveryTime}
-                    </span>
-                  </div>
-
-                  <h3 className="product-title" title={item.name}>{item.name}</h3>
-                  <p className="product-short-desc">{item.desc}</p>
-
-                  <div className="product-price-action-row">
-                    <div className="pricing-col">
-                      <div className="price-top">
-                        <span className="price-current">{formatPrice(item.price)}</span>
-                        {item.originalPrice && (
-                          <span className="price-strike">{formatPrice(item.originalPrice)}</span>
-                        )}
-                      </div>
-                      {item.originalPrice && (
-                        <span className="discount-tag">
-                          Save {Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}%
-                        </span>
-                      )}
-                    </div>
-
-                    <button
-                      type="button"
-                      className="btn-add-cart-primary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddToCart(item);
-                      }}
-                    >
-                      <i className="fa-solid fa-cart-plus"></i>
-                      <span>Add</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* 3. SECTION: TRENDING PRODUCTS (Scroll with left and right arrow buttons) */}
-        <section className="store-showcase-section" id="section-trending">
-          <div className="section-header-row">
-            <div className="section-title-wrap">
-              <div className="badge-flair badge-flair-trending">
-                <i className="fa-solid fa-fire"></i> HIGH DEMAND
-              </div>
-              <h2 className="section-title">Trending Products</h2>
-              <p className="section-desc">
-                High-performance synthetic oils, ceramic brake kits, 4G GPS trackers, and heavy-duty batteries.
-              </p>
-            </div>
-            {/* Left and Right Scroll Navigation */}
-            <div className="carousel-nav-arrows">
-              <button
-                type="button"
-                className="btn-carousel-arrow btn-prev"
-                onClick={() => scrollCarousel(trendingRef, 'left')}
-                aria-label="Scroll Trending Products Left"
-              >
-                <i className="fa-solid fa-chevron-left"></i>
-              </button>
-              <button
-                type="button"
-                className="btn-carousel-arrow btn-next"
-                onClick={() => scrollCarousel(trendingRef, 'right')}
-                aria-label="Scroll Trending Products Right"
-              >
-                <i className="fa-solid fa-chevron-right"></i>
-              </button>
-            </div>
-          </div>
-
-          {/* Horizontal Slider Track */}
-          <div className="carousel-slider-track" ref={trendingRef}>
-            {TRENDING_PRODUCTS.map((item) => (
-              <div
-                key={item.id}
-                className="store-product-slide-card card-trending cursor-pointer"
-                onClick={() => setSelectedProductModal(item)}
-              >
-                <div className="product-media-wrapper">
-                  <span className="product-ribbon-badge badge-trending">{item.badge}</span>
-                  <button
-                    type="button"
-                    className={`btn-card-wishlist ${wishlist.includes(item.id) ? 'active' : ''}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleWishlist(item.id);
-                      showToast(
-                        wishlist.includes(item.id)
-                          ? `Removed from Wishlist: ${item.name}`
-                          : `Added to Wishlist: ${item.name}`
-                      );
-                    }}
-                    aria-label="Wishlist"
-                    title={wishlist.includes(item.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                  >
-                    <i className={wishlist.includes(item.id) ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
-                  </button>
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    loading="lazy"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=600&q=80';
-                    }}
-                  />
-                  <div className="media-overlay-tags">
-                    <span className="fitment-chip">
-                      <i className="fa-solid fa-check"></i> {item.compatibleWith}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="product-card-body">
-                  <div className="rating-stock-row">
-                    <div className="rating-pill">
-                      <i className="fa-solid fa-star"></i> {item.rating} <span>({item.reviewsCount})</span>
-                    </div>
-                    <span className="stock-pill stock-urgent">
-                      <i className="fa-solid fa-clock"></i> {item.stockLeft ? `Only ${item.stockLeft} left` : 'Fast Selling'}
-                    </span>
-                  </div>
-
-                  <h3 className="product-title" title={item.name}>{item.name}</h3>
-                  <p className="product-short-desc">{item.desc}</p>
-
-                  <div className="product-price-action-row">
-                    <div className="pricing-col">
-                      <div className="price-top">
-                        <span className="price-current">{formatPrice(item.price)}</span>
-                        {item.originalPrice && (
-                          <span className="price-strike">{formatPrice(item.originalPrice)}</span>
-                        )}
-                      </div>
-                      {item.originalPrice && (
-                        <span className="discount-tag">
-                          Save {Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}%
-                        </span>
-                      )}
-                    </div>
-
-                    <button
-                      type="button"
-                      className="btn-add-cart-primary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddToCart(item);
-                      }}
-                    >
-                      <i className="fa-solid fa-cart-plus"></i>
-                      <span>Add</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* 4. SECTION: TOP SELLING PRODUCTS (Scroll with left and right arrow buttons) */}
-        <section className="store-showcase-section" id="section-top-selling">
-          <div className="section-header-row">
-            <div className="section-title-wrap">
-              <div className="badge-flair badge-flair-bestseller">
-                <i className="fa-solid fa-award"></i> MOST POPULAR
-              </div>
-              <h2 className="section-title">Top Selling Products</h2>
-              <p className="section-desc">
-                Verified customer staples, OEM replacement filters, emergency puncture kits, MagSafe mounts &amp; Roots horns.
-              </p>
-            </div>
-            {/* Left and Right Scroll Navigation */}
-            <div className="carousel-nav-arrows">
-              <button
-                type="button"
-                className="btn-carousel-arrow btn-prev"
-                onClick={() => scrollCarousel(topSellingRef, 'left')}
-                aria-label="Scroll Top Selling Products Left"
-              >
-                <i className="fa-solid fa-chevron-left"></i>
-              </button>
-              <button
-                type="button"
-                className="btn-carousel-arrow btn-next"
-                onClick={() => scrollCarousel(topSellingRef, 'right')}
-                aria-label="Scroll Top Selling Products Right"
-              >
-                <i className="fa-solid fa-chevron-right"></i>
-              </button>
-            </div>
-          </div>
-
-          {/* Horizontal Slider Track */}
-          <div className="carousel-slider-track" ref={topSellingRef}>
-            {TOP_SELLING_PRODUCTS.map((item) => (
-              <div
-                key={item.id}
-                className="store-product-slide-card card-bestseller cursor-pointer"
-                onClick={() => setSelectedProductModal(item)}
-              >
-                <div className="product-media-wrapper">
-                  <span className="product-ribbon-badge badge-bestseller">{item.badge}</span>
-                  <button
-                    type="button"
-                    className={`btn-card-wishlist ${wishlist.includes(item.id) ? 'active' : ''}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleWishlist(item.id);
-                      showToast(
-                        wishlist.includes(item.id)
-                          ? `Removed from Wishlist: ${item.name}`
-                          : `Added to Wishlist: ${item.name}`
-                      );
-                    }}
-                    aria-label="Wishlist"
-                    title={wishlist.includes(item.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                  >
-                    <i className={wishlist.includes(item.id) ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
-                  </button>
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    loading="lazy"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&q=80';
-                    }}
-                  />
-                  <div className="media-overlay-tags">
-                    <span className="fitment-chip">
-                      <i className="fa-solid fa-check"></i> {item.compatibleWith}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="product-card-body">
-                  <div className="rating-stock-row">
-                    <div className="rating-pill">
-                      <i className="fa-solid fa-star"></i> {item.rating} <span>({item.reviewsCount})</span>
-                    </div>
-                    <span className="stock-pill stock-highlight">
-                      <i className="fa-solid fa-truck-fast"></i> {item.deliveryTime}
-                    </span>
-                  </div>
-
-                  <h3 className="product-title" title={item.name}>{item.name}</h3>
-                  <p className="product-short-desc">{item.desc}</p>
-
-                  <div className="product-price-action-row">
-                    <div className="pricing-col">
-                      <div className="price-top">
-                        <span className="price-current">{formatPrice(item.price)}</span>
-                        {item.originalPrice && (
-                          <span className="price-strike">{formatPrice(item.originalPrice)}</span>
-                        )}
-                      </div>
-                      {item.originalPrice && (
-                        <span className="discount-tag">
-                          Save {Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}%
-                        </span>
-                      )}
-                    </div>
-
-                    <button
-                      type="button"
-                      className="btn-add-cart-primary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddToCart(item);
-                      }}
-                    >
-                      <i className="fa-solid fa-cart-plus"></i>
-                      <span>Add</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* 5. UNIVERSAL WORKSHOP SERVICES & SPARE PARTS CATALOG */}
-        <section className="store-catalog-section" ref={catalogSectionRef} id="section-catalog-parts">
-          {/* Active Applied Search Banner */}
-          {appliedVehicleSearch && (
-            <div className="applied-search-result-banner animate-pop">
-              <div className="banner-left">
-                <div className="banner-badge">
-                  <i className="fa-solid fa-circle-check"></i>
-                  <span>MATCHING RESULTS FOUND</span>
-                </div>
-                <h3>
-                  Showing Parts &amp; Services for{' '}
-                  <span className="vehicle-highlight">
-                    {appliedVehicleSearch.year} {appliedVehicleSearch.brand} {appliedVehicleSearch.model}
-                  </span>
-                </h3>
-                <div className="banner-pills">
-                  <span className="spec-pill">
-                    <i className="fa-solid fa-shapes"></i> {appliedVehicleSearch.type}
-                  </span>
-                  <span className="spec-pill">
-                    <i className="fa-solid fa-gas-pump"></i> {appliedVehicleSearch.fuel}
-                  </span>
-                  <span className="spec-pill category-spec">
-                    <i className="fa-solid fa-layer-group"></i> {appliedVehicleSearch.category}
-                  </span>
-                  <span className="results-count-pill">
-                    <i className="fa-solid fa-boxes-stacked"></i> {filteredCatalog.length} Matching Items
-                  </span>
-                </div>
-              </div>
-              <button
-                type="button"
-                className="btn-clear-search-banner"
-                onClick={handleResetVehicle}
-              >
-                <i className="fa-solid fa-xmark"></i>
-                <span>Clear Filter</span>
-              </button>
-            </div>
-          )}
-
-          <div className="catalog-header-bar">
-            <div>
-              <h2 className="section-title">
-                {appliedVehicleSearch
-                  ? `Compatible Spares & Services (${appliedVehicleSearch.brand} ${appliedVehicleSearch.model})`
-                  : 'All-in-One Vehicle Services & Spares'}
-              </h2>
-              <p className="section-desc">
-                {appliedVehicleSearch
-                  ? `Filtered specifically for ${appliedVehicleSearch.brand} ${appliedVehicleSearch.model} • Guaranteed fitment parts & verified services.`
-                  : 'Order parts for home delivery or book complete certified mechanic service at your doorstep or nearby garage.'}
-              </p>
-            </div>
-
-            {/* Live Search Input */}
-            <div className="catalog-search-wrap">
-              <i className="fa-solid fa-magnifying-glass search-icon"></i>
-              <input
-                type="search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search spare parts, oil, brakes, vehicle model..."
-                className="catalog-search-input"
-              />
-              {search && (
+        {/* ------------------------------------------------------------------ */}
+        {/* ================================================================== */}
+        {/* TAB 1: BUY / SELL VEHICLE (CarDekho & BikeDekho UI)                 */}
+        {/* ================================================================== */}
+        {activeHubTab === 'buy_sell' && (
+          <section className="cardekho-hub-view animate-pop">
+            {/* Top Sub-Nav Bar (CarDekho Style: All Vehicles, New, Used, Sell) */}
+            <div className="cardekho-header-subnav">
+              <div className="cardekho-nav-links">
                 <button
                   type="button"
-                  className="btn-search-clear"
-                  onClick={() => setSearch('')}
+                  className={`cardekho-nav-link-btn ${cardekhoVehicleCondition === 'new' ? 'active' : ''}`}
+                  onClick={() => {
+                    setCardekhoVehicleCondition('new');
+                    setCardekhoNavCategory('all');
+                  }}
                 >
-                  <i className="fa-solid fa-xmark"></i>
+                  <i className="fa-solid fa-sparkles"></i>
+                  <span>NEW VEHICLES</span>
+                  <i className="fa-solid fa-chevron-down nav-arrow"></i>
                 </button>
-              )}
-            </div>
-          </div>
 
-          {/* Category Tabs Strip */}
-          <div className="catalog-categories-bar">
-            {(['All', 'Spare Parts', 'Accessories', 'Maintenance', 'Service Center', 'Mechanic Service', 'Vehicle Modification', 'Wash & Care', 'Emergency'] as MainCategory[]).map(
-              (category) => (
                 <button
-                  key={category}
                   type="button"
-                  className={`category-pill-btn ${activeCategory === category ? 'active' : ''}`}
-                  onClick={() => setActiveCategory(category)}
+                  className={`cardekho-nav-link-btn ${cardekhoVehicleCondition === 'used' ? 'active' : ''}`}
+                  onClick={() => {
+                    setCardekhoVehicleCondition('used');
+                    setCardekhoNavCategory('used');
+                  }}
                 >
-                  <span>{category}</span>
+                  <i className="fa-solid fa-shield-halved"></i>
+                  <span>CERTIFIED USED</span>
+                  <i className="fa-solid fa-chevron-down nav-arrow"></i>
                 </button>
-              )
-            )}
-          </div>
 
-          {/* Catalog Cards Grid */}
-          <div className="catalog-grid">
-            {filteredCatalog.map((product) => {
-              const includesList = product.includes || [];
-              const chosenAddOns = selectedEquipment[product.id] ?? [];
-              const totalCost = getProductTotalPrice(product);
-              const isDetailOpen = activeDetailId === product.id;
-
-              return (
-                <div
-                  key={product.id}
-                  className="catalog-item-card cursor-pointer"
-                  onClick={() => setSelectedProductModal(product)}
+                <button
+                  type="button"
+                  className={`cardekho-nav-link-btn ${cardekhoViewMode === 'sell' ? 'active' : ''}`}
+                  onClick={() => setCardekhoViewMode(cardekhoViewMode === 'sell' ? 'buy' : 'sell')}
                 >
-                  {/* Left: Thumbnail & Badges */}
-                  <div className="catalog-item-media">
-                    <button
-                      type="button"
-                      className={`btn-card-wishlist ${wishlist.includes(product.id) ? 'active' : ''}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleWishlist(product.id);
-                        showToast(
-                          wishlist.includes(product.id)
-                            ? `Removed from Wishlist: ${product.name}`
-                            : `Added to Wishlist: ${product.name}`
-                        );
-                      }}
-                      aria-label="Wishlist"
-                      title={wishlist.includes(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                    >
-                      <i className={wishlist.includes(product.id) ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
-                    </button>
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      loading="lazy"
-                      onError={(e) => {
-                        e.currentTarget.src = 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=600&q=80';
-                      }}
-                    />
-                    {product.badge && (
-                      <span className="catalog-card-badge">{product.badge}</span>
+                  <i className="fa-solid fa-indian-rupee-sign"></i>
+                  <span>SELL ANY VEHICLE • INSTANT VALUATION</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="cardekho-nav-link-btn"
+                  onClick={() => setActiveHubTab('compare_vehicles')}
+                >
+                  <i className="fa-solid fa-code-compare"></i>
+                  <span>COMPARE</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="cardekho-nav-link-btn"
+                  onClick={() => setActiveHubTab('ev_fuel_stations')}
+                >
+                  <i className="fa-solid fa-charging-station"></i>
+                  <span>EV &amp; FUEL PRICES</span>
+                </button>
+              </div>
+
+              <div className="cardekho-subnav-right">
+                <span className="inspection-badge-pill">
+                  <i className="fa-solid fa-circle-check"></i> SART Certified All-Vehicle Expo
+                </span>
+              </div>
+            </div>
+
+            {/* If Sell Mode is Active */}
+            {cardekhoViewMode === 'sell' ? (
+              <div className="cardekho-sell-container animate-scale">
+                <div className="sell-banner-left">
+                  <span className="sell-flair"><i className="fa-solid fa-bolt"></i> INSTANT SELL IN 24 HOURS</span>
+                  <h2>Sell Any Vehicle at Guaranteed Fair Market Price</h2>
+                  <p>Cars, Bikes, Scooters, Autos, Commercial Vans, Lorries &amp; Buses. Free doorstep inspection and immediate bank transfer.</p>
+                  <div className="sell-perks-list">
+                    <div className="perk-item">
+                      <i className="fa-solid fa-circle-check"></i>
+                      <div><strong>Instant Online Valuation:</strong> Algorithmic fair pricing based on vehicle type, year and mileage.</div>
+                    </div>
+                    <div className="perk-item">
+                      <i className="fa-solid fa-circle-check"></i>
+                      <div><strong>Doorstep Evaluation:</strong> SART certified technician inspects at your home, depot or workshop.</div>
+                    </div>
+                    <div className="perk-item">
+                      <i className="fa-solid fa-circle-check"></i>
+                      <div><strong>Same-Day Payment:</strong> Direct RTGS/IMPS bank transfer before handover with complete RC transfer.</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="sell-form-card">
+                  <h3><i className="fa-solid fa-calculator"></i> Get Instant Price Quote</h3>
+                  <div className="sell-form-grid">
+                    <div className="form-field">
+                      <label>Vehicle Category</label>
+                      <select
+                        value={cardekhoSelectedType}
+                        onChange={(e) => setCardekhoSelectedType(e.target.value)}
+                      >
+                        <option value="Car">Car / SUV</option>
+                        <option value="Bike">Bike / Scooter</option>
+                        <option value="Auto">Auto (3-Wheeler)</option>
+                        <option value="Van">Van / Commercial</option>
+                        <option value="Lorry">Lorry / Truck</option>
+                        <option value="Bus">Bus / Coach</option>
+                        <option value="EV">Electric Vehicle (EV)</option>
+                      </select>
+                    </div>
+
+                    <div className="form-field">
+                      <label>Brand / Make</label>
+                      <input
+                        type="text"
+                        value={sellFormVehicle.brand}
+                        onChange={(e) => setSellFormVehicle({ ...sellFormVehicle, brand: e.target.value })}
+                        placeholder="e.g. Maruti, Tata, Royal Enfield, Eicher"
+                      />
+                    </div>
+
+                    <div className="form-field">
+                      <label>Model &amp; Variant</label>
+                      <input
+                        type="text"
+                        value={sellFormVehicle.model}
+                        onChange={(e) => setSellFormVehicle({ ...sellFormVehicle, model: e.target.value })}
+                        placeholder="e.g. Swift, Classic 350, Signa"
+                      />
+                    </div>
+
+                    <div className="form-field">
+                      <label>Registration Year</label>
+                      <select
+                        value={sellFormVehicle.year}
+                        onChange={(e) => setSellFormVehicle({ ...sellFormVehicle, year: e.target.value })}
+                      >
+                        {['2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015'].map(y => (
+                          <option key={y} value={y}>{y}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="form-field">
+                      <label>Kilometers Driven</label>
+                      <input
+                        type="text"
+                        value={sellFormVehicle.kms}
+                        onChange={(e) => setSellFormVehicle({ ...sellFormVehicle, kms: e.target.value })}
+                        placeholder="e.g. 35,000 km"
+                      />
+                    </div>
+
+                    <div className="form-field">
+                      <label>Your Mobile Number</label>
+                      <input
+                        type="tel"
+                        value={sellFormVehicle.phone}
+                        onChange={(e) => setSellFormVehicle({ ...sellFormVehicle, phone: e.target.value })}
+                        placeholder="Enter 10-digit mobile number"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="sell-estimated-quote-box">
+                    <span className="quote-label">Estimated Resale Value:</span>
+                    <span className="quote-value">₹{sellFormVehicle.expectedPrice}</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="btn-sell-submit"
+                    onClick={() => {
+                      if (!sellFormVehicle.phone) {
+                        showToast('Please enter mobile number for vehicle valuation callback');
+                        return;
+                      }
+                      showToast(`Valuation booked for ${sellFormVehicle.year} ${sellFormVehicle.brand} ${sellFormVehicle.model}! Inspector will call ${sellFormVehicle.phone}`);
+                    }}
+                  >
+                    <i className="fa-solid fa-paper-plane"></i>
+                    <span>Book Free Doorstep Evaluation &amp; Sell</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* 1. HORIZONTAL ALL-VEHICLE "FIND YOUR RIGHT VEHICLE" FORM (First & Second Image Reference) */}
+                <div className="cardekho-finder-hero-card">
+                  {/* Top Bar: Title + SART All Vehicle Selector Chips */}
+                  <div className="finder-header-row">
+                    <div className="finder-title-col">
+                      <h2 className="finder-title">Find your right vehicle</h2>
+                      <p className="finder-subtitle">Search new &amp; certified used cars, bikes, scooters, autos, vans, trucks &amp; buses across India</p>
+                    </div>
+
+                    {/* New vs Used Switcher */}
+                    <div className="finder-type-pills">
+                      <button
+                        type="button"
+                        className={`finder-type-btn ${cardekhoVehicleCondition === 'new' ? 'active' : ''}`}
+                        onClick={() => {
+                          setCardekhoVehicleCondition('new');
+                          setCardekhoNavCategory('all');
+                        }}
+                      >
+                        New Vehicle
+                      </button>
+                      <button
+                        type="button"
+                        className={`finder-type-btn ${cardekhoVehicleCondition === 'used' ? 'active' : ''}`}
+                        onClick={() => {
+                          setCardekhoVehicleCondition('used');
+                          setCardekhoNavCategory('used');
+                        }}
+                      >
+                        Used Vehicle
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* SART Multi-Vehicle Category Selector Strip */}
+                  <div className="sart-vehicle-type-tabs">
+                    {[
+                      { id: 'All', label: 'All Vehicles', icon: 'fa-globe' },
+                      { id: 'Car', label: 'Cars & SUVs', icon: 'fa-car' },
+                      { id: 'Bike', label: 'Bikes & Scooters', icon: 'fa-motorcycle' },
+                      { id: 'Auto', label: '3-Wheelers (Auto)', icon: 'fa-gas-pump' },
+                      { id: 'Van', label: 'Vans & Eeco', icon: 'fa-van-shuttle' },
+                      { id: 'Lorry', label: 'Lorries & Trucks', icon: 'fa-truck-moving' },
+                      { id: 'Bus', label: 'Buses & Coaches', icon: 'fa-bus' },
+                      { id: 'EV', label: 'Electric (EV)', icon: 'fa-bolt' },
+                    ].map((vType) => (
+                      <button
+                        key={vType.id}
+                        type="button"
+                        className={`sart-vtype-tab-btn ${cardekhoSelectedType === vType.id ? 'active' : ''}`}
+                        onClick={() => {
+                          setCardekhoSelectedType(vType.id);
+                          showToast(`Showing ${vType.label}`);
+                        }}
+                      >
+                        <i className={`fa-solid ${vType.icon}`}></i>
+                        <span>{vType.label}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Horizontal Radio Selector: By Budget vs By Brand */}
+                  <div className="finder-radio-row">
+                    <label className="radio-label-item">
+                      <input
+                        type="radio"
+                        name="cardekhoSearchBy"
+                        value="budget"
+                        checked={cardekhoSearchBy === 'budget'}
+                        onChange={() => setCardekhoSearchBy('budget')}
+                      />
+                      <span className="radio-dot"></span>
+                      <span>By Budget</span>
+                    </label>
+
+                    <label className="radio-label-item">
+                      <input
+                        type="radio"
+                        name="cardekhoSearchBy"
+                        value="brand"
+                        checked={cardekhoSearchBy === 'brand'}
+                        onChange={() => setCardekhoSearchBy('brand')}
+                      />
+                      <span className="radio-dot"></span>
+                      <span>By Brand</span>
+                    </label>
+                  </div>
+
+                  {/* HORIZONTAL FORM INPUTS ROW (Cardekho Image 1 / Autoduken Image 2 Reference) */}
+                  <div className="cardekho-horizontal-form-row">
+                    {cardekhoSearchBy === 'budget' ? (
+                      <>
+                        {/* 1. Select Budget Range */}
+                        <div className="finder-field-col">
+                          <label className="field-caption">Select Budget Range</label>
+                          <div className="select-box-wrap">
+                            <select
+                              value={cardekhoBudgetFilter}
+                              onChange={(e) => setCardekhoBudgetFilter(e.target.value)}
+                            >
+                              <option value="All Budgets">All Budgets</option>
+                              <option value="Under 2 Lakh">Under ₹2 Lakh (Bikes &amp; Scooters)</option>
+                              <option value="2 - 5 Lakh">₹2 - 5 Lakh (Autos / Entry Cars)</option>
+                              <option value="5 - 10 Lakh">₹5 - 10 Lakh (Hatchbacks &amp; Compact)</option>
+                              <option value="10 - 20 Lakh">₹10 - 20 Lakh (SUVs &amp; Vans)</option>
+                              <option value="20 - 50 Lakh">₹20 - 50 Lakh (Heavy Lorries &amp; Premium)</option>
+                              <option value="Above 50 Lakh">Above ₹50 Lakh (Luxury &amp; Buses)</option>
+                            </select>
+                            <i className="fa-solid fa-chevron-down"></i>
+                          </div>
+                        </div>
+
+                        {/* 2. Select Body Type / Category */}
+                        <div className="finder-field-col">
+                          <label className="field-caption">Body Type / Class</label>
+                          <div className="select-box-wrap">
+                            <select
+                              value={cardekhoBodyTypeFilter}
+                              onChange={(e) => setCardekhoBodyTypeFilter(e.target.value)}
+                            >
+                              <option value="All">All Vehicle Classes</option>
+                              <option value="SUV">SUV / Compact SUV</option>
+                              <option value="Hatchback">Hatchback</option>
+                              <option value="Sedan">Sedan</option>
+                              <option value="Bike">Motorcycle / Bike</option>
+                              <option value="Scooter">Scooter</option>
+                              <option value="Auto">Passenger Auto</option>
+                              <option value="Van">Passenger / Cargo Van</option>
+                              <option value="Truck">Heavy Commercial Truck</option>
+                              <option value="Bus">Luxury Tourist Bus</option>
+                            </select>
+                            <i className="fa-solid fa-chevron-down"></i>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {/* 1. Select Brand */}
+                        <div className="finder-field-col">
+                          <label className="field-caption">Select Maker / Brand</label>
+                          <div className="select-box-wrap">
+                            <select
+                              value={cardekhoBrandFilter}
+                              onChange={(e) => setCardekhoBrandFilter(e.target.value)}
+                            >
+                              <option value="All Brands">All Vehicle Makers</option>
+                              <option value="Tata Motors">Tata Motors</option>
+                              <option value="Hyundai">Hyundai</option>
+                              <option value="Mahindra">Mahindra</option>
+                              <option value="Maruti Suzuki">Maruti Suzuki</option>
+                              <option value="Toyota">Toyota</option>
+                              <option value="Royal Enfield">Royal Enfield</option>
+                              <option value="Yamaha">Yamaha</option>
+                              <option value="KTM">KTM</option>
+                              <option value="Honda 2Wheelers">Honda 2Wheelers</option>
+                              <option value="TVS Motor">TVS Motor</option>
+                              <option value="Bajaj Auto">Bajaj Auto</option>
+                              <option value="Ashok Leyland">Ashok Leyland</option>
+                              <option value="Volvo Buses">Volvo</option>
+                              <option value="Force Motors">Force Motors</option>
+                              <option value="Ather Energy">Ather</option>
+                              <option value="Ola Electric">Ola</option>
+                            </select>
+                            <i className="fa-solid fa-chevron-down"></i>
+                          </div>
+                        </div>
+
+                        {/* 2. Fuel / Powertrain */}
+                        <div className="finder-field-col">
+                          <label className="field-caption">Fuel / Powertrain</label>
+                          <div className="select-box-wrap">
+                            <select
+                              value={cardekhoBodyTypeFilter}
+                              onChange={(e) => setCardekhoBodyTypeFilter(e.target.value)}
+                            >
+                              <option value="All">All Fuel Types</option>
+                              <option value="Petrol">Petrol</option>
+                              <option value="Diesel">Diesel</option>
+                              <option value="CNG">CNG</option>
+                              <option value="Electric">100% Electric (EV)</option>
+                            </select>
+                            <i className="fa-solid fa-chevron-down"></i>
+                          </div>
+                        </div>
+                      </>
                     )}
-                    <span className="catalog-vehicle-tag">
-                      <i className="fa-solid fa-wrench"></i> {product.vehicle}
-                    </span>
-                  </div>
 
-                  {/* Right: Compact Info */}
-                  <div className="catalog-item-info">
-                    <div className="catalog-top-row">
-                      <h3 className="catalog-item-title" title={product.name}>{product.name}</h3>
-                      {product.duration && (
-                        <span className="duration-pill">
-                          <i className="fa-regular fa-clock"></i> {product.duration}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="catalog-meta-row">
-                      {product.warranty && (
-                        <span className="warranty-tag">
-                          <i className="fa-solid fa-shield"></i> {product.warranty}
-                        </span>
-                      )}
-                      <span className="pickup-tag">
-                        <i className="fa-solid fa-van-shuttle"></i> Free Pick-up &amp; Drop
-                      </span>
-                    </div>
-
-                    <p className="catalog-desc-compact">{product.desc}</p>
-
-                    {/* Compact Teaser & "See More" Button without increasing card height */}
-                    <div className="catalog-teaser-row">
-                      <span className="teaser-pill">
-                        <i className="fa-solid fa-check"></i> {includesList.length} Included
-                      </span>
+                    {/* Search Button */}
+                    <div className="finder-btn-col">
                       <button
                         type="button"
-                        className="btn-see-more-action"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedProductModal(product);
+                        className="btn-cardekho-search-orange"
+                        onClick={() => {
+                          showToast(`Found vehicles matching ${cardekhoSelectedType} • ${cardekhoSearchBy === 'budget' ? cardekhoBudgetFilter : cardekhoBrandFilter}`);
                         }}
                       >
-                        <span>See More &amp; Parts</span>
-                        <i className="fa-solid fa-chevron-right"></i>
-                      </button>
-                    </div>
-
-                    {/* Pricing & Add to Cart */}
-                    <div className="catalog-footer-row">
-                      <div className="catalog-price-col">
-                        <span className="total-label">Starting Price:</span>
-                        <div className="catalog-price-wrap">
-                          <span className="catalog-current-price">{formatPrice(totalCost)}</span>
-                          {product.originalPrice && (
-                            <span className="catalog-strike-price">
-                              {formatPrice(product.originalPrice)}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        className="btn-add-catalog-cart"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddToCart(product);
-                        }}
-                      >
-                        <i className="fa-solid fa-cart-shopping"></i>
-                        <span>Add</span>
+                        <i className="fa-solid fa-magnifying-glass"></i>
+                        <span>Search</span>
                       </button>
                     </div>
                   </div>
 
-                  {/* INTERNAL ZERO-HEIGHT-INCREASE OVERLAY (Shows full content with smooth internal scroll) */}
-                  {isDetailOpen && (
-                    <div className="catalog-card-details-overlay animate-scale">
-                      <div className="overlay-header">
-                        <div className="overlay-header-title">
-                          <span className="overlay-badge">All Content &amp; Add-ons</span>
-                          <h4>{product.name}</h4>
+                  {/* Horizontal Category Quick Filter Strip */}
+                  <div className="cardekho-category-chips-strip">
+                    {[
+                      { id: 'all', label: 'All Showcase Vehicles', icon: 'fa-globe' },
+                      { id: 'popular', label: 'Get Festive Offers (Popular)', icon: 'fa-fire' },
+                      { id: 'electric', label: 'Electric Vehicles (EV)', icon: 'fa-bolt' },
+                      { id: 'upcoming', label: 'Upcoming 2025 Launches', icon: 'fa-calendar-star' },
+                      { id: 'used', label: 'Certified Used Vehicles', icon: 'fa-certificate' },
+                    ].map((chip) => (
+                      <button
+                        key={chip.id}
+                        type="button"
+                        className={`cardekho-category-chip ${cardekhoNavCategory === chip.id ? 'active' : ''}`}
+                        onClick={() => {
+                          setCardekhoNavCategory(chip.id);
+                          if (chip.id === 'used') setCardekhoVehicleCondition('used');
+                          else if (chip.id === 'all' || chip.id === 'popular' || chip.id === 'upcoming') setCardekhoVehicleCondition('new');
+                        }}
+                      >
+                        <i className={`fa-solid ${chip.icon}`}></i>
+                        <span>{chip.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. FULL-PAGE CARDS GRID: Even without choosing anything, ALL vehicles show (Third & Fourth Images Reference) */}
+                <div className="cardekho-content-sections-wrap">
+
+                  {/* SECTION 1: GET FESTIVE OFFERS / POPULAR VEHICLES (Full-Width Cardekho 3rd Image Style) */}
+                  {(cardekhoNavCategory === 'all' || cardekhoNavCategory === 'popular') && (
+                    <div className="cardekho-catalog-section">
+                      <div className="section-title-line">
+                        <div>
+                          <h3 className="section-title-text">Get Festive Offers for Popular Vehicles</h3>
+                          <p className="section-title-sub">Explore best-selling cars, bikes, scooters &amp; commercial vehicles with verified dealer discounts</p>
                         </div>
-                        <button
-                          type="button"
-                          className="btn-close-overlay"
-                          onClick={() => setActiveDetailId(null)}
-                          title="Close details"
-                        >
-                          <i className="fa-solid fa-xmark"></i>
-                        </button>
+                        <span className="section-count-tag">
+                          {VEHICLE_SHOWCASE_DATA.filter(v => (cardekhoSelectedType === 'All' || v.type === cardekhoSelectedType) && v.status === 'popular').length} Vehicles
+                        </span>
                       </div>
 
-                      <div className="overlay-scroll-body">
-                        <p className="overlay-desc">{product.desc}</p>
-
-                        {/* All Inclusions */}
-                        {includesList.length > 0 && (
-                          <div className="overlay-section">
-                            <div className="overlay-section-title">
-                              <i className="fa-solid fa-list-check"></i> Included Services ({includesList.length}):
-                            </div>
-                            <div className="overlay-inc-grid">
-                              {includesList.map((inc) => (
-                                <div key={inc} className="overlay-inc-item">
-                                  <i className="fa-solid fa-circle-check"></i>
-                                  <span>{inc}</span>
+                      <div className="cardekho-cards-row full-width-grid">
+                        {VEHICLE_SHOWCASE_DATA
+                          .filter((v) => (cardekhoSelectedType === 'All' || v.type === cardekhoSelectedType) && v.status === 'popular')
+                          .map((veh) => (
+                            <div key={veh.id} className="cardekho-vehicle-card">
+                              <div className="cardekho-card-media">
+                                <span className="media-badge badge-popular">🔥 {veh.type}</span>
+                                <img src={veh.image} alt={veh.name} loading="lazy" />
+                                <div className="card-media-tags">
+                                  <span><i className="fa-solid fa-gas-pump"></i> {veh.fuel}</span>
+                                  <span><i className="fa-solid fa-gauge-high"></i> {veh.mileage}</span>
                                 </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                              </div>
 
-                        {/* Recommended Parts Add-ons */}
-                        {(product.equipmentOptions || []).length > 0 && (
-                          <div className="overlay-section">
-                            <div className="overlay-section-title">
-                              <i className="fa-solid fa-toolbox"></i> Recommended Parts &amp; Add-ons:
-                            </div>
-                            <div className="overlay-addons-list">
-                              {product.equipmentOptions?.map((opt) => (
-                                <label key={opt.name} className="addon-checkbox-label">
-                                  <input
-                                    type="checkbox"
-                                    checked={chosenAddOns.includes(opt.name)}
-                                    onChange={() => toggleEquipmentOption(product.id, opt.name)}
-                                  />
-                                  <span className="addon-text">{opt.name}</span>
-                                  <span className="addon-price">(+{formatPrice(opt.price)})</span>
-                                </label>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                              <div className="cardekho-card-body">
+                                <div className="veh-type-tag-small">{veh.type} • {veh.brand}</div>
+                                <h4 className="car-name" title={veh.name}>{veh.name}</h4>
+                                <div className="car-price">{veh.priceRange}</div>
+                                <div className="car-rating-row">
+                                  <span className="rating-pill"><i className="fa-solid fa-star"></i> {veh.rating}</span>
+                                  <span className="seating-pill">{veh.seating || 'Standard'}</span>
+                                </div>
 
-                        {/* Vehicle Note */}
-                        <div className="overlay-section">
-                          <div className="overlay-section-title">
-                            <i className="fa-solid fa-car"></i> Vehicle Note / Registration:
-                          </div>
-                          <input
-                            type="text"
-                            placeholder={
-                              garageActive
-                                ? `Vehicle: ${selectedBrand} ${selectedModel} (${selectedYear})`
-                                : 'Enter vehicle registration or model'
-                            }
-                            value={customVehicleNote[product.id] ?? ''}
-                            onChange={(e) =>
-                              setCustomVehicleNote((prev) => ({
-                                ...prev,
-                                [product.id]: e.target.value,
-                              }))
-                            }
-                            className="vehicle-note-input"
-                          />
-                        </div>
-                      </div>
+                                <div className="car-features-list">
+                                  {veh.features.slice(0, 3).map((f) => (
+                                    <span key={f} className="feat-chip"><i className="fa-solid fa-check"></i> {f}</span>
+                                  ))}
+                                </div>
 
-                      <div className="overlay-footer">
-                        <div className="overlay-price-col">
-                          <span className="total-label">Total Amount:</span>
-                          <span className="overlay-total-price">{formatPrice(totalCost)}</span>
-                        </div>
-                        <button
-                          type="button"
-                          className="btn-add-catalog-cart"
-                          onClick={() => {
-                            handleAddToCart(product);
-                            setActiveDetailId(null);
-                          }}
-                        >
-                          <i className="fa-solid fa-cart-shopping"></i>
-                          <span>Add To Cart</span>
-                        </button>
+                                <div className="cardekho-card-buttons">
+                                  <button
+                                    type="button"
+                                    className="btn-cardekho-offer"
+                                    onClick={() => showToast(`Checking Festive Offers for ${veh.name} in ${selectedFuelCity}...`)}
+                                  >
+                                    Get Navaratri Offers
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn-cardekho-test-drive"
+                                    onClick={() => showToast(`Test Drive Booked for ${veh.name}! Authorized dealer will call you.`)}
+                                  >
+                                    <i className="fa-solid fa-key"></i> Test Drive
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                       </div>
                     </div>
                   )}
+
+                  {/* SECTION 2: 100% ELECTRIC VEHICLES ACROSS SART */}
+                  {(cardekhoNavCategory === 'all' || cardekhoNavCategory === 'electric') && (
+                    <div className="cardekho-catalog-section">
+                      <div className="section-title-line">
+                        <div>
+                          <h3 className="section-title-text">⚡ Electric Vehicles (Cars, Bikes, Autos &amp; Buses)</h3>
+                          <p className="section-title-sub">Zero-emission mobility with certified battery range, fast charging &amp; state subsidy rates</p>
+                        </div>
+                        <span className="section-count-tag tag-ev">
+                          {VEHICLE_SHOWCASE_DATA.filter(v => (cardekhoSelectedType === 'All' || v.type === cardekhoSelectedType) && v.status === 'electric').length} EV Models
+                        </span>
+                      </div>
+
+                      <div className="cardekho-cards-row full-width-grid">
+                        {VEHICLE_SHOWCASE_DATA
+                          .filter((v) => (cardekhoSelectedType === 'All' || v.type === cardekhoSelectedType) && v.status === 'electric')
+                          .map((veh) => (
+                            <div key={veh.id} className="cardekho-vehicle-card ev-card-accent">
+                              <div className="cardekho-card-media">
+                                <span className="media-badge badge-ev">⚡ {veh.type} EV</span>
+                                <img src={veh.image} alt={veh.name} loading="lazy" />
+                                <div className="card-media-tags">
+                                  <span><i className="fa-solid fa-bolt"></i> {veh.mileage}</span>
+                                </div>
+                              </div>
+
+                              <div className="cardekho-card-body">
+                                <div className="veh-type-tag-small">{veh.type} • {veh.brand}</div>
+                                <h4 className="car-name" title={veh.name}>{veh.name}</h4>
+                                <div className="car-price">{veh.priceRange}</div>
+                                <div className="car-rating-row">
+                                  <span className="rating-pill"><i className="fa-solid fa-star"></i> {veh.rating}</span>
+                                  <span className="seating-pill">{veh.seating || 'Electric Unit'}</span>
+                                </div>
+
+                                <div className="car-features-list">
+                                  {veh.features.slice(0, 3).map((f) => (
+                                    <span key={f} className="feat-chip"><i className="fa-solid fa-check"></i> {f}</span>
+                                  ))}
+                                </div>
+
+                                <div className="cardekho-card-buttons">
+                                  <button
+                                    type="button"
+                                    className="btn-cardekho-offer"
+                                    onClick={() => showToast(`Fast charging station locator opened for ${veh.name}`)}
+                                  >
+                                    View EV Subsidy
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn-cardekho-test-drive"
+                                    onClick={() => showToast(`EV Test Drive Booked for ${veh.name}!`)}
+                                  >
+                                    <i className="fa-solid fa-key"></i> Test Drive
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* SECTION 3: UPCOMING 2025 VEHICLE LAUNCHES */}
+                  {(cardekhoNavCategory === 'all' || cardekhoNavCategory === 'upcoming') && (
+                    <div className="cardekho-catalog-section">
+                      <div className="section-title-line">
+                        <div>
+                          <h3 className="section-title-text">🚀 Upcoming Vehicle Launches 2025</h3>
+                          <p className="section-title-sub">Anticipated cars, bikes and commercial vehicles with expected pricing &amp; reveals</p>
+                        </div>
+                        <span className="section-count-tag tag-upcoming">
+                          {VEHICLE_SHOWCASE_DATA.filter(v => (cardekhoSelectedType === 'All' || v.type === cardekhoSelectedType) && v.status === 'upcoming').length} Launches
+                        </span>
+                      </div>
+
+                      <div className="cardekho-cards-row full-width-grid">
+                        {VEHICLE_SHOWCASE_DATA
+                          .filter((v) => (cardekhoSelectedType === 'All' || v.type === cardekhoSelectedType) && v.status === 'upcoming')
+                          .map((veh) => (
+                            <div key={veh.id} className="cardekho-vehicle-card">
+                              <div className="cardekho-card-media">
+                                <span className="media-badge badge-upcoming">🚀 Upcoming {veh.type}</span>
+                                <img src={veh.image} alt={veh.name} loading="lazy" />
+                                {veh.launchDate && (
+                                  <div className="card-media-tags">
+                                    <span><i className="fa-regular fa-clock"></i> {veh.launchDate}</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="cardekho-card-body">
+                                <div className="veh-type-tag-small">{veh.type} • {veh.brand}</div>
+                                <h4 className="car-name" title={veh.name}>{veh.name}</h4>
+                                <div className="car-price">{veh.priceRange}</div>
+                                <div className="launch-expected-banner">
+                                  <i className="fa-solid fa-calendar-check"></i> {veh.launchDate}
+                                </div>
+
+                                <div className="car-features-list">
+                                  {veh.features.slice(0, 3).map((f) => (
+                                    <span key={f} className="feat-chip"><i className="fa-solid fa-check"></i> {f}</span>
+                                  ))}
+                                </div>
+
+                                <div className="cardekho-card-buttons">
+                                  <button
+                                    type="button"
+                                    className="btn-cardekho-alert"
+                                    onClick={() => showToast(`Alert set for ${veh.name}! We will notify you upon launch.`)}
+                                  >
+                                    <i className="fa-regular fa-bell"></i> Set Launch Alert
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* SECTION 4: CERTIFIED USED VEHICLES (CARS, BIKES, COMMERCIAL) */}
+                  {(cardekhoNavCategory === 'all' || cardekhoNavCategory === 'used') && (
+                    <div className="cardekho-catalog-section">
+                      <div className="section-title-line">
+                        <div>
+                          <h3 className="section-title-text">🛡️ SART Certified Pre-Owned Vehicles (200+ Point Inspection)</h3>
+                          <p className="section-title-sub">Verified pre-owned cars, bikes and commercial trucks with warranty, 7-day money back &amp; free RC transfer</p>
+                        </div>
+                        <span className="section-count-tag tag-used">
+                          {VEHICLE_SHOWCASE_DATA.filter(v => (cardekhoSelectedType === 'All' || v.type === cardekhoSelectedType) && v.status === 'used').length} Verified Units
+                        </span>
+                      </div>
+
+                      <div className="cardekho-cards-row full-width-grid">
+                        {VEHICLE_SHOWCASE_DATA
+                          .filter((v) => (cardekhoSelectedType === 'All' || v.type === cardekhoSelectedType) && v.status === 'used')
+                          .map((veh) => (
+                            <div key={veh.id} className="cardekho-vehicle-card used-card-border">
+                              <div className="cardekho-card-media">
+                                <span className="media-badge badge-used">🛡️ Certified {veh.type}</span>
+                                <img src={veh.image} alt={veh.name} loading="lazy" />
+                                <div className="card-media-tags">
+                                  <span><i className="fa-solid fa-location-dot"></i> {veh.location || selectedFuelCity}</span>
+                                </div>
+                              </div>
+
+                              <div className="cardekho-card-body">
+                                <div className="veh-type-tag-small">{veh.type} • {veh.brand}</div>
+                                <h4 className="car-name" title={veh.name}>{veh.name}</h4>
+                                <div className="car-price">{veh.priceRange}</div>
+
+                                <div className="used-car-stats-grid">
+                                  <span><i className="fa-regular fa-calendar"></i> {veh.year}</span>
+                                  <span><i className="fa-solid fa-road"></i> {veh.kmsDriven}</span>
+                                  <span><i className="fa-solid fa-user"></i> {veh.owners}</span>
+                                  <span><i className="fa-solid fa-gas-pump"></i> {veh.fuel}</span>
+                                </div>
+
+                                <div className="cardekho-card-buttons">
+                                  <button
+                                    type="button"
+                                    className="btn-cardekho-inspection"
+                                    onClick={() => showToast(`Viewing 200-point inspection report for ${veh.name}`)}
+                                  >
+                                    <i className="fa-solid fa-file-shield"></i> Inspection Report
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn-cardekho-test-drive"
+                                    onClick={() => showToast(`Home Test Drive scheduled for ${veh.name}!`)}
+                                  >
+                                    <i className="fa-solid fa-key"></i> Book Test Drive
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* SART POPULAR AUTOMOTIVE BRANDS IN INDIA */}
+                  <div className="cardekho-brands-strip-section">
+                    <h3 className="section-title-text">Popular Manufacturers Across Vehicles in India</h3>
+                    <div className="cardekho-brands-logos-grid">
+                      {[
+                        { name: 'Tata Motors', icon: 'fa-shield-halved', type: 'Cars, Trucks, EV, Buses' },
+                        { name: 'Maruti Suzuki', icon: 'fa-car', type: 'Cars & Vans' },
+                        { name: 'Mahindra', icon: 'fa-truck-pickup', type: 'SUVs & 3-Wheelers' },
+                        { name: 'Hyundai', icon: 'fa-bolt', type: 'Cars & Electric' },
+                        { name: 'Royal Enfield', icon: 'fa-motorcycle', type: 'Cruiser Motorcycles' },
+                        { name: 'Honda', icon: 'fa-road', type: 'Cars, Bikes & Scooters' },
+                        { name: 'Ashok Leyland', icon: 'fa-truck-moving', type: 'Lorries & Commercial Buses' },
+                        { name: 'Bajaj Auto', icon: 'fa-gas-pump', type: '3-Wheeler Auto & Bikes' },
+                        { name: 'Volvo Buses', icon: 'fa-bus', type: 'Luxury Coaches' },
+                        { name: 'Ather & Ola', icon: 'fa-charging-station', type: 'Smart EV 2-Wheelers' },
+                      ].map((brand) => (
+                        <div
+                          key={brand.name}
+                          className="brand-logo-card"
+                          onClick={() => {
+                            setCardekhoBrandFilter(brand.name.split(' ')[0]);
+                            setCardekhoSearchBy('brand');
+                            showToast(`Filtered for ${brand.name} models`);
+                          }}
+                        >
+                          <i className={`fa-solid ${brand.icon}`}></i>
+                          <span className="brand-title">{brand.name}</span>
+                          <span className="brand-sub">{brand.type}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                </div>
+              </>
+            )}
+          </section>
+        )}
+
+        {activeHubTab === 'spare_parts' && (
+          <section className="boodmo-parts-view animate-pop">
+            {/* 1. BOODMO VEHICLE FITMENT SELECTOR BAR: Type, Brand, Model, Year, Fuel */}
+            <div className="boodmo-fitment-selector-card">
+              <div className="fitment-header-row">
+                <div className="fitment-title-wrap">
+                  <i className="fa-solid fa-car-tunnel"></i>
+                  <div>
+                    <h3>Select Your Vehicle for 100% Guaranteed Fitment</h3>
+                    <p>Enter make, model &amp; year to see compatible OEM &amp; OES genuine spare parts &amp; accessories.</p>
+                  </div>
+                </div>
+
+                {appliedVehicleSearch && (
+                  <div className="active-fitment-badge">
+                    <i className="fa-solid fa-circle-check"></i>
+                    <span>Fitment Active: <strong>{appliedVehicleSearch.year} {appliedVehicleSearch.brand} {appliedVehicleSearch.model}</strong></span>
+                  </div>
+                )}
+              </div>
+
+              <div className="boodmo-dropdown-row">
+                {/* 1. Vehicle Type */}
+                <div className="boodmo-select-col">
+                  <label><i className="fa-solid fa-shapes"></i> 1. Vehicle Type</label>
+                  <select
+                    value={selectedVehicleType}
+                    onChange={(e) => handleVehicleTypeChange(e.target.value)}
+                  >
+                    {VEHICLE_TYPES.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 2. Brand / Make */}
+                <div className="boodmo-select-col">
+                  <label><i className="fa-solid fa-copyright"></i> 2. Brand / Make</label>
+                  <select
+                    value={selectedBrand}
+                    onChange={(e) => handleBrandChange(e.target.value)}
+                  >
+                    {availableBrands.map((b) => (
+                      <option key={b} value={b}>{b}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 3. Model */}
+                <div className="boodmo-select-col">
+                  <label><i className="fa-solid fa-car-rear"></i> 3. Model</label>
+                  <select
+                    value={selectedModel}
+                    onChange={(e) => setSelectedModel(e.target.value)}
+                  >
+                    {availableModels.map((m) => (
+                      <option key={m} value={m}>{m}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 4. Year */}
+                <div className="boodmo-select-col">
+                  <label><i className="fa-regular fa-calendar"></i> 4. Year</label>
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                  >
+                    {YEARS_LIST.map((y) => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 5. Variant / Fuel */}
+                <div className="boodmo-select-col">
+                  <label><i className="fa-solid fa-gas-pump"></i> 5. Fuel / Variant</label>
+                  <select
+                    value={selectedFuel}
+                    onChange={(e) => setSelectedFuel(e.target.value)}
+                  >
+                    {['Petrol', 'Diesel', 'CNG', 'Electric', 'Hybrid'].map((f) => (
+                      <option key={f} value={f}>{f}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Apply Button */}
+                <div className="boodmo-btn-col">
+                  <button
+                    type="button"
+                    className="btn-boodmo-find-parts"
+                    onClick={handleApplyVehicleSearch}
+                  >
+                    <i className="fa-solid fa-magnifying-glass"></i>
+                    <span>Find Parts</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. SPLIT LAYOUT: Left Spare Categories Sidebar + Right E-Commerce Grid */}
+            <div className="store-split-layout">
+              {/* LEFT SIDEBAR: Spare Parts & Accessories Categories */}
+              <aside className="store-left-sidebar">
+                <div className="sidebar-card">
+                  <div className="sidebar-header">
+                    <h4><i className="fa-solid fa-boxes-stacked"></i> Spares Directory</h4>
+                    <span className="sidebar-total-badge">{ALL_STORE_PRODUCTS.filter(p => !p.isService).length} Parts</span>
+                  </div>
+
+                  <div className="sidebar-nav-pills">
+                    {[
+                      { id: 'All Spares & Accessories', label: 'All Spares & Accessories', icon: 'fa-globe' },
+                      { id: 'Engine & Fluids', label: 'Engine Oil & Fluids', icon: 'fa-oil-can' },
+                      { id: 'Braking System', label: 'Brakes & Discs', icon: 'fa-circle-dot' },
+                      { id: 'Filters & Plugs', label: 'Filters & Spark Plugs', icon: 'fa-filter' },
+                      { id: 'Batteries & Electricals', label: 'Batteries & Alternator', icon: 'fa-car-battery' },
+                      { id: 'Tyres & Wheels', label: 'Tyres & Wheel Care', icon: 'fa-circle-notch' },
+                      { id: 'Lighting & Bulbs', label: 'LED Headlights & Bulbs', icon: 'fa-lightbulb' },
+                      { id: 'Smart Electronics', label: 'Dashcam & Gadgets', icon: 'fa-video' },
+                      { id: 'Accessories & Car Care', label: 'Accessories & Care Kit', icon: 'fa-spray-can-sparkles' },
+                    ].map((cat) => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        className={`sidebar-nav-item ${partsCategoryFilter === cat.id ? 'active' : ''}`}
+                        onClick={() => setPartsCategoryFilter(cat.id)}
+                      >
+                        <i className={`fa-solid ${cat.icon}`}></i>
+                        <span>{cat.label}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Boodmo Quality Assurance Box */}
+                  <div className="sidebar-trust-box boodmo-trust">
+                    <i className="fa-solid fa-barcode"></i>
+                    <div>
+                      <strong>OEM / OES Verified</strong>
+                      <p>Every product includes genuine part number certification &amp; 10-day replacement.</p>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+
+              {/* RIGHT CONTENT: Products Grid (Boodmo / Autoduken E-Commerce style) */}
+              <main className="store-right-content">
+                <div className="content-top-status-bar">
+                  <div>
+                    <h3 className="content-heading">
+                      {appliedVehicleSearch
+                        ? `Guaranteed Fitment for ${appliedVehicleSearch.brand} ${appliedVehicleSearch.model} (${appliedVehicleSearch.year})`
+                        : 'Universal Genuine Spare Parts & Accessories'}
+                    </h3>
+                    <p className="content-subtext">
+                      Showing verified replacement parts, synthetic lubricants, performance accessories &amp; fast doorstep dispatch.
+                    </p>
+                  </div>
+
+                  {/* Search Bar for Spares */}
+                  <div className="catalog-search-wrap parts-search-box">
+                    <i className="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input
+                      type="search"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      placeholder="Search part name, part number, brand..."
+                      className="catalog-search-input"
+                    />
+                    {search && (
+                      <button
+                        type="button"
+                        className="btn-search-clear"
+                        onClick={() => setSearch('')}
+                      >
+                        <i className="fa-solid fa-xmark"></i>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Product E-Commerce Cards Grid */}
+                <div className="boodmo-products-grid">
+                  {ALL_STORE_PRODUCTS
+                    .filter((item) => !item.isService)
+                    .filter((item) => {
+                      if (partsCategoryFilter === 'All Spares & Accessories') return true;
+                      const blob = `${item.name} ${item.desc} ${item.section} ${item.category}`.toLowerCase();
+                      if (partsCategoryFilter === 'Engine & Fluids') return blob.includes('oil') || blob.includes('fluid') || blob.includes('synthetic');
+                      if (partsCategoryFilter === 'Braking System') return blob.includes('brake') || blob.includes('disc') || blob.includes('pad');
+                      if (partsCategoryFilter === 'Filters & Plugs') return blob.includes('filter') || blob.includes('plug');
+                      if (partsCategoryFilter === 'Batteries & Electricals') return blob.includes('battery') || blob.includes('starter') || blob.includes('chamber');
+                      if (partsCategoryFilter === 'Tyres & Wheels') return blob.includes('tyre') || blob.includes('puncture') || blob.includes('tpms');
+                      if (partsCategoryFilter === 'Lighting & Bulbs') return blob.includes('led') || blob.includes('light') || blob.includes('bulb');
+                      if (partsCategoryFilter === 'Smart Electronics') return blob.includes('dashcam') || blob.includes('gps') || blob.includes('charger') || blob.includes('phone mount');
+                      if (partsCategoryFilter === 'Accessories & Car Care') return blob.includes('wax') || blob.includes('coating') || blob.includes('wiper') || blob.includes('horn');
+                      return true;
+                    })
+                    .filter((item) => {
+                      if (!search.trim()) return true;
+                      const q = search.trim().toLowerCase();
+                      return `${item.name} ${item.desc} ${item.vehicle} ${item.compatibleWith || ''}`.toLowerCase().includes(q);
+                    })
+                    .map((product) => (
+                      <div
+                        key={product.id}
+                        className="boodmo-product-card cursor-pointer"
+                        onClick={() => setSelectedProductModal(product)}
+                      >
+                        <div className="boodmo-card-media">
+                          {product.badge && (
+                            <span className="boodmo-badge-ribbon">{product.badge}</span>
+                          )}
+                          <button
+                            type="button"
+                            className={`btn-card-wishlist ${wishlist.includes(product.id) ? 'active' : ''}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleWishlist(product.id);
+                              showToast(
+                                wishlist.includes(product.id)
+                                  ? `Removed from Wishlist: ${product.name}`
+                                  : `Added to Wishlist: ${product.name}`
+                              );
+                            }}
+                          >
+                            <i className={wishlist.includes(product.id) ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
+                          </button>
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            loading="lazy"
+                            onError={(e) => {
+                              e.currentTarget.src = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&q=80';
+                            }}
+                          />
+                          <div className="boodmo-fitment-indicator">
+                            <i className="fa-solid fa-shield-check"></i>
+                            <span>Compatible: {product.compatibleWith || product.vehicle || 'Universal'}</span>
+                          </div>
+                        </div>
+
+                        <div className="boodmo-card-content">
+                          <div className="boodmo-rating-row">
+                            <div className="rating-badge">
+                              <i className="fa-solid fa-star"></i> {product.rating || 4.8} <span>({product.reviewsCount || 150})</span>
+                            </div>
+                            <span className="delivery-time-pill">
+                              <i className="fa-solid fa-truck-fast"></i> {product.deliveryTime || 'In 24-48 Hrs'}
+                            </span>
+                          </div>
+
+                          <h4 className="boodmo-product-title" title={product.name}>{product.name}</h4>
+                          <p className="boodmo-product-desc">{product.desc}</p>
+
+                          <div className="boodmo-price-row">
+                            <div className="price-info">
+                              <span className="current-price">{formatPrice(product.price)}</span>
+                              {product.originalPrice && (
+                                <span className="original-price">{formatPrice(product.originalPrice)}</span>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              className="btn-boodmo-add-cart"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddToCart(product);
+                              }}
+                            >
+                              <i className="fa-solid fa-cart-shopping"></i>
+                              <span>Add</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </main>
+            </div>
+          </section>
+        )}
+
+        {/* ================================================================== */}
+        {/* TAB 3: MECHANIC & SERVICE PACKAGES (GoMechanic Style)               */}
+        {/* ================================================================== */}
+        {activeHubTab === 'mechanic_service' && (
+          <section className="gomechanic-hub-view animate-pop">
+            {/* GoMechanic Service Guarantee Banner */}
+            <div className="gomechanic-hero-banner">
+              <div className="gomechanic-banner-text">
+                <span className="gm-badge"><i className="fa-solid fa-wrench"></i> GOMECHANIC CERTIFIED AUTO REPAIR</span>
+                <h2>Expert Doorstep &amp; Workshop Car &amp; Bike Services</h2>
+                <p>Free doorstep pick-up &amp; drop, genuine OEM spares, 1000 km warranty &amp; live service updates on SART.</p>
+              </div>
+
+              <div className="gomechanic-perks-row">
+                <div className="gm-perk"><i className="fa-solid fa-truck-pickup"></i><span>Free Pick-up &amp; Drop</span></div>
+                <div className="gm-perk"><i className="fa-solid fa-shield-halved"></i><span>1000 km / 1 Month Warranty</span></div>
+                <div className="gm-perk"><i className="fa-solid fa-user-check"></i><span>Dedicated Service Buddy</span></div>
+                <div className="gm-perk"><i className="fa-solid fa-file-invoice-dollar"></i><span>Up to 40% Cheaper than Dealerships</span></div>
+              </div>
+            </div>
+
+            {/* Split Layout: Left Service Categories Sidebar + Right Service Packages Grid */}
+            <div className="store-split-layout">
+              {/* LEFT SIDEBAR: GoMechanic Service Categories */}
+              <aside className="store-left-sidebar">
+                <div className="sidebar-card">
+                  <div className="sidebar-header">
+                    <h4><i className="fa-solid fa-screwdriver-wrench"></i> Service Packages</h4>
+                    <span className="sidebar-total-badge">{ALL_STORE_PRODUCTS.filter(p => p.isService).length} Packages</span>
+                  </div>
+
+                  <div className="sidebar-nav-pills">
+                    {[
+                      { id: 'All Services', label: 'All Workshop Services', icon: 'fa-globe' },
+                      { id: 'Periodic Services', label: 'Periodic Maintenance', icon: 'fa-oil-can' },
+                      { id: 'AC Service & Repair', label: 'AC Deep Clean & Gas', icon: 'fa-snowflake' },
+                      { id: 'Brakes & Clutch', label: 'Brakes & Clutch Overhaul', icon: 'fa-circle-dot' },
+                      { id: 'Tyres & Wheel Care', label: 'Tyres & Wheel Alignment', icon: 'fa-circle-notch' },
+                      { id: 'Cleaning & Detailing', label: 'Car Spa & Ceramic Polish', icon: 'fa-sparkles' },
+                      { id: 'Custom Tuning & Mods', label: 'ECU Remap & Modifications', icon: 'fa-wand-magic-sparkles' },
+                      { id: 'Authorized Workshop', label: 'Authorized Center Stamp', icon: 'fa-building-shield' },
+                      { id: 'Heavy Commercial Fleet', label: 'Heavy Truck & Bus Fleet', icon: 'fa-truck-moving' },
+                    ].map((srv) => (
+                      <button
+                        key={srv.id}
+                        type="button"
+                        className={`sidebar-nav-item ${mechanicCategoryFilter === srv.id ? 'active' : ''}`}
+                        onClick={() => setMechanicCategoryFilter(srv.id)}
+                      >
+                        <i className={`fa-solid ${srv.icon}`}></i>
+                        <span>{srv.label}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* GoMechanic Live Support Box */}
+                  <div className="sidebar-trust-box gomechanic-trust">
+                    <i className="fa-solid fa-headset"></i>
+                    <div>
+                      <strong>Need Advice on Repairs?</strong>
+                      <p>Talk to our master automotive mechanics for instant diagnosis &amp; upfront pricing.</p>
+                      <button
+                        type="button"
+                        className="btn-call-mechanic-sidebar"
+                        onClick={() => showToast('Calling SART Mechanic Advisor Hotline (1800-SART-TECH)...')}
+                      >
+                        <i className="fa-solid fa-phone"></i> Call Service Advisor
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+
+              {/* RIGHT CONTENT: GoMechanic Service Package Cards */}
+              <main className="store-right-content">
+                <div className="content-top-status-bar">
+                  <div>
+                    <h3 className="content-heading">Select Vehicle Service or Custom Repair Package</h3>
+                    <p className="content-subtext">
+                      All packages include multi-point vehicle safety health audit, transparent pricing, and contactless handover.
+                    </p>
+                  </div>
+
+                  {/* Vehicle Context Tag */}
+                  <div className="gomechanic-active-veh-pill">
+                    <i className="fa-solid fa-car"></i>
+                    <span>Service For: <strong>{selectedBrand} {selectedModel} ({selectedYear})</strong></span>
+                  </div>
+                </div>
+
+                <div className="gomechanic-packages-grid">
+                  {ALL_STORE_PRODUCTS
+                    .filter((item) => item.isService)
+                    .filter((item) => {
+                      if (mechanicCategoryFilter === 'All Services') return true;
+                      const blob = `${item.name} ${item.desc} ${item.section} ${item.category}`.toLowerCase();
+                      if (mechanicCategoryFilter === 'Periodic Services') return blob.includes('periodic') || blob.includes('engine oil') || blob.includes('tune-up');
+                      if (mechanicCategoryFilter === 'AC Service & Repair') return blob.includes('ac') || blob.includes('gas') || blob.includes('cooling');
+                      if (mechanicCategoryFilter === 'Brakes & Clutch') return blob.includes('brake') || blob.includes('caliper') || blob.includes('clutch');
+                      if (mechanicCategoryFilter === 'Tyres & Wheel Care') return blob.includes('tyre') || blob.includes('wheel') || blob.includes('puncture');
+                      if (mechanicCategoryFilter === 'Cleaning & Detailing') return blob.includes('ceramic') || blob.includes('wash') || blob.includes('polish') || blob.includes('clean');
+                      if (mechanicCategoryFilter === 'Custom Tuning & Mods') return blob.includes('remap') || blob.includes('wrap') || blob.includes('exhaust') || blob.includes('modification') || blob.includes('ambient');
+                      if (mechanicCategoryFilter === 'Authorized Workshop') return blob.includes('authorized') || blob.includes('service center');
+                      if (mechanicCategoryFilter === 'Heavy Commercial Fleet') return blob.includes('lorry') || blob.includes('commercial') || blob.includes('fleet') || blob.includes('auto');
+                      return true;
+                    })
+                    .map((service) => {
+                      const includesList = service.includes || [];
+                      const chosenAddOns = selectedEquipment[service.id] ?? [];
+                      const totalCost = getProductTotalPrice(service);
+
+                      return (
+                        <div
+                          key={service.id}
+                          className="gomechanic-card cursor-pointer"
+                          onClick={() => setSelectedProductModal(service)}
+                        >
+                          <div className="gm-card-header">
+                            <div className="gm-header-left">
+                              <span className="gm-duration-tag"><i className="fa-regular fa-clock"></i> {service.duration || '2-3 Hrs'}</span>
+                              {service.warranty && (
+                                <span className="gm-warranty-tag"><i className="fa-solid fa-shield"></i> {service.warranty}</span>
+                              )}
+                            </div>
+                            <span className="gm-pickup-pill"><i className="fa-solid fa-truck-pickup"></i> Free Pick-up</span>
+                          </div>
+
+                          <div className="gm-card-body">
+                            <div className="gm-title-media-row">
+                              <div className="gm-info-col">
+                                <h4 className="gm-service-name">{service.name}</h4>
+                                <p className="gm-service-desc">{service.desc}</p>
+                              </div>
+                              <img src={service.image} alt={service.name} className="gm-thumb" />
+                            </div>
+
+                            {/* Service Inclusions Checklist */}
+                            {includesList.length > 0 && (
+                              <div className="gm-inclusions-box">
+                                <div className="inclusions-title"><i className="fa-solid fa-clipboard-check"></i> What's Included:</div>
+                                <div className="inclusions-grid">
+                                  {includesList.slice(0, 4).map((inc, i) => (
+                                    <div key={i} className="inclusion-item">
+                                      <i className="fa-solid fa-check"></i>
+                                      <span>{inc}</span>
+                                    </div>
+                                  ))}
+                                  {includesList.length > 4 && (
+                                    <span className="inclusions-more">+{includesList.length - 4} more inspection points</span>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Footer Price & Booking CTA */}
+                            <div className="gm-card-footer">
+                              <div className="gm-pricing">
+                                <span className="gm-cost">{formatPrice(totalCost)}</span>
+                                {service.originalPrice && (
+                                  <span className="gm-original-cost">{formatPrice(service.originalPrice)}</span>
+                                )}
+                              </div>
+
+                              <button
+                                type="button"
+                                className="btn-book-service"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToCart(service);
+                                }}
+                              >
+                                <i className="fa-solid fa-calendar-check"></i>
+                                <span>Book Service</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </main>
+            </div>
+          </section>
+        )}
+
+        {/* HUB TAB 3: COMPARE VEHICLES (Side-by-Side CarWale Style)           */}
+        {/* ------------------------------------------------------------------ */}
+                {/* ------------------------------------------------------------------ */}
+        {/* HUB TAB 3: COMPARE VEHICLES (Side-by-Side CarWale Style)           */}
+        {/* ------------------------------------------------------------------ */}
+        {activeHubTab === 'compare_vehicles' && (
+          <section className="hub-showcase-view animate-pop">
+            <div className="hub-view-header">
+              <div className="view-title-wrap">
+                <span className="hub-badge-flair">
+                  <i className="fa-solid fa-code-compare"></i> SIDE-BY-SIDE ALL-VEHICLE COMPARISON
+                </span>
+                <h2>Compare Specs, Mileage, Safety, EMI &amp; Price</h2>
+                <p>Make smart buying decisions. Choose any 2 vehicles to compare engine power, safety ratings, mileage, and ownership cost.</p>
+              </div>
+            </div>
+
+            {/* QUICK BATTLE PRESETS */}
+            <div className="compare-quick-battles-bar">
+              <span className="battles-label"><i className="fa-solid fa-fire"></i> Popular Comparisons:</span>
+              <div className="battles-scroll">
+                {[
+                  { label: 'Creta vs Seltos', vA: 'comp-creta', vB: 'comp-seltos', type: 'Car' },
+                  { label: 'Nexon vs Thar Roxx', vA: 'comp-nexon', vB: 'comp-thar', type: 'Car' },
+                  { label: 'Curvv EV vs Creta', vA: 'comp-curvv', vB: 'comp-creta', type: 'EV' },
+                  { label: 'Classic 350 vs Hunter 350', vA: 'comp-classic', vB: 'comp-hunter', type: 'Bike' },
+                  { label: 'Tata Signa 2823 vs Ashok 1920', vA: 'comp-signa', vB: 'comp-ashok', type: 'Truck' },
+                ].map((b) => (
+                  <button
+                    key={b.label}
+                    type="button"
+                    className="quick-battle-btn"
+                    onClick={() => {
+                      const foundA = COMPARISON_VEHICLES.find(v => v.id === b.vA);
+                      const foundB = COMPARISON_VEHICLES.find(v => v.id === b.vB);
+                      if (foundA) setCompareVehicleA(foundA);
+                      if (foundB) setCompareVehicleB(foundB);
+                      showToast(`Loaded comparison: ${b.label}`);
+                    }}
+                  >
+                    <span>{b.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Comparison Selectors Row */}
+            <div className="compare-selectors-bar">
+              <div className="compare-select-col">
+                <div className="compare-card-head">
+                  <img src={compareVehicleA.image} alt={compareVehicleA.name} className="comp-head-img" />
+                  <div className="comp-head-meta">
+                    <span className="comp-brand-badge">{compareVehicleA.brand}</span>
+                    <h3>{compareVehicleA.name}</h3>
+                    <strong className="comp-price-head">{compareVehicleA.price}</strong>
+                  </div>
+                </div>
+                <div className="select-wrapper">
+                  <label><i className="fa-solid fa-car"></i> Select Vehicle A:</label>
+                  <select
+                    value={compareVehicleA.id}
+                    onChange={(e) => {
+                      const found = COMPARISON_VEHICLES.find(v => v.id === e.target.value);
+                      if (found) setCompareVehicleA(found);
+                    }}
+                  >
+                    {COMPARISON_VEHICLES.map((v) => (
+                      <option key={v.id} value={v.id}>{v.name} ({v.brand})</option>
+                    ))}
+                  </select>
+                  <i className="fa-solid fa-chevron-down select-arrow"></i>
+                </div>
+              </div>
+
+              <div className="compare-vs-divider">
+                <button
+                  type="button"
+                  className="btn-swap-vehicles"
+                  title="Swap Vehicles"
+                  onClick={() => {
+                    const temp = compareVehicleA;
+                    setCompareVehicleA(compareVehicleB);
+                    setCompareVehicleB(temp);
+                    showToast('Swapped Vehicle A and Vehicle B');
+                  }}
+                >
+                  <i className="fa-solid fa-arrow-right-arrow-left"></i>
+                  <span>SWAP</span>
+                </button>
+              </div>
+
+              <div className="compare-select-col">
+                <div className="compare-card-head">
+                  <img src={compareVehicleB.image} alt={compareVehicleB.name} className="comp-head-img" />
+                  <div className="comp-head-meta">
+                    <span className="comp-brand-badge">{compareVehicleB.brand}</span>
+                    <h3>{compareVehicleB.name}</h3>
+                    <strong className="comp-price-head">{compareVehicleB.price}</strong>
+                  </div>
+                </div>
+                <div className="select-wrapper">
+                  <label><i className="fa-solid fa-car"></i> Select Vehicle B:</label>
+                  <select
+                    value={compareVehicleB.id}
+                    onChange={(e) => {
+                      const found = COMPARISON_VEHICLES.find(v => v.id === e.target.value);
+                      if (found) setCompareVehicleB(found);
+                    }}
+                  >
+                    {COMPARISON_VEHICLES.map((v) => (
+                      <option key={v.id} value={v.id}>{v.name} ({v.brand})</option>
+                    ))}
+                  </select>
+                  <i className="fa-solid fa-chevron-down select-arrow"></i>
+                </div>
+              </div>
+            </div>
+
+            {/* Side-by-Side Spec Comparison Table */}
+            <div className="comparison-table-wrap">
+              <table className="comparison-table">
+                <thead>
+                  <tr>
+                    <th>Feature &amp; Metric</th>
+                    <th>{compareVehicleA.name}</th>
+                    <th>{compareVehicleB.name}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="table-group-header">
+                    <td colSpan={3}><i className="fa-solid fa-tag"></i> 1. Pricing &amp; Value</td>
+                  </tr>
+                  <tr>
+                    <td className="spec-label"><i className="fa-solid fa-indian-rupee-sign"></i> Price Range</td>
+                    <td><strong className="highlight-metric">{compareVehicleA.price}</strong></td>
+                    <td><strong className="highlight-metric">{compareVehicleB.price}</strong></td>
+                  </tr>
+                  <tr>
+                    <td className="spec-label"><i className="fa-solid fa-certificate"></i> Warranty</td>
+                    <td>{compareVehicleA.warranty}</td>
+                    <td>{compareVehicleB.warranty}</td>
+                  </tr>
+
+                  <tr className="table-group-header">
+                    <td colSpan={3}><i className="fa-solid fa-gears"></i> 2. Engine &amp; Performance</td>
+                  </tr>
+                  <tr>
+                    <td className="spec-label"><i className="fa-solid fa-gas-pump"></i> Engine / Powertrain</td>
+                    <td>{compareVehicleA.engine}</td>
+                    <td>{compareVehicleB.engine}</td>
+                  </tr>
+                  <tr>
+                    <td className="spec-label"><i className="fa-solid fa-bolt"></i> Max Power &amp; Torque</td>
+                    <td><strong className="highlight-metric">{compareVehicleA.power}</strong></td>
+                    <td><strong className="highlight-metric">{compareVehicleB.power}</strong></td>
+                  </tr>
+                  <tr>
+                    <td className="spec-label"><i className="fa-solid fa-gauge"></i> Fuel Efficiency / Certified Range</td>
+                    <td><span className="mileage-badge">{compareVehicleA.mileage}</span></td>
+                    <td><span className="mileage-badge">{compareVehicleB.mileage}</span></td>
+                  </tr>
+
+                  <tr className="table-group-header">
+                    <td colSpan={3}><i className="fa-solid fa-shield-halved"></i> 3. Safety, Airbags &amp; Body</td>
+                  </tr>
+                  <tr>
+                    <td className="spec-label"><i className="fa-solid fa-star"></i> Crash Test Rating</td>
+                    <td><span className="safety-badge"><i className="fa-solid fa-star"></i> {compareVehicleA.safety}</span></td>
+                    <td><span className="safety-badge"><i className="fa-solid fa-star"></i> {compareVehicleB.safety}</span></td>
+                  </tr>
+                  <tr>
+                    <td className="spec-label"><i className="fa-solid fa-shield"></i> Airbags &amp; Driver Assist</td>
+                    <td>{compareVehicleA.airbags}</td>
+                    <td>{compareVehicleB.airbags}</td>
+                  </tr>
+                  <tr>
+                    <td className="spec-label"><i className="fa-solid fa-users"></i> Body &amp; Seating Layout</td>
+                    <td>{compareVehicleA.seating}</td>
+                    <td>{compareVehicleB.seating}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* SART Comparison Verdict */}
+            <div className="compare-verdict-card">
+              <div className="verdict-icon">
+                <i className="fa-solid fa-award"></i>
+              </div>
+              <div className="verdict-content">
+                <h4>SART Intelligent Buying Recommendation</h4>
+                <p>
+                  <strong>{compareVehicleA.name}</strong> delivers superior powertrain options and warranty coverage, 
+                  while <strong>{compareVehicleB.name}</strong> excels in pricing competitiveness and standard safety features.
+                  Choose {compareVehicleA.name} for highway driving performance, or {compareVehicleB.name} for city commute and lower total ownership costs.
+                </p>
+                <div className="verdict-actions">
+                  <button
+                    type="button"
+                    className="btn-verdict-cta"
+                    onClick={() => {
+                      setActiveHubTab('finance_insurance');
+                      showToast(`Opened EMI calculator for ${compareVehicleA.name}`);
+                    }}
+                  >
+                    <i className="fa-solid fa-calculator"></i> Check EMI for {compareVehicleA.name}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-verdict-cta outline"
+                    onClick={() => {
+                      setActiveHubTab('buy_sell');
+                      showToast(`Browsing offers for ${compareVehicleB.name}`);
+                    }}
+                  >
+                    <i className="fa-solid fa-car"></i> View Offers for {compareVehicleB.name}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ------------------------------------------------------------------ */}
+        {/* HUB TAB 4: EV CHARGING & LIVE FUEL PRICES (USER IMAGE 2 BASED)     */}
+        {/* ------------------------------------------------------------------ */}
+        {activeHubTab === 'ev_fuel_stations' && (
+          <section className="hub-showcase-view animate-pop">
+            <div className="hub-view-header">
+              <div className="view-title-wrap">
+                <span className="hub-badge-flair">
+                  <i className="fa-solid fa-charging-station"></i> LIVE AUTOMOTIVE ENERGY &amp; PUMP FINDER
+                </span>
+                <h2>Daily Fuel Rates &amp; Nearby Fuel &amp; EV Stations</h2>
+                <p>Location-based directory of verified Petrol, Diesel, CNG pumps and high-speed EV DC charging hubs.</p>
+              </div>
+
+              {/* City Chooser for Fuel Rates & Pumps */}
+              <div className="fuel-city-selector">
+                <span className="city-label"><i className="fa-solid fa-location-dot"></i> Select City / State:</span>
+                <select
+                  value={selectedFuelCity}
+                  onChange={(e) => {
+                    setSelectedFuelCity(e.target.value);
+                    showToast(`Updated stations & fuel prices for ${e.target.value}`);
+                  }}
+                  className="city-select"
+                >
+                  {LIVE_FUEL_PRICES.map((p) => (
+                    <option key={p.city} value={p.city}>{p.city}</option>
+                  ))}
+                  <option value="New Delhi">New Delhi</option>
+                  <option value="Mumbai">Mumbai</option>
+                </select>
+                <button
+                  type="button"
+                  className="btn-auto-detect-gps"
+                  onClick={() => {
+                    setSelectedFuelCity('New Delhi');
+                    showToast('GPS Auto-detected location: New Delhi (Dwarka / South Delhi)');
+                  }}
+                >
+                  <i className="fa-solid fa-crosshairs"></i> Auto-Detect GPS
+                </button>
+              </div>
+            </div>
+
+            {/* Live Fuel Price Ticker Cards */}
+            {(() => {
+              const currentPrice = LIVE_FUEL_PRICES.find((p) => p.city === selectedFuelCity) || {
+                city: selectedFuelCity,
+                petrol: selectedFuelCity === 'New Delhi' ? 94.72 : 100.75,
+                diesel: selectedFuelCity === 'New Delhi' ? 87.62 : 92.34,
+                cng: selectedFuelCity === 'New Delhi' ? 75.09 : 85.50,
+                updated: 'Today 06:00 AM'
+              };
+              return (
+                <div className="fuel-rates-grid">
+                  <div className="fuel-rate-card petrol">
+                    <div className="fuel-card-top">
+                      <i className="fa-solid fa-gas-pump"></i>
+                      <span>Petrol Rate ({currentPrice.city})</span>
+                    </div>
+                    <div className="fuel-price-val">₹{currentPrice.petrol.toFixed(2)} <span>/ Litre</span></div>
+                    <div className="fuel-update-text"><i className="fa-solid fa-clock"></i> Updated: {currentPrice.updated} • Steady</div>
+                  </div>
+
+                  <div className="fuel-rate-card diesel">
+                    <div className="fuel-card-top">
+                      <i className="fa-solid fa-oil-can"></i>
+                      <span>Diesel Rate ({currentPrice.city})</span>
+                    </div>
+                    <div className="fuel-price-val">₹{currentPrice.diesel.toFixed(2)} <span>/ Litre</span></div>
+                    <div className="fuel-update-text"><i className="fa-solid fa-clock"></i> Updated: {currentPrice.updated} • No Change</div>
+                  </div>
+
+                  <div className="fuel-rate-card cng">
+                    <div className="fuel-card-top">
+                      <i className="fa-solid fa-fire-flame-simple"></i>
+                      <span>Auto CNG Rate ({currentPrice.city})</span>
+                    </div>
+                    <div className="fuel-price-val">₹{currentPrice.cng.toFixed(2)} <span>/ Kg</span></div>
+                    <div className="fuel-update-text"><i className="fa-solid fa-clock"></i> Updated: {currentPrice.updated} • Subsidized</div>
+                  </div>
+
+                  <div className="fuel-rate-card ev-energy">
+                    <div className="fuel-card-top">
+                      <i className="fa-solid fa-bolt"></i>
+                      <span>EV Public DC Rate</span>
+                    </div>
+                    <div className="fuel-price-val">₹18.50 <span>/ kWh</span></div>
+                    <div className="fuel-update-text"><i className="fa-solid fa-plug"></i> 60kW - 150kW Fast Charging</div>
+                  </div>
                 </div>
               );
-            })}
-          </div>
+            })()}
 
-          {filteredCatalog.length === 0 && (
-            <div className="catalog-empty-state">
-              <i className="fa-solid fa-magnifying-glass"></i>
-              <h3>No products or services found</h3>
-              <p>Try searching with another keyword or change your category filter.</p>
-              <button
-                type="button"
-                className="btn-reset-filter"
-                onClick={() => {
-                  setSearch('');
-                  setActiveCategory('All');
-                }}
-              >
-                Reset Search Filters
-              </button>
+            {/* LOCATION-BASED FUEL & EV STATIONS SECTION (MATCHING USER'S IMAGE 2) */}
+            <div className="location-stations-container">
+              <div className="stations-filter-row">
+                <div className="stations-title-block">
+                  <h3><i className="fa-solid fa-map-location-dot"></i> Verified Fuel &amp; EV Stations Near {selectedFuelCity}</h3>
+                  <span className="stations-count-pill">
+                    {LOCATION_BASED_STATIONS.filter(s => selectedFuelCity === 'All Cities' || s.city === selectedFuelCity || (selectedFuelCity === 'New Delhi' && s.city === 'New Delhi')).length} Stations Located
+                  </span>
+                </div>
+
+                <div className="stations-type-pills">
+                  {[
+                    { id: 'all', label: 'All Stations' },
+                    { id: 'fuel', label: 'Petrol & Diesel' },
+                    { id: 'cng', label: 'CNG Available' },
+                    { id: 'ev', label: 'EV Fast Charging' },
+                  ].map((f) => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      className={`st-filter-btn ${stationFilterCategory === f.id ? 'active' : ''}`}
+                      onClick={() => setStationFilterCategory(f.id)}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* CARD GRID MATCHING USER IMAGE 2 */}
+              <div className="image2-stations-grid">
+                {LOCATION_BASED_STATIONS
+                  .filter((st) => {
+                    const matchesCity = selectedFuelCity === 'All Cities' || st.city === selectedFuelCity || (selectedFuelCity !== 'New Delhi' && selectedFuelCity !== 'Chennai' && selectedFuelCity !== 'Bangalore');
+                    if (stationFilterCategory === 'fuel' && st.type === 'ev') return false;
+                    if (stationFilterCategory === 'ev' && st.type === 'fuel') return false;
+                    if (stationFilterCategory === 'cng' && !st.fuels.some(fuel => fuel.toLowerCase().includes('cng'))) return false;
+                    return matchesCity;
+                  })
+                  .map((station) => (
+                    <div key={station.id} className="image2-station-card">
+                      <div className="st-card-content">
+                        <h4 className="st-card-title">{station.name}</h4>
+                        <p className="st-card-address">{station.address}</p>
+                        
+                        <div className="st-status-timing">
+                          <span className="st-status-green">Open now</span>
+                          <span className="st-timing-sep">•</span>
+                          <span className="st-timing-text">06:00 AM - 10:00 PM</span>
+                        </div>
+
+                        <div className="st-phone-row">
+                          <i className="fa-solid fa-phone"></i>
+                          <span>{station.phone}</span>
+                        </div>
+
+                        <div className="st-fuels-checks">
+                          {station.fuels.map((fuel) => (
+                            <span key={fuel} className="st-fuel-check-item">
+                              <i className="fa-solid fa-check"></i> {fuel}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="st-card-footer">
+                        <button
+                          type="button"
+                          className="btn-get-direction"
+                          onClick={() => {
+                            showToast(`Opening Google Maps directions for: ${station.name}...`);
+                          }}
+                        >
+                          <i className="fa-solid fa-diamond-turn-right"></i>
+                          <span>Get Direction</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
             </div>
-          )}
-        </section>
+          </section>
+        )}
+
+        {/* ------------------------------------------------------------------ */}
+        {/* HUB TAB 5: FINANCE & INSURANCE (USER IMAGE 3 BASED)                */}
+        {/* ------------------------------------------------------------------ */}
+        {activeHubTab === 'finance_insurance' && (
+          <section className="hub-showcase-view cardekho-emi-hub-view animate-pop">
+            {/* Top Breadcrumb */}
+            <div className="cd-emi-breadcrumb">
+              <span>SIERRA</span>
+              <span className="bc-sep">/</span>
+              <span className="bc-active">SIERRA EMI</span>
+            </div>
+
+            {/* TOP VEHICLE HERO CARD (IMAGE 3 BASED) */}
+            <div className="cd-vehicle-hero-card">
+              <div className="cd-hero-left">
+                <img
+                  src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80"
+                  alt="Tata Sierra SUV"
+                  className="cd-hero-car-img"
+                />
+              </div>
+              <div className="cd-hero-info">
+                <div className="cd-hero-title-row">
+                  <h2>Tata Sierra EMI Calculator</h2>
+                  <button type="button" className="btn-wish-heart" title="Bookmark">
+                    <i className="fa-regular fa-heart"></i>
+                  </button>
+                </div>
+                <p className="cd-hero-desc">
+                  Tata Sierra EMI starts at ₹33,121 per month for a tenure of 60 months @ 9.8% for a loan 
+                  amount of ₹13.11 Lakh. The EMI Calculator tool on SART gives a detailed break-up of... <span className="read-more-link">Read More</span>
+                </p>
+                <div className="cd-hero-rating-row">
+                  <span className="rating-star-tag">4.7 <i className="fa-solid fa-star"></i></span>
+                  <span className="review-count-txt">209 Reviews</span>
+                </div>
+                <div className="cd-hero-price-row">
+                  <strong className="cd-hero-price">₹11.49 - 21.59 Lakh*</strong>
+                  <span className="cd-emi-starts">EMI starts @ ₹33,121</span>
+                </div>
+                <button
+                  type="button"
+                  className="btn-cd-orange-cta"
+                  onClick={() => showToast('Festival discount offers applied for Tata Sierra!')}
+                >
+                  Get Navaratri Offers
+                </button>
+              </div>
+            </div>
+
+            {/* 2-COLUMN MAIN CONTENT (LEFT CALCULATOR + RIGHT SIDEBAR) */}
+            <div className="cd-emi-layout-grid">
+              {/* LEFT COLUMN: CALCULATOR, ALTERNATIVES, USED CARS, REVIEWS */}
+              <div className="cd-emi-main-col">
+                {/* 1. CALCULATE YOUR LOAN EMI CARD */}
+                <div className="cd-calculator-card">
+                  <h3 className="cd-card-heading">Calculate your Loan EMI for Sierra</h3>
+
+                  {/* 3 Dropdowns */}
+                  <div className="cd-dropdowns-row">
+                    <div className="cd-dropdown-wrap">
+                      <select value={emiCarBrand} onChange={(e) => setEmiCarBrand(e.target.value)}>
+                        <option value="Tata">Tata</option>
+                        <option value="Mahindra">Mahindra</option>
+                        <option value="Hyundai">Hyundai</option>
+                        <option value="Kia">Kia</option>
+                      </select>
+                      <i className="fa-solid fa-chevron-down dd-arrow"></i>
+                    </div>
+
+                    <div className="cd-dropdown-wrap">
+                      <select value={emiCarModel} onChange={(e) => setEmiCarModel(e.target.value)}>
+                        <option value="Sierra">Sierra</option>
+                        <option value="Curvv">Curvv</option>
+                        <option value="Harrier">Harrier</option>
+                        <option value="Nexon">Nexon</option>
+                      </select>
+                      <i className="fa-solid fa-chevron-down dd-arrow"></i>
+                    </div>
+
+                    <div className="cd-dropdown-wrap">
+                      <select value={emiCarVariant} onChange={(e) => setEmiCarVariant(e.target.value)}>
+                        <option value="Smart Plus (Petrol) 14.34 Lakh">Smart Plus (Petrol) 14.34 Lakh</option>
+                        <option value="Adventure Plus (Petrol) 17.48 Lakh">Adventure Plus (Petrol) 17.48 Lakh</option>
+                        <option value="Accomplished Plus (Diesel) 21.59 Lakh">Accomplished Plus (Diesel) 21.59 Lakh</option>
+                      </select>
+                      <i className="fa-solid fa-chevron-down dd-arrow"></i>
+                    </div>
+                  </div>
+
+                  {/* On-Road Price in City */}
+                  <div className="cd-price-line">
+                    <span className="price-lbl">On-Road Price in Bangalore</span>
+                    <strong className="price-val">₹{emiOnRoadPrice.toLocaleString('en-IN')}</strong>
+                  </div>
+
+                  {/* Down Payment Slider */}
+                  <div className="cd-slider-block">
+                    <div className="slider-label-line">
+                      <span>Down Payment</span>
+                      <strong>₹{emiDownPayment.toLocaleString('en-IN')}</strong>
+                    </div>
+                    <input
+                      type="range"
+                      min={70000}
+                      max={emiOnRoadPrice * 0.7}
+                      step={10000}
+                      value={emiDownPayment}
+                      onChange={(e) => setEmiDownPayment(Number(e.target.value))}
+                      className="cd-range-slider"
+                    />
+                    <div className="slider-minmax-hints">
+                      <span>0</span>
+                      <span>₹{Math.round(emiOnRoadPrice * 0.7).toLocaleString('en-IN')}</span>
+                    </div>
+                  </div>
+
+                  {/* Bank Interest Rate Slider */}
+                  <div className="cd-slider-block">
+                    <div className="slider-label-line">
+                      <span>Bank Interest Rate</span>
+                      <strong>{emiInterestRate}%</strong>
+                    </div>
+                    <input
+                      type="range"
+                      min={7.5}
+                      max={15.0}
+                      step={0.1}
+                      value={emiInterestRate}
+                      onChange={(e) => setEmiInterestRate(Number(e.target.value))}
+                      className="cd-range-slider"
+                    />
+                    <div className="slider-minmax-hints">
+                      <span>7.5%</span>
+                      <span>15%</span>
+                    </div>
+                  </div>
+
+                  {/* Loan Period (Years) segmented buttons */}
+                  <div className="cd-period-block">
+                    <span className="period-lbl">Loan Period (Years)</span>
+                    <div className="cd-year-buttons">
+                      {[1, 2, 3, 4, 5, 6, 7].map((yr) => (
+                        <button
+                          key={yr}
+                          type="button"
+                          className={`yr-btn ${emiLoanTenureYears === yr ? 'active' : ''}`}
+                          onClick={() => setEmiLoanTenureYears(yr)}
+                        >
+                          {yr}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Financial Metrics Split */}
+                  <div className="cd-calc-summary-split">
+                    <div className="summary-left">
+                      <div className="sum-item">
+                        <span>Total Loan Amount</span>
+                        <strong>₹{Math.max(0, emiOnRoadPrice - emiDownPayment).toLocaleString('en-IN')}</strong>
+                      </div>
+                      <div className="sum-item">
+                        <span>Payable Amount</span>
+                        <strong>
+                          ₹{Math.round((emiOnRoadPrice - emiDownPayment) + ((emiOnRoadPrice - emiDownPayment) * (emiInterestRate / 100) * emiLoanTenureYears)).toLocaleString('en-IN')}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="summary-right">
+                      <div className="emi-big-display">
+                        <div className="emi-label-sub">
+                          <span>EMI</span>
+                          <small>per month</small>
+                        </div>
+                        <h2 className="emi-amount-val">
+                          ₹{(() => {
+                            const p = Math.max(0, emiOnRoadPrice - emiDownPayment);
+                            const r = emiInterestRate / 12 / 100;
+                            const n = emiLoanTenureYears * 12;
+                            if (p <= 0 || n <= 0) return '0';
+                            const emiVal = Math.round((p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1));
+                            return emiVal.toLocaleString('en-IN');
+                          })()}
+                        </h2>
+                      </div>
+                      <span className="calc-interest-hint">Calculated on On-Road Price</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="btn-cd-orange-block"
+                    onClick={() => showToast('Applied for lowest interest EMI offers across 14 partner banks!')}
+                  >
+                    Get EMI Offers
+                  </button>
+                </div>
+
+                {/* 2. FIND EMI OF SIERRA ALTERNATIVES (IMAGE 3 BASED) */}
+                <div className="cd-section-card">
+                  <h3 className="cd-card-heading">Find EMI of Sierra alternatives</h3>
+                  <div className="cd-alternatives-grid">
+                    {[
+                      { name: 'Kia Seltos', price: '₹11.25 - 21.82 Lakh*', img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=500&q=80', emiBtn: 'Seltos Emi', compareTxt: 'Sierra vs Seltos' },
+                      { name: 'Tata Harrier', price: '₹12 - 26.11 Lakh*', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=500&q=80', emiBtn: 'Harrier Emi', compareTxt: 'Sierra vs Harrier' },
+                      { name: 'Hyundai Creta', price: '₹10.91 - 20.46 Lakh*', img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=500&q=80', emiBtn: 'Creta Emi', compareTxt: 'Sierra vs Creta' },
+                    ].map((alt) => (
+                      <div key={alt.name} className="cd-alt-card">
+                        <div className="alt-img-box">
+                          <img src={alt.img} alt={alt.name} />
+                        </div>
+                        <h4 className="alt-name">{alt.name}</h4>
+                        <span className="alt-price">{alt.price}</span>
+                        <button
+                          type="button"
+                          className="btn-alt-emi-orange"
+                          onClick={() => showToast(`Calculating EMI for ${alt.name}...`)}
+                        >
+                          {alt.emiBtn}
+                        </button>
+                        <a
+                          href="#compare"
+                          className="alt-compare-link"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setActiveHubTab('compare_vehicles');
+                          }}
+                        >
+                          {alt.compareTxt}
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. RECOMMENDED USED CAR ALTERNATIVES (IMAGE 3 BASED) */}
+                <div className="cd-section-card">
+                  <h3 className="cd-card-heading">Recommended used car alternatives for Tata Sierra In Bangalore</h3>
+                  <div className="cd-used-grid">
+                    {[
+                      { name: 'Tata Sierra Adventure Plus', price: '₹17.48 Lakh', meta: '2023 • 4,851 km • Petrol' },
+                      { name: 'Tata Sierra Accomplished Plus Diesel', price: '₹23.70 Lakh', meta: '2024 • 8,500 km • Diesel' },
+                      { name: 'Kia Seltos HTK Plus D', price: '₹11.50 Lakh', meta: '2019 • 70,427 km • Diesel' }
+                    ].map((uc, i) => (
+                      <div key={i} className="cd-used-card">
+                        <div className="used-img-placeholder">
+                          <i className="fa-solid fa-car-side"></i>
+                        </div>
+                        <h4 className="used-title">{uc.name}</h4>
+                        <strong className="used-price">{uc.price}</strong>
+                        <span className="used-meta">{uc.meta}</span>
+                        <button
+                          type="button"
+                          className="btn-used-seller"
+                          onClick={() => showToast(`Contacting certified seller for ${uc.name}...`)}
+                        >
+                          View Seller Details
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <a href="#used" className="cd-view-all-link" onClick={(e) => { e.preventDefault(); setActiveHubTab('buy_sell'); }}>
+                    View Used Tata Cars in Bangalore <i className="fa-solid fa-chevron-right"></i>
+                  </a>
+                </div>
+
+                {/* 4. TATA SIERRA USER REVIEWS (IMAGE 3 BASED) */}
+                <div className="cd-section-card">
+                  <div className="reviews-card-head">
+                    <div>
+                      <h3 className="cd-card-heading" style={{ margin: 0 }}>Tata Sierra user reviews</h3>
+                      <div className="rev-stars-row">
+                        <span className="rev-score">4.7 <i className="fa-solid fa-star"></i></span>
+                        <span className="rev-sub-count">Based on 509 User Reviews</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn-write-review-orange"
+                      onClick={() => showToast('Review modal opened! Write your review to win ₹1000')}
+                    >
+                      Write a Review &amp; Win ₹1000
+                    </button>
+                  </div>
+
+                  {/* Review Filter Pills */}
+                  <div className="cd-review-pills-row">
+                    {['All (509)', 'Look (150)', 'Safety (121)', 'Comfort (100)', 'Price (74)', 'Mileage (54)', 'Space (42)'].map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        className={`rev-pill-btn ${activeReviewFilter === p ? 'active' : ''}`}
+                        onClick={() => setActiveReviewFilter(p)}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Review Cards */}
+                  <div className="cd-reviews-cards-list">
+                    {[
+                      { author: 'Debinder', date: 'Oct 12, 2024', rating: 4.7, title: 'Best SUV Of India', text: 'Best performance SUV in India powered by Tata Motors. Compared to all under SUVs in this segment Sierra gives best performance and comfort. Good mileage, People also like off-road performance which is excellent.' },
+                      { author: 'Sasidharan', date: 'Oct 11, 2024', rating: 5.0, title: 'TATA - I SALUTE', text: 'Awesome experience. Heated seats, comfortable and confident with the Tata Sierra. For me, it\'s not just about a budget-friendly car; build quality, safety, and comfort are the most important things.' },
+                      { author: 'Gowrishankar', date: 'Oct 10, 2024', rating: 4.0, title: 'I Was Shocked', text: 'I was shocked after a safe life car. This car is good in every side, mileage, colour, price, safety all the things, seriously this car is very good when I check in Rways, it gives very nice diesel, average colour option also looking.' }
+                    ].map((r, i) => (
+                      <div key={i} className="cd-review-item-card">
+                        <div className="rev-author-line">
+                          <div className="rev-initial">{r.author.charAt(0)}</div>
+                          <div>
+                            <strong>{r.author}</strong> <small>on {r.date}</small>
+                          </div>
+                          <span className="rev-item-stars">{r.rating} <i className="fa-solid fa-star"></i></span>
+                        </div>
+                        <h5 className="rev-card-title">{r.title}</h5>
+                        <p className="rev-card-body">{r.text} <span className="read-more-txt">Read More</span></p>
+                        <div className="rev-card-feedback">
+                          <button type="button" className="rev-thumb-btn" onClick={() => showToast('Marked helpful')}><i className="fa-regular fa-thumbs-up"></i></button>
+                          <button type="button" className="rev-thumb-btn" onClick={() => showToast('Feedback recorded')}><i className="fa-regular fa-thumbs-down"></i></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <a href="#reviews" className="cd-view-all-link">
+                    View All Sierra Reviews <i className="fa-solid fa-chevron-right"></i>
+                  </a>
+                </div>
+
+                {/* 5. FREQUENTLY ASKED QUESTIONS (IMAGE 3 BASED) */}
+                <div className="cd-section-card">
+                  <h3 className="cd-card-heading">Frequently Asked Questions On Car Sierra Emi</h3>
+                  <div className="cd-faq-list">
+                    <div className="cd-faq-item">
+                      <strong>Q: What is the lowest EMI for Tata Sierra in Bangalore?</strong>
+                      <p>A: The lowest EMI for Tata Sierra starts at ₹32,628/month for a tenure of 60 months with a down payment of ₹1,43,000 at 9.8% annual interest rate.</p>
+                    </div>
+                    <div className="cd-faq-item">
+                      <strong>Q: What is the minimum down payment required for Sierra?</strong>
+                      <p>A: Most nationalized and private banks require a minimum 10% down payment (approximately ₹1,15,000) of the vehicle ex-showroom price.</p>
+                    </div>
+                    <div className="cd-faq-item">
+                      <strong>Q: Can I foreclose or prepay my car loan early?</strong>
+                      <p>A: Yes, most banks allow prepayment or foreclosure after 6 to 12 months with zero to nominal prepayment charges under RBI guidelines.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* RIGHT SIDEBAR COLUMN (IMAGE 3 BASED) */}
+              <div className="cd-emi-sidebar-col">
+                {/* 1. RUNNING COST OF YOUR CAR */}
+                <div className="cd-sidebar-widget">
+                  <h4 className="sidebar-widget-title">Running cost of your car</h4>
+                  <div className="km-driven-block">
+                    <div className="km-header-line">
+                      <span>KM driven per day</span>
+                      <strong>{emiDailyKm} km/day</strong>
+                    </div>
+                    <div className="km-buttons-row">
+                      {[20, 30, 40, 50, 100].map((k) => (
+                        <button
+                          key={k}
+                          type="button"
+                          className={`km-btn ${emiDailyKm === k ? 'active' : ''}`}
+                          onClick={() => setEmiDailyKm(k)}
+                        >
+                          {k}
+                        </button>
+                      ))}
+                      <button type="button" className="km-btn" onClick={() => setEmiDailyKm(60)}>Other</button>
+                    </div>
+                  </div>
+
+                  <div className="monthly-fuel-cost-box">
+                    <span className="mfc-lbl">Monthly fuel cost</span>
+                    <h3 className="mfc-val">₹{Math.round((emiDailyKm * 30 / 14) * 101).toLocaleString('en-IN')}* <span>/ month</span></h3>
+                    <small className="mfc-disclaimer">
+                      It looks like our automated calculator verified mileage of Tata Sierra Smart Plus at 14 kmpl.
+                    </small>
+                  </div>
+                </div>
+
+                {/* 2. POPULAR CARS LIST */}
+                <div className="cd-sidebar-widget">
+                  <h4 className="sidebar-widget-title">Popular cars</h4>
+                  <div className="cd-popular-cars-list">
+                    {[
+                      { name: 'Tata Sierra', price: '₹11.49 - 21.59 Lakh*', img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80' },
+                      { name: 'Tata Altroz', price: '₹6.30 - 9.75 Lakh*', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=300&q=80' },
+                      { name: 'Honda Elevate', price: '₹11.00 - 18.40 Lakh*', img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=300&q=80' },
+                      { name: 'Mahindra Thar OG', price: '₹10.32 - 18.99 Lakh*', img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80' },
+                      { name: 'Maruti Suzuki Brezza', price: '₹7.50 - 13.71 Lakh*', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=300&q=80' }
+                    ].map((c) => (
+                      <div key={c.name} className="sidebar-car-row">
+                        <img src={c.img} alt={c.name} className="sidebar-car-thumb" />
+                        <div className="sidebar-car-info">
+                          <h5>{c.name}</h5>
+                          <span>{c.price}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <a href="#all" className="sidebar-orange-link" onClick={(e) => { e.preventDefault(); setActiveHubTab('buy_sell'); }}>
+                    View All Best Cars <i className="fa-solid fa-chevron-right"></i>
+                  </a>
+                </div>
+
+                {/* 3. PROMOTIONAL ADS BANNERS */}
+                <div className="cd-promo-ad-card duster-ad">
+                  <div className="ad-badge">SPONSORED</div>
+                  <h4>ALL-NEW RENAULT DUSTER</h4>
+                  <p>Starting at ₹10.49 Lakh* • 4x4 Hybrid Available</p>
+                  <button type="button" className="btn-ad-book" onClick={() => showToast('Redirecting to Renault Duster special booking portal...')}>
+                    Book Now
+                  </button>
+                </div>
+
+                <div className="cd-promo-ad-card chetak-ad">
+                  <div className="ad-badge">EV SPOTLIGHT</div>
+                  <h4>Bajaj Chetak C25 Electric</h4>
+                  <p>Only at ₹1,04,802* • 126 km Certified Range</p>
+                  <button type="button" className="btn-ad-book dark" onClick={() => showToast('Opened Chetak EV Test Ride booking')}>
+                    Buy Now
+                  </button>
+                </div>
+
+                {/* 4. TRENDING TATA CARS WIDGET */}
+                <div className="cd-sidebar-widget">
+                  <h4 className="sidebar-widget-title">Trending Tata cars</h4>
+                  <div className="trending-tabs-row">
+                    <button
+                      type="button"
+                      className={`trend-tab-btn ${activeTrendingTab === 'popular' ? 'active' : ''}`}
+                      onClick={() => setActiveTrendingTab('popular')}
+                    >
+                      Popular
+                    </button>
+                    <button
+                      type="button"
+                      className={`trend-tab-btn ${activeTrendingTab === 'upcoming' ? 'active' : ''}`}
+                      onClick={() => setActiveTrendingTab('upcoming')}
+                    >
+                      Upcoming
+                    </button>
+                  </div>
+
+                  <div className="cd-popular-cars-list">
+                    {[
+                      { name: 'Tata Punch', price: '₹5.75 - 10.77 Lakh*' },
+                      { name: 'Tata Nexon', price: '₹7.40 - 14.52 Lakh*' },
+                      { name: 'Tata Harrier', price: '₹13 - 26.11 Lakh*' },
+                      { name: 'Tata Safari', price: '₹13.40 - 26.91 Lakh*' },
+                      { name: 'Tata Curvv', price: '₹10 - 19 Lakh*' },
+                    ].map((tc) => (
+                      <div key={tc.name} className="sidebar-car-row simple">
+                        <div className="trend-bullet"><i className="fa-solid fa-car"></i></div>
+                        <div className="sidebar-car-info">
+                          <h5>{tc.name}</h5>
+                          <span>{tc.price}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <a href="#tata" className="sidebar-orange-link" onClick={(e) => { e.preventDefault(); setActiveHubTab('buy_sell'); }}>
+                    View All Tata Cars <i className="fa-solid fa-chevron-right"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+
+        {/* ------------------------------------------------------------------ */}
+        {/* HUB TAB 6: 24/7 ROADSIDE SOS & EMERGENCY BREAKDOWN ASSISTANCE      */}
+        {/* ------------------------------------------------------------------ */}
+        {activeHubTab === 'emergency_sos' && (
+          <section className="hub-showcase-view sart-sos-view animate-pop">
+            {/* TOP EMERGENCY RADAR HERO BANNER */}
+            <div className="sart-sos-hero-card">
+              <div className="sos-radar-header">
+                <div className="sos-live-pill">
+                  <span className="sos-blinking-dot"></span>
+                  <span>24/7 LIVE EMERGENCY RESCUE ACTIVE • PAN-INDIA DISPATCH</span>
+                </div>
+                <div className="sos-hotline-badge">
+                  <i className="fa-solid fa-phone-volume"></i>
+                  <span>TOLL-FREE: <strong>1800-SART-SOS (7278-767)</strong></span>
+                </div>
+              </div>
+
+              <div className="sos-hero-main-body">
+                <div className="sos-hero-text">
+                  <h2>Rapid Roadside Assistance (RSA) &amp; Vehicle Rescue</h2>
+                  <p>
+                    Stranded on a highway, caught in city traffic, or broken down at home? SART dispatches the nearest certified mechanic, 
+                    zero-damage hydraulic flatbed, emergency fuel unit, or mobile EV charging van within <strong>12 to 15 minutes</strong>.
+                  </p>
+                </div>
+
+                <div className="sos-hero-cta-group">
+                  <button
+                    type="button"
+                    className="sos-btn-primary-call"
+                    onClick={() => {
+                      showToast('Dialing 24/7 SART Emergency Rescue Desk: 1800-SART-SOS...');
+                    }}
+                  >
+                    <i className="fa-solid fa-phone"></i>
+                    <span>Call 24/7 Emergency Hotline</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="sos-btn-primary-gps"
+                    onClick={() => {
+                      setSelectedSosService({
+                        title: 'Rapid Emergency GPS Patrol Dispatch',
+                        icon: 'fa-truck-medical',
+                        time: '11 Mins Arrival',
+                        price: '₹349 Visit Fee',
+                        categoryTag: 'All Vehicles',
+                        desc: 'Nearest SART highway patrol unit dispatched immediately to your live GPS coordinates.',
+                        features: ['Nearest patrol van allocated', 'Real-time GPS track on map', 'On-spot diagnostic tools included', 'Cashless insurance claim integration'],
+                        assignedUnit: 'Patrol Van #TN-09-RSA-412',
+                        driverName: 'Murugan K. (4.9 ★ • 1,420+ Dispatches)',
+                        driverPhone: '+91 98400 12345'
+                      });
+                      setSosDispatchStage('finding');
+                      setShowSosDispatchModal(true);
+                      setTimeout(() => setSosDispatchStage('assigned'), 1800);
+                      setTimeout(() => setSosDispatchStage('en_route'), 3600);
+                    }}
+                  >
+                    <i className="fa-solid fa-location-crosshairs"></i>
+                    <span>One-Tap GPS Auto-Dispatch</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="sos-btn-whatsapp"
+                    onClick={() => {
+                      showToast('Opening WhatsApp SOS Channel with SART Dispatch Controller...');
+                    }}
+                  >
+                    <i className="fa-brands fa-whatsapp"></i>
+                    <span>WhatsApp SOS</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* LIVE DETECTED LOCATION STRIP */}
+              <div className="sos-location-live-strip">
+                <div className="sos-loc-left">
+                  <div className="loc-radar-icon">
+                    <i className="fa-solid fa-satellite-dish"></i>
+                  </div>
+                  <div>
+                    <span className="loc-sublabel">Your Detected Highway / City Location</span>
+                    <strong className="loc-main-address">{sosLocationName}</strong>
+                  </div>
+                </div>
+                <div className="sos-loc-right">
+                  <div className="loc-nearest-badge">
+                    <i className="fa-solid fa-circle-check"></i>
+                    <span>Nearest Patrol Unit: <strong>2.4 km away</strong> (Est. 11 Mins)</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-change-gps-loc"
+                    onClick={() => {
+                      const updated = prompt('Enter your current highway mile-marker, landmark or city:', sosLocationName);
+                      if (updated) {
+                        setSosLocationName(updated);
+                        showToast(`Location updated to: ${updated}`);
+                      }
+                    }}
+                  >
+                    <i className="fa-solid fa-pen-to-square"></i> Change Location
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* VEHICLE TYPE FILTER BAR (ALL SART VEHICLES SUPPORTED) */}
+            <div className="sos-filter-box">
+              <div className="sos-filter-section-title">
+                <i className="fa-solid fa-car"></i>
+                <span>Select Your Stranded Vehicle Type:</span>
+                <small className="sos-vtype-hint">(Tailors recovery trucks, hydraulic ramps &amp; equipment)</small>
+              </div>
+
+              <div className="sos-vtype-pills-row">
+                {[
+                  { id: 'All', label: 'All Vehicles', icon: 'fa-truck-monster' },
+                  { id: 'Car', label: 'Car / SUV / MUV', icon: 'fa-car-side' },
+                  { id: 'Bike', label: 'Bike / Scooter', icon: 'fa-motorcycle' },
+                  { id: 'Auto', label: '3-Wheeler (Auto)', icon: 'fa-gas-pump' },
+                  { id: 'Van', label: 'Commercial Van', icon: 'fa-van-shuttle' },
+                  { id: 'Lorry', label: 'Heavy Truck / Lorry', icon: 'fa-truck-moving' },
+                  { id: 'Bus', label: 'Bus / Coach', icon: 'fa-bus' },
+                  { id: 'EV', label: 'Electric Vehicle (EV)', icon: 'fa-bolt' },
+                ].map((v) => (
+                  <button
+                    key={v.id}
+                    type="button"
+                    className={`sos-vtype-btn ${sosVehicleType === v.id ? 'active' : ''}`}
+                    onClick={() => {
+                      setSosVehicleType(v.id);
+                      showToast(`Filtered SOS assistance for: ${v.label}`);
+                    }}
+                  >
+                    <i className={`fa-solid ${v.icon}`}></i>
+                    <span>{v.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* EMERGENCY ISSUE QUICK TRIAGE */}
+              <div className="sos-filter-section-title" style={{ marginTop: '16px' }}>
+                <i className="fa-solid fa-triangle-exclamation"></i>
+                <span>What Is Your Emergency Situation?</span>
+              </div>
+
+              <div className="sos-triage-pills-row">
+                {[
+                  { id: 'all', label: 'All Emergency Services', icon: 'fa-layer-group' },
+                  { id: 'breakdown', label: 'Engine Won\'t Start / Breakdown', icon: 'fa-wrench' },
+                  { id: 'puncture', label: 'Flat Tyre / Puncture Swap', icon: 'fa-circle-dot' },
+                  { id: 'battery', label: 'Dead Battery / Jumpstart', icon: 'fa-car-battery' },
+                  { id: 'fuel_ev', label: 'Out of Fuel / EV Battery 0%', icon: 'fa-gas-pump' },
+                  { id: 'towing', label: 'Accident / Towing Recovery', icon: 'fa-truck-pickup' },
+                  { id: 'locked', label: 'Key Locked Inside Vehicle', icon: 'fa-key' },
+                ].map((iss) => (
+                  <button
+                    key={iss.id}
+                    type="button"
+                    className={`sos-triage-btn ${sosEmergencyIssue === iss.id ? 'active' : ''}`}
+                    onClick={() => setSosEmergencyIssue(iss.id)}
+                  >
+                    <i className={`fa-solid ${iss.icon}`}></i>
+                    <span>{iss.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* EMERGENCY SERVICE CARDS GRID */}
+            <div className="sos-cards-modern-grid">
+              {[
+                {
+                  id: 'breakdown',
+                  icon: 'fa-screwdriver-wrench',
+                  title: 'On-Spot Mechanical Breakdown Repair',
+                  time: '12 - 15 Mins Arrival',
+                  price: '₹349 Visit Fee',
+                  categoryTag: 'Cars, Bikes, Autos & Light Vans',
+                  desc: 'Engine crank failure, overheating radiator, broken clutch/accelerator cable, spark plug failure, or minor electrical triage solved right on the highway.',
+                  features: ['Comprehensive 25-point on-spot diagnosis', 'Alternator, belt & fuse replacement', 'Coolant top-up & air bleeding', 'Parts billed at standard OEM MRP'],
+                  driverName: 'Murugan K. (4.9 ★ • 1,420+ Dispatches)',
+                  driverPhone: '+91 98400 12345',
+                  assignedUnit: 'Patrol Van #TN-09-RSA-412'
+                },
+                {
+                  id: 'towing',
+                  icon: 'fa-truck-pickup',
+                  title: 'Hydraulic Flatbed & Crane Towing Recovery',
+                  time: '18 - 20 Mins Arrival',
+                  price: '₹999 Starting (First 25 km)',
+                  categoryTag: 'Cars, SUVs, Bikes & Commercial Lorries',
+                  desc: 'Zero-damage hydraulic full-tilt flatbeds for luxury sedans and SUVs, specialized ramp vans for two-wheelers, and high-tonnage underlift cranes for heavy trucks.',
+                  features: ['Zero-ground clearance hydraulic tilt bed', 'Soft nylon wheel lashings (no rim scratches)', 'Cashless drop to nearest network garage', 'Live GPS in-app tracking during tow'],
+                  driverName: 'Selvam R. (4.8 ★ • 980+ Tow Dispatches)',
+                  driverPhone: '+91 98400 54321',
+                  assignedUnit: 'Flatbed Recovery Truck #TN-07-TOW-881'
+                },
+                {
+                  id: 'puncture',
+                  icon: 'fa-circle-dot',
+                  title: 'Tubeless Puncture & Rapid Wheel Swap',
+                  time: '10 - 12 Mins Arrival',
+                  price: '₹199 per Tyre',
+                  categoryTag: 'All Vehicles (Cars, Bikes, Autos, Trucks)',
+                  desc: 'High-speed mobile puncture repair unit. On-the-spot tubeless vulcanizing mushroom plug repair, stepney spare wheel mounting, and high-pressure digital nitrogen inflation.',
+                  features: ['Heavy-duty 3-ton hydraulic jack', 'German tubeless vulcanized plug repair', 'Digital torque-wrench wheel tightening', 'Spare wheel swap & bead sealing'],
+                  driverName: 'Vignesh P. (4.9 ★ • 2,100+ Punctures Repaired)',
+                  driverPhone: '+91 98400 67890',
+                  assignedUnit: 'Rapid Bike & Tyre Patrol #TN-01-RSA-109'
+                },
+                {
+                  id: 'battery',
+                  icon: 'fa-car-battery',
+                  title: 'Emergency Battery Jumpstart & Replacement',
+                  time: '12 - 15 Mins Arrival',
+                  price: '₹299 Jumpstart',
+                  categoryTag: '12V Passenger & 24V Heavy Commercial Fleet',
+                  desc: 'Heavy-duty 1000A booster pack for instant jumpstart. Digital load testing of battery, alternator, and starter motor. On-spot Amaron / Exide battery delivery available.',
+                  features: ['12V & 24V surge-protected jumpstart', 'Computerized alternator health test', 'Doorstep Amaron / Exide replacement available', 'Old battery exchange discount up to ₹1,200'],
+                  driverName: 'Karthik S. (4.9 ★ • 850+ Battery Dispatches)',
+                  driverPhone: '+91 98400 99887',
+                  assignedUnit: 'Battery Support Unit #TN-09-BAT-304'
+                },
+                {
+                  id: 'fuel_ev',
+                  icon: 'fa-gas-pump',
+                  title: 'Emergency Fuel & Mobile EV Fast Charger',
+                  time: '15 Mins Arrival',
+                  price: '₹249 Delivery + Fuel / ₹699 EV Top-up',
+                  categoryTag: 'Petrol, Diesel & EV Vehicles',
+                  desc: 'Ran out of fuel or EV battery drained to 0%? 5 to 10 Litres of certified pure Petrol/Diesel delivered in sealed PESO-approved cans, or mobile 25 kW DC fast charger van top-up.',
+                  features: ['5L pure Petrol or Diesel in PESO cans', 'Mobile DC fast charger (adds 20-30 km range in 15 mins)', 'Diesel fuel line priming & air-lock bleeding', 'Zero contamination guarantee'],
+                  driverName: 'Aravind M. (4.8 ★ • 1,120+ Fuel Rescues)',
+                  driverPhone: '+91 98400 11223',
+                  assignedUnit: 'Mobile Fuel & EV Van #TN-02-EV-550'
+                },
+                {
+                  id: 'towing',
+                  icon: 'fa-car-burst',
+                  title: 'Accident Triage, Winch & Insurance Garage Drop',
+                  time: 'Immediate (Priority 1)',
+                  price: '100% Free Triage Help',
+                  categoryTag: 'Cashless Network for All Vehicles',
+                  desc: 'Accident recovery specialists. On-scene documentation, FIR and police liaison guidance, zero-damage winching out of ditches or dividers, and cashless transport to authorized body shop.',
+                  features: ['Spot survey & high-res damage photography', 'Assistance with police FIR & highway protocol', 'Direct transfer to 28+ cashless insurance workshops', 'Zero out-of-pocket towing under RSA policy'],
+                  driverName: 'Dinesh Kumar (Accident Triage Commander)',
+                  driverPhone: '+91 98400 44556',
+                  assignedUnit: 'Heavy Winch Crane Unit #TN-09-REC-901'
+                },
+                {
+                  id: 'locked',
+                  icon: 'fa-key',
+                  title: 'Smart Key Lockout & Non-Destructive Entry',
+                  time: '15 - 20 Mins Arrival',
+                  price: '₹449 Fixed Fee',
+                  categoryTag: 'Cars, SUVs, Commercial Vans & Trucks',
+                  desc: 'Keys locked inside the car or trunk? Certified locksmith technicians use professional air-wedge airbags and scratch-free reach rods to unlock doors without damaging paint or rubber seals.',
+                  features: ['100% non-destructive air wedge entry', 'Zero scratch guarantee on glass & paint', 'Smart key fob battery replacement on spot', 'Valid vehicle RC & ID verification required'],
+                  driverName: 'Ramesh Babu (Lockout Specialist)',
+                  driverPhone: '+91 98400 77889',
+                  assignedUnit: 'Rapid Lockout Patrol #TN-01-KEY-007'
+                },
+                {
+                  id: 'breakdown',
+                  icon: 'fa-truck-moving',
+                  title: 'Heavy Commercial Lorry & Bus Fleet SOS',
+                  time: '20 - 25 Mins Arrival',
+                  price: 'Custom Fleet Corporate Tariff',
+                  categoryTag: 'Lorries, Trailers, Multi-Axle Trucks & Buses',
+                  desc: 'Highway long-haul emergency assistance for transport fleet operators. Air brake pneumatic hose repair, heavy wheel nut torquing, propeller shaft recovery, and 40-ton crane rescue.',
+                  features: ['Heavy pneumatic impact wrenches & jacks', 'Trailer kingpin & air brake diagnostics', 'Heavy underlift towing for 16-to-40 ton trucks', 'Driver highway food & safety assistance'],
+                  driverName: 'Rajendran M. (Heavy Fleet Recovery Lead)',
+                  driverPhone: '+91 98400 33221',
+                  assignedUnit: 'Heavy Fleet 40T Recovery Rig #TN-04-CRANE-99'
+                }
+              ]
+                .filter((srv) => {
+                  if (sosEmergencyIssue !== 'all' && srv.id !== sosEmergencyIssue) return false;
+                  return true;
+                })
+                .map((srv) => (
+                  <div key={srv.title} className="sos-modern-card">
+                    <div className="sos-card-header-bar">
+                      <div className="sos-badge-eta">
+                        <i className="fa-solid fa-bolt"></i>
+                        <span>{srv.time}</span>
+                      </div>
+                      <span className="sos-tag-vehicles">{srv.categoryTag}</span>
+                    </div>
+
+                    <div className="sos-card-middle">
+                      <div className="sos-icon-circle">
+                        <i className={`fa-solid ${srv.icon}`}></i>
+                      </div>
+                      <div className="sos-title-block">
+                        <h4>{srv.title}</h4>
+                        <p className="sos-desc-text">{srv.desc}</p>
+                      </div>
+                    </div>
+
+                    <ul className="sos-features-checklist">
+                      {srv.features.map((feat, i) => (
+                        <li key={i}>
+                          <i className="fa-solid fa-circle-check"></i>
+                          <span>{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="sos-card-bottom-bar">
+                      <div className="sos-price-box">
+                        <span className="sos-price-label">Transparent Tariff</span>
+                        <strong className="sos-price-value">{srv.price}</strong>
+                      </div>
+                      <button
+                        type="button"
+                        className="btn-sos-card-dispatch"
+                        onClick={() => {
+                          setSelectedSosService(srv);
+                          setSosDispatchStage('finding');
+                          setShowSosDispatchModal(true);
+                          setTimeout(() => setSosDispatchStage('assigned'), 1800);
+                          setTimeout(() => setSosDispatchStage('en_route'), 3600);
+                        }}
+                      >
+                        <i className="fa-solid fa-truck-fast"></i>
+                        <span>Dispatch Now</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+            {/* HIGHWAY EMERGENCY PROTOCOL (SAFETY STEPS WHILE WAITING) */}
+            <div className="sos-safety-protocol-section">
+              <div className="sos-section-header">
+                <h3><i className="fa-solid fa-shield-halved"></i> Highway Emergency Safety Protocol</h3>
+                <p>Follow these critical guidelines to stay 100% safe while our patrol unit reaches your vehicle.</p>
+              </div>
+
+              <div className="sos-safety-grid">
+                <div className="sos-safety-card">
+                  <div className="safety-icon warn">
+                    <i className="fa-solid fa-lightbulb"></i>
+                  </div>
+                  <h5>1. Hazard Lights On</h5>
+                  <p>Turn on your hazard warning flashers immediately to alert speeding highway vehicles from behind.</p>
+                </div>
+
+                <div className="sos-safety-card">
+                  <div className="safety-icon danger">
+                    <i className="fa-solid fa-triangle-exclamation"></i>
+                  </div>
+                  <h5>2. Warning Triangle 50m Back</h5>
+                  <p>Place your reflective red warning triangle at least 50 meters behind your vehicle on the highway shoulder.</p>
+                </div>
+
+                <div className="sos-safety-card">
+                  <div className="safety-icon safe">
+                    <i className="fa-solid fa-person-shelter"></i>
+                  </div>
+                  <h5>3. Stand Behind Barrier</h5>
+                  <p>Never sit inside the vehicle on a high-speed motorway. Move all passengers safely behind the steel crash barrier.</p>
+                </div>
+
+                <div className="sos-safety-card">
+                  <div className="safety-icon police">
+                    <i className="fa-solid fa-headset"></i>
+                  </div>
+                  <h5>4. Emergency 112 &amp; 1033 Sync</h5>
+                  <p>SART dispatch auto-syncs with National Highway Emergency (1033) &amp; Police 112 if you request armed assistance.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* SART RSA FLEET COMMITMENTS & CASHLESS PARTNERS */}
+            <div className="sos-guarantee-strip">
+              <div className="guarantee-item">
+                <i className="fa-solid fa-clock-rotate-left"></i>
+                <div>
+                  <strong>15-Minute Highway Commitment</strong>
+                  <span>Fastest average response time on 98% of Indian National &amp; State Highways.</span>
+                </div>
+              </div>
+              <div className="guarantee-item">
+                <i className="fa-solid fa-shield-check"></i>
+                <div>
+                  <strong>Zero-Damage Recovery Guarantee</strong>
+                  <span>Hydraulic low-angle tilt beds protect bumpers, differentials, and alloy rims.</span>
+                </div>
+              </div>
+              <div className="guarantee-item">
+                <i className="fa-solid fa-file-invoice-dollar"></i>
+                <div>
+                  <strong>28+ Cashless Insurer Partners</strong>
+                  <span>Direct cashless claim billing with ICICI Lombard, HDFC Ergo, Tata AIG, Bajaj Allianz &amp; more.</span>
+                </div>
+              </div>
+              <div className="guarantee-item">
+                <i className="fa-solid fa-person-dress"></i>
+                <div>
+                  <strong>Female Motorist Priority Escort</strong>
+                  <span>Police-verified background-checked technicians with automated family live-location tracking.</span>
+                </div>
+              </div>
+            </div>
+
+            {/* INTERACTIVE LIVE SOS DISPATCH MODAL */}
+            {showSosDispatchModal && selectedSosService && (
+              <div className="sos-modal-overlay animate-fade">
+                <div className="sos-modal-box animate-pop">
+                  <div className="sos-modal-header">
+                    <div className="sos-modal-title">
+                      <div className="sos-beacon-pulse"></div>
+                      <div>
+                        <h3>Live Emergency Dispatch Tracking</h3>
+                        <span className="sos-order-ref">Request ID: #SART-SOS-98124 • Priority Level: CRITICAL</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className="sos-modal-close-btn"
+                      onClick={() => setShowSosDispatchModal(false)}
+                    >
+                      <i className="fa-solid fa-xmark"></i>
+                    </button>
+                  </div>
+
+                  <div className="sos-modal-body">
+                    {/* DISPATCH PROGRESS RADAR */}
+                    <div className="sos-tracker-radar-panel">
+                      <div className="radar-circle-anim">
+                        <div className="radar-sweep"></div>
+                        <i className="fa-solid fa-truck-medical radar-center-icon"></i>
+                      </div>
+                      <div className="radar-status-info">
+                        <span className="radar-tag">
+                          {sosDispatchStage === 'finding' && 'SEARCHING NEAREST PATROL UNIT...'}
+                          {sosDispatchStage === 'assigned' && 'PATROL OFFICER ALLOCATED!'}
+                          {sosDispatchStage === 'en_route' && 'PATROL VEHICLE EN ROUTE VIA GPS!'}
+                        </span>
+                        <h4>{selectedSosService.title}</h4>
+                        <p className="radar-loc-txt">
+                          <i className="fa-solid fa-location-dot"></i> Destination: {sosLocationName}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* DRIVER & VEHICLE DETAILS */}
+                    <div className="sos-driver-card">
+                      <div className="driver-avatar-box">
+                        <i className="fa-solid fa-user-shield"></i>
+                      </div>
+                      <div className="driver-details">
+                        <div className="driver-name-row">
+                          <strong>{selectedSosService.driverName}</strong>
+                          <span className="driver-badge">VERIFIED SART RESPONDER</span>
+                        </div>
+                        <span className="driver-sub">{selectedSosService.assignedUnit}</span>
+                        <div className="driver-specs">
+                          <span><i className="fa-solid fa-toolbox"></i> Fully Equipped RSA Unit</span>
+                          <span><i className="fa-solid fa-route"></i> Distance: 2.4 km away</span>
+                        </div>
+                      </div>
+                      <div className="driver-eta-box">
+                        <span className="eta-lbl">EST. ARRIVAL</span>
+                        <strong className="eta-val">11 MINS</strong>
+                      </div>
+                    </div>
+
+                    {/* TIMELINE STEPS */}
+                    <div className="sos-timeline-steps">
+                      <div className="timeline-step completed">
+                        <div className="step-circle"><i className="fa-solid fa-check"></i></div>
+                        <div className="step-content">
+                          <strong>SOS Request Received &amp; GPS Locked</strong>
+                          <small>Coordinates verified by Chennai Highway Dispatch Desk</small>
+                        </div>
+                      </div>
+
+                      <div className={`timeline-step ${sosDispatchStage === 'assigned' || sosDispatchStage === 'en_route' ? 'completed' : 'active'}`}>
+                        <div className="step-circle">
+                          {sosDispatchStage === 'finding' ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-check"></i>}
+                        </div>
+                        <div className="step-content">
+                          <strong>Unit #412 Dispatched from Guindy RSA Depot</strong>
+                          <small>Technician rolling with hydraulic gear, booster pack &amp; tyre kit</small>
+                        </div>
+                      </div>
+
+                      <div className={`timeline-step ${sosDispatchStage === 'en_route' ? 'active' : ''}`}>
+                        <div className="step-circle">
+                          {sosDispatchStage === 'en_route' ? <i className="fa-solid fa-location-arrow"></i> : <i className="fa-solid fa-circle"></i>}
+                        </div>
+                        <div className="step-content">
+                          <strong>Patrol Unit Approaching Your Vehicle</strong>
+                          <small>Keep your hazard lights flashing for rapid visual identification</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* MODAL FOOTER ACTIONS */}
+                  <div className="sos-modal-footer">
+                    <button
+                      type="button"
+                      className="btn-modal-call-driver"
+                      onClick={() => showToast(`Dialing Patrol Driver (${selectedSosService.driverPhone})...`)}
+                    >
+                      <i className="fa-solid fa-phone"></i>
+                      <span>Call Patrol Driver</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn-modal-share-loc"
+                      onClick={() => showToast('Live GPS location shared via WhatsApp to Emergency Contacts!')}
+                    >
+                      <i className="fa-brands fa-whatsapp"></i>
+                      <span>Share Location With Family</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn-modal-close"
+                      onClick={() => {
+                        setShowSosDispatchModal(false);
+                        showToast('Dispatch modal closed. Live tracking continues in background.');
+                      }}
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+          </section>
+        )}
 
         {/* 6. TRUST & BRAND BENEFITS (AutoZone / Boodmo style trust badges) */}
         <div className="store-trust-grid">
