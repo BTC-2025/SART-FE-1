@@ -24,9 +24,548 @@
 /* Modern Full-Width Carousel */
 .modern-carousel {
   width: 100%;
-  height: 550px;
+  height: 680px;
   position: relative;
   overflow: hidden;
+}
+
+/* ---------------- Hero Flight Search Floating Overlay (Matching User Images) ---------------- */
+.hero-flight-search-wrapper {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 95%;
+  max-width: 1240px;
+  z-index: 20;
+}
+
+.hero-flight-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16);
+  padding: 18px 24px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Top Row: Trip Type Pills & Hassle Free Badge */
+.hero-flight-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hero-flight-trip-types {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-trip-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hero-trip-pill .hero-radio-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid #94a3b8;
+  background: #ffffff;
+}
+
+.hero-trip-pill.active {
+  border-color: #0284c7;
+  color: #0284c7;
+  background: #f0f9ff;
+}
+
+.hero-trip-pill.active .hero-radio-dot {
+  border-color: #0284c7;
+  background: #0284c7;
+}
+
+.hero-hassle-free-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: #15803d;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Middle Row: Form Inputs Grid */
+.hero-flight-form-row {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  overflow: visible;
+  position: relative;
+}
+
+.hero-ff-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 16px;
+  border-right: 1px solid #e2e8f0;
+  position: relative;
+  min-width: 0;
+}
+
+.hero-ff-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-bottom: 3px;
+  text-transform: capitalize;
+}
+
+.hero-ff-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  padding: 0;
+  width: 100%;
+}
+
+.hero-ff-input::placeholder {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.hero-ff-swap-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 12px;
+  cursor: pointer;
+  margin: 0 -16px;
+  z-index: 5;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+.hero-ff-swap-btn:hover {
+  border-color: #0284c7;
+  color: #0284c7;
+  transform: rotate(180deg);
+}
+
+.hero-ff-return-box {
+  position: relative;
+}
+
+.hero-return-input-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hero-clear-return {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.hero-clear-return:hover {
+  color: #ef4444;
+}
+
+.hero-ff-traveller {
+  cursor: pointer;
+  user-select: none;
+}
+
+.hero-ff-val-text {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* POPULAR CITIES Dropdown Popup (Matching Image 3 Exactly) */
+.hero-suggestions-popup {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 320px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.16);
+  border: 1px solid #e2e8f0;
+  z-index: 150;
+  padding: 10px 0;
+  max-height: 320px;
+  overflow-y: auto;
+  animation: fbFadeInDown 0.2s ease;
+}
+
+.hero-suggestions-header {
+  padding: 8px 16px 8px;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.hero-suggestions-header i {
+  color: #94a3b8;
+  font-size: 15px;
+}
+
+.hero-suggestions-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-city-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.hero-city-item:hover {
+  background: #f8fafc;
+}
+
+.hero-city-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e293b;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.hero-city-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hero-city-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.hero-city-state {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* Traveler dropdown popup - Clean modern card matching reference image */
+.hero-traveller-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 320px;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 20px 40px -8px rgba(15, 23, 42, 0.22), 0 0 1px rgba(0, 0, 0, 0.1);
+  padding: 18px 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  animation: heroDropdownSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes heroDropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-td-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 14px;
+}
+
+.hero-td-header h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.2px;
+}
+
+.hero-td-close {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.hero-td-close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.hero-td-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hero-td-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hero-td-type-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hero-td-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.hero-td-sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.hero-td-counter {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 3px 6px;
+  gap: 4px;
+}
+
+.hero-td-counter button {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: #ffffff;
+  color: #0284c7;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.hero-td-counter button:hover:not(:disabled) {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.hero-td-counter button:disabled {
+  background: transparent;
+  color: #cbd5e1;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.hero-td-count {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  min-width: 22px;
+  text-align: center;
+}
+
+/* Cabin Class in Hero Dropdown */
+.hero-td-cabin-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.hero-td-cabin-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hero-td-cabin-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.hero-td-cabin-pill {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hero-td-cabin-pill:hover {
+  border-color: #0284c7;
+  color: #0284c7;
+}
+
+.hero-td-cabin-pill.active {
+  border-color: #0284c7;
+  background: #f0f9ff;
+  color: #0284c7;
+}
+
+.hero-td-footer {
+  padding-top: 16px;
+}
+
+.hero-td-done-btn {
+  background: #0084c7;
+  color: #ffffff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.28);
+  transition: all 0.15s ease;
+}
+
+.hero-td-done-btn:hover {
+  background: #0277b6;
+  transform: translateY(-1px);
+}
+
+/* Search Flights CTA Button (Orange gradient pill with chevron) */
+.hero-ff-search-btn {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff;
+  border: none;
+  padding: 0 32px;
+  height: 100%;
+  min-height: 60px;
+  border-top-right-radius: 11px;
+  border-bottom-right-radius: 11px;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+
+.hero-ff-search-btn:hover {
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.4);
+}
+
+/* Bottom Row: Special Fares Optional Pills */
+.hero-flight-special-fares {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 2px;
+}
+
+.hero-special-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.hero-special-pill {
+  padding: 4px 14px;
+  border-radius: 20px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hero-special-pill:hover {
+  border-color: #0284c7;
+  color: #0284c7;
+}
+
+.hero-special-pill.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
 }
 
 .carousel-slide {
@@ -58,12 +597,12 @@
 
 .carousel-content {
   position: absolute;
-  top: 50%;
+  top: 68%;
   left: 6%;
   transform: translateY(-50%);
   color: white;
   z-index: 3;
-  max-width: 500px;
+  max-width: 650px;
 }
 
 .carousel-title {

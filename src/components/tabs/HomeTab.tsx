@@ -12,20 +12,14 @@ import TravelBlogs from '@/components/TravelBlogs';
 import TopRoutes from '@/components/TopRoutes';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import CommunityVoices from '@/components/CommunityVoices';
+import { POPULAR_CITIES } from '@/components/trainData';
 import './HomeTab.css';
 
 export default function HomeTab() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const carouselSlides = [
-    {
-      id: 1,
-      img: '/slider4.jpg',
-      title1: 'Universal Mobility.',
-      title2: 'Obsidian Prestige.',
-      subtitle: 'Reserve verified chauffeurs, instant executive sedans, and cargo transport backed by uncompromising luxury standards.',
-      action1: 'drivers', btn1: 'HIRE DRIVER'
-    },
+
     {
       id: 2,
       img: '/slider1.jpg',
@@ -55,12 +49,81 @@ export default function HomeTab() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev === 3 ? 0 : prev + 1));
-    }, 5000);
+    }, 7000);
     return () => clearInterval(timer);
   }, []);
 
-  const { activeTab, setActiveTab } = useSartStore();
+  const { activeTab, setActiveTab, setActiveRideMode } = useSartStore();
   const router = useRouter();
+
+  // Flight search form state in Hero Banner (Matching User's 2nd Image)
+  const [tripType, setTripType] = useState<'one_way' | 'round_trip'>('round_trip');
+  const [fromCity, setFromCity] = useState('');
+  const [toCity, setToCity] = useState('');
+  const [departDate, setDepartDate] = useState('Thu, 15 Oct');
+  const [returnDate, setReturnDate] = useState('Thu, 15 Oct');
+  const [adultsCount, setAdultsCount] = useState(1);
+  const [childrenCount, setChildrenCount] = useState(0);
+  const [infantsCount, setInfantsCount] = useState(0);
+  const [cabinClass, setCabinClass] = useState<'Economy' | 'Premium Economy' | 'Business'>('Economy');
+  const [selectedSpecialFare, setSelectedSpecialFare] = useState('');
+  const [freeCancelOpt, setFreeCancelOpt] = useState(true);
+
+  // Dropdown states
+  const [showFromDropdown, setShowFromDropdown] = useState(false);
+  const [showToDropdown, setShowToDropdown] = useState(false);
+  const [showTravellerDropdown, setShowTravellerDropdown] = useState(false);
+
+  const fromRef = React.useRef<HTMLDivElement>(null);
+  const toRef = React.useRef<HTMLDivElement>(null);
+  const travellerRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (fromRef.current && !fromRef.current.contains(e.target as Node)) {
+        setShowFromDropdown(false);
+      }
+      if (toRef.current && !toRef.current.contains(e.target as Node)) {
+        setShowToDropdown(false);
+      }
+      if (travellerRef.current && !travellerRef.current.contains(e.target as Node)) {
+        setShowTravellerDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSwapCities = () => {
+    const temp = fromCity;
+    setFromCity(toCity);
+    setToCity(temp);
+  };
+
+  const totalTravellers = adultsCount + childrenCount + infantsCount;
+
+  const handleSearchFlights = () => {
+    // Extract city name without code e.g. "MAA - Chennai" -> "Chennai"
+    const src = fromCity.includes('-') ? fromCity.split('-')[1].trim() : fromCity.trim();
+    const dest = toCity.includes('-') ? toCity.split('-')[1].trim() : toCity.trim();
+    const query = new URLSearchParams({
+      source: src,
+      destination: dest,
+      date: departDate,
+      adults: adultsCount.toString(),
+      children: childrenCount.toString(),
+      infants: infantsCount.toString(),
+      cabinClass: cabinClass
+    }).toString();
+
+    setActiveRideMode('flight');
+    setActiveTab('ride');
+    const targetUrl = `/home/ride/flight?${query}`;
+    if (typeof window !== 'undefined') {
+      window.history.pushState({ mode: 'flight' }, '', targetUrl);
+    }
+    router.push(targetUrl);
+  };
 
   const handleServiceClick = (tab: string) => {
     setActiveTab(tab as any);
@@ -75,6 +138,344 @@ export default function HomeTab() {
         {/* SubNavbar Overlay */}
         <div className="hero-subnav-overlay">
           <SubNavbar />
+        </div>
+
+        {/* ✈️ Hero Flight Search Floating Overlay (Matching User's 2nd Image) */}
+        <div className="hero-flight-search-wrapper">
+          <div className="hero-flight-card">
+            {/* Top Row: Trip Types & Hassle-Free Bookings Badge */}
+            <div className="hero-flight-top-row">
+              <div className="hero-flight-trip-types">
+                <button
+                  type="button"
+                  className={`hero-trip-pill ${tripType === 'one_way' ? 'active' : ''}`}
+                  onClick={() => setTripType('one_way')}
+                >
+                  <span className="hero-radio-dot"></span> One Way
+                </button>
+                <button
+                  type="button"
+                  className={`hero-trip-pill ${tripType === 'round_trip' ? 'active' : ''}`}
+                  onClick={() => setTripType('round_trip')}
+                >
+                  <span className="hero-radio-dot"></span> Round Trip
+                </button>
+              </div>
+              <div className="hero-hassle-free-badge">
+                <i className="fa-solid fa-thumbs-up"></i> Hassle-Free Bookings
+              </div>
+            </div>
+
+            {/* Middle Row: Form Inputs Grid (From, To, Departure, Return, Travellers, Search) */}
+            <div className="hero-flight-form-row">
+              {/* FROM City */}
+              <div className="hero-ff-box" ref={fromRef}>
+                <span className="hero-ff-label">From</span>
+                <input
+                  type="text"
+                  className="hero-ff-input"
+                  value={fromCity}
+                  onChange={(e) => {
+                    setFromCity(e.target.value);
+                    setShowFromDropdown(true);
+                  }}
+                  onFocus={() => setShowFromDropdown(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      setShowFromDropdown(false);
+                      handleSearchFlights();
+                    }
+                  }}
+                  placeholder="origin airport"
+                />
+                {showFromDropdown && (
+                  <div className="hero-suggestions-popup">
+                    <div className="hero-suggestions-header">
+                      <span>Popular Cities</span>
+                      <i className="fa-solid fa-city"></i>
+                    </div>
+                    <div className="hero-suggestions-list">
+                      {POPULAR_CITIES.filter(c =>
+                        !fromCity || c.name.toLowerCase().includes(fromCity.toLowerCase()) || c.code.toLowerCase().includes(fromCity.toLowerCase())
+                      ).map(c => (
+                        <div
+                          key={`from-${c.code}`}
+                          className="hero-city-item"
+                          onClick={() => {
+                            setFromCity(`${c.code} - ${c.name}`);
+                            setShowFromDropdown(false);
+                          }}
+                        >
+                          <div className="hero-city-icon">
+                            <i className="fa-solid fa-plane-departure"></i>
+                          </div>
+                          <div className="hero-city-info">
+                            <span className="hero-city-name">{c.name} ({c.code})</span>
+                            <span className="hero-city-state">{c.state}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Swap Button */}
+              <button
+                type="button"
+                className="hero-ff-swap-btn"
+                onClick={handleSwapCities}
+                title="Swap departure and destination"
+              >
+                <i className="fa-solid fa-arrow-right-arrow-left"></i>
+              </button>
+
+              {/* TO City */}
+              <div className="hero-ff-box" ref={toRef}>
+                <span className="hero-ff-label">To</span>
+                <input
+                  type="text"
+                  className="hero-ff-input"
+                  value={toCity}
+                  onChange={(e) => {
+                    setToCity(e.target.value);
+                    setShowToDropdown(true);
+                  }}
+                  onFocus={() => setShowToDropdown(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      setShowToDropdown(false);
+                      handleSearchFlights();
+                    }
+                  }}
+                  placeholder="destination airport"
+                />
+                {showToDropdown && (
+                  <div className="hero-suggestions-popup">
+                    <div className="hero-suggestions-header">
+                      <span>Popular Cities</span>
+                      <i className="fa-solid fa-city"></i>
+                    </div>
+                    <div className="hero-suggestions-list">
+                      {POPULAR_CITIES.filter(c =>
+                        !toCity || c.name.toLowerCase().includes(toCity.toLowerCase()) || c.code.toLowerCase().includes(toCity.toLowerCase())
+                      ).map(c => (
+                        <div
+                          key={`to-${c.code}`}
+                          className="hero-city-item"
+                          onClick={() => {
+                            setToCity(`${c.code} - ${c.name}`);
+                            setShowToDropdown(false);
+                          }}
+                        >
+                          <div className="hero-city-icon">
+                            <i className="fa-solid fa-plane-arrival"></i>
+                          </div>
+                          <div className="hero-city-info">
+                            <span className="hero-city-name">{c.name} ({c.code})</span>
+                            <span className="hero-city-state">{c.state}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* DEPARTURE */}
+              <div className="hero-ff-box">
+                <span className="hero-ff-label">Departure</span>
+                <input
+                  type="text"
+                  className="hero-ff-input"
+                  value={departDate}
+                  onChange={(e) => setDepartDate(e.target.value)}
+                  placeholder="Thu, 15 Oct"
+                />
+              </div>
+
+              {/* RETURN */}
+              <div className="hero-ff-box hero-ff-return-box">
+                <span className="hero-ff-label">Return</span>
+                <div className="hero-return-input-wrap">
+                  <input
+                    type="text"
+                    className="hero-ff-input"
+                    value={returnDate}
+                    onChange={(e) => setReturnDate(e.target.value)}
+                    placeholder="Thu, 15 Oct"
+                  />
+                  {returnDate && (
+                    <button
+                      type="button"
+                      className="hero-clear-return"
+                      onClick={() => setReturnDate('')}
+                      title="Clear return date"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* TRAVELLERS & CLASS */}
+              <div
+                className="hero-ff-box hero-ff-traveller"
+                ref={travellerRef}
+                onClick={() => setShowTravellerDropdown(prev => !prev)}
+              >
+                <span className="hero-ff-label">Travellers &amp; Class</span>
+                <span className="hero-ff-val-text">{totalTravellers} Traveller{totalTravellers > 1 ? 's' : ''}, {cabinClass}</span>
+
+                {showTravellerDropdown && (
+                  <div className="hero-traveller-dropdown" onClick={(e) => e.stopPropagation()}>
+                    <div className="hero-td-header">
+                      <h4>Select Travelers &amp; Class</h4>
+                      <button
+                        type="button"
+                        className="hero-td-close"
+                        onClick={() => setShowTravellerDropdown(false)}
+                      >
+                        <i className="fa-solid fa-xmark"></i>
+                      </button>
+                    </div>
+
+                    <div className="hero-td-body">
+                      {/* Adults */}
+                      <div className="hero-td-row">
+                        <div className="hero-td-type-info">
+                          <span className="hero-td-title">Adults</span>
+                          <span className="hero-td-sub">12+ years</span>
+                        </div>
+                        <div className="hero-td-counter">
+                          <button
+                            type="button"
+                            onClick={() => setAdultsCount(Math.max(1, adultsCount - 1))}
+                            disabled={adultsCount <= 1}
+                          >
+                            −
+                          </button>
+                          <span className="hero-td-count">{adultsCount}</span>
+                          <button
+                            type="button"
+                            onClick={() => setAdultsCount(Math.min(9, adultsCount + 1))}
+                            disabled={adultsCount >= 9}
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Children */}
+                      <div className="hero-td-row">
+                        <div className="hero-td-type-info">
+                          <span className="hero-td-title">Children</span>
+                          <span className="hero-td-sub">2 - 12 years</span>
+                        </div>
+                        <div className="hero-td-counter">
+                          <button
+                            type="button"
+                            onClick={() => setChildrenCount(Math.max(0, childrenCount - 1))}
+                            disabled={childrenCount <= 0}
+                          >
+                            −
+                          </button>
+                          <span className="hero-td-count">{childrenCount}</span>
+                          <button
+                            type="button"
+                            onClick={() => setChildrenCount(Math.min(6, childrenCount + 1))}
+                            disabled={childrenCount >= 6}
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Infants */}
+                      <div className="hero-td-row">
+                        <div className="hero-td-type-info">
+                          <span className="hero-td-title">Infants</span>
+                          <span className="hero-td-sub">Under 2 years</span>
+                        </div>
+                        <div className="hero-td-counter">
+                          <button
+                            type="button"
+                            onClick={() => setInfantsCount(Math.max(0, infantsCount - 1))}
+                            disabled={infantsCount <= 0}
+                          >
+                            −
+                          </button>
+                          <span className="hero-td-count">{infantsCount}</span>
+                          <button
+                            type="button"
+                            onClick={() => setInfantsCount(Math.min(adultsCount, infantsCount + 1))}
+                            disabled={infantsCount >= adultsCount}
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Cabin Class Selection */}
+                      <div className="hero-td-cabin-section">
+                        <span className="hero-td-cabin-label">CABIN CLASS</span>
+                        <div className="hero-td-cabin-pills">
+                          {(['Economy', 'Premium Economy', 'Business'] as const).map(c => (
+                            <button
+                              key={c}
+                              type="button"
+                              className={`hero-td-cabin-pill ${cabinClass === c ? 'active' : ''}`}
+                              onClick={() => setCabinClass(c)}
+                            >
+                              {c}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="hero-td-footer">
+                      <button
+                        type="button"
+                        className="hero-td-done-btn"
+                        onClick={() => setShowTravellerDropdown(false)}
+                      >
+                        Done
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Search CTA */}
+              <button
+                type="button"
+                className="hero-ff-search-btn"
+                onClick={handleSearchFlights}
+                title="Search Flights"
+              >
+                <span>Search</span>
+                <i className="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+
+            {/* Bottom Special Fares & Free Cancellation Banner */}
+            <div className="hero-flight-special-fares">
+              <span className="hero-special-label">Special Fares (Optional):</span>
+              {['Student', 'Senior Citizen', 'Armed Forces', 'Doctors & Nurses'].map((fare) => (
+                <button
+                  key={fare}
+                  type="button"
+                  className={`hero-special-pill ${selectedSpecialFare === fare ? 'active' : ''}`}
+                  onClick={() => setSelectedSpecialFare(selectedSpecialFare === fare ? '' : fare)}
+                >
+                  {fare}
+                </button>
+              ))}
+            </div>
+
+
+          </div>
         </div>
 
         {/* Modern Full-Width Carousel */}
