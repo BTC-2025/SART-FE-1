@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './RideBookingView.css';
 
 export type RideCategoryMode = 'bike' | 'auto' | 'car';
@@ -13,136 +13,182 @@ export interface RouteStop {
   lng?: number;
 }
 
-interface RideBookingViewProps {
-  mode: RideCategoryMode;
-  onBackToHome?: () => void;
+interface LatLng {
+  lat: number;
+  lng: number;
 }
 
-// Well-known coordinates in Chennai, Vellore & major cities for instant offline lookup
-const KNOWN_LOCATIONS: { [key: string]: { lat: number; lng: number } } = {
-  // Chennai & Metro Suburbs
+interface VehicleConfig {
+  id: string;
+  title: string;
+  minFare: number;
+  baseFare: number;
+  perKm: number;
+  perMinute: number;
+  waitingChargePerStop: number;
+  badge?: string;
+  badgeClass?: string;
+  image?: string;
+  icon?: string;
+  desc: string;
+}
+
+// Config objects per vehicle type
+const VEHICLE_CONFIGS: Record<RideCategoryMode, VehicleConfig[]> = {
+  bike: [
+    {
+      id: 'scooty',
+      title: 'Scooty / Activa',
+      minFare: 25,
+      baseFare: 20,
+      perKm: 5.5,
+      perMinute: 0.8,
+      waitingChargePerStop: 15,
+      badge: 'Eco Friendly & Smooth',
+      badgeClass: '',
+      image: '/images/red_scooty.png',
+      desc: 'Comfortable footboard for bag, smooth city cruise, top safety rating'
+    },
+    {
+      id: 'bike',
+      title: 'Honda SP 125 Bike',
+      minFare: 30,
+      baseFare: 25,
+      perKm: 6.5,
+      perMinute: 0.9,
+      waitingChargePerStop: 15,
+      badge: 'Fastest Ride',
+      badgeClass: 'popular',
+      image: '/images/blue_bike.png',
+      desc: 'Quickest travel through signals, verified rider captain, disposable hairnet'
+    }
+  ],
+  auto: [
+    {
+      id: 'auto_standard',
+      title: 'Auto Rickshaw',
+      minFare: 40,
+      baseFare: 35,
+      perKm: 11,
+      perMinute: 1.2,
+      waitingChargePerStop: 20,
+      badge: 'Pocket Friendly',
+      badgeClass: 'popular',
+      image: '/images/auto_green_yellow.png',
+      desc: 'Doorstep pickup, open breeze, fit for 3 passengers & luggage'
+    },
+    {
+      id: 'auto_plus',
+      title: 'Auto Plus (Top Rated)',
+      minFare: 50,
+      baseFare: 45,
+      perKm: 13,
+      perMinute: 1.5,
+      waitingChargePerStop: 25,
+      badge: 'Top Rated 4.9★',
+      badgeClass: 'premium',
+      image: '/images/auto_yellow_black.png',
+      desc: 'Experienced super drivers, cleanest auto, immediate dispatch'
+    }
+  ],
+  car: [
+    {
+      id: 'car_economy',
+      title: 'Cab Economy (Mini/Go)',
+      minFare: 80,
+      baseFare: 70,
+      perKm: 14,
+      perMinute: 1.8,
+      waitingChargePerStop: 30,
+      badge: 'Best Value',
+      badgeClass: 'popular',
+      icon: '🚖',
+      desc: 'Air-conditioned hatchback, affordable daily commute'
+    },
+    {
+      id: 'car_sedan',
+      title: 'Cab Premium Sedan',
+      minFare: 100,
+      baseFare: 90,
+      perKm: 17,
+      perMinute: 2.2,
+      waitingChargePerStop: 35,
+      badge: 'Comfort Sedan',
+      badgeClass: 'premium',
+      icon: '✨🚕',
+      desc: 'Spacious Dzire/Etios with top-rated driver & ample boot space'
+    },
+    {
+      id: 'car_suv',
+      title: 'Cab XL (6 Seater SUV)',
+      minFare: 150,
+      baseFare: 130,
+      perKm: 24,
+      perMinute: 3.0,
+      waitingChargePerStop: 45,
+      badge: 'Family & Groups',
+      badgeClass: '',
+      icon: '🚙',
+      desc: 'Innova/Ertiga with extra legroom and large luggage carrier'
+    }
+  ]
+};
+
+// Known major landmarks for instant fast address lookup
+const KNOWN_LOCATIONS: { [key: string]: LatLng } = {
   'korukkupet': { lat: 13.1118, lng: 80.2789 },
   'meenambal nagar': { lat: 13.1118, lng: 80.2789 },
   'old washermanpet': { lat: 13.1118, lng: 80.2789 },
   'chennai central': { lat: 13.0827, lng: 80.2755 },
   'central': { lat: 13.0827, lng: 80.2755 },
   'chennai': { lat: 13.0827, lng: 80.2755 },
-  'central square': { lat: 13.0827, lng: 80.2755 },
   'anna salai': { lat: 13.0604, lng: 80.2496 },
-  'thiruvallam': { lat: 12.9833, lng: 79.2167 },
   't nagar': { lat: 13.0418, lng: 80.2341 },
   'anna nagar': { lat: 13.0850, lng: 80.2101 },
   'vadapalani': { lat: 13.0500, lng: 80.2121 },
   'airport': { lat: 12.9941, lng: 80.1709 },
-  'meenambakkam': { lat: 12.9941, lng: 80.1709 },
   'guindy': { lat: 13.0067, lng: 80.2025 },
   'velachery': { lat: 12.9815, lng: 80.2180 },
   'tambaram': { lat: 12.9249, lng: 80.1000 },
   'ambattur': { lat: 13.1143, lng: 80.1548 },
   'avadi': { lat: 13.1147, lng: 80.1018 },
-  'maduravoyal': { lat: 13.0655, lng: 80.1633 },
-  'poonamallee': { lat: 13.0490, lng: 80.0984 },
-  'alandur': { lat: 13.0040, lng: 80.2015 },
-  'triplicane': { lat: 13.0587, lng: 80.2757 },
-  'marina beach': { lat: 13.0500, lng: 80.2824 },
-  'egmore': { lat: 13.0826, lng: 80.2600 },
-  'perambur': { lat: 13.1075, lng: 80.2434 },
   'porur': { lat: 13.0382, lng: 80.1565 },
   'omr': { lat: 12.8710, lng: 80.2220 },
-  'sholinganallur': { lat: 12.9010, lng: 80.2279 },
-  'siruseri': { lat: 12.8331, lng: 80.2201 },
-  'kelambakkam': { lat: 12.7876, lng: 80.2204 },
-  'chengalpattu': { lat: 12.6819, lng: 79.9888 },
-  'kanchipuram': { lat: 12.8342, lng: 79.7036 },
-  'kanchi': { lat: 12.8342, lng: 79.7036 },
-  'sriperumbudur': { lat: 12.9724, lng: 79.9462 },
-  'thiruvallur': { lat: 13.1432, lng: 79.9079 },
-  'arakkonam': { lat: 13.0850, lng: 79.6677 },
-  'ranipet': { lat: 12.9272, lng: 79.3330 },
-  'arcot': { lat: 12.9056, lng: 79.3337 },
-  'walajah': { lat: 12.9754, lng: 79.3562 },
-  // Vellore District & Key Junctions
   'vellore': { lat: 12.9165, lng: 79.1325 },
   'katpadi': { lat: 12.9751, lng: 79.1360 },
   'vit': { lat: 12.9692, lng: 79.1559 },
   'cmc': { lat: 12.9250, lng: 79.1350 },
-  'bagayam': { lat: 12.8752, lng: 79.1369 },
-  'sathuvachari': { lat: 12.9348, lng: 79.1652 },
-  'gandhi nagar': { lat: 12.9572, lng: 79.1419 },
-  'shenbakkam': { lat: 12.9272, lng: 79.1221 },
-  'ambur': { lat: 12.7904, lng: 78.7166 },
-  'vaniyambadi': { lat: 12.6825, lng: 78.6208 },
-  // Other Major Connections
-  'tirupati': { lat: 13.6288, lng: 79.4192 },
-  'chittoor': { lat: 13.2172, lng: 79.1003 },
-  'hosur': { lat: 12.7409, lng: 77.8253 },
   'bengaluru': { lat: 12.9716, lng: 77.5946 },
   'bangalore': { lat: 12.9716, lng: 77.5946 },
-  'salem': { lat: 11.6643, lng: 78.1460 },
   'coimbatore': { lat: 11.0168, lng: 76.9558 },
-  'trichy': { lat: 10.7905, lng: 78.7047 },
   'madurai': { lat: 9.9252, lng: 78.1198 },
-  'pondicherry': { lat: 11.9416, lng: 79.8083 },
-  'puducherry': { lat: 11.9416, lng: 79.8083 }
+  'salem': { lat: 11.6643, lng: 78.1460 },
+  'pondicherry': { lat: 11.9416, lng: 79.8083 }
 };
 
-// Geocoding helper with fuzzy fallback
-const resolveCoordinates = (text: string, defaultFallback: { lat: number; lng: number }): { lat: number; lng: number } => {
-  const lower = text.toLowerCase();
-  for (const key of Object.keys(KNOWN_LOCATIONS)) {
-    if (lower.includes(key)) {
-      return KNOWN_LOCATIONS[key];
-    }
+export function formatDurationHuman(seconds: number): string {
+  const totalMin = Math.round(seconds / 60);
+  const hrs = Math.floor(totalMin / 60);
+  const mins = totalMin % 60;
+  if (hrs > 0) {
+    return mins > 0 ? `${hrs} hr ${mins} min` : `${hrs} hr`;
   }
-  return defaultFallback;
-};
+  return `${Math.max(1, mins)} min`;
+}
 
-// Haversine distance helper (in kilometers) between two geographic points
-const calculateHaversineKm = (
-  p1: { lat: number; lng: number },
-  p2: { lat: number; lng: number }
-): number => {
-  const R = 6371; // Earth's radius in km
-  const dLat = ((p2.lat - p1.lat) * Math.PI) / 180;
-  const dLng = ((p2.lng - p1.lng) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((p1.lat * Math.PI) / 180) *
-    Math.cos((p2.lat * Math.PI) / 180) *
-    Math.sin(dLng / 2) *
-    Math.sin(dLng / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-};
+interface SingleSourceRouteState {
+  origin: LatLng | null;
+  destination: LatLng | null;
+  stops: RouteStop[];
+  distanceKm: number | null;
+  durationMin: number | null;
+  durationText: string;
+}
 
-// Calculate total multi-point driving/riding route distance including winding road factor
-const calculateRouteDistanceKm = (
-  pCoords: { lat: number; lng: number } | null,
-  dCoords: { lat: number; lng: number } | null,
-  stopsList: RouteStop[]
-): number => {
-  // If no coordinates selected yet, provide a realistic baseline distance
-  if (!pCoords || !dCoords) {
-    return 14.8;
-  }
-
-  const points: { lat: number; lng: number }[] = [pCoords];
-  for (const stop of stopsList) {
-    if (stop.lat !== undefined && stop.lng !== undefined) {
-      points.push({ lat: stop.lat, lng: stop.lng });
-    }
-  }
-  points.push(dCoords);
-
-  let totalCrowFlies = 0;
-  for (let i = 0; i < points.length - 1; i++) {
-    totalCrowFlies += calculateHaversineKm(points[i], points[i + 1]);
-  }
-
-  // Multiply by 1.35x to account for real urban roads, signals, turns & detours
-  const realRoadKm = Math.max(1.5, Math.round(totalCrowFlies * 1.35 * 10) / 10);
-  return realRoadKm;
-};
+interface RideBookingViewProps {
+  mode: RideCategoryMode;
+  onBackToHome?: () => void;
+}
 
 export default function RideBookingView({ mode, onBackToHome }: RideBookingViewProps) {
   // Synchronize pickup and dropoff across bike, auto, and car pages via shared storage
@@ -170,47 +216,41 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
     return [];
   });
 
-  // Keep localStorage updated whenever user changes pickup/dropoff/stops
-  useEffect(() => {
+  // Coordinates
+  const [pickupCoords, setPickupCoords] = useState<LatLng | null>(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('sart_ride_pickup', pickup);
+      try {
+        const saved = localStorage.getItem('sart_ride_pickup_coords');
+        if (saved) return JSON.parse(saved);
+      } catch (e) { }
     }
-  }, [pickup]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('sart_ride_dropoff', dropoff);
-    }
-  }, [dropoff]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('sart_ride_stops', JSON.stringify(stops));
-    }
-  }, [stops]);
-
-  // Coordinates for pickup and dropoff (defaults to central Chennai coordinates)
-  const [pickupCoords, setPickupCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [dropCoords, setDropCoords] = useState<{ lat: number; lng: number } | null>(null);
-
-  // Active target for setting location on map: 'pickup' | 'drop' | stopId | 'new-stop' | null
-  const [activePinTarget, setActivePinTarget] = useState<'pickup' | 'drop' | string | null>(null);
-
-  // Map zoom and center
-  const [mapZoom, setMapZoom] = useState(13);
-  const [centerCoords, setCenterCoords] = useState<{ lat: number; lng: number }>({
-    lat: 13.0751,
-    lng: 80.1960
+    return null;
   });
 
-  // UI state for adding stops & modals
-  const [showAddStopForm, setShowAddStopForm] = useState(false);
-  const [newStopName, setNewStopName] = useState('');
-  const [newStopPurpose, setNewStopPurpose] = useState('');
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [rideBookedModal, setRideBookedModal] = useState<any | null>(null);
+  const [dropCoords, setDropCoords] = useState<LatLng | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('sart_ride_drop_coords');
+        if (saved) return JSON.parse(saved);
+      } catch (e) { }
+    }
+    return null;
+  });
 
-  // Selected vehicle type: ONLY 2 OPTIONS FOR BIKE (Red Scooty ₹98, Honda SP 125 Bike ₹114)
+  // Single Source of Truth Route State
+  const [routeState, setRouteState] = useState<SingleSourceRouteState>({
+    origin: null,
+    destination: null,
+    stops: [],
+    distanceKm: null,
+    durationMin: null,
+    durationText: ''
+  });
+
+  const [isRouteCalculating, setIsRouteCalculating] = useState(false);
+  const [routeError, setRouteError] = useState<string | null>(null);
+
+  // Selected vehicle type
   const [selectedVehicle, setSelectedVehicle] = useState<string>(() => {
     if (mode === 'bike') return 'scooty';
     if (mode === 'auto') return 'auto_standard';
@@ -223,97 +263,297 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
     else setSelectedVehicle('car_economy');
   }, [mode]);
 
-  // Debounced geocoder for text entered into pickup input
+  // UI state for adding stops & modals
+  const [showAddStopForm, setShowAddStopForm] = useState(false);
+  const [newStopName, setNewStopName] = useState('');
+  const [newStopCoords, setNewStopCoords] = useState<LatLng | null>(null);
+  const [newStopPurpose, setNewStopPurpose] = useState('');
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [rideBookedModal, setRideBookedModal] = useState<any | null>(null);
+
+  // Map Picker Modal state
+  const [pickerTarget, setPickerTarget] = useState<'pickup' | 'drop' | 'new-stop' | string | null>(null);
+  const [pickerCoords, setPickerCoords] = useState<LatLng>({ lat: 13.0827, lng: 80.2755 });
+  const [pickerAddress, setPickerAddress] = useState<string>('Select location');
+  const [isGeocodingPicker, setIsGeocodingPicker] = useState(false);
+
+  // Auto-search suggestions for input fields
+  const [pickupSuggestions, setPickupSuggestions] = useState<string[]>([]);
+  const [dropSuggestions, setDropSuggestions] = useState<string[]>([]);
+
+  // Save to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sart_ride_pickup', pickup);
+      if (pickupCoords) localStorage.setItem('sart_ride_pickup_coords', JSON.stringify(pickupCoords));
+      else localStorage.removeItem('sart_ride_pickup_coords');
+    }
+  }, [pickup, pickupCoords]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sart_ride_dropoff', dropoff);
+      if (dropCoords) localStorage.setItem('sart_ride_drop_coords', JSON.stringify(dropCoords));
+      else localStorage.removeItem('sart_ride_drop_coords');
+    }
+  }, [dropoff, dropCoords]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sart_ride_stops', JSON.stringify(stops));
+    }
+  }, [stops]);
+
+  // Reverse geocoding helper (OpenStreetMap Nominatim, no API key needed)
+  const reverseGeocode = useCallback(async (lat: number, lng: number): Promise<string> => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
+        headers: { 'Accept-Language': 'en' }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.display_name) {
+          const parts = data.display_name.split(',');
+          return parts.slice(0, 3).join(', ').trim();
+        }
+      }
+    } catch (err) { }
+    return `Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+  }, []);
+
+  // Forward geocoding search for typing
+  const searchAddress = async (query: string): Promise<{ label: string; coords: LatLng }[]> => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+
+    // Check fast known locations first
+    for (const [key, coords] of Object.entries(KNOWN_LOCATIONS)) {
+      if (key.includes(q) || q.includes(key)) {
+        return [{ label: key.toUpperCase() + ', Chennai', coords }];
+      }
+    }
+
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=in&limit=4`, {
+        headers: { 'Accept-Language': 'en' }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          return data.map((item: any) => ({
+            label: item.display_name.split(',').slice(0, 3).join(', ').trim(),
+            coords: { lat: parseFloat(item.lat), lng: parseFloat(item.lon) }
+          }));
+        }
+      }
+    } catch (e) { }
+    return [];
+  };
+
+  // Debounced geocoding on typing for Pickup
   useEffect(() => {
     const text = pickup.trim();
-    if (!text) {
-      setPickupCoords(null);
-      return;
-    }
-    // Fast dictionary check first
-    const fastCoords = resolveCoordinates(text, null as any);
-    if (fastCoords) {
-      setPickupCoords(fastCoords);
-      setCenterCoords(fastCoords);
-      return;
-    }
+    if (!text || pickupCoords) return;
 
-    // Debounced Nominatim live geocode lookup
     const timer = setTimeout(async () => {
-      try {
-        const queries = [
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(text + ', Tamil Nadu, India')}&limit=1`,
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(text)}&countrycodes=in&limit=1`
-        ];
-        for (const url of queries) {
-          const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
-          if (res.ok) {
-            const data = await res.json();
-            if (Array.isArray(data) && data[0]) {
-              const lat = parseFloat(data[0].lat);
-              const lng = parseFloat(data[0].lon);
-              if (!isNaN(lat) && !isNaN(lng)) {
-                setPickupCoords({ lat, lng });
-                setCenterCoords({ lat, lng });
-                break;
-              }
-            }
-          }
-        }
-      } catch (err) {
-        // Fallback gracefully
+      const results = await searchAddress(text);
+      if (results.length > 0) {
+        setPickupCoords(results[0].coords);
       }
-    }, 450);
+    }, 600);
 
     return () => clearTimeout(timer);
-  }, [pickup]);
+  }, [pickup, pickupCoords]);
 
-  // Debounced geocoder for text entered into dropoff input
+  // Debounced geocoding on typing for Dropoff
   useEffect(() => {
     const text = dropoff.trim();
-    if (!text) {
-      setDropCoords(null);
-      return;
-    }
-    // Fast dictionary check first
-    const fastCoords = resolveCoordinates(text, null as any);
-    if (fastCoords) {
-      setDropCoords(fastCoords);
-      return;
-    }
+    if (!text || dropCoords) return;
 
-    // Debounced Nominatim live geocode lookup
     const timer = setTimeout(async () => {
-      try {
-        const queries = [
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(text + ', Tamil Nadu, India')}&limit=1`,
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(text)}&countrycodes=in&limit=1`
-        ];
-        for (const url of queries) {
-          const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
-          if (res.ok) {
-            const data = await res.json();
-            if (Array.isArray(data) && data[0]) {
-              const lat = parseFloat(data[0].lat);
-              const lng = parseFloat(data[0].lon);
-              if (!isNaN(lat) && !isNaN(lng)) {
-                setDropCoords({ lat, lng });
-                break;
-              }
-            }
-          }
-        }
-      } catch (err) {
-        // Fallback gracefully
+      const results = await searchAddress(text);
+      if (results.length > 0) {
+        setDropCoords(results[0].coords);
       }
-    }, 450);
+    }, 600);
 
     return () => clearTimeout(timer);
-  }, [dropoff]);
+  }, [dropoff, dropCoords]);
 
-  // Calculate live Google Maps road navigation embed URL with exact two-wheeler / bicycling routes
-  const getGoogleDirectionsUrl = () => {
-    const defaultCenter = '13.0751024,80.1959839';
+  // Calculate Real Road Navigation Distance & Duration without requiring Google API Keys
+  useEffect(() => {
+    if (!pickupCoords || !dropCoords) {
+      setRouteState({
+        origin: null,
+        destination: null,
+        stops: [],
+        distanceKm: null,
+        durationMin: null,
+        durationText: ''
+      });
+      return;
+    }
+
+    setIsRouteCalculating(true);
+    setRouteError(null);
+
+    const points = [
+      `${pickupCoords.lng},${pickupCoords.lat}`,
+      ...stops.filter(s => s.lng !== undefined && s.lat !== undefined).map(s => `${s.lng},${s.lat}`),
+      `${dropCoords.lng},${dropCoords.lat}`
+    ].join(';');
+
+    fetch(`https://router.project-osrm.org/route/v1/driving/${points}?overview=full&geometries=geojson`)
+      .then(res => res.json())
+      .then(data => {
+        setIsRouteCalculating(false);
+        if (data.routes && data.routes[0]) {
+          const route = data.routes[0];
+          const distKm = Math.round((route.distance / 1000) * 10) / 10;
+          const durSeconds = Math.round(route.duration);
+          const durMin = Math.round(durSeconds / 60);
+          const durText = formatDurationHuman(durSeconds);
+
+          setRouteState({
+            origin: pickupCoords,
+            destination: dropCoords,
+            stops,
+            distanceKm: distKm,
+            durationMin: durMin,
+            durationText: durText
+          });
+        } else {
+          setRouteError('Could not compute road distance between these points.');
+        }
+      })
+      .catch(err => {
+        setIsRouteCalculating(false);
+        console.error('Routing error:', err);
+        setRouteError('Failed to calculate road route.');
+      });
+  }, [pickupCoords, dropCoords, stops]);
+
+  // "Use my current location" handler for pickup
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
+    }
+    setIsRouteCalculating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        setPickupCoords({ lat, lng });
+        const addr = await reverseGeocode(lat, lng);
+        setPickup(addr);
+        setIsRouteCalculating(false);
+      },
+      (err) => {
+        setIsRouteCalculating(false);
+        alert('Could not retrieve your current location: ' + err.message);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  // Open "Pick on map" modal
+  const handleOpenMapPicker = (target: 'pickup' | 'drop' | 'new-stop' | string) => {
+    let initialCoords: LatLng = { lat: 13.0827, lng: 80.2755 }; // Chennai default
+    if (target === 'pickup' && pickupCoords) initialCoords = pickupCoords;
+    else if (target === 'drop' && dropCoords) initialCoords = dropCoords;
+    else if (typeof target === 'string' && target.startsWith('stop-')) {
+      const existing = stops.find(s => s.id === target);
+      if (existing?.lat && existing?.lng) initialCoords = { lat: existing.lat, lng: existing.lng };
+    }
+
+    setPickerTarget(target);
+    setPickerCoords(initialCoords);
+    setPickerAddress('Locating address...');
+    setIsGeocodingPicker(true);
+    reverseGeocode(initialCoords.lat, initialCoords.lng).then(addr => {
+      setPickerAddress(addr);
+      setIsGeocodingPicker(false);
+    });
+  };
+
+  // Map Picker Canvas Pan/Drag handler
+  const handlePickerMapCanvasClick = async (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const xRatio = (e.clientX - rect.left) / rect.width;
+    const yRatio = (e.clientY - rect.top) / rect.height;
+
+    // Relative offset from current picker center
+    const latSpan = 0.04;
+    const lngSpan = 0.04;
+    const newLat = +(pickerCoords.lat + (0.5 - yRatio) * latSpan).toFixed(5);
+    const newLng = +(pickerCoords.lng + (xRatio - 0.5) * lngSpan).toFixed(5);
+
+    setPickerCoords({ lat: newLat, lng: newLng });
+    setIsGeocodingPicker(true);
+    const addr = await reverseGeocode(newLat, newLng);
+    setPickerAddress(addr);
+    setIsGeocodingPicker(false);
+  };
+
+  // Confirm selection in Map Picker Modal
+  const handleConfirmPickerLocation = () => {
+    if (!pickerTarget) return;
+
+    if (pickerTarget === 'pickup') {
+      setPickup(pickerAddress);
+      setPickupCoords(pickerCoords);
+    } else if (pickerTarget === 'drop') {
+      setDropoff(pickerAddress);
+      setDropCoords(pickerCoords);
+    } else if (pickerTarget === 'new-stop') {
+      setNewStopName(pickerAddress);
+      setNewStopCoords(pickerCoords);
+    } else if (pickerTarget.startsWith('stop-')) {
+      const stopId = pickerTarget;
+      setStops(prev =>
+        prev.map(s => (s.id === stopId ? { ...s, name: pickerAddress, lat: pickerCoords.lat, lng: pickerCoords.lng } : s))
+      );
+    }
+
+    setPickerTarget(null);
+  };
+
+  // Calculate vehicle fare using the exact formula:
+  // fare = max(minFare, baseFare + perKm * distanceKm + perMinute * durationMin + waiting charge per stop)
+  const calculateVehicleFare = useCallback(
+    (cfg: VehicleConfig) => {
+      if (routeState.distanceKm === null || routeState.durationMin === null) {
+        return cfg.minFare;
+      }
+      const distancePart = cfg.perKm * routeState.distanceKm;
+      const durationPart = cfg.perMinute * routeState.durationMin;
+      const waitingPart = cfg.waitingChargePerStop * stops.length;
+      const rawFare = cfg.baseFare + distancePart + durationPart + waitingPart;
+      return Math.round(Math.max(cfg.minFare, rawFare));
+    },
+    [routeState.distanceKm, routeState.durationMin, stops.length]
+  );
+
+  // Dynamic Vehicle Cards
+  const vehicles = React.useMemo(() => {
+    const list = VEHICLE_CONFIGS[mode] || VEHICLE_CONFIGS.bike;
+    return list.map(cfg => {
+      const fare = calculateVehicleFare(cfg);
+      return {
+        ...cfg,
+        fare,
+        distance: routeState.distanceKm !== null ? `${routeState.distanceKm} km` : '',
+        time: routeState.durationText || '',
+        hasDistance: routeState.distanceKm !== null
+      };
+    });
+  }, [mode, calculateVehicleFare, routeState.distanceKm, routeState.durationText]);
+
+  const currentVehicleData = vehicles.find(v => v.id === selectedVehicle) || vehicles[0];
+
+  // Google Maps Clean Embed URL (100% Free, No API Key, Clean Road Navigation)
+  const getGoogleMapsEmbedUrl = () => {
     const origin = pickup.trim()
       ? encodeURIComponent(pickup.trim())
       : (pickupCoords ? `${pickupCoords.lat},${pickupCoords.lng}` : '');
@@ -321,220 +561,19 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
       ? encodeURIComponent(dropoff.trim())
       : (dropCoords ? `${dropCoords.lat},${dropCoords.lng}` : '');
 
-    // If both origin and destination are present, show route directions
     if (origin && destination) {
-      // Use Google Maps directions embed
-      return `https://maps.google.com/maps?saddr=${origin}&daddr=${destination}&t=m&z=${mapZoom}&output=embed`;
+      return `https://maps.google.com/maps?saddr=${origin}&daddr=${destination}&t=m&z=13&output=embed`;
     }
-
-    // If only one is present, center map on that point
-    const target = origin || destination;
-    if (target) {
-      return `https://maps.google.com/maps?q=${target}&t=m&z=${mapZoom}&output=embed`;
-    }
-
-    // Default: User's exact Chennai link center (13.0751024, 80.1959839, 13z)
-    return `https://maps.google.com/maps?ll=13.0751024,80.1959839&z=${mapZoom}&t=m&output=embed`;
+    const center = origin || destination || '13.0827,80.2755';
+    return `https://maps.google.com/maps?q=${center}&t=m&z=13&output=embed`;
   };
 
-  const getDirectAppUrl = () => {
+  const getDirectGoogleMapsAppUrl = () => {
     const origin = encodeURIComponent(pickup.trim() || 'Chennai');
     const destination = encodeURIComponent(dropoff.trim() || 'Chennai Central');
     const travelmode = mode === 'bike' ? 'two_wheeler' : 'driving';
     return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=${travelmode}`;
   };
-
-  // Convert lat/lng to percentage coordinates on interactive canvas
-  const getRelativePosition = (pt: { lat: number; lng: number } | null, fallbackX = 30, fallbackY = 50) => {
-    if (!pt) {
-      return { left: `${fallbackX}%`, top: `${fallbackY}%`, x: fallbackX, y: fallbackY, exists: false };
-    }
-    const minLat = 12.96, maxLat = 13.18;
-    const minLng = 80.08, maxLng = 80.30;
-
-    const x = Math.min(Math.max(((pt.lng - minLng) / (maxLng - minLng)) * 100, 10), 90);
-    const y = Math.min(Math.max((1 - (pt.lat - minLat) / (maxLat - minLat)) * 100, 10), 90);
-    return { left: `${x.toFixed(1)}%`, top: `${y.toFixed(1)}%`, x, y, exists: true };
-  };
-
-  const pickupPos = getRelativePosition(pickupCoords, 28, 48);
-  const dropPos = getRelativePosition(dropCoords, 72, 54);
-
-  // Reverse geocode or create readable name for clicked map coordinates
-  const handleMapCanvasClick = async (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!activePinTarget) return;
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const xRatio = (e.clientX - rect.left) / rect.width;
-    const yRatio = (e.clientY - rect.top) / rect.height;
-
-    // Approximate latitude & longitude based on Chennai bounding box
-    const minLat = 12.96, maxLat = 13.18;
-    const minLng = 80.08, maxLng = 80.30;
-    const clickLat = +(maxLat - yRatio * (maxLat - minLat)).toFixed(4);
-    const clickLng = +(minLng + xRatio * (maxLng - minLng)).toFixed(4);
-
-    let resolvedLabel = `Pinned Point (${clickLat}°N, ${clickLng}°E)`;
-
-    // Try fast reverse lookup with Nominatim
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${clickLat}&lon=${clickLng}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data && data.display_name) {
-          const parts = data.display_name.split(',');
-          resolvedLabel = parts.slice(0, 3).join(', ').trim();
-        }
-      }
-    } catch (err) {
-      // Keep default resolvedLabel
-    }
-
-    if (activePinTarget === 'pickup') {
-      setPickup(resolvedLabel);
-      setPickupCoords({ lat: clickLat, lng: clickLng });
-      setCenterCoords({ lat: clickLat, lng: clickLng });
-      setActivePinTarget(null);
-    } else if (activePinTarget === 'drop') {
-      setDropoff(resolvedLabel);
-      setDropCoords({ lat: clickLat, lng: clickLng });
-      setActivePinTarget(null);
-    } else if (activePinTarget === 'new-stop') {
-      setNewStopName(resolvedLabel);
-      setActivePinTarget(null);
-    } else if (typeof activePinTarget === 'string' && activePinTarget.startsWith('stop-')) {
-      const stopId = activePinTarget;
-      setStops(prev => prev.map(s => s.id === stopId ? { ...s, name: resolvedLabel, lat: clickLat, lng: clickLng } : s));
-      setActivePinTarget(null);
-    }
-  };
-
-  // Zoom controls
-  const handleZoom = (dir: 'in' | 'out') => {
-    setMapZoom(prev => Math.min(Math.max(prev + (dir === 'in' ? 1 : -1), 10), 19));
-  };
-
-  // Dynamic Route Distance (in km) calculated between Pickup, Stops and Dropoff
-  const routeDistanceKm = React.useMemo(() => {
-    return calculateRouteDistanceKm(pickupCoords, dropCoords, stops);
-  }, [pickupCoords, dropCoords, stops]);
-
-  const stopsExtraCost = stops.length * 15; // ₹15 per stop
-
-  // Dynamic Vehicles list with fare and time calculated based on route distance
-  const vehicles = React.useMemo(() => {
-    const dist = routeDistanceKm;
-    const distText = `${dist} km`;
-
-    // Standardized estimated trip duration based on Google Map road distance (approx 2 mins per km + 3 mins per stop)
-    const tripDurationMins = Math.max(7, Math.round(dist * 1.8 + stops.length * 3));
-    const tripTimeText = `${tripDurationMins} mins`;
-
-    if (mode === 'bike') {
-      // Scooty: Base ₹25 (covers first 2km) + ₹5.5/km + stops
-      const scootyFare = Math.round(25 + Math.max(0, dist - 2) * 5.5 + stopsExtraCost);
-
-      // Bike (Honda SP 125): Base ₹30 (covers first 2km) + ₹6.5/km + stops
-      const bikeFare = Math.round(30 + Math.max(0, dist - 2) * 6.5 + stopsExtraCost);
-
-      return [
-        {
-          id: 'scooty',
-          title: 'Scooty / Activa',
-          fare: scootyFare,
-          distance: distText,
-          time: tripTimeText,
-          badge: 'Eco Friendly & Smooth',
-          badgeClass: '',
-          image: '/images/red_scooty.png',
-          desc: 'Comfortable footboard for bag, smooth city cruise, top safety rating'
-        },
-        {
-          id: 'bike',
-          title: 'Honda SP 125 Bike',
-          fare: bikeFare,
-          distance: distText,
-          time: tripTimeText,
-          badge: 'Fastest Ride',
-          badgeClass: 'popular',
-          image: '/images/blue_bike.png',
-          desc: 'Quickest travel through signals, verified rider captain, disposable hairnet'
-        }
-      ];
-    } else if (mode === 'auto') {
-      // Auto: Base ₹40 + ₹11/km
-      const autoFare = Math.round(40 + Math.max(0, dist - 2) * 11 + stopsExtraCost * 1.2);
-      const autoPlusFare = Math.round(50 + Math.max(0, dist - 2) * 13 + stopsExtraCost * 1.2);
-
-      return [
-        {
-          id: 'auto_standard',
-          title: 'Auto Rickshaw',
-          fare: autoFare,
-          distance: distText,
-          time: tripTimeText,
-          badge: 'Pocket Friendly',
-          badgeClass: 'popular',
-          image: '/images/auto_green_yellow.png',
-          desc: 'Doorstep pickup, open breeze, fit for 3 passengers & luggage'
-        },
-        {
-          id: 'auto_plus',
-          title: 'Auto Plus (Top Rated)',
-          fare: autoPlusFare,
-          distance: distText,
-          time: tripTimeText,
-          badge: 'Top Rated 4.9★',
-          badgeClass: 'premium',
-          image: '/images/auto_yellow_black.png',
-          desc: 'Experienced super drivers, cleanest auto, immediate dispatch'
-        }
-      ];
-    } else {
-      // Car / Cab
-      const econFare = Math.round(80 + Math.max(0, dist - 2) * 14 + stopsExtraCost * 1.5);
-      const sedanFare = Math.round(100 + Math.max(0, dist - 2) * 17 + stopsExtraCost * 1.5);
-      const suvFare = Math.round(150 + Math.max(0, dist - 2) * 24 + stopsExtraCost * 2);
-
-      return [
-        {
-          id: 'car_economy',
-          title: 'Cab Economy (Mini/Go)',
-          fare: econFare,
-          distance: distText,
-          time: tripTimeText,
-          badge: 'Best Value',
-          badgeClass: 'popular',
-          icon: '🚖',
-          desc: 'Air-conditioned hatchback, affordable daily commute'
-        },
-        {
-          id: 'car_sedan',
-          title: 'Cab Premium Sedan',
-          fare: sedanFare,
-          distance: distText,
-          time: tripTimeText,
-          badge: 'Comfort Sedan',
-          badgeClass: 'premium',
-          icon: '✨🚕',
-          desc: 'Spacious Dzire/Etios with top-rated driver & ample boot space'
-        },
-        {
-          id: 'car_suv',
-          title: 'Cab XL (6 Seater SUV)',
-          fare: suvFare,
-          distance: distText,
-          time: tripTimeText,
-          badge: 'Family & Groups',
-          badgeClass: '',
-          icon: '🚙',
-          desc: 'Innova/Ertiga with extra legroom and large luggage carrier'
-        }
-      ];
-    }
-  }, [mode, routeDistanceKm, stops.length, stopsExtraCost]);
-
-  const currentVehicleData = vehicles.find(v => v.id === selectedVehicle) || vehicles[0];
 
   return (
     <div className="rb-container">
@@ -555,7 +594,7 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
                 {mode === 'bike' ? '🛵 Instant Two-Wheeler Booking' : mode === 'auto' ? '🛺 Auto Rickshaw Booking' : '🚗 Cab & Car Booking'}
               </span>
               <span className="rb-status-pill">
-                <i className="fa-solid fa-circle-dot"></i> Live Google Road Network
+                <i className="fa-solid fa-circle-dot"></i> Live Google Road Navigation
               </span>
             </div>
             <h2 className="rb-main-heading">
@@ -563,20 +602,34 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
             </h2>
           </div>
         </div>
-
-
       </div>
 
-      {/* Main Grid: Inputs Column & Live Map */}
-      <div className="rb-booking-grid">
-        {/* Left Column: Route Inputs */}
-        <div className="rb-route-column">
-          <div className="rb-route-boxes-stack">
-            {/* 1. Pickup Box */}
-            <div className={`rb-input-box ${activePinTarget === 'pickup' ? 'focus-target' : ''}`}>
+      {/* Top Section: Left Side Pickup, Right Side Dropping, with Stops appearing below Pickup */}
+      <div className="rb-inputs-horizontal-section">
+        <div className="rb-inputs-two-columns">
+          {/* Left Column: Pickup point + Added Stops below Pickup */}
+          <div className="rb-input-side-column">
+            <div className="rb-input-box">
               <div className="rb-box-label green">
-                <span>Pickup</span>
-
+                <span>Pickup Point</span>
+                <div className="rb-box-label-actions">
+                  <button
+                    type="button"
+                    className="rb-input-map-pin-btn location-btn"
+                    onClick={handleUseCurrentLocation}
+                    title="Use GPS current location"
+                  >
+                    <i className="fa-solid fa-crosshairs"></i> Use current location
+                  </button>
+                  <button
+                    type="button"
+                    className="rb-input-map-pin-btn"
+                    onClick={() => handleOpenMapPicker('pickup')}
+                    title="Pick pickup on map"
+                  >
+                    <i className="fa-solid fa-map-location-dot"></i> Pick on map
+                  </button>
+                </div>
               </div>
               <div className="rb-box-field-row">
                 <div className="rb-point-bullet green"></div>
@@ -584,20 +637,20 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
                   type="text"
                   className="rb-input-element"
                   value={pickup}
-                  onChange={(e) => setPickup(e.target.value)}
+                  onChange={(e) => {
+                    setPickup(e.target.value);
+                    setPickupCoords(null);
+                  }}
                   placeholder="Enter pickup location"
                 />
-
               </div>
             </div>
 
-            {/* Connecting Dotted Line */}
-            <div className="rb-route-dotted-v-line"></div>
-
-            {/* Intermediate Stops */}
+            {/* Intermediate Stops (Appears cleanly below Pickup point) */}
             {stops.map((st, idx) => (
-              <React.Fragment key={st.id}>
-                <div className={`rb-input-box stop-box ${activePinTarget === st.id ? 'focus-target' : ''}`}>
+              <div key={st.id} className="rb-added-stop-wrapper">
+                <div className="rb-stop-connector-line"></div>
+                <div className="rb-input-box stop-box">
                   <div className="rb-box-label orange">
                     <span>Stop #{idx + 1}</span>
                     <button
@@ -606,7 +659,7 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
                       onClick={() => setStops(prev => prev.filter(s => s.id !== st.id))}
                       title="Remove Stop"
                     >
-                      ×
+                      × Remove
                     </button>
                   </div>
                   <div className="rb-box-field-row">
@@ -619,22 +672,19 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
                       value={st.name}
                       onChange={(e) => {
                         const val = e.target.value;
-                        setStops(prev => prev.map(s => s.id === st.id ? { ...s, name: val } : s));
+                        setStops(prev => prev.map(s => (s.id === st.id ? { ...s, name: val } : s)));
                       }}
-                      placeholder="Stop location"
+                      placeholder="Enter stop location"
                     />
                     <button
                       type="button"
-                      className={`rb-input-map-icon-btn ${activePinTarget === st.id ? 'active' : ''}`}
-                      onClick={() => {
-                        setActivePinTarget(activePinTarget === st.id ? null : st.id);
-                      }}
-                      title="Click to select this stop on map"
+                      className="rb-input-map-icon-btn"
+                      onClick={() => handleOpenMapPicker(st.id)}
+                      title="Pick stop on map"
                     >
                       <i className="fa-solid fa-map-location-dot"></i>
                     </button>
                   </div>
-
                   <div className="rb-stop-purpose-pill-row">
                     <i className="fa-solid fa-clipboard-check"></i>
                     <input
@@ -643,22 +693,108 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
                       value={st.purpose}
                       onChange={(e) => {
                         const val = e.target.value;
-                        setStops(prev => prev.map(s => s.id === st.id ? { ...s, purpose: val } : s));
+                        setStops(prev => prev.map(s => (s.id === st.id ? { ...s, purpose: val } : s)));
                       }}
-                      placeholder="Purpose for stop (e.g. Pick parcel, 2 min errand, Meet friend)"
+                      placeholder="Purpose (e.g. 2 min errand, parcel, friend)"
                     />
                   </div>
                 </div>
-
-                <div className="rb-route-dotted-v-line"></div>
-              </React.Fragment>
+              </div>
             ))}
 
-            {/* 2. Drop Box */}
-            <div className={`rb-input-box ${activePinTarget === 'drop' ? 'focus-target' : ''}`}>
-              <div className="rb-box-label red">
-                <span>Drop</span>
+            {/* Simple and Easy Add Stop Button */}
+            <div className="rb-add-stop-trigger-row">
+              <button
+                type="button"
+                className="rb-add-stop-simple-btn"
+                onClick={() => setShowAddStopForm(prev => !prev)}
+              >
+                <span className="rb-add-stop-plus-circle">＋</span>
+                <span>{showAddStopForm ? 'Close Add Stop' : 'Add Stopping'}</span>
+              </button>
+            </div>
 
+            {/* Simple Add Stop Form */}
+            {showAddStopForm && (
+              <div className="rb-simple-add-stop-card">
+                <div className="rb-simple-stop-header">
+                  <span><i className="fa-solid fa-plus-circle"></i> New Stopping Point</span>
+                </div>
+                <div className="rb-field-with-icon">
+                  <input
+                    type="text"
+                    className="rb-input-element standard"
+                    placeholder="Enter stop location name"
+                    value={newStopName}
+                    onChange={(e) => setNewStopName(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="rb-field-map-btn"
+                    onClick={() => handleOpenMapPicker('new-stop')}
+                    title="Pick stop on map"
+                  >
+                    <i className="fa-solid fa-map-location-dot"></i>
+                  </button>
+                </div>
+                <div className="rb-field-with-icon" style={{ marginTop: '6px' }}>
+                  <input
+                    type="text"
+                    className="rb-input-element standard"
+                    placeholder="Stop purpose (e.g. pick parcel, 2 min errand)"
+                    value={newStopPurpose}
+                    onChange={(e) => setNewStopPurpose(e.target.value)}
+                  />
+                </div>
+                <div className="rb-simple-stop-actions">
+                  <button
+                    type="button"
+                    className="rb-btn-confirm-stop"
+                    onClick={() => {
+                      if (!newStopName.trim()) return;
+                      setStops(prev => [
+                        ...prev,
+                        {
+                          id: `stop-${Date.now()}`,
+                          name: newStopName.trim(),
+                          purpose: newStopPurpose.trim() || 'Short Errand',
+                          lat: newStopCoords?.lat ?? 13.0600,
+                          lng: newStopCoords?.lng ?? 80.2200
+                        }
+                      ]);
+                      setNewStopName('');
+                      setNewStopCoords(null);
+                      setNewStopPurpose('');
+                      setShowAddStopForm(false);
+                    }}
+                  >
+                    Add Stop
+                  </button>
+                  <button
+                    type="button"
+                    className="rb-btn-cancel-stop"
+                    onClick={() => setShowAddStopForm(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right Column: Dropping point */}
+          <div className="rb-input-side-column">
+            <div className="rb-input-box">
+              <div className="rb-box-label red">
+                <span>Dropping Point</span>
+                <button
+                  type="button"
+                  className="rb-input-map-pin-btn"
+                  onClick={() => handleOpenMapPicker('drop')}
+                  title="Pick drop on map"
+                >
+                  <i className="fa-solid fa-map-location-dot"></i> Pick on map
+                </button>
               </div>
               <div className="rb-box-field-row">
                 <div className="rb-point-bullet red"></div>
@@ -666,211 +802,61 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
                   type="text"
                   className="rb-input-element"
                   value={dropoff}
-                  onChange={(e) => setDropoff(e.target.value)}
-                  placeholder="Enter drop location"
+                  onChange={(e) => {
+                    setDropoff(e.target.value);
+                    setDropCoords(null);
+                  }}
+                  placeholder="Enter dropping location"
                 />
-
               </div>
             </div>
+
+            {/* Helper notice */}
+
+          </div>
+        </div>
+      </div>
+
+      {/* Full Width Google Map Section (Height: 400px, Width: 100%) */}
+      <div className="rb-fullwidth-map-section">
+        <div className="rb-map-card full-width">
+          {/* Map Top Bar */}
+          <div className="rb-map-top-bar">
+            <div className="rb-map-header-left">
+              <i className="fa-solid fa-map-location-dot" style={{ color: '#ea580c' }}></i>
+              <span>Google Maps Live Road Navigation</span>
+              {isRouteCalculating && <span className="rb-calculating-spinner"><i className="fa-solid fa-spinner fa-spin"></i> Calculating Route...</span>}
+            </div>
+
+            <a
+              href={getDirectGoogleMapsAppUrl()}
+              target="_blank"
+              rel="noreferrer"
+              className="rb-pill-btn google-nav-btn"
+              title="Open full navigation in Google Maps app"
+            >
+              <i className="fa-solid fa-arrow-up-right-from-square"></i> Open in Maps
+            </a>
           </div>
 
-          {/* Quick Action Pills: Select on map + Add stops */}
-          <div className="rb-actions-pills-row">
-            <button
-              type="button"
-              className={`rb-pill-btn ${activePinTarget === 'pickup' ? 'active' : ''}`}
-              onClick={() => {
-                setActivePinTarget(activePinTarget === 'pickup' ? null : 'pickup');
-              }}
-            >
-              <i className="fa-solid fa-map-pin"></i> Select on map
-            </button>
-            <button
-              type="button"
-              className="rb-pill-btn"
-              onClick={() => setShowAddStopForm(prev => !prev)}
-            >
-              <span className="rb-pill-diamond">＋</span> Add stops
-            </button>
+          {/* Interactive Map Canvas Container (Full width, 280px height with clean Google Maps Road View) */}
+          <div className="rb-interactive-map-canvas" style={{ width: '100%', height: '280px' }}>
+            <iframe
+              title="Google Maps Live Navigation"
+              className="rb-map-iframe-google"
+              src={getGoogleMapsEmbedUrl()}
+              loading="lazy"
+              allowFullScreen
+            />
           </div>
 
-          {/* Add Stop with Purpose Creator */}
-          {showAddStopForm && (
-            <div className="rb-add-stop-panel">
-              <div className="rb-add-stop-badge-title">
-                <i className="fa-solid fa-circle-plus"></i> Add Stopping
-              </div>
-              <div className="rb-add-stop-inputs">
-                <div className="rb-field-with-icon">
-                  <input
-                    type="text"
-                    className="rb-input-element standard"
-                    placeholder="Stop location"
-                    value={newStopName}
-                    onChange={(e) => setNewStopName(e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    className="rb-field-map-btn"
-                    onClick={() => {
-                      setActivePinTarget('new-stop');
-                    }}
-                    title="Pick on map"
-                  >
-                    <i className="fa-solid fa-location-dot"></i>
-                  </button>
-                </div>
-
-              </div>
-              <div className="rb-add-stop-buttons">
-                <button
-                  type="button"
-                  className="rb-btn-confirm-stop"
-                  onClick={() => {
-                    if (!newStopName.trim()) return;
-                    setStops(prev => [
-                      ...prev,
-                      {
-                        id: `stop-${Date.now()}`,
-                        name: newStopName.trim(),
-                        purpose: newStopPurpose.trim() || 'Short Errand',
-                        lat: 13.0600,
-                        lng: 80.2200
-                      }
-                    ]);
-                    setNewStopName('');
-                    setNewStopPurpose('');
-                    setShowAddStopForm(false);
-                  }}
-                >
-                  Confirm Stop
-                </button>
-                <button
-                  type="button"
-                  className="rb-btn-cancel-stop"
-                  onClick={() => setShowAddStopForm(false)}
-                >
-                  Cancel
-                </button>
-              </div>
+          {/* Error Message if Directions fails */}
+          {routeError && (
+            <div className="rb-directions-error-bar">
+              <i className="fa-solid fa-triangle-exclamation"></i>
+              <span>{routeError}</span>
             </div>
           )}
-        </div>
-
-        {/* Right Column: Exact Google Road Navigation Map with Direct Selection & Blue Pencil Route Line */}
-        <div className="rb-map-column">
-          <div className="rb-map-card">
-            {/* Map Top Bar */}
-            <div className="rb-map-top-bar">
-              <div className="rb-map-header-left">
-                <i className="fa-solid fa-location-crosshairs" style={{ color: '#ea580c' }}></i>
-                <span>
-                  Live Google Map ({centerCoords.lat.toFixed(4)}°N, {centerCoords.lng.toFixed(4)}°E) •{' '}
-                  {activePinTarget ? (
-                    <span className="rb-active-pin-notice">
-                      Click map to set <strong>{activePinTarget === 'pickup' ? 'PICKUP' : activePinTarget === 'drop' ? 'DROP' : 'STOP'}</strong>
-                    </span>
-                  ) : (
-                    'Two-Wheeler Road Route'
-                  )}
-                </span>
-              </div>
-
-              {activePinTarget && (
-                <div className="rb-active-selecting-badge">
-                  <span className="pulse-dot"></span> Click anywhere on map to select
-                </div>
-              )}
-            </div>
-
-            {/* Interactive Map Canvas Container with Google Road Map Embed */}
-            <div
-              className={`rb-interactive-map-canvas ${activePinTarget ? 'selecting-active' : ''}`}
-              onClick={handleMapCanvasClick}
-            >
-              {/* Real Google Map Road Directions Embed */}
-              <iframe
-                title="Google Maps Live Bike Road Navigation"
-                className="rb-map-iframe-google"
-                src={getGoogleDirectionsUrl()}
-                loading="lazy"
-                allowFullScreen
-              />
-
-              {/* Click Interceptor Overlay when selecting on map */}
-              {activePinTarget && (
-                <div className="rb-map-click-overlay" title={`Click to set ${activePinTarget}`}>
-                  <div className="rb-map-selection-tooltip">
-                    <i className="fa-solid fa-crosshairs"></i> Click anywhere to pin {activePinTarget.toUpperCase()}
-                  </div>
-                </div>
-              )}
-
-              {/* Map Floating Zoom Controls */}
-              <div className="rb-map-zoom-controls" onClick={(e) => e.stopPropagation()}>
-                <button
-                  type="button"
-                  className="rb-zoom-btn"
-                  onClick={() => handleZoom('in')}
-                  title="Zoom In"
-                >
-                  ＋
-                </button>
-                <button
-                  type="button"
-                  className="rb-zoom-btn"
-                  onClick={() => handleZoom('out')}
-                  title="Zoom Out"
-                >
-                  －
-                </button>
-              </div>
-            </div>
-
-            {/* Prominent Live Google Map Route & Distance Card Below Map */}
-            <div className="rb-map-below-distance-card">
-              <div className="rb-map-distance-header">
-                <div className="rb-map-distance-pill">
-                  <i className="fa-solid fa-route"></i>
-                  <span>Total Distance: <strong>{routeDistanceKm} km</strong></span>
-                </div>
-                <div className="rb-map-time-pill">
-                  <i className="fa-solid fa-clock"></i>
-                  <span>Est. Duration: <strong>{currentVehicleData.time}</strong></span>
-                </div>
-              </div>
-
-              <div className="rb-map-route-points-preview">
-                <div className="rb-map-point-preview green">
-                  <div className="rb-point-bullet green"></div>
-                  <div className="rb-point-text">
-                    <span className="rb-point-title">Pickup Point:</span>
-                    <span className="rb-point-address">{pickup || 'Tap to set or enter pickup address'}</span>
-                  </div>
-                </div>
-
-                {stops.length > 0 && (
-                  <div className="rb-map-point-preview orange">
-                    <div className="rb-point-diamond">
-                      <span>{stops.length}</span>
-                    </div>
-                    <div className="rb-point-text">
-                      <span className="rb-point-title">{stops.length} Halt {stops.length === 1 ? 'Stop' : 'Stops'}:</span>
-                      <span className="rb-point-address">{stops.map(s => s.name).join(' • ')}</span>
-                    </div>
-                  </div>
-                )}
-
-                <div className="rb-map-point-preview red">
-                  <div className="rb-point-bullet red"></div>
-                  <div className="rb-point-text">
-                    <span className="rb-point-title">Dropping Point:</span>
-                    <span className="rb-point-address">{dropoff || 'Tap to set or enter dropping destination'}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -878,7 +864,7 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
       <div className="rb-vehicle-section">
         <h3 className="rb-vehicle-section-title">
           <i className={mode === 'bike' ? 'fa-solid fa-motorcycle' : mode === 'auto' ? 'fa-solid fa-taxi' : 'fa-solid fa-car'}></i>
-          {mode === 'bike' ? 'Choose Two-Wheeler (Only 2 Options)' : mode === 'auto' ? 'Choose Auto Service' : 'Choose Cab Service'}
+          {mode === 'bike' ? 'Choose Two-Wheeler' : mode === 'auto' ? 'Choose Auto Service' : 'Choose Cab Service'}
         </h3>
 
         <div className={`rb-vehicle-cards-grid ${(mode === 'bike' || mode === 'auto') ? 'two-cards' : ''}`}>
@@ -905,16 +891,54 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
                   <span className="rb-vehicle-name">{v.title}</span>
                   <span className="rb-vehicle-price">₹ {v.fare}</span>
                 </div>
-                <div className="rb-vehicle-specs-row">
-                  <span><i className="fa-solid fa-route"></i> {v.distance}</span>
-                  <span><i className="fa-solid fa-clock"></i> {v.time}</span>
-                  <span><i className="fa-solid fa-shield-halved"></i> Helmet / Safety</span>
-                </div>
+
+                {/* Distance & Time */}
+                {v.hasDistance ? (
+                  <div className="rb-vehicle-specs-row">
+                    <span><i className="fa-solid fa-route"></i> {v.distance}</span>
+                    <span><i className="fa-solid fa-clock"></i> {v.time}</span>
+                    <span><i className="fa-solid fa-shield-halved"></i> Safety Insured</span>
+                  </div>
+                ) : (
+                  <div className="rb-vehicle-specs-row empty">
+                    <span>Select pickup & drop for exact distance</span>
+                  </div>
+                )}
+
                 <p className="rb-vehicle-desc">{v.desc}</p>
               </div>
             </div>
           ))}
         </div>
+
+        {/* SHOW DISTANCE BELOW THE VEHICLES: SUMMARY BAR */}
+        {routeState.distanceKm !== null ? (
+          <div className="rb-distance-summary-bar">
+            <div className="rb-dist-sum-item">
+              <i className="fa-solid fa-route"></i>
+              <span>Distance: <strong>{routeState.distanceKm} km</strong></span>
+            </div>
+            <div className="rb-dist-sum-divider">•</div>
+            <div className="rb-dist-sum-item">
+              <i className="fa-solid fa-clock"></i>
+              <span>Time: <strong>{routeState.durationText}</strong></span>
+            </div>
+            {stops.length > 0 && (
+              <>
+                <div className="rb-dist-sum-divider">•</div>
+                <div className="rb-dist-sum-item">
+                  <i className="fa-solid fa-location-dot"></i>
+                  <span>Stops: <strong>{stops.length} included</strong></span>
+                </div>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="rb-distance-summary-bar empty">
+            <i className="fa-solid fa-info-circle"></i>
+            <span>Set your pickup and drop locations to see road distance, duration and fares.</span>
+          </div>
+        )}
       </div>
 
       {/* Bottom Booking Summary & Continue CTA */}
@@ -926,11 +950,87 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
         <button
           type="button"
           className="rb-continue-booking-btn"
+          disabled={routeState.distanceKm === null}
           onClick={() => setShowConfirmModal(true)}
         >
-          Continue Booking & View Itinerary Map (₹ {currentVehicleData.fare})
+          Continue Booking & View Itinerary (₹ {currentVehicleData.fare})
         </button>
       </div>
+
+      {/* ================= PICK ON MAP MODAL ================= */}
+      {pickerTarget && (
+        <div className="rb-picker-modal-overlay" onClick={() => setPickerTarget(null)}>
+          <div className="rb-picker-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="rb-picker-modal-header">
+              <div className="rb-picker-title">
+                <i className="fa-solid fa-map-pin"></i>
+                <span>
+                  Pin {pickerTarget === 'pickup' ? 'Pickup Location' : pickerTarget === 'drop' ? 'Dropping Location' : 'Stopping Point'}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="rb-picker-close-btn"
+                onClick={() => setPickerTarget(null)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="rb-picker-map-wrapper" onClick={handlePickerMapCanvasClick}>
+              {/* Clean Google Maps Canvas for Picking Location */}
+              <iframe
+                title="Google Maps Location Picker"
+                className="rb-picker-map-canvas"
+                src={`https://maps.google.com/maps?q=${pickerCoords.lat},${pickerCoords.lng}&z=15&output=embed`}
+                style={{ border: 0, pointerEvents: 'none' }}
+              />
+              {/* Fixed Center Pin Overlay */}
+              <div className="rb-picker-centre-pin">
+                <div className="rb-picker-pin-head">
+                  <div className="rb-picker-pin-inner"></div>
+                </div>
+                <div className="rb-picker-pin-point"></div>
+              </div>
+              <div className="rb-picker-canvas-hint">
+                Click anywhere on map to reposition pin
+              </div>
+            </div>
+
+            <div className="rb-picker-footer">
+              <div className="rb-picker-address-box">
+                <div className="rb-picker-address-title">Selected Address:</div>
+                <div className="rb-picker-address-text">
+                  {isGeocodingPicker ? (
+                    <span><i className="fa-solid fa-spinner fa-spin"></i> Resolving address...</span>
+                  ) : (
+                    pickerAddress
+                  )}
+                </div>
+                <div className="rb-picker-coords-text">
+                  Coordinates: {pickerCoords.lat.toFixed(5)}, {pickerCoords.lng.toFixed(5)}
+                </div>
+              </div>
+              <div className="rb-picker-btn-row">
+                <button
+                  type="button"
+                  className="rb-picker-cancel-btn"
+                  onClick={() => setPickerTarget(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="rb-picker-confirm-btn"
+                  onClick={handleConfirmPickerLocation}
+                >
+                  Confirm Location
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ================= ITINERARY MODAL POPUP ================= */}
       {showConfirmModal && (
@@ -956,42 +1056,6 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
             </div>
 
             <div className="rb-modal-content">
-              {/* Live Map in Modal with Real Google Road Directions */}
-              <div className="rb-modal-map-view">
-                <div className="rb-modal-legend">
-                  <div className="rb-legend-pill">
-                    <span className="dot green"></span> Pickup Point
-                  </div>
-                  <div className="rb-legend-pill">
-                    <span className="dot orange"></span> Stops with Purpose
-                  </div>
-                  <div className="rb-legend-pill">
-                    <span className="dot red"></span> Final Destination
-                  </div>
-                </div>
-
-                <div className="rb-modal-map-canvas">
-                  <iframe
-                    title="Modal Route Map"
-                    className="rb-map-iframe-google"
-                    src={getGoogleDirectionsUrl()}
-                    loading="lazy"
-                  />
-                  {/* Blue pencil line */}
-                  <svg className="rb-map-pencil-line-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <line
-                      x1="22"
-                      y1="30"
-                      x2="78"
-                      y2="70"
-                      stroke="#2563eb"
-                      strokeWidth="2"
-                      strokeDasharray="4 2"
-                    />
-                  </svg>
-                </div>
-              </div>
-
               {/* Itinerary Schedule */}
               <div className="rb-modal-itinerary-list">
                 <h4 className="rb-itinerary-heading">Traveling Schedule & Purpose Breakdown</h4>
@@ -1034,7 +1098,7 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
                   <div className="rb-itin-body">
                     <div className="rb-itin-title red">Final Destination (Drop)</div>
                     <div className="rb-itin-address">{dropoff}</div>
-                    <div className="rb-itin-time">Direct dropoff • Total journey ~{currentVehicleData.time} ({routeDistanceKm} km)</div>
+                    <div className="rb-itin-time">Direct dropoff • Total journey {routeState.durationText} ({routeState.distanceKm} km)</div>
                   </div>
                 </div>
               </div>
