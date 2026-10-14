@@ -3,196 +3,41 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './RideBookingView.css';
 
-export type RideCategoryMode = 'bike' | 'auto' | 'car';
+import {
+  RideCategoryMode,
+  RouteStop,
+  LatLng,
+  VehicleConfig,
+  VEHICLE_CONFIGS,
+  KNOWN_LOCATIONS,
+  formatDurationHuman,
+  SingleSourceRouteState,
+  RideBookedInfo
+} from './rideData';
 
-export interface RouteStop {
-  id: string;
-  name: string;
-  purpose: string;
-  lat?: number;
-  lng?: number;
-}
-
-interface LatLng {
-  lat: number;
-  lng: number;
-}
-
-interface VehicleConfig {
-  id: string;
-  title: string;
-  minFare: number;
-  baseFare: number;
-  perKm: number;
-  perMinute: number;
-  waitingChargePerStop: number;
-  badge?: string;
-  badgeClass?: string;
-  image?: string;
-  icon?: string;
-  desc: string;
-}
-
-// Config objects per vehicle type
-const VEHICLE_CONFIGS: Record<RideCategoryMode, VehicleConfig[]> = {
-  bike: [
-    {
-      id: 'scooty',
-      title: 'Scooty / Activa',
-      minFare: 25,
-      baseFare: 20,
-      perKm: 5.5,
-      perMinute: 0.8,
-      waitingChargePerStop: 15,
-      badge: 'Eco Friendly & Smooth',
-      badgeClass: '',
-      image: '/images/red_scooty.png',
-      desc: 'Comfortable footboard for bag, smooth city cruise, top safety rating'
-    },
-    {
-      id: 'bike',
-      title: 'Honda SP 125 Bike',
-      minFare: 30,
-      baseFare: 25,
-      perKm: 6.5,
-      perMinute: 0.9,
-      waitingChargePerStop: 15,
-      badge: 'Fastest Ride',
-      badgeClass: 'popular',
-      image: '/images/blue_bike.png',
-      desc: 'Quickest travel through signals, verified rider captain, disposable hairnet'
-    }
-  ],
-  auto: [
-    {
-      id: 'auto_standard',
-      title: 'Auto Rickshaw',
-      minFare: 40,
-      baseFare: 35,
-      perKm: 11,
-      perMinute: 1.2,
-      waitingChargePerStop: 20,
-      badge: 'Pocket Friendly',
-      badgeClass: 'popular',
-      image: '/images/auto_green_yellow.png',
-      desc: 'Doorstep pickup, open breeze, fit for 3 passengers & luggage'
-    },
-    {
-      id: 'auto_plus',
-      title: 'Auto Plus (Top Rated)',
-      minFare: 50,
-      baseFare: 45,
-      perKm: 13,
-      perMinute: 1.5,
-      waitingChargePerStop: 25,
-      badge: 'Top Rated 4.9★',
-      badgeClass: 'premium',
-      image: '/images/auto_yellow_black.png',
-      desc: 'Experienced super drivers, cleanest auto, immediate dispatch'
-    }
-  ],
-  car: [
-    {
-      id: 'car_economy',
-      title: 'Cab Economy (Mini/Go)',
-      minFare: 80,
-      baseFare: 70,
-      perKm: 14,
-      perMinute: 1.8,
-      waitingChargePerStop: 30,
-      badge: 'Best Value',
-      badgeClass: 'popular',
-      icon: '🚖',
-      desc: 'Air-conditioned hatchback, affordable daily commute'
-    },
-    {
-      id: 'car_sedan',
-      title: 'Cab Premium Sedan',
-      minFare: 100,
-      baseFare: 90,
-      perKm: 17,
-      perMinute: 2.2,
-      waitingChargePerStop: 35,
-      badge: 'Comfort Sedan',
-      badgeClass: 'premium',
-      icon: '✨🚕',
-      desc: 'Spacious Dzire/Etios with top-rated driver & ample boot space'
-    },
-    {
-      id: 'car_suv',
-      title: 'Cab XL (6 Seater SUV)',
-      minFare: 150,
-      baseFare: 130,
-      perKm: 24,
-      perMinute: 3.0,
-      waitingChargePerStop: 45,
-      badge: 'Family & Groups',
-      badgeClass: '',
-      icon: '🚙',
-      desc: 'Innova/Ertiga with extra legroom and large luggage carrier'
-    }
-  ]
-};
-
-// Known major landmarks for instant fast address lookup
-const KNOWN_LOCATIONS: { [key: string]: LatLng } = {
-  'korukkupet': { lat: 13.1118, lng: 80.2789 },
-  'meenambal nagar': { lat: 13.1118, lng: 80.2789 },
-  'old washermanpet': { lat: 13.1118, lng: 80.2789 },
-  'chennai central': { lat: 13.0827, lng: 80.2755 },
-  'central': { lat: 13.0827, lng: 80.2755 },
-  'chennai': { lat: 13.0827, lng: 80.2755 },
-  'anna salai': { lat: 13.0604, lng: 80.2496 },
-  't nagar': { lat: 13.0418, lng: 80.2341 },
-  'anna nagar': { lat: 13.0850, lng: 80.2101 },
-  'vadapalani': { lat: 13.0500, lng: 80.2121 },
-  'airport': { lat: 12.9941, lng: 80.1709 },
-  'guindy': { lat: 13.0067, lng: 80.2025 },
-  'velachery': { lat: 12.9815, lng: 80.2180 },
-  'tambaram': { lat: 12.9249, lng: 80.1000 },
-  'ambattur': { lat: 13.1143, lng: 80.1548 },
-  'avadi': { lat: 13.1147, lng: 80.1018 },
-  'porur': { lat: 13.0382, lng: 80.1565 },
-  'omr': { lat: 12.8710, lng: 80.2220 },
-  'vellore': { lat: 12.9165, lng: 79.1325 },
-  'katpadi': { lat: 12.9751, lng: 79.1360 },
-  'vit': { lat: 12.9692, lng: 79.1559 },
-  'cmc': { lat: 12.9250, lng: 79.1350 },
-  'bengaluru': { lat: 12.9716, lng: 77.5946 },
-  'bangalore': { lat: 12.9716, lng: 77.5946 },
-  'coimbatore': { lat: 11.0168, lng: 76.9558 },
-  'madurai': { lat: 9.9252, lng: 78.1198 },
-  'salem': { lat: 11.6643, lng: 78.1460 },
-  'pondicherry': { lat: 11.9416, lng: 79.8083 }
-};
-
-export function formatDurationHuman(seconds: number): string {
-  const totalMin = Math.round(seconds / 60);
-  const hrs = Math.floor(totalMin / 60);
-  const mins = totalMin % 60;
-  if (hrs > 0) {
-    return mins > 0 ? `${hrs} hr ${mins} min` : `${hrs} hr`;
-  }
-  return `${Math.max(1, mins)} min`;
-}
-
-interface SingleSourceRouteState {
-  origin: LatLng | null;
-  destination: LatLng | null;
-  stops: RouteStop[];
-  distanceKm: number | null;
-  durationMin: number | null;
-  durationText: string;
-}
+export type { RideCategoryMode, RouteStop, LatLng, VehicleConfig, SingleSourceRouteState, RideBookedInfo };
+export { VEHICLE_CONFIGS, KNOWN_LOCATIONS, formatDurationHuman };
 
 interface RideBookingViewProps {
   mode: RideCategoryMode;
+  sourceLocation?: string;
+  destinationLocation?: string;
+  onSourceChange?: (val: string) => void;
+  onDestinationChange?: (val: string) => void;
   onBackToHome?: () => void;
 }
 
-export default function RideBookingView({ mode, onBackToHome }: RideBookingViewProps) {
-  // Synchronize pickup and dropoff across bike, auto, and car pages via shared storage
+export default function RideBookingView({
+  mode,
+  sourceLocation = '',
+  destinationLocation = '',
+  onSourceChange,
+  onDestinationChange,
+  onBackToHome
+}: RideBookingViewProps) {
+  // Synchronize pickup and dropoff across bike, auto, and car pages via props and shared storage
   const [pickup, setPickup] = useState(() => {
+    if (sourceLocation.trim()) return sourceLocation.trim();
     if (typeof window !== 'undefined') {
       return localStorage.getItem('sart_ride_pickup') || '';
     }
@@ -200,11 +45,28 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
   });
 
   const [dropoff, setDropoff] = useState(() => {
+    if (destinationLocation.trim()) return destinationLocation.trim();
     if (typeof window !== 'undefined') {
       return localStorage.getItem('sart_ride_dropoff') || '';
     }
     return '';
   });
+
+  // When sourceLocation prop changes, update pickup
+  useEffect(() => {
+    if (sourceLocation.trim() && sourceLocation.trim() !== pickup.trim()) {
+      setPickup(sourceLocation.trim());
+      setPickupCoords(null);
+    }
+  }, [sourceLocation]);
+
+  // When destinationLocation prop changes, update dropoff
+  useEffect(() => {
+    if (destinationLocation.trim() && destinationLocation.trim() !== dropoff.trim()) {
+      setDropoff(destinationLocation.trim());
+      setDropCoords(null);
+    }
+  }, [destinationLocation]);
 
   const [stops, setStops] = useState<RouteStop[]>(() => {
     if (typeof window !== 'undefined') {
@@ -447,6 +309,7 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
         setPickupCoords({ lat, lng });
         const addr = await reverseGeocode(lat, lng);
         setPickup(addr);
+        if (onSourceChange) onSourceChange(addr);
         setIsRouteCalculating(false);
       },
       (err) => {
@@ -503,9 +366,11 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
     if (pickerTarget === 'pickup') {
       setPickup(pickerAddress);
       setPickupCoords(pickerCoords);
+      if (onSourceChange) onSourceChange(pickerAddress);
     } else if (pickerTarget === 'drop') {
       setDropoff(pickerAddress);
       setDropCoords(pickerCoords);
+      if (onDestinationChange) onDestinationChange(pickerAddress);
     } else if (pickerTarget === 'new-stop') {
       setNewStopName(pickerAddress);
       setNewStopCoords(pickerCoords);
@@ -638,8 +503,10 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
                   className="rb-input-element"
                   value={pickup}
                   onChange={(e) => {
-                    setPickup(e.target.value);
+                    const val = e.target.value;
+                    setPickup(val);
                     setPickupCoords(null);
+                    if (onSourceChange) onSourceChange(val);
                   }}
                   placeholder="Enter pickup location"
                 />
@@ -685,19 +552,7 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
                       <i className="fa-solid fa-map-location-dot"></i>
                     </button>
                   </div>
-                  <div className="rb-stop-purpose-pill-row">
-                    <i className="fa-solid fa-clipboard-check"></i>
-                    <input
-                      type="text"
-                      className="rb-stop-purpose-input"
-                      value={st.purpose}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setStops(prev => prev.map(s => (s.id === st.id ? { ...s, purpose: val } : s)));
-                      }}
-                      placeholder="Purpose (e.g. 2 min errand, parcel, friend)"
-                    />
-                  </div>
+
                 </div>
               </div>
             ))}
@@ -803,8 +658,10 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
                   className="rb-input-element"
                   value={dropoff}
                   onChange={(e) => {
-                    setDropoff(e.target.value);
+                    const val = e.target.value;
+                    setDropoff(val);
                     setDropCoords(null);
+                    if (onDestinationChange) onDestinationChange(val);
                   }}
                   placeholder="Enter dropping location"
                 />
@@ -826,6 +683,24 @@ export default function RideBookingView({ mode, onBackToHome }: RideBookingViewP
               <i className="fa-solid fa-map-location-dot" style={{ color: '#ea580c' }}></i>
               <span>Google Maps Live Road Navigation</span>
               {isRouteCalculating && <span className="rb-calculating-spinner"><i className="fa-solid fa-spinner fa-spin"></i> Calculating Route...</span>}
+              {!isRouteCalculating && routeState.distanceKm !== null && (
+                <span className="rb-live-dist-pill" style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  color: '#ffffff',
+                  fontSize: '12px',
+                  fontWeight: 800,
+                  padding: '3px 10px',
+                  borderRadius: '20px',
+                  boxShadow: '0 2px 6px rgba(16, 185, 129, 0.35)',
+                  marginLeft: '8px'
+                }}>
+                  <i className="fa-solid fa-route"></i>
+                  {routeState.distanceKm} km {routeState.durationText ? `• ${routeState.durationText}` : ''}
+                </span>
+              )}
             </div>
 
             <a

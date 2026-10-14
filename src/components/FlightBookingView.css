@@ -1,0 +1,1429 @@
+/* ============================================================================
+   FLIGHT BOOKING VIEW STYLES
+   Exact replicate of modern flight aggregator UI:
+   - Date Fare Strip
+   - Left Filter Sidebar with "Applied Filters" & "Clear All"
+   - Promo coupon carousel cards
+   - Sort tabs (Cheapest, Non Stop First, You May Prefer, Other Sort)
+   - Flight card layout (Airline logo, Departure, Duration/Stops, Arrival, Fare, View Fares CTA)
+   ============================================================================ */
+
+.fb-container {
+  width: 100%;
+  margin-top: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #1e293b;
+}
+
+/* ---------------- Top Travelers & Class Bar (Below Icons) ---------------- */
+.fb-traveler-class-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 18px;
+  position: relative;
+}
+
+.fb-traveler-trigger-container {
+  position: relative;
+}
+
+.fb-traveler-trigger-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  background: #ffffff;
+  border: 1.5px solid #0284c7;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.12);
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.fb-traveler-trigger-btn:hover {
+  background: #f0f9ff;
+  border-color: #0369a1;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+}
+
+.fb-trigger-icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #e0f2fe;
+  color: #0284c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.fb-trigger-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.fb-trigger-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #0284c7;
+}
+
+.fb-trigger-value {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.fb-trigger-arrow {
+  font-size: 13px;
+  color: #64748b;
+  margin-left: 6px;
+}
+
+/* ---------------- Travelers & Class Dropdown Modal ---------------- */
+.fb-traveler-dropdown-modal {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 14px);
+  width: 360px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 14px 35px -5px rgba(15, 23, 42, 0.22);
+  padding: 18px 20px;
+  z-index: 1000;
+  animation: fbFadeInRight 0.2s ease-out;
+}
+
+@keyframes fbFadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .fb-traveler-dropdown-modal {
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    max-width: 340px;
+  }
+}
+
+.fb-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 14px;
+}
+
+.fb-dropdown-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.fb-dropdown-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.fb-dropdown-close:hover {
+  color: #0f172a;
+}
+
+/* Passenger Count Section */
+.fb-pax-count-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.fb-pax-count-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fb-pax-type-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.fb-pax-type-sub {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.fb-stepper-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 2px 6px;
+}
+
+.fb-stepper-control button {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: #ffffff;
+  color: #0284c7;
+  font-size: 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.15s ease;
+}
+
+.fb-stepper-control button:hover:not(:disabled) {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.fb-stepper-control button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.fb-stepper-val {
+  min-width: 20px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* Cabin Class Selection */
+.fb-cabin-class-section {
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+  margin-bottom: 16px;
+}
+
+.fb-cabin-title {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.fb-cabin-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.fb-cabin-pill {
+  flex: 1;
+  padding: 8px 6px;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.fb-cabin-pill.active {
+  border-color: #0284c7;
+  background: #f0f9ff;
+  color: #0284c7;
+}
+
+.fb-cabin-pill:hover:not(.active) {
+  background: #f8fafc;
+}
+
+/* Done Button */
+.fb-dropdown-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.fb-done-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  background: #0284c7;
+  color: #ffffff;
+  border: none;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+  transition: all 0.2s ease;
+}
+
+.fb-done-btn:hover {
+  background: #0369a1;
+}
+
+/* ---------------- Top Date Fare Carousel Strip ---------------- */
+.fb-date-strip {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.fb-date-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.fb-date-arrow-btn {
+  background: transparent;
+  border: none;
+  width: 36px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.fb-date-arrow-btn:hover {
+  color: #0284c7;
+  background: #f8fafc;
+}
+
+.fb-date-cell {
+  flex: 1;
+  min-width: 110px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #f1f5f9;
+  cursor: pointer;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.fb-date-cell:last-child {
+  border-right: none;
+}
+
+.fb-date-cell:hover {
+  background: #f8fafc;
+}
+
+.fb-date-cell.active {
+  background: #f0f9ff;
+  border-bottom: 3px solid #0284c7;
+}
+
+.fb-date-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 2px;
+  white-space: nowrap;
+}
+
+.fb-date-cell.active .fb-date-label {
+  color: #0284c7;
+  font-weight: 700;
+}
+
+.fb-date-fare {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.fb-date-cell.active .fb-date-fare {
+  color: #0284c7;
+}
+
+.fb-date-fare.highlight {
+  color: #16a34a;
+}
+
+/* ---------------- Main Layout Grid: Left Sidebar + Right Results ---------------- */
+.fb-main-layout {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .fb-main-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------- Filter Sidebar ---------------- */
+.fb-sidebar {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  padding: 18px 20px;
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  z-index: 10;
+}
+
+.fb-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.fb-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.fb-sidebar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.fb-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Applied Filters & Clear All Header (Matches user image 2 exactly) */
+.fb-applied-filters-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.fb-applied-filters-title {
+  font-size: 16px;
+  font-weight: 900;
+  color: #000000;
+  letter-spacing: -0.3px;
+}
+
+.fb-clear-all-btn {
+  background: transparent;
+  border: none;
+  color: #0084ff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.fb-clear-all-btn:hover {
+  background: #eff6ff;
+  text-decoration: underline;
+}
+
+/* Active Filter Chips */
+.fb-active-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.fb-active-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  color: #334155;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.fb-active-chip-remove {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+}
+
+.fb-active-chip-remove:hover {
+  color: #dc2626;
+}
+
+/* Accordion Section */
+.fb-filter-section {
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.fb-filter-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.fb-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+
+.fb-section-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.fb-section-toggle-icon {
+  font-size: 12px;
+  color: #64748b;
+  transition: transform 0.2s ease;
+}
+
+.fb-section-toggle-icon.open {
+  transform: rotate(180deg);
+}
+
+.fb-sub-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  margin: 12px 0 8px 0;
+}
+
+/* Stop buttons (Non Stop, 1 Stop) */
+.fb-stops-pill-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.fb-stops-pill {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.fb-stops-pill:hover {
+  border-color: #0284c7;
+  color: #0284c7;
+}
+
+.fb-stops-pill.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+/* Slider */
+.fb-slider-wrap {
+  margin-top: 10px;
+}
+
+.fb-slider-range-input {
+  width: 100%;
+  accent-color: #0284c7;
+  cursor: pointer;
+}
+
+.fb-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* Checkbox Row Item */
+.fb-checkbox-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.fb-checkbox-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.fb-checkbox-left input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #0284c7;
+  cursor: pointer;
+}
+
+.fb-airline-logo-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: white;
+}
+
+.fb-checkbox-count {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* Search input for airports */
+.fb-filter-search-box {
+  margin: 10px 0 8px 0;
+  position: relative;
+}
+
+.fb-filter-search-input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 12px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.fb-filter-search-input:focus {
+  border-color: #0284c7;
+}
+
+/* ---------------- Right Content Area ---------------- */
+.fb-results-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fb-results-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fb-results-heading {
+  font-size: 20px;
+  font-weight: 900;
+  color: #0f172a;
+  margin: 0;
+}
+
+/* ---------------- Coupon Promo Cards Row ---------------- */
+.fb-coupons-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .fb-coupons-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fb-coupon-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fb-coupon-card:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.fb-coupon-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.fb-coupon-badge-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.fb-coupon-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.fb-coupon-code {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.fb-coupon-desc {
+  font-size: 10px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fb-coupon-arrow {
+  color: #0284c7;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+/* ---------------- Sort Tabs Row ---------------- */
+.fb-sort-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .fb-sort-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.fb-sort-tab {
+  background: transparent;
+  border: none;
+  border-right: 1px solid #f1f5f9;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fb-sort-tab:last-child {
+  border-right: none;
+}
+
+.fb-sort-tab:hover {
+  background: #f8fafc;
+}
+
+.fb-sort-tab.active {
+  background: #f0fdf4;
+  border-bottom: 2px solid #16a34a;
+}
+
+.fb-sort-tab-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.fb-sort-tab-sub {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* ---------------- Flight Ticket Card ---------------- */
+.fb-flight-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all 0.2s ease;
+}
+
+.fb-flight-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.fb-flight-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Airline info */
+.fb-airline-col {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 170px;
+}
+
+.fb-airline-logo-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.fb-airline-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.fb-flight-number {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* Schedule */
+.fb-schedule-col {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+}
+
+.fb-time-node {
+  display: flex;
+  flex-direction: column;
+}
+
+.fb-node-time {
+  font-size: 19px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.fb-node-airport {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.fb-duration-track {
+  min-width: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fb-track-duration {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.fb-track-line {
+  width: 100%;
+  height: 2px;
+  background: #cbd5e1;
+  position: relative;
+  margin: 4px 0;
+}
+
+.fb-track-stops {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ea580c;
+}
+
+.fb-track-stops.non-stop {
+  color: #16a34a;
+}
+
+/* Fare and CTA */
+.fb-fare-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 130px;
+}
+
+.fb-fare-price {
+  font-size: 22px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.fb-fare-promo-tag {
+  font-size: 10px;
+  color: #15803d;
+  font-weight: 700;
+  margin-top: 2px;
+  text-align: right;
+}
+
+.fb-view-fares-btn {
+  margin-top: 8px;
+  padding: 8px 18px;
+  background: transparent;
+  color: #0084ff;
+  border: 1.5px solid #0084ff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fb-view-fares-btn:hover {
+  background: #0084ff;
+  color: #ffffff;
+}
+
+/* Card Bottom Footer */
+.fb-card-footer {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fb-amenities-pills {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.fb-amenity-link {
+  background: transparent;
+  border: none;
+  color: #0284c7;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+}
+
+.fb-amenity-link:hover {
+  text-decoration: underline;
+}
+
+/* Price Drop Protection Banner */
+.fb-price-drop-card {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 12px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fb-price-drop-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fb-price-drop-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #0284c7;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.fb-price-drop-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0369a1;
+}
+
+.fb-price-drop-sub {
+  font-size: 11px;
+  color: #0284c7;
+}
+
+/* Booking Modal */
+.fb-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.fb-modal-card {
+  background: #ffffff;
+  border-radius: 18px;
+  max-width: 500px;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+.fb-modal-header {
+  padding: 20px 24px;
+  background: #0284c7;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fb-modal-body {
+  padding: 24px;
+}
+
+/* ---------------- More Flight Details POPUP MODAL (Matching User Uploaded Image) ---------------- */
+.fb-popup-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 20px;
+  animation: fbFadeIn 0.2s ease;
+}
+
+.fb-popup-modal-dialog {
+  background: #ffffff;
+  width: 100%;
+  max-width: 780px;
+  max-height: 90vh;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: fbZoomIn 0.25s ease-out;
+}
+
+@keyframes fbZoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.fb-popup-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+  border-left: 5px solid #0f172a;
+}
+
+.fb-popup-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.fb-popup-close-btn {
+  background: #f1f5f9;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #64748b;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.fb-popup-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.fb-popup-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: #f8fafc;
+}
+
+.fb-details-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.fb-details-route-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.fb-cancellation-badge {
+  background: #059669;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.fb-details-sub-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.fb-details-date-pill {
+  background: #ffedd5;
+  color: #c2410c;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+
+.fb-details-stops-duration {
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.fb-fare-rules-btn {
+  background: transparent;
+  border: none;
+  color: #0284c7;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.fb-fare-rules-btn:hover {
+  text-decoration: underline;
+}
+
+/* Flight Segment Card */
+.fb-segment-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fb-segment-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.fb-segment-meta-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fb-seg-airline-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.fb-seg-airline-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.fb-seg-flight-no {
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.fb-aircraft-pill {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.fb-class-spec {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.fb-class-spec strong {
+  color: #0284c7;
+  font-weight: 800;
+}
+
+/* Timeline Tree */
+.fb-timeline-tree {
+  display: flex;
+  flex-direction: column;
+  padding-left: 6px;
+}
+
+.fb-timeline-node {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  position: relative;
+}
+
+.fb-timeline-time {
+  width: 60px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.fb-timeline-bullet {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #94a3b8;
+  background: #ffffff;
+  margin-top: 4px;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.fb-timeline-place {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.fb-place-city {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.fb-place-airport {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.fb-timeline-amenity-icons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #94a3b8;
+  font-size: 13px;
+  background: #f8fafc;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.fb-timeline-connector {
+  position: relative;
+  margin-left: 79px;
+  padding: 10px 0 10px 16px;
+  border-left: 2px dashed #cbd5e1;
+}
+
+.fb-connector-duration {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* Baggage Strip */
+.fb-baggage-strip {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.fb-baggage-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #334155;
+}
+
+.fb-baggage-item i {
+  color: #ea580c;
+  font-size: 14px;
+}
+
+/* Layover Divider Bar between flight segments */
+.fb-layover-divider-bar {
+  display: flex;
+  align-items: center;
+  margin-left: 85px;
+  padding: 8px 0;
+  position: relative;
+}
+
+.fb-layover-connector-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-left: 2px dashed #ea580c;
+}
+
+.fb-layover-info-pill {
+  margin-left: 18px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fb-layover-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #9a3412;
+}
+
+.fb-layover-time {
+  font-size: 12px;
+  color: #431407;
+}
+

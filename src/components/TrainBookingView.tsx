@@ -5,719 +5,39 @@ import { usePathname, useRouter } from 'next/navigation';
 import './TrainBookingView.css';
 import BusBookingView from './BusBookingView';
 import RideBookingView from './RideBookingView';
+import FlightBookingView from './FlightBookingView';
+import TrainPassengerDetailsModal, { TrainPassenger } from './TrainPassengerDetails';
 import { useSartStore } from '@/store/useSartStore';
 
-interface TrainClassOption {
-  code: string;
-  fare: number;
-  status: string;
-  statusType: 'available' | 'wl' | 'regret' | 'update';
-  updated: string;
-  isTatkal?: boolean;
-}
+import {
+  TrainClassOption,
+  TrainItem,
+  BikeStopItem,
+  CityLocation,
+  POPULAR_CITIES,
+  INDIAN_STATIONS,
+  INITIAL_TRAINS,
+  EXPANDED_CORRIDOR_TRAINS,
+  getCorridorTrains
+} from './trainData';
 
-interface TrainItem {
-  id: string;
-  number: string;
-  name: string;
-  runningDays: string;
-  departureTime: string;
-  departureStation: string;
-  departureStationCode: string;
-  departureTag?: string;
-  departureTags?: string[];
-  duration: string;
-  arrivalTime: string;
-  arrivalStation: string;
-  arrivalStationCode: string;
-  arrivalTag?: string;
-  classes: TrainClassOption[];
-  stops: { station: string; code: string; arr: string; dep: string; halt: string }[];
-  distance?: string;
-  avgSpeed?: string;
-  punctuality?: string;
-  pantryAvailable?: boolean;
-  coaches?: { code: string; label: string; type: string }[];
-}
-
-export interface BikeStopItem {
-  id: string;
-  name: string;
-  purpose: string;
-  coords?: { x: number; y: number };
-}
-
-export interface CityLocation {
-  name: string;
-  state: string;
-  code?: string;
-  isOnlineResult?: boolean;
-}
-
-export const POPULAR_CITIES: CityLocation[] = [
-  { name: 'Hyderabad', state: 'Telangana', code: 'HYD' },
-  { name: 'Bengaluru', state: 'Karnataka', code: 'BLR' },
-  { name: 'Chennai', state: 'Tamil Nadu', code: 'MAS' },
-  { name: 'Goa', state: 'Goa', code: 'GOA' },
-  { name: 'Vijayawada', state: 'Andhra Pradesh', code: 'BZA' },
-  { name: 'Nellore', state: 'Andhra Pradesh', code: 'NLR' },
-  { name: 'Tirupati', state: 'Andhra Pradesh', code: 'TPTY' },
-  { name: 'Visakhapatnam', state: 'Andhra Pradesh', code: 'VSKP' },
-  { name: 'Coimbatore', state: 'Tamil Nadu', code: 'CBE' },
-  { name: 'Madurai', state: 'Tamil Nadu', code: 'MDU' },
-  { name: 'Pune', state: 'Maharashtra', code: 'PUNE' },
-  { name: 'Mumbai', state: 'Maharashtra', code: 'MUM' },
-  { name: 'Delhi', state: 'Delhi', code: 'DEL' },
-  { name: 'Kochi', state: 'Kerala', code: 'KOC' },
-  { name: 'Kurnool', state: 'Andhra Pradesh', code: 'KNL' },
-  { name: 'Warangal', state: 'Telangana', code: 'WL' },
-  { name: 'Guntur', state: 'Andhra Pradesh', code: 'GNT' },
-  { name: 'Pondicherry', state: 'Puducherry', code: 'PDY' },
-  { name: 'Mysore', state: 'Karnataka', code: 'MYS' },
-  { name: 'Mangalore', state: 'Karnataka', code: 'MAQ' },
-  { name: 'Salem', state: 'Tamil Nadu', code: 'SA' },
-  { name: 'Trichy', state: 'Tamil Nadu', code: 'TRZ' },
-  { name: 'Vellore', state: 'Tamil Nadu', code: 'VLR' },
-  { name: 'Jaipur', state: 'Rajasthan', code: 'JP' },
-  { name: 'Kolkata', state: 'West Bengal', code: 'HWH' }
-];
-
-const INDIAN_STATIONS = POPULAR_CITIES;
-
-const INITIAL_TRAINS: TrainItem[] = [
-  // 1. Nilagiri Sf Exp (Exact match to Image 1)
-  {
-    id: '12671',
-    number: '12671',
-    name: 'Nilagiri Sf Exp',
-    runningDays: 'M T W T F S S',
-    departureTime: '09:05 PM',
-    departureStation: 'Mgr Chennai Ctl (MAS)',
-    departureStationCode: 'MAS',
-    departureTag: 'Starting station',
-    duration: '01 h 48 min',
-    arrivalTime: '10:53 PM',
-    arrivalStation: 'Katpadi Jn. (KPD)',
-    arrivalStationCode: 'KPD',
-    arrivalTag: '2 min halt',
-    distance: '130 km',
-    avgSpeed: '72 km/h',
-    punctuality: '94% On Time Record (Avg delay 3m)',
-    pantryAvailable: true,
-    coaches: [
-      { code: 'ENG', label: 'Engine', type: 'loco' },
-      { code: 'S1', label: 'Sleeper', type: 'sl' },
-      { code: 'S2', label: 'Sleeper', type: 'sl' },
-      { code: 'S3', label: 'Sleeper', type: 'sl' },
-      { code: 'B1', label: '3-Tier AC', type: '3a' },
-      { code: 'B2', label: '3-Tier AC', type: '3a' },
-      { code: 'B3', label: '3-Tier AC', type: '3a' },
-      { code: 'A1', label: '2-Tier AC', type: '2a' },
-      { code: 'H1', label: '1st Class AC', type: '1a' },
-      { code: 'PC', label: 'Pantry Car', type: 'pc' },
-      { code: 'SLR', label: 'Guard / Luggage', type: 'slr' }
-    ],
-    classes: [
-      { code: 'SL', fare: 180, status: 'Available 9', statusType: 'available', updated: '1 hr ago' },
-      { code: '3A', fare: 565, status: 'Available 2', statusType: 'available', updated: '7 hr ago' },
-      { code: '3E', fare: 565, status: 'Available 5', statusType: 'available', updated: '6 hr ago' },
-      { code: '2A', fare: 770, status: 'Available 1', statusType: 'available', updated: '5 hr ago' },
-      { code: '1A', fare: 1270, status: 'PQWL 3', statusType: 'wl', updated: '7 hr ago' },
-    ],
-    stops: [
-      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '09:05 PM', halt: 'Starts' },
-      { station: 'Arakkonam Jn', code: 'AJJ', arr: '09:58 PM', dep: '10:00 PM', halt: '2 min' },
-      { station: 'Katpadi Jn', code: 'KPD', arr: '10:53 PM', dep: '10:55 PM', halt: '2 min' },
-      { station: 'Jolarpettai Jn', code: 'JTJ', arr: '12:03 AM', dep: '12:05 AM', halt: '2 min' },
-      { station: 'Salem Jn', code: 'SA', arr: '01:47 AM', dep: '01:50 AM', halt: '3 min' },
-      { station: 'Erode Jn', code: 'ED', arr: '02:45 AM', dep: '02:50 AM', halt: '5 min' },
-      { station: 'Mettupalayam', code: 'MTP', arr: '06:15 AM', dep: '--', halt: 'Ends' }
-    ]
-  },
-
-  // 2. Sangha Mitra Ex (Exact match to Image 2 with Tatkal badges & scrollable classes)
-  {
-    id: '12296',
-    number: '12296',
-    name: 'Sangha Mitra Ex',
-    runningDays: 'M T W T F S S',
-    departureTime: '09:45 AM',
-    departureStation: 'Perambur (PER)',
-    departureStationCode: 'PER',
-    departureTags: ['5 min halt', '4km from MAS'],
-    duration: '01 h 40 min',
-    arrivalTime: '11:25 AM',
-    arrivalStation: 'Katpadi Jn. (KPD)',
-    arrivalStationCode: 'KPD',
-    arrivalTag: '15 min halt',
-    distance: '132 km',
-    avgSpeed: '79 km/h',
-    punctuality: '96% On Time Record (Avg delay 2m)',
-    pantryAvailable: true,
-    coaches: [
-      { code: 'ENG', label: 'WAP-7 Loco', type: 'loco' },
-      { code: 'D1', label: 'General / 2S', type: '2s' },
-      { code: 'S1', label: 'Sleeper', type: 'sl' },
-      { code: 'S2', label: 'Sleeper', type: 'sl' },
-      { code: 'S3', label: 'Sleeper', type: 'sl' },
-      { code: 'S4', label: 'Sleeper (Tatkal)', type: 'sl' },
-      { code: 'B1', label: '3A Economy', type: '3e' },
-      { code: 'B2', label: '3-Tier AC', type: '3a' },
-      { code: 'B3', label: '3-Tier AC (Tatkal)', type: '3a' },
-      { code: 'A1', label: '2-Tier AC', type: '2a' },
-      { code: 'A2', label: '2-Tier AC', type: '2a' },
-      { code: 'H1', label: 'First AC (1A)', type: '1a' },
-      { code: 'PC', label: 'Pantry Car', type: 'pc' },
-      { code: 'EOG', label: 'End on Gen', type: 'slr' }
-    ],
-    classes: [
-      { code: 'SL', fare: 180, status: 'Available 1', statusType: 'available', updated: '5 hr ago' },
-      { code: 'SL', fare: 440, status: 'Available 18', statusType: 'available', updated: '2 hr ago', isTatkal: true },
-      { code: '3A', fare: 565, status: 'Available 21', statusType: 'available', updated: '5 hr ago' },
-      { code: '3A', fare: 1170, status: 'Available 19', statusType: 'available', updated: '6 hr ago', isTatkal: true },
-      { code: '2A', fare: 770, status: 'Available 6', statusType: 'available', updated: '4 hr ago' },
-      { code: '3E', fare: 565, status: 'Tap to update', statusType: 'update', updated: 'Just now' },
-      { code: '3E', fare: 1240, status: 'Available 12', statusType: 'available', updated: '1 hr ago', isTatkal: true },
-      { code: '1A', fare: 1320, status: 'Available 4', statusType: 'available', updated: '3 hr ago' },
-      { code: '2S', fare: 95, status: 'Available 42', statusType: 'available', updated: '30 min ago' },
-    ],
-    stops: [
-      { station: 'Perambur', code: 'PER', arr: '--', dep: '09:45 AM', halt: 'Starts' },
-      { station: 'Arakkonam Jn', code: 'AJJ', arr: '10:33 AM', dep: '10:35 AM', halt: '2 min' },
-      { station: 'Katpadi Jn', code: 'KPD', arr: '11:25 AM', dep: '11:40 AM', halt: '15 min' },
-      { station: 'Jolarpettai Jn', code: 'JTJ', arr: '12:48 PM', dep: '12:50 PM', halt: '2 min' },
-      { station: 'Bangarapet', code: 'BWT', arr: '01:53 PM', dep: '01:55 PM', halt: '2 min' },
-      { station: 'KSR Bengaluru', code: 'SBC', arr: '03:30 PM', dep: '--', halt: 'Ends' }
-    ]
-  },
-  {
-    id: '22625',
-    number: '22625',
-    name: 'Sbc Double Deck',
-    runningDays: 'M T W T F S S',
-    departureTime: '07:25 AM',
-    departureStation: 'Mgr Chennai Ctl (MAS)',
-    departureStationCode: 'MAS',
-    departureTag: 'Starting station',
-    duration: '01 h 38 min',
-    arrivalTime: '09:03 AM',
-    arrivalStation: 'Katpadi Jn. (KPD)',
-    arrivalStationCode: 'KPD',
-    arrivalTag: '2 min halt',
-    classes: [
-      { code: 'CC', fare: 320, status: 'Available 42', statusType: 'available', updated: '10 mins ago' },
-      { code: '2S', fare: 95, status: 'Available 115', statusType: 'available', updated: '25 mins ago' },
-      { code: 'EV', fare: 685, status: 'WL 8', statusType: 'wl', updated: '1 hr ago' },
-    ],
-    stops: [
-      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '07:25 AM', halt: 'Starts' },
-      { station: 'Arakkonam Jn', code: 'AJJ', arr: '08:18 AM', dep: '08:20 AM', halt: '2 min' },
-      { station: 'Katpadi Jn', code: 'KPD', arr: '09:03 AM', dep: '09:05 AM', halt: '2 min' },
-      { station: 'Ambur', code: 'AB', arr: '09:43 AM', dep: '09:45 AM', halt: '2 min' },
-      { station: 'Vaniyambadi', code: 'VN', arr: '09:58 AM', dep: '10:00 AM', halt: '2 min' },
-      { station: 'Jolarpettai Jn', code: 'JTJ', arr: '10:23 AM', dep: '10:25 AM', halt: '2 min' },
-      { station: 'KSR Bengaluru', code: 'SBC', arr: '01:10 PM', dep: '--', halt: 'Ends' }
-    ]
-  },
-  {
-    id: '12007',
-    number: '12007',
-    name: 'Mysore Shatabdi',
-    runningDays: 'M T W T F S S',
-    departureTime: '06:00 AM',
-    departureStation: 'Mgr Chennai Ctl (MAS)',
-    departureStationCode: 'MAS',
-    departureTag: 'Starting station',
-    duration: '01 h 33 min',
-    arrivalTime: '07:33 AM',
-    arrivalStation: 'Katpadi Jn. (KPD)',
-    arrivalStationCode: 'KPD',
-    arrivalTag: '2 min halt',
-    classes: [
-      { code: 'CC', fare: 425, status: 'Available 18', statusType: 'available', updated: '20 mins ago' },
-      { code: 'EC', fare: 910, status: 'Available 6', statusType: 'available', updated: '40 mins ago' },
-    ],
-    stops: [
-      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '06:00 AM', halt: 'Starts' },
-      { station: 'Katpadi Jn', code: 'KPD', arr: '07:33 AM', dep: '07:35 AM', halt: '2 min' },
-      { station: 'KSR Bengaluru', code: 'SBC', arr: '10:45 AM', dep: '10:50 AM', halt: '5 min' },
-      { station: 'Mysuru Jn', code: 'MYS', arr: '01:00 PM', dep: '--', halt: 'Ends' }
-    ]
-  },
-  {
-    id: '12639',
-    number: '12639',
-    name: 'Brindavan Exp',
-    runningDays: 'M T W T F S S',
-    departureTime: '07:40 AM',
-    departureStation: 'Mgr Chennai Ctl (MAS)',
-    departureStationCode: 'MAS',
-    departureTag: 'Starting station',
-    duration: '01 h 48 min',
-    arrivalTime: '09:28 AM',
-    arrivalStation: 'Katpadi Jn. (KPD)',
-    arrivalStationCode: 'KPD',
-    arrivalTag: '2 min halt',
-    classes: [
-      { code: '2S', fare: 85, status: 'Available 64', statusType: 'available', updated: '15 mins ago' },
-      { code: 'CC', fare: 315, status: 'Available 12', statusType: 'available', updated: '1 hr ago' },
-      { code: 'EV', fare: 650, status: 'Available 3', statusType: 'available', updated: '2 hr ago' },
-    ],
-    stops: [
-      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '07:40 AM', halt: 'Starts' },
-      { station: 'Arakkonam Jn', code: 'AJJ', arr: '08:33 AM', dep: '08:35 AM', halt: '2 min' },
-      { station: 'Katpadi Jn', code: 'KPD', arr: '09:28 AM', dep: '09:30 AM', halt: '2 min' },
-      { station: 'Walajah Road Jn', code: 'WJR', arr: '09:50 AM', dep: '09:52 AM', halt: '2 min' },
-      { station: 'KSR Bengaluru', code: 'SBC', arr: '02:00 PM', dep: '--', halt: 'Ends' }
-    ]
-  },
-  {
-    id: '20607',
-    number: '20607',
-    name: 'Vande Bharat Exp',
-    runningDays: 'M T W T F S S',
-    departureTime: '05:50 AM',
-    departureStation: 'Mgr Chennai Ctl (MAS)',
-    departureStationCode: 'MAS',
-    departureTag: 'Starting station',
-    duration: '01 h 23 min',
-    arrivalTime: '07:13 AM',
-    arrivalStation: 'Katpadi Jn. (KPD)',
-    arrivalStationCode: 'KPD',
-    arrivalTag: '2 min halt',
-    classes: [
-      { code: 'CC', fare: 510, status: 'Available 34', statusType: 'available', updated: '5 mins ago' },
-      { code: 'EC', fare: 1020, status: 'Available 8', statusType: 'available', updated: '12 mins ago' },
-    ],
-    stops: [
-      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '05:50 AM', halt: 'Starts' },
-      { station: 'Katpadi Jn', code: 'KPD', arr: '07:13 AM', dep: '07:15 AM', halt: '2 min' },
-      { station: 'KSR Bengaluru', code: 'SBC', arr: '10:10 AM', dep: '10:15 AM', halt: '5 min' },
-      { station: 'Mysuru Jn', code: 'MYS', arr: '12:20 PM', dep: '--', halt: 'Ends' }
-    ]
-  }
-];
-
-// Curated authentic trains operating on major Indian railway corridors
-const EXPANDED_CORRIDOR_TRAINS: TrainItem[] = [
-  // --- CHENNAI to VIJAYAWADA corridor trains ---
-  {
-    id: '12603',
-    number: '12603',
-    name: 'Chennai - Hyderabad SF Exp',
-    runningDays: 'M T W T F S S',
-    departureTime: '04:45 PM',
-    departureStation: 'Mgr Chennai Ctl (MAS)',
-    departureStationCode: 'MAS',
-    departureTag: 'Starting station',
-    duration: '06 h 15 min',
-    arrivalTime: '11:00 PM',
-    arrivalStation: 'Vijayawada Jn. (BZA)',
-    arrivalStationCode: 'BZA',
-    arrivalTag: '10 min halt',
-    distance: '431 km',
-    avgSpeed: '70 km/h',
-    punctuality: '95% On Time',
-    pantryAvailable: true,
-    classes: [
-      { code: 'SL', fare: 275, status: 'Available 38', statusType: 'available', updated: '20 mins ago' },
-      { code: '3A', fare: 735, status: 'Available 14', statusType: 'available', updated: '1 hr ago' },
-      { code: '2A', fare: 1045, status: 'Available 4', statusType: 'available', updated: '2 hr ago' },
-      { code: '1A', fare: 1750, status: 'WL 2', statusType: 'wl', updated: '30 mins ago' },
-    ],
-    stops: [
-      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '04:45 PM', halt: 'Starts' },
-      { station: 'Sullurupeta', code: 'SPE', arr: '05:53 PM', dep: '05:55 PM', halt: '2 min' },
-      { station: 'Gudur Jn', code: 'GDR', arr: '06:48 PM', dep: '06:50 PM', halt: '2 min' },
-      { station: 'Nellore', code: 'NLR', arr: '07:23 PM', dep: '07:25 PM', halt: '2 min' },
-      { station: 'Ongole', code: 'OGL', arr: '08:58 PM', dep: '09:00 PM', halt: '2 min' },
-      { station: 'Tenali Jn', code: 'TEL', arr: '10:18 PM', dep: '10:20 PM', halt: '2 min' },
-      { station: 'Vijayawada Jn', code: 'BZA', arr: '11:00 PM', dep: '11:10 PM', halt: '10 min' },
-      { station: 'Hyderabad Deccan', code: 'HYB', arr: '05:45 AM', dep: '--', halt: 'Ends' }
-    ]
-  },
-  {
-    id: '12842',
-    number: '12842',
-    name: 'Coromandel Express',
-    runningDays: 'M T W T F S S',
-    departureTime: '07:00 AM',
-    departureStation: 'Mgr Chennai Ctl (MAS)',
-    departureStationCode: 'MAS',
-    departureTag: 'Starting station',
-    duration: '06 h 05 min',
-    arrivalTime: '01:05 PM',
-    arrivalStation: 'Vijayawada Jn. (BZA)',
-    arrivalStationCode: 'BZA',
-    arrivalTag: '10 min halt',
-    distance: '431 km',
-    avgSpeed: '72 km/h',
-    punctuality: '92% On Time',
-    pantryAvailable: true,
-    classes: [
-      { code: 'SL', fare: 275, status: 'Available 19', statusType: 'available', updated: '40 mins ago' },
-      { code: '3A', fare: 735, status: 'Available 22', statusType: 'available', updated: '15 mins ago' },
-      { code: '2A', fare: 1045, status: 'Available 8', statusType: 'available', updated: '1 hr ago' },
-      { code: '1A', fare: 1750, status: 'Available 2', statusType: 'available', updated: '2 hr ago' },
-    ],
-    stops: [
-      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '07:00 AM', halt: 'Starts' },
-      { station: 'Nellore', code: 'NLR', arr: '09:18 AM', dep: '09:20 AM', halt: '2 min' },
-      { station: 'Ongole', code: 'OGL', arr: '10:48 AM', dep: '10:50 AM', halt: '2 min' },
-      { station: 'Vijayawada Jn', code: 'BZA', arr: '01:05 PM', dep: '01:15 PM', halt: '10 min' },
-      { station: 'Visakhapatnam', code: 'VSKP', arr: '06:50 PM', dep: '07:10 PM', halt: '20 min' },
-      { station: 'Howrah Jn', code: 'HWH', arr: '11:50 AM', dep: '--', halt: 'Ends' }
-    ]
-  },
-  {
-    id: '20677',
-    number: '20677',
-    name: 'Vande Bharat Express',
-    runningDays: 'M T W T F S',
-    departureTime: '05:30 AM',
-    departureStation: 'Mgr Chennai Ctl (MAS)',
-    departureStationCode: 'MAS',
-    departureTag: 'Starting station',
-    duration: '04 h 10 min',
-    arrivalTime: '09:40 AM',
-    arrivalStation: 'Vijayawada Jn. (BZA)',
-    arrivalStationCode: 'BZA',
-    arrivalTag: 'Starting point in AP',
-    distance: '431 km',
-    avgSpeed: '103 km/h',
-    punctuality: '98% On Time',
-    classes: [
-      { code: 'CC', fare: 1140, status: 'Available 65', statusType: 'available', updated: '5 mins ago' },
-      { code: 'EC', fare: 2190, status: 'Available 14', statusType: 'available', updated: '10 mins ago' },
-    ],
-    stops: [
-      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '05:30 AM', halt: 'Starts' },
-      { station: 'Nellore', code: 'NLR', arr: '07:28 AM', dep: '07:30 AM', halt: '2 min' },
-      { station: 'Ongole', code: 'OGL', arr: '08:38 AM', dep: '08:40 AM', halt: '2 min' },
-      { station: 'Tenali Jn', code: 'TEL', arr: '09:18 AM', dep: '09:20 AM', halt: '2 min' },
-      { station: 'Vijayawada Jn', code: 'BZA', arr: '09:40 AM', dep: '--', halt: 'Ends' }
-    ]
-  },
-  {
-    id: '12759',
-    number: '12759',
-    name: 'Charminar SF Express',
-    runningDays: 'M T W T F S S',
-    departureTime: '06:10 PM',
-    departureStation: 'Tambaram (TBM)',
-    departureStationCode: 'TBM',
-    departureTag: 'Originates at TBM',
-    duration: '06 h 45 min',
-    arrivalTime: '12:55 AM',
-    arrivalStation: 'Vijayawada Jn. (BZA)',
-    arrivalStationCode: 'BZA',
-    arrivalTag: '10 min halt',
-    distance: '455 km',
-    avgSpeed: '68 km/h',
-    punctuality: '94% On Time',
-    pantryAvailable: true,
-    classes: [
-      { code: 'SL', fare: 285, status: 'Available 12', statusType: 'available', updated: '1 hr ago' },
-      { code: '3A', fare: 750, status: 'Available 9', statusType: 'available', updated: '30 mins ago' },
-      { code: '2A', fare: 1070, status: 'Available 3', statusType: 'available', updated: '45 mins ago' },
-      { code: '1A', fare: 1790, status: 'Available 1', statusType: 'available', updated: '2 hr ago' }
-    ],
-    stops: [
-      { station: 'Tambaram', code: 'TBM', arr: '--', dep: '06:10 PM', halt: 'Starts' },
-      { station: 'Chennai Egmore', code: 'MS', arr: '06:40 PM', dep: '06:45 PM', halt: '5 min' },
-      { station: 'Gudur Jn', code: 'GDR', arr: '09:03 PM', dep: '09:05 PM', halt: '2 min' },
-      { station: 'Nellore', code: 'NLR', arr: '09:38 PM', dep: '09:40 PM', halt: '2 min' },
-      { station: 'Ongole', code: 'OGL', arr: '11:08 PM', dep: '11:10 PM', halt: '2 min' },
-      { station: 'Vijayawada Jn', code: 'BZA', arr: '12:55 AM', dep: '01:05 AM', halt: '10 min' },
-      { station: 'Secunderabad', code: 'SC', arr: '07:15 AM', dep: '--', halt: 'Ends' }
-    ]
-  },
-  {
-    id: '12840',
-    number: '12840',
-    name: 'Howrah Mail',
-    runningDays: 'M T W T F S S',
-    departureTime: '11:45 PM',
-    departureStation: 'Mgr Chennai Ctl (MAS)',
-    departureStationCode: 'MAS',
-    departureTag: 'Overnight Superfast',
-    duration: '06 h 20 min',
-    arrivalTime: '06:05 AM',
-    arrivalStation: 'Vijayawada Jn. (BZA)',
-    arrivalStationCode: 'BZA',
-    arrivalTag: '15 min halt',
-    distance: '431 km',
-    avgSpeed: '69 km/h',
-    punctuality: '93% On Time',
-    pantryAvailable: true,
-    classes: [
-      { code: 'SL', fare: 275, status: 'Available 45', statusType: 'available', updated: '1 hr ago' },
-      { code: '3A', fare: 735, status: 'Available 28', statusType: 'available', updated: '2 hr ago' },
-      { code: '2A', fare: 1045, status: 'Available 6', statusType: 'available', updated: '15 mins ago' },
-      { code: '2S', fare: 165, status: 'Available 85', statusType: 'available', updated: '10 mins ago' }
-    ],
-    stops: [
-      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '11:45 PM', halt: 'Starts' },
-      { station: 'Nellore', code: 'NLR', arr: '02:08 AM', dep: '02:10 AM', halt: '2 min' },
-      { station: 'Ongole', code: 'OGL', arr: '03:48 AM', dep: '03:50 AM', halt: '2 min' },
-      { station: 'Tenali Jn', code: 'TEL', arr: '05:18 AM', dep: '05:20 AM', halt: '2 min' },
-      { station: 'Vijayawada Jn', code: 'BZA', arr: '06:05 AM', dep: '06:20 AM', halt: '15 min' }
-    ]
-  },
-  {
-    id: '12615',
-    number: '12615',
-    name: 'Grand Trunk Express',
-    runningDays: 'M T W T F S S',
-    departureTime: '06:40 PM',
-    departureStation: 'Mgr Chennai Ctl (MAS)',
-    departureStationCode: 'MAS',
-    departureTag: 'Legendary Express',
-    duration: '06 h 30 min',
-    arrivalTime: '01:10 AM',
-    arrivalStation: 'Vijayawada Jn. (BZA)',
-    arrivalStationCode: 'BZA',
-    arrivalTag: '10 min halt',
-    distance: '431 km',
-    avgSpeed: '67 km/h',
-    punctuality: '96% On Time',
-    pantryAvailable: true,
-    classes: [
-      { code: 'SL', fare: 275, status: 'Available 22', statusType: 'available', updated: '25 mins ago' },
-      { code: '3A', fare: 735, status: 'Available 16', statusType: 'available', updated: '30 mins ago' },
-      { code: '2A', fare: 1045, status: 'Available 5', statusType: 'available', updated: '1 hr ago' },
-      { code: '1A', fare: 1750, status: 'Available 3', statusType: 'available', updated: '1 hr ago' }
-    ],
-    stops: [
-      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '06:40 PM', halt: 'Starts' },
-      { station: 'Gudur Jn', code: 'GDR', arr: '08:58 PM', dep: '09:00 PM', halt: '2 min' },
-      { station: 'Nellore', code: 'NLR', arr: '09:33 PM', dep: '09:35 PM', halt: '2 min' },
-      { station: 'Ongole', code: 'OGL', arr: '11:03 PM', dep: '11:05 PM', halt: '2 min' },
-      { station: 'Vijayawada Jn', code: 'BZA', arr: '01:10 AM', dep: '01:20 AM', halt: '10 min' },
-      { station: 'New Delhi', code: 'NDLS', arr: '06:30 AM', dep: '--', halt: 'Ends' }
-    ]
-  },
-  {
-    id: '12621',
-    number: '12621',
-    name: 'Tamil Nadu SF Express',
-    runningDays: 'M T W T F S S',
-    departureTime: '10:00 PM',
-    departureStation: 'Mgr Chennai Ctl (MAS)',
-    departureStationCode: 'MAS',
-    departureTag: 'Premier Superfast',
-    duration: '05 h 55 min',
-    arrivalTime: '03:55 AM',
-    arrivalStation: 'Vijayawada Jn. (BZA)',
-    arrivalStationCode: 'BZA',
-    arrivalTag: '10 min halt',
-    distance: '431 km',
-    avgSpeed: '74 km/h',
-    punctuality: '97% On Time',
-    pantryAvailable: true,
-    classes: [
-      { code: 'SL', fare: 285, status: 'Available 31', statusType: 'available', updated: '12 mins ago' },
-      { code: '3A', fare: 750, status: 'Available 18', statusType: 'available', updated: '20 mins ago' },
-      { code: '2A', fare: 1065, status: 'Available 7', statusType: 'available', updated: '45 mins ago' },
-      { code: '1A', fare: 1780, status: 'Available 4', statusType: 'available', updated: '1 hr ago' }
-    ],
-    stops: [
-      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '10:00 PM', halt: 'Starts' },
-      { station: 'Vijayawada Jn', code: 'BZA', arr: '03:55 AM', dep: '04:05 AM', halt: '10 min' },
-      { station: 'Warangal', code: 'WL', arr: '06:40 AM', dep: '06:42 AM', halt: '2 min' },
-      { station: 'New Delhi', code: 'NDLS', arr: '06:30 AM', dep: '--', halt: 'Ends' }
-    ]
-  },
-  {
-    id: '12830',
-    number: '12830',
-    name: 'Chennai - Bhubaneswar SF Exp',
-    runningDays: 'Th',
-    departureTime: '09:00 PM',
-    departureStation: 'Mgr Chennai Ctl (MAS)',
-    departureStationCode: 'MAS',
-    departureTag: 'Superfast Express',
-    duration: '06 h 15 min',
-    arrivalTime: '03:15 AM',
-    arrivalStation: 'Vijayawada Jn. (BZA)',
-    arrivalStationCode: 'BZA',
-    arrivalTag: '10 min halt',
-    distance: '431 km',
-    avgSpeed: '69 km/h',
-    punctuality: '91% On Time',
-    pantryAvailable: true,
-    classes: [
-      { code: 'SL', fare: 275, status: 'Available 8', statusType: 'available', updated: '15 mins ago' },
-      { code: '3A', fare: 735, status: 'Available 11', statusType: 'available', updated: '1 hr ago' },
-      { code: '2A', fare: 1045, status: 'Available 2', statusType: 'available', updated: '2 hr ago' }
-    ],
-    stops: [
-      { station: 'Mgr Chennai Ctl', code: 'MAS', arr: '--', dep: '09:00 PM', halt: 'Starts' },
-      { station: 'Gudur Jn', code: 'GDR', arr: '11:13 PM', dep: '11:15 PM', halt: '2 min' },
-      { station: 'Nellore', code: 'NLR', arr: '11:48 PM', dep: '11:50 PM', halt: '2 min' },
-      { station: 'Vijayawada Jn', code: 'BZA', arr: '03:15 AM', dep: '03:25 AM', halt: '10 min' },
-      { station: 'Bhubaneswar', code: 'BBS', arr: '05:55 PM', dep: '--', halt: 'Ends' }
-    ]
-  }
-];
-
-// Corridors lookup dictionary: finds trains traveling between origin and destination
-function getCorridorTrains(src: string, dest: string): TrainItem[] {
-  const s = src.toLowerCase().trim();
-  const d = dest.toLowerCase().trim();
-
-  // 1. Chennai <-> Katpadi / Vellore / Bangalore route
-  const isChennaiToVellore =
-    (s.includes('chennai') || s.includes('mas') || s.includes('ms') || s.includes('perambur') || s.includes('tbm')) &&
-    (d.includes('katpadi') || d.includes('vellore') || d.includes('kpd') || d.includes('vlr') || d.includes('bengaluru') || d.includes('bangalore') || d.includes('mys'));
-
-  // 2. Chennai <-> Vijayawada / Andhra / Kolkata route
-  const isChennaiToVijayawada =
-    (s.includes('chennai') || s.includes('mas') || s.includes('ms') || s.includes('tbm')) &&
-    (d.includes('vijayawada') || d.includes('bza') || d.includes('guntur') || d.includes('vizag') || d.includes('visakhapatnam') || d.includes('nellore') || d.includes('howrah'));
-
-  if (isChennaiToVijayawada) {
-    return EXPANDED_CORRIDOR_TRAINS;
-  }
-  if (isChennaiToVellore) {
-    return INITIAL_TRAINS;
-  }
-
-  // Generic directional match: check if train stops cover src and dest in order
-  const allKnown = [...INITIAL_TRAINS, ...EXPANDED_CORRIDOR_TRAINS];
-  const matched = allKnown.filter(t => {
-    const srcIndex = t.stops.findIndex(st => st.station.toLowerCase().includes(s) || st.code.toLowerCase().includes(s));
-    const destIndex = t.stops.findIndex(st => st.station.toLowerCase().includes(d) || st.code.toLowerCase().includes(d));
-    return srcIndex !== -1 && destIndex !== -1 && srcIndex < destIndex;
-  });
-
-  if (matched.length > 0) return matched;
-
-  // Fallback: Dynamically generate tailored trains specifically running between src and dest
-  const srcName = src.replace(/\s*-\s*[A-Z0-9]+$/i, '').trim() || 'Origin';
-  const destName = dest.replace(/\s*-\s*[A-Z0-9]+$/i, '').trim() || 'Destination';
-  const srcCode = src.slice(0, 3).toUpperCase();
-  const destCode = dest.slice(0, 3).toUpperCase();
-
-  return [
-    {
-      id: '12801',
-      number: '12801',
-      name: `${srcName} - ${destName} SF Express`,
-      runningDays: 'M T W T F S S',
-      departureTime: '06:30 AM',
-      departureStation: `${srcName} Jn (${srcCode})`,
-      departureStationCode: srcCode,
-      departureTag: 'Daily Superfast',
-      duration: '04 h 45 min',
-      arrivalTime: '11:15 AM',
-      arrivalStation: `${destName} Jn (${destCode})`,
-      arrivalStationCode: destCode,
-      arrivalTag: 'On Time record',
-      distance: '340 km',
-      avgSpeed: '72 km/h',
-      punctuality: '95% On Time',
-      pantryAvailable: true,
-      classes: [
-        { code: 'SL', fare: 245, status: 'Available 35', statusType: 'available', updated: '15 mins ago' },
-        { code: '3A', fare: 650, status: 'Available 12', statusType: 'available', updated: '1 hr ago' },
-        { code: '2A', fare: 920, status: 'Available 4', statusType: 'available', updated: '2 hr ago' },
-        { code: '2S', fare: 140, status: 'Available 54', statusType: 'available', updated: '30 mins ago' },
-      ],
-      stops: [
-        { station: `${srcName} Jn`, code: srcCode, arr: '--', dep: '06:30 AM', halt: 'Starts' },
-        { station: 'Intermediate Halt 1', code: 'INT1', arr: '08:15 AM', dep: '08:17 AM', halt: '2 min' },
-        { station: 'Intermediate Halt 2', code: 'INT2', arr: '09:40 AM', dep: '09:42 AM', halt: '2 min' },
-        { station: `${destName} Jn`, code: destCode, arr: '11:15 AM', dep: '--', halt: 'Ends' }
-      ]
-    },
-    {
-      id: '20805',
-      number: '20805',
-      name: `Vande Bharat (${srcName} - ${destName})`,
-      runningDays: 'M T W T F S',
-      departureTime: '05:40 AM',
-      departureStation: `${srcName} (${srcCode})`,
-      departureStationCode: srcCode,
-      departureTag: 'Fastest in route',
-      duration: '03 h 30 min',
-      arrivalTime: '09:10 AM',
-      arrivalStation: `${destName} (${destCode})`,
-      arrivalStationCode: destCode,
-      arrivalTag: 'High Speed',
-      distance: '340 km',
-      avgSpeed: '97 km/h',
-      punctuality: '99% On Time',
-      classes: [
-        { code: 'CC', fare: 980, status: 'Available 48', statusType: 'available', updated: '5 mins ago' },
-        { code: 'EC', fare: 1890, status: 'Available 16', statusType: 'available', updated: '10 mins ago' }
-      ],
-      stops: [
-        { station: srcName, code: srcCode, arr: '--', dep: '05:40 AM', halt: 'Starts' },
-        { station: `${destName} Jn`, code: destCode, arr: '09:10 AM', dep: '--', halt: 'Ends' }
-      ]
-    },
-    {
-      id: '12803',
-      number: '12803',
-      name: `${destName} Mail Express`,
-      runningDays: 'M T W T F S S',
-      departureTime: '09:20 PM',
-      departureStation: `${srcName} Jn (${srcCode})`,
-      departureStationCode: srcCode,
-      departureTag: 'Overnight Service',
-      duration: '05 h 10 min',
-      arrivalTime: '02:30 AM',
-      arrivalStation: `${destName} (${destCode})`,
-      arrivalStationCode: destCode,
-      arrivalTag: 'Daily Mail',
-      distance: '340 km',
-      avgSpeed: '66 km/h',
-      punctuality: '92% On Time',
-      pantryAvailable: true,
-      classes: [
-        { code: 'SL', fare: 245, status: 'Available 18', statusType: 'available', updated: '40 mins ago' },
-        { code: '3A', fare: 650, status: 'Available 8', statusType: 'available', updated: '1 hr ago' },
-        { code: '2A', fare: 920, status: 'WL 3', statusType: 'wl', updated: '15 mins ago' },
-        { code: '1A', fare: 1540, status: 'Available 2', statusType: 'available', updated: '2 hr ago' }
-      ],
-      stops: [
-        { station: srcName, code: srcCode, arr: '--', dep: '09:20 PM', halt: 'Starts' },
-        { station: `${destName} Jn`, code: destCode, arr: '02:30 AM', dep: '--', halt: 'Ends' }
-      ]
-    },
-    {
-      id: '12807',
-      number: '12807',
-      name: `${srcName} Intercity SF`,
-      runningDays: 'M T W T F S S',
-      departureTime: '03:15 PM',
-      departureStation: `${srcName} (${srcCode})`,
-      departureStationCode: srcCode,
-      departureTag: 'Day Commuter',
-      duration: '04 h 50 min',
-      arrivalTime: '08:05 PM',
-      arrivalStation: `${destName} (${destCode})`,
-      arrivalStationCode: destCode,
-      arrivalTag: 'Popular',
-      distance: '340 km',
-      avgSpeed: '70 km/h',
-      punctuality: '96% On Time',
-      classes: [
-        { code: '2S', fare: 135, status: 'Available 92', statusType: 'available', updated: '10 mins ago' },
-        { code: 'CC', fare: 480, status: 'Available 24', statusType: 'available', updated: '25 mins ago' }
-      ],
-      stops: [
-        { station: srcName, code: srcCode, arr: '--', dep: '03:15 PM', halt: 'Starts' },
-        { station: `${destName} Jn`, code: destCode, arr: '08:05 PM', dep: '--', halt: 'Ends' }
-      ]
-    }
-  ];
-}
+export type { TrainClassOption, TrainItem, BikeStopItem, CityLocation };
+export { POPULAR_CITIES, INDIAN_STATIONS, INITIAL_TRAINS, EXPANDED_CORRIDOR_TRAINS, getCorridorTrains };
 
 export type RideMode = 'bike' | 'auto' | 'car' | 'bus' | 'train' | 'flight';
 
 export function getRideModeFromPath(urlPath?: string): RideMode {
+  if (typeof window !== 'undefined') {
+    const sp = new URLSearchParams(window.location.search);
+    const m = sp.get('mode')?.toLowerCase();
+    if (m === 'flight' || m === 'filght') return 'flight';
+    if (m === 'bus') return 'bus';
+    if (m === 'train') return 'train';
+    if (m === 'car') return 'car';
+    if (m === 'auto') return 'auto';
+    if (m === 'bike' || m === 'bick') return 'bike';
+  }
+
   const p = (typeof window !== 'undefined' && window.location.pathname)
     ? window.location.pathname
     : (urlPath || '');
@@ -731,6 +51,15 @@ export function getRideModeFromPath(urlPath?: string): RideMode {
   return 'train';
 }
 
+export const INITIAL_MODE_ORDER: { id: RideMode; label: string; icon: string }[] = [
+  { id: 'flight', label: 'Flight', icon: 'fa-plane' },
+  { id: 'train', label: 'Train', icon: 'fa-train' },
+  { id: 'bus', label: 'Bus', icon: 'fa-bus' },
+  { id: 'car', label: 'Car', icon: 'fa-car' },
+  { id: 'auto', label: 'Auto', icon: 'fa-taxi' },
+  { id: 'bike', label: 'Bike', icon: 'fa-motorcycle' },
+];
+
 export default function TrainBookingView() {
   const pathname = usePathname();
   const router = useRouter();
@@ -741,14 +70,34 @@ export default function TrainBookingView() {
   const [isLoadingMode, setIsLoadingMode] = useState<boolean>(false);
   const activeReqIdRef = useRef<number>(0);
 
-  // Sync mode with pathname changes immediately
+  // Dynamic order of mode tabs: initial order is Flight -> Train -> Bus -> Car -> Auto -> Bike
+  // When a tab is clicked, that tab moves to the first position.
+  const [modeList, setModeList] = useState(() => {
+    const initialMode = getRideModeFromPath(pathname);
+    const list = [...INITIAL_MODE_ORDER];
+    if (initialMode && initialMode !== 'flight') {
+      const idx = list.findIndex(m => m.id === initialMode);
+      if (idx > -1) {
+        const [selected] = list.splice(idx, 1);
+        list.unshift(selected);
+      }
+    }
+    return list;
+  });
+
+  // Sync mode with pathname changes immediately & bring active mode to first icon position
   useEffect(() => {
     const currentPathMode = getRideModeFromPath(pathname);
     if (currentPathMode !== activeMode) {
       setActiveMode(currentPathMode);
       setActiveRideMode(currentPathMode);
+      setModeList(prev => {
+        const item = prev.find(m => m.id === currentPathMode);
+        if (!item || prev[0].id === currentPathMode) return prev;
+        return [item, ...prev.filter(m => m.id !== currentPathMode)];
+      });
     }
-  }, [pathname, setActiveRideMode]);
+  }, [pathname, activeMode, setActiveRideMode]);
 
   // Synchronize activeMode with browser Back/Forward (popstate)
   useEffect(() => {
@@ -766,8 +115,15 @@ export default function TrainBookingView() {
     };
   }, [setActiveRideMode]);
 
-  // Mode change handler: updates UI tab immediately, shows skeleton loader, updates URL consistently
+  // Mode change handler: updates UI tab immediately, moves clicked mode to first position, shows skeleton loader, updates URL consistently
   const handleModeChange = (mode: RideMode) => {
+    // Reorder tabs so clicked tab is first in the list
+    setModeList(prev => {
+      const selected = prev.find(m => m.id === mode);
+      if (!selected || prev[0].id === mode) return prev;
+      return [selected, ...prev.filter(m => m.id !== mode)];
+    });
+
     if (mode === activeMode && !isLoadingMode) return;
 
     // 1. Immediately update active tab highlight
@@ -820,10 +176,57 @@ export default function TrainBookingView() {
     return name.replace(/\s*-\s*[A-Z0-9]+$/i, '').trim();
   };
 
-  const [source, setSource] = useState('Chennai');
-  const [destination, setDestination] = useState('Vijayawada');
-  const [dateOfJourney, setDateOfJourney] = useState('14 Oct, 2026');
+  const [source, setSource] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      const s = sp.get('source');
+      if (s) return s;
+    }
+    return '';
+  });
+  const [destination, setDestination] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      const d = sp.get('destination');
+      if (d) return d;
+    }
+    return '';
+  });
+  const [dateOfJourney, setDateOfJourney] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      const dt = sp.get('date');
+      if (dt) return dt;
+    }
+    return '14 Oct, 2026';
+  });
   const [selectedDay, setSelectedDay] = useState('14');
+
+  const handleSwapStations = () => {
+    const temp = source;
+    setSource(destination);
+    setDestination(temp);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sart_ride_pickup', destination);
+      localStorage.setItem('sart_ride_dropoff', temp);
+      window.dispatchEvent(new CustomEvent('sart_ride_location_update', {
+        detail: { pickup: destination, dropoff: temp }
+      }));
+    }
+  };
+
+  // Sync state if query parameters change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      const s = sp.get('source');
+      const d = sp.get('destination');
+      const dt = sp.get('date');
+      if (s !== null) setSource(s);
+      if (d !== null) setDestination(d);
+      if (dt !== null) setDateOfJourney(dt);
+    }
+  }, [pathname]);
 
   // Calendar Picker & Dropdown Refs
   const [showCalendarPicker, setShowCalendarPicker] = useState(false);
@@ -1017,19 +420,13 @@ export default function TrainBookingView() {
   const [expandedTrainId, setExpandedTrainId] = useState<string | null>(null);
   const classScrollRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [bookingClassModal, setBookingClassModal] = useState<{ train: TrainItem; classOption: TrainClassOption } | null>(null);
-  const [passengerName, setPassengerName] = useState('Alex Carter');
-  const [passengerAge, setPassengerAge] = useState('28');
-  const [passengerBerth, setPassengerBerth] = useState('No Preference');
+  const [passengerName, setPassengerName] = useState('');
+  const [passengerAge, setPassengerAge] = useState('');
+  const [passengerBerth, setPassengerBerth] = useState('');
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
 
   const toggleAccordion = (key: string) => {
     setOpenAccordions(prev => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const handleSwapStations = () => {
-    const temp = source;
-    setSource(destination);
-    setDestination(temp);
   };
 
   // Calendar dates list in October
@@ -1267,22 +664,23 @@ export default function TrainBookingView() {
         >
           <i className="fa-solid fa-arrow-left"></i>
         </button>
-        <div>
-          <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span>{formatStationName(source)}</span>
-            <i className="fa-solid fa-arrow-right" style={{ fontSize: '13px', color: '#64748b' }}></i>
-            <span>{formatStationName(destination)}</span>
+        {(activeMode === 'bus' || activeMode === 'train' || activeMode === 'flight') && (
+          <div>
+            <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>{formatStationName(source) || 'Select Source'}</span>
+              <i className="fa-solid fa-arrow-right" style={{ fontSize: '13px', color: '#64748b' }}></i>
+              <span>{formatStationName(destination) || 'Select Destination'}</span>
+            </div>
+            <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+              {activeMode === 'bus' ? 'Buses available' :
+                activeMode === 'train' ? `${displayedTrains.length} ${displayedTrains.length === 1 ? 'train' : 'trains'} running on this route` :
+                  'Flights available'}
+            </div>
           </div>
-          <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
-            {activeMode === 'bus' ? 'Buses available' :
-              activeMode === 'train' ? `${displayedTrains.length} ${displayedTrains.length === 1 ? 'train' : 'trains'} running on this route` :
-                activeMode === 'flight' ? 'Flights available' :
-                  'Instant ride captains nearby'}
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* ---------------- 1. Top Search Bar ---------------- */}
+      {/* ---------------- 1. Top Search Bar (Appears above the mode icons for all modes: Bus, Car, Train, Flight, Bike, Auto) ---------------- */}
       <div className="tb-search-card">
         <div className="tb-search-row">
           {/* Source Input */}
@@ -1298,10 +696,27 @@ export default function TrainBookingView() {
               <span className="tb-field-label">Source</span>
               <input
                 type="text"
-                className="tb-field-input"
+                className=""
                 value={formatStationName(source)}
                 onChange={(e) => { setSource(e.target.value); setShowSourceDropdown(true); }}
                 onFocus={() => setShowSourceDropdown(true)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setShowSourceDropdown(false);
+                    const src = formatStationName(source);
+                    const dst = formatStationName(destination);
+                    const q = new URLSearchParams({
+                      source: src,
+                      destination: dst,
+                      date: dateOfJourney
+                    }).toString();
+                    const targetUrl = `/home/ride/${activeMode}?${q}`;
+                    if (typeof window !== 'undefined') {
+                      window.history.pushState(null, '', targetUrl);
+                    }
+                    router.push(targetUrl);
+                  }
+                }}
                 placeholder="From Station / Location"
               />
             </div>
@@ -1393,11 +808,27 @@ export default function TrainBookingView() {
               <span className="tb-field-label">Destination</span>
               <input
                 type="text"
-                className="tb-field-input"
+                className=""
                 value={formatStationName(destination)}
                 onChange={(e) => { setDestination(e.target.value); setShowDestDropdown(true); }}
                 onFocus={() => setShowDestDropdown(true)}
-                onKeyDown={(e) => { if (e.key === 'Enter') setShowDestDropdown(false); }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setShowDestDropdown(false);
+                    const src = formatStationName(source);
+                    const dst = formatStationName(destination);
+                    const q = new URLSearchParams({
+                      source: src,
+                      destination: dst,
+                      date: dateOfJourney
+                    }).toString();
+                    const targetUrl = `/home/ride/${activeMode}?${q}`;
+                    if (typeof window !== 'undefined') {
+                      window.history.pushState(null, '', targetUrl);
+                    }
+                    router.push(targetUrl);
+                  }
+                }}
                 placeholder="To Station / Location"
               />
             </div>
@@ -1488,7 +919,7 @@ export default function TrainBookingView() {
               <div className="tb-field-content">
                 <span className="tb-field-label">Date of journey</span>
                 <div className="tb-date-display-row">
-                  <span className="tb-field-input tb-date-text">
+                  <span className=" tb-date-text">
                     {dateOfJourney}
                   </span>
                   <i className={`fa-solid fa-chevron-${showCalendarPicker ? 'up' : 'down'} tb-date-chevron`}></i>
@@ -1646,49 +1077,39 @@ export default function TrainBookingView() {
           </div>
 
           {/* Red Circular Search Button */}
-          <button className="tb-search-action-btn" onClick={() => { }} title="Search">
+          <button
+            className="tb-search-action-btn"
+            onClick={() => {
+              const src = formatStationName(source);
+              const dst = formatStationName(destination);
+              const q = new URLSearchParams({
+                source: src,
+                destination: dst,
+                date: dateOfJourney
+              }).toString();
+              const targetUrl = `/home/ride/${activeMode}?${q}`;
+              if (typeof window !== 'undefined') {
+                window.history.pushState(null, '', targetUrl);
+              }
+              router.push(targetUrl);
+            }}
+            title="Search"
+          >
             <i className="fa-solid fa-magnifying-glass"></i>
           </button>
         </div>
 
-        {/* Mode Tabs: 1st Bike, 2nd Auto, 3rd Car, 4th Bus, 5th Train */}
+        {/* Mode Tabs: Dynamic order starting with Flight, Train, Bus, Car, Auto, Bike, where any clicked icon moves to the 1st position */}
         <div className="tb-mode-tabs">
-          <button
-            className={`tb-mode-tab ${activeMode === 'bike' ? 'active' : ''}`}
-            onClick={() => handleModeChange('bike')}
-          >
-            <i className="fa-solid fa-motorcycle"></i> Bike
-          </button>
-          <button
-            className={`tb-mode-tab ${activeMode === 'auto' ? 'active' : ''}`}
-            onClick={() => handleModeChange('auto')}
-          >
-            <i className="fa-solid fa-taxi"></i> Auto
-          </button>
-          <button
-            className={`tb-mode-tab ${activeMode === 'car' ? 'active' : ''}`}
-            onClick={() => handleModeChange('car')}
-          >
-            <i className="fa-solid fa-car"></i> Car
-          </button>
-          <button
-            className={`tb-mode-tab ${activeMode === 'bus' ? 'active' : ''}`}
-            onClick={() => handleModeChange('bus')}
-          >
-            <i className="fa-solid fa-bus"></i> Bus
-          </button>
-          <button
-            className={`tb-mode-tab ${activeMode === 'train' ? 'active' : ''}`}
-            onClick={() => handleModeChange('train')}
-          >
-            <i className="fa-solid fa-train"></i> Train
-          </button>
-          <button
-            className={`tb-mode-tab ${activeMode === 'flight' ? 'active' : ''}`}
-            onClick={() => handleModeChange('flight')}
-          >
-            <i className="fa-solid fa-plane"></i> Flight
-          </button>
+          {modeList.map((m) => (
+            <button
+              key={m.id}
+              className={`tb-mode-tab ${activeMode === m.id ? 'active' : ''}`}
+              onClick={() => handleModeChange(m.id)}
+            >
+              <i className={`fa-solid ${m.icon}`}></i> {m.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -1720,6 +1141,68 @@ export default function TrainBookingView() {
         <div className="tb-main-grid">
           {/* Left Filter Results Sidebar */}
           <aside className="tb-filter-sidebar">
+            {/* Applied Filters & Clear All Header (Matches user image exactly) */}
+            <div className="tb-applied-filters-header">
+              <span className="tb-applied-filters-title">Applied Filters</span>
+              {(filterAvailable || filterAC || filterTatkal || filterAltTrip || selectedClasses.length > 0 || selectedAvailability.length > 0 || selectedDepTimeRanges.length > 0 || selectedArrTimeRanges.length > 0 || selectedDepStations.length > 0 || selectedArrStations.length > 0 || selectedQuota !== 'general') && (
+                <button
+                  type="button"
+                  className="tb-clear-all-link"
+                  onClick={handleClearAllFilters}
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
+
+            {/* Active Chips Display */}
+            {(filterAvailable || filterAC || filterTatkal || filterAltTrip || selectedClasses.length > 0 || selectedAvailability.length > 0 || selectedDepTimeRanges.length > 0 || selectedArrTimeRanges.length > 0 || selectedDepStations.length > 0 || selectedArrStations.length > 0 || selectedQuota !== 'general') && (
+              <div className="tb-active-chips-wrap">
+                {filterAvailable && (
+                  <span className="tb-active-chip">
+                    Available Only
+                    <button type="button" className="tb-active-chip-remove" onClick={() => setFilterAvailable(false)}>×</button>
+                  </span>
+                )}
+                {filterAC && (
+                  <span className="tb-active-chip">
+                    AC
+                    <button type="button" className="tb-active-chip-remove" onClick={() => setFilterAC(false)}>×</button>
+                  </span>
+                )}
+                {filterTatkal && (
+                  <span className="tb-active-chip">
+                    Tatkal
+                    <button type="button" className="tb-active-chip-remove" onClick={() => setFilterTatkal(false)}>×</button>
+                  </span>
+                )}
+                {filterAltTrip && (
+                  <span className="tb-active-chip">
+                    Alternate Trip
+                    <button type="button" className="tb-active-chip-remove" onClick={() => setFilterAltTrip(false)}>×</button>
+                  </span>
+                )}
+                {selectedClasses.map(cls => (
+                  <span key={cls} className="tb-active-chip">
+                    Class: {cls}
+                    <button type="button" className="tb-active-chip-remove" onClick={() => setSelectedClasses(prev => prev.filter(c => c !== cls))}>×</button>
+                  </span>
+                ))}
+                {selectedAvailability.map(av => (
+                  <span key={av} className="tb-active-chip">
+                    {av.toUpperCase()}
+                    <button type="button" className="tb-active-chip-remove" onClick={() => setSelectedAvailability(prev => prev.filter(a => a !== av))}>×</button>
+                  </span>
+                ))}
+                {selectedQuota !== 'general' && (
+                  <span className="tb-active-chip">
+                    Quota: {selectedQuota}
+                    <button type="button" className="tb-active-chip-remove" onClick={() => setSelectedQuota('general')}>×</button>
+                  </span>
+                )}
+              </div>
+            )}
+
             <h3 className="tb-filter-title">Filter results</h3>
 
             {/* Quick Filter Chips (2x2) */}
@@ -2271,6 +1754,14 @@ export default function TrainBookingView() {
       {(activeMode === 'bike' || activeMode === 'auto' || activeMode === 'car') ? (
         <RideBookingView
           mode={activeMode as 'bike' | 'auto' | 'car'}
+          sourceLocation={formatStationName(source)}
+          destinationLocation={formatStationName(destination)}
+          onSourceChange={(newSource) => {
+            setSource(newSource);
+          }}
+          onDestinationChange={(newDest) => {
+            setDestination(newDest);
+          }}
           onBackToHome={() => {
             setActiveTab('home');
             if (typeof window !== 'undefined') {
@@ -2282,81 +1773,11 @@ export default function TrainBookingView() {
       ) : null}
       {/* ---------------- Flight Booking View ---------------- */}
       {activeMode === 'flight' && (
-        <div className="tb-flight-view-container" style={{ marginTop: '24px' }}>
-          <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '16px', marginBottom: '20px' }}>
-              <div>
-                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <i className="fa-solid fa-plane" style={{ color: '#0284c7' }}></i>
-                  18 Flights Available • {source.split('-')[0].trim()} to {destination.split('-')[0].trim()}
-                </h2>
-                <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
-                  Departure date: <strong>{dateOfJourney}</strong> • Non-stop and connecting flights
-                </p>
-              </div>
-              <span style={{ fontSize: '12px', background: '#e0f2fe', color: '#0369a1', padding: '6px 14px', borderRadius: '20px', fontWeight: 700 }}>
-                ✈ Lowest fares guaranteed
-              </span>
-            </div>
-
-            {/* Flights List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {[
-                { id: 'fl-1', airline: 'IndiGo', flightNo: '6E 214', dep: '06:00', arr: '07:25', dur: '1h 25m', type: 'Non-stop', fare: 3850, bags: '15kg check-in • 7kg cabin', color: '#0045a5' },
-                { id: 'fl-2', airline: 'Air India', flightNo: 'AI 542', dep: '09:30', arr: '10:50', dur: '1h 20m', type: 'Non-stop', fare: 4120, bags: '20kg check-in • 7kg cabin • Free Meal', color: '#dc2626' },
-                { id: 'fl-3', airline: 'Akasa Air', flightNo: 'QP 1308', dep: '13:15', arr: '14:40', dur: '1h 25m', type: 'Non-stop', fare: 3690, bags: '15kg check-in • 7kg cabin • USB Port', color: '#ea580c' },
-                { id: 'fl-4', airline: 'Vistara', flightNo: 'UK 832', dep: '17:45', arr: '19:10', dur: '1h 25m', type: 'Non-stop', fare: 5200, bags: '25kg check-in • Gourmet Dining', color: '#6b21a8' }
-              ].map(flight => (
-                <div key={flight.id} style={{ border: '1px solid #e2e8f0', borderRadius: '14px', padding: '20px 24px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '20px', background: '#fafafa', transition: 'all 0.2s ease' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: '180px' }}>
-                    <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'white', border: '1px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: flight.color }}>
-                      <i className="fa-solid fa-plane"></i>
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 800, fontSize: '16px', color: '#0f172a' }}>{flight.airline}</div>
-                      <div style={{ fontSize: '12px', color: '#64748b' }}>{flight.flightNo} • {flight.bags}</div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '24px', textAlign: 'center' }}>
-                    <div>
-                      <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>{flight.dep}</div>
-                      <div style={{ fontSize: '12px', color: '#64748b' }}>{source.split('-')[0].trim()}</div>
-                    </div>
-                    <div style={{ minWidth: '80px' }}>
-                      <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>{flight.dur}</span>
-                      <div style={{ height: '2px', background: '#cbd5e1', margin: '4px 0' }}></div>
-                      <span style={{ fontSize: '10px', color: '#16a34a', fontWeight: 700 }}>{flight.type}</span>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>{flight.arr}</div>
-                      <div style={{ fontSize: '12px', color: '#64748b' }}>{destination.split('-')[0].trim()}</div>
-                    </div>
-                  </div>
-
-                  <div style={{ textAlign: 'right', minWidth: '140px' }}>
-                    <div style={{ fontSize: '22px', fontWeight: 900, color: '#0f172a' }}>₹{flight.fare.toLocaleString('en-IN')}</div>
-                    <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '8px' }}>Per Adult (taxes incl.)</div>
-                    <button
-                      onClick={() => setRideBookedModal({
-                        name: `${flight.airline} (${flight.flightNo})`,
-                        type: 'Flight Ticket',
-                        eta: flight.dep,
-                        captain: `Seat 12A • Gate 4`,
-                        plate: flight.flightNo,
-                        otp: `${Math.floor(1000 + Math.random() * 9000)}`,
-                        fare: flight.fare
-                      })}
-                      style={{ padding: '8px 20px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '13px', cursor: 'pointer' }}
-                    >
-                      Book Flight
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <FlightBookingView
+          source={formatStationName(source)}
+          destination={formatStationName(destination)}
+          dateOfJourney={dateOfJourney}
+        />
       )}
 
       {/* Ride Booking Confirmation Modal */}
@@ -2455,115 +1876,34 @@ export default function TrainBookingView() {
 
 
       {bookingClassModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.7)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', borderRadius: '16px', maxWidth: '520px', width: '100%', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)' }}>
-            <div style={{ padding: '20px 24px', background: '#dc2626', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800 }}>Book Ticket: {bookingClassModal.train.name}</h3>
-                <span style={{ fontSize: '13px', color: '#fee2e2' }}>Class: {bookingClassModal.classOption.code} • Fare: ₹{bookingClassModal.classOption.fare}</span>
-              </div>
-              <button onClick={() => setBookingClassModal(null)} style={{ background: 'none', border: 'none', color: 'white', fontSize: '20px', cursor: 'pointer' }}>
-                <i className="fa-solid fa-xmark"></i>
-              </button>
-            </div>
-
-            {bookingConfirmed ? (
-              <div style={{ padding: '32px 24px', textAlign: 'center' }}>
-                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', margin: '0 auto 16px auto' }}>
-                  <i className="fa-solid fa-circle-check"></i>
-                </div>
-                <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: 800, color: '#0f172a' }}>Ticket Confirmed!</h3>
-                <p style={{ margin: '0 0 20px 0', color: '#64748b', fontSize: '14px' }}>
-                  Your ticket for <strong>{bookingClassModal.train.name} ({bookingClassModal.classOption.code})</strong> has been booked for {passengerName}.
-                </p>
-                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0', textAlign: 'left', marginBottom: '24px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px' }}>
-                    <span style={{ color: '#64748b' }}>Journey:</span>
-                    <span style={{ fontWeight: 700 }}>{source.split('-')[0].trim()} <i className="fa-solid fa-arrow-right"></i> {destination.split('-')[0].trim()}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px' }}>
-                    <span style={{ color: '#64748b' }}>Date:</span>
-                    <span style={{ fontWeight: 700 }}>{dateOfJourney}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
-                    <span style={{ color: '#64748b' }}>Status:</span>
-                    <span style={{ fontWeight: 700, color: '#16a34a' }}>CNF / Coach S3, 24</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setBookingClassModal(null)}
-                  style={{ width: '100%', padding: '12px', background: '#0f172a', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '15px' }}
-                >
-                  Done
-                </button>
-              </div>
-            ) : (
-              <div style={{ padding: '24px' }}>
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>Passenger Name</label>
-                  <input
-                    type="text"
-                    value={passengerName}
-                    onChange={(e) => setPassengerName(e.target.value)}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>Age</label>
-                    <input
-                      type="number"
-                      value={passengerAge}
-                      onChange={(e) => setPassengerAge(e.target.value)}
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>Berth Preference</label>
-                    <select
-                      value={passengerBerth}
-                      onChange={(e) => setPassengerBerth(e.target.value)}
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none', background: 'white' }}
-                    >
-                      <option>No Preference</option>
-                      <option>Lower Berth</option>
-                      <option>Middle Berth</option>
-                      <option>Upper Berth</option>
-                      <option>Side Lower</option>
-                      <option>Side Upper</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '8px' }}>
-                    <span style={{ color: '#64748b' }}>Base Fare:</span>
-                    <span style={{ fontWeight: 700 }}>₹{bookingClassModal.classOption.fare}</span>
-                  </div>
-                  {freeCancel && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '8px' }}>
-                      <span style={{ color: '#64748b' }}>Free Cancellation Opt-in:</span>
-                      <span style={{ fontWeight: 700 }}>₹50</span>
-                    </div>
-                  )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: 800, borderTop: '1px dashed #cbd5e1', paddingTop: '8px', color: '#0f172a' }}>
-                    <span>Total Payable:</span>
-                    <span>₹{bookingClassModal.classOption.fare + (freeCancel ? 50 : 0)}</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleConfirmTicketBooking}
-                  style={{ width: '100%', padding: '14px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                >
-                  <i className="fa-solid fa-lock"></i> Pay & Confirm Ticket
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+        <TrainPassengerDetailsModal
+          trainName={bookingClassModal.train.name}
+          trainNumber={bookingClassModal.train.number}
+          classCode={bookingClassModal.classOption.code}
+          fare={bookingClassModal.classOption.fare}
+          source={source}
+          destination={destination}
+          dateOfJourney={dateOfJourney}
+          depTime={bookingClassModal.train.departureTime}
+          passenger={{
+            name: passengerName,
+            age: passengerAge,
+            gender: 'Male',
+            berthPreference: passengerBerth as any
+          }}
+          freeCancel={freeCancel}
+          onPassengerChange={(p) => {
+            setPassengerName(p.name);
+            setPassengerAge(p.age);
+            setPassengerBerth(p.berthPreference);
+          }}
+          onConfirmBooking={handleConfirmTicketBooking}
+          onClose={() => {
+            setBookingClassModal(null);
+            setBookingConfirmed(false);
+          }}
+          isConfirmed={bookingConfirmed}
+        />
       )}
     </div>
   );
