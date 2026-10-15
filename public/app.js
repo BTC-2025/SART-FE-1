@@ -197,40 +197,107 @@ let animatedVehicleMarker = null;
 let animationIntervalId = null;
 
 const BENGALURU_COORDS = [12.9716, 77.5946];
+let currentUserCoords = [...BENGALURU_COORDS]; // Default Bengaluru, updated by live GPS
+let userAccuracyCircle = null;
+let googleRoadmapLayer = null;
 
 function initMap() {
   try {
-    // Set up Leaflet map
+    // Set up Leaflet map with Google Maps Roadmap Tiles
     leafletMap = L.map('explore-map', {
       zoomControl: false,
       attributionControl: false
-    }).setView(BENGALURU_COORDS, 14);
+    }).setView(currentUserCoords, 15);
 
-    // Standard OpenStreetMap tiles for a realistic look
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    // Google Maps Tile Layer (Roadmap style)
+    googleRoadmapLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+      maxZoom: 20,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+      attribution: '&copy; Google Maps'
     }).addTo(leafletMap);
 
-    // Custom pulse icon for user location
+    // Custom Live GPS Pulse Icon
     const userPulseIcon = L.divIcon({
       className: 'user-gps-pulse',
-      html: `<div style="width: 14px; height: 14px; background: var(--primary); border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 10px var(--primary); position: relative;">
-              <div style="position: absolute; width: 34px; height: 34px; border: 2px solid var(--primary); border-radius: 50%; left: -12px; top: -12px; opacity: 0.5; animation: pulseRed 1.5s infinite alternate;"></div>
+      html: `<div style="width: 16px; height: 16px; background: #0284c7; border: 3px solid #ffffff; border-radius: 50%; box-shadow: 0 0 14px rgba(2, 132, 199, 0.9); position: relative;">
+              <div style="position: absolute; width: 42px; height: 42px; border: 2.5px solid #0284c7; border-radius: 50%; left: -16px; top: -16px; opacity: 0.6; animation: pulseRed 1.8s infinite alternate;"></div>
              </div>`,
-      iconSize: [14, 14],
-      iconAnchor: [7, 7]
+      iconSize: [16, 16],
+      iconAnchor: [8, 8]
     });
 
-    userMarker = L.marker(BENGALURU_COORDS, { icon: userPulseIcon }).addTo(leafletMap);
+    userMarker = L.marker(currentUserCoords, { icon: userPulseIcon }).addTo(leafletMap);
+    userMarker.bindPopup("<b>Your Current Location</b><br>Live GPS Signal Active", { closeButton: false });
+
+    // Request Live Browser Geolocation (Prompts User for Location Access)
+    requestLiveUserLocation();
     
-    // Generate nearby mock transport vehicles, parking, mechanics
+    // Generate nearby mock transport vehicles around current coords
     generateNearbyHotspots();
     
-    logActivity(`System`, `Leaflet map engine initialized with Dark Matter tiles`);
+    logActivity(`System`, `Google Maps Engine initialized with live GPS tracking`);
   } catch (error) {
     console.error("Map loading error", error);
     logActivity(`Error`, `Could not load map viewport CDN resources.`);
+  }
+}
+
+// Request live location from user browser
+function requestLiveUserLocation(panToLocation = false) {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude, accuracy } = position.coords;
+        currentUserCoords = [latitude, longitude];
+
+        if (leafletMap && userMarker) {
+          userMarker.setLatLng(currentUserCoords);
+          
+          // Accuracy circle
+          if (userAccuracyCircle) {
+            leafletMap.removeLayer(userAccuracyCircle);
+          }
+          userAccuracyCircle = L.circle(currentUserCoords, {
+            radius: Math.min(accuracy, 200),
+            color: '#0284c7',
+            fillColor: '#38bdf8',
+            fillOpacity: 0.15,
+            weight: 1
+          }).addTo(leafletMap);
+
+          leafletMap.setView(currentUserCoords, 16, { animate: true });
+          userMarker.openPopup();
+        }
+
+        // Regenerate hotspots near real live location
+        generateNearbyHotspots();
+        logActivity(`GPS`, `Acquired live coordinates: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+      },
+      (error) => {
+        console.warn("Geolocation permission error or unavailable:", error.message);
+        logActivity(`GPS`, `Using default regional map node (Permission: ${error.message})`);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 12000,
+        maximumAge: 10000
+      }
+    );
+
+    // Also watch live position as user moves
+    try {
+      navigator.geolocation.watchPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          currentUserCoords = [lat, lng];
+          if (userMarker) userMarker.setLatLng(currentUserCoords);
+          if (userAccuracyCircle) userAccuracyCircle.setLatLng(currentUserCoords);
+        },
+        () => {},
+        { enableHighAccuracy: true, maximumAge: 30000 }
+      );
+    } catch (e) {}
   }
 }
 
@@ -241,24 +308,24 @@ function generateNearbyHotspots() {
   nearbyMarkers = [];
 
   const icons = {
-    taxi: `<i class="fa-solid fa-car" style="color: var(--primary); font-size: 13px;"></i>`,
-    rental: `<i class="fa-solid fa-key" style="color: var(--accent); font-size: 12px;"></i>`,
+    taxi: `<i class="fa-solid fa-car" style="color: #0284c7; font-size: 13px;"></i>`,
+    rental: `<i class="fa-solid fa-key" style="color: #f59e0b; font-size: 12px;"></i>`,
     parking: `<i class="fa-solid fa-square-p" style="color: #8b5cf6; font-size: 13px;"></i>`
   };
 
-  // Generate 8 random points around user coords
+  // Generate 8 random points around user live coords
   const categories = ['taxi', 'rental', 'parking'];
   for (let i = 0; i < 8; i++) {
-    const latOffset = (Math.random() - 0.5) * 0.015;
-    const lngOffset = (Math.random() - 0.5) * 0.015;
+    const latOffset = (Math.random() - 0.5) * 0.012;
+    const lngOffset = (Math.random() - 0.5) * 0.012;
     const cat = categories[Math.floor(Math.random() * categories.length)];
     
-    const lat = BENGALURU_COORDS[0] + latOffset;
-    const lng = BENGALURU_COORDS[1] + lngOffset;
+    const lat = currentUserCoords[0] + latOffset;
+    const lng = currentUserCoords[1] + lngOffset;
 
     const customIcon = L.divIcon({
       className: 'map-spot-marker',
-      html: `<div style="width: 28px; height: 28px; background: var(--panel-bg); border: 1.5px solid var(--card-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+      html: `<div style="width: 28px; height: 28px; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.18);">
               ${icons[cat]}
              </div>`,
       iconSize: [28, 28],
@@ -272,8 +339,9 @@ function generateNearbyHotspots() {
 
 function recenterMap() {
   if (leafletMap && userMarker) {
-    leafletMap.setView(userMarker.getLatLng(), 14, { animate: true });
-    logActivity("System", "Recenter GPS viewport");
+    requestLiveUserLocation(true);
+    leafletMap.setView(userMarker.getLatLng(), 16, { animate: true });
+    logActivity("System", "Recenter GPS viewport to live location");
   }
 }
 
@@ -299,7 +367,7 @@ function animateActiveBookingRoute(bookingTitle, type) {
   if (animationIntervalId) clearInterval(animationIntervalId);
 
   // Define route endpoint
-  const start = BENGALURU_COORDS;
+  const start = currentUserCoords || BENGALURU_COORDS;
   let end = [start[0] + 0.012, start[1] + 0.018];
   
   if (type === 'sea') {
@@ -1405,6 +1473,14 @@ function initAppTheme() {
       }
     }
   });
+}
+
+if (typeof window !== 'undefined') {
+  window.requestLiveUserLocation = requestLiveUserLocation;
+  window.recenterMap = recenterMap;
+  window.zoomInMap = zoomInMap;
+  window.zoomOutMap = zoomOutMap;
+  window.toggleMapHotspots = toggleMapHotspots;
 }
 
 if (document.readyState === 'loading') {
