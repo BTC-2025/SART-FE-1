@@ -32,8 +32,12 @@ export default function MapEngine() {
   };
 
   const recenterMap = () => {
-    if (typeof window !== 'undefined' && (window as any).recenterMap) {
-      (window as any).recenterMap();
+    if (typeof window !== 'undefined') {
+      if ((window as any).requestLiveUserLocation) {
+        (window as any).requestLiveUserLocation(true);
+      } else if ((window as any).recenterMap) {
+        (window as any).recenterMap();
+      }
     }
   };
 
@@ -41,9 +45,19 @@ export default function MapEngine() {
     <div className="home-map-wrapper">
       <div className="home-map-title-row">
         <h2>Live Fleet & Route Tracker</h2>
-        <span className="action-link" onClick={toggleMapHotspots}>
-          <i className="fa-solid fa-radar"></i> Refresh Nearby Fleet
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span 
+            className="action-link" 
+            style={{ color: '#0284c7', background: '#e0f2fe', padding: '4px 10px', borderRadius: '16px', fontWeight: 700 }}
+            onClick={recenterMap}
+            title="Prompt browser to allow live location"
+          >
+            <i className="fa-solid fa-location-crosshairs"></i> Use My Live Location
+          </span>
+          <span className="action-link" onClick={toggleMapHotspots}>
+            <i className="fa-solid fa-radar"></i> Refresh Fleet
+          </span>
+        </div>
       </div>
       
       <div className="home-map-panel">

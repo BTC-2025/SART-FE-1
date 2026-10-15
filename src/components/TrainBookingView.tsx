@@ -52,12 +52,12 @@ export function getRideModeFromPath(urlPath?: string): RideMode {
 }
 
 export const INITIAL_MODE_ORDER: { id: RideMode; label: string; icon: string }[] = [
-  { id: 'flight', label: 'Flight', icon: 'fa-plane' },
-  { id: 'train', label: 'Train', icon: 'fa-train' },
-  { id: 'bus', label: 'Bus', icon: 'fa-bus' },
-  { id: 'car', label: 'Car', icon: 'fa-car' },
-  { id: 'auto', label: 'Auto', icon: 'fa-taxi' },
   { id: 'bike', label: 'Bike', icon: 'fa-motorcycle' },
+  { id: 'auto', label: 'Auto', icon: 'fa-taxi' },
+  { id: 'car', label: 'Car', icon: 'fa-car' },
+  { id: 'bus', label: 'Bus', icon: 'fa-bus' },
+  { id: 'train', label: 'Train', icon: 'fa-train' },
+  { id: 'flight', label: 'Flight', icon: 'fa-plane' },
 ];
 
 export default function TrainBookingView() {
@@ -70,32 +70,15 @@ export default function TrainBookingView() {
   const [isLoadingMode, setIsLoadingMode] = useState<boolean>(false);
   const activeReqIdRef = useRef<number>(0);
 
-  // Dynamic order of mode tabs: initial order is Flight -> Train -> Bus -> Car -> Auto -> Bike
-  // When a tab is clicked, that tab moves to the first position.
-  const [modeList, setModeList] = useState(() => {
-    const initialMode = getRideModeFromPath(pathname);
-    const list = [...INITIAL_MODE_ORDER];
-    if (initialMode && initialMode !== 'flight') {
-      const idx = list.findIndex(m => m.id === initialMode);
-      if (idx > -1) {
-        const [selected] = list.splice(idx, 1);
-        list.unshift(selected);
-      }
-    }
-    return list;
-  });
+  // Fixed static order of mode tabs: Bike -> Auto -> Car -> Bus -> Train -> Flight (No reshuffling)
+  const modeList = INITIAL_MODE_ORDER;
 
-  // Sync mode with pathname changes immediately & bring active mode to first icon position
+  // Sync mode with pathname changes immediately
   useEffect(() => {
     const currentPathMode = getRideModeFromPath(pathname);
     if (currentPathMode !== activeMode) {
       setActiveMode(currentPathMode);
       setActiveRideMode(currentPathMode);
-      setModeList(prev => {
-        const item = prev.find(m => m.id === currentPathMode);
-        if (!item || prev[0].id === currentPathMode) return prev;
-        return [item, ...prev.filter(m => m.id !== currentPathMode)];
-      });
     }
   }, [pathname, activeMode, setActiveRideMode]);
 
@@ -115,15 +98,8 @@ export default function TrainBookingView() {
     };
   }, [setActiveRideMode]);
 
-  // Mode change handler: updates UI tab immediately, moves clicked mode to first position, shows skeleton loader, updates URL consistently
+  // Mode change handler: updates UI tab immediately, keeps fixed positions, shows skeleton loader, updates URL consistently
   const handleModeChange = (mode: RideMode) => {
-    // Reorder tabs so clicked tab is first in the list
-    setModeList(prev => {
-      const selected = prev.find(m => m.id === mode);
-      if (!selected || prev[0].id === mode) return prev;
-      return [selected, ...prev.filter(m => m.id !== mode)];
-    });
-
     if (mode === activeMode && !isLoadingMode) return;
 
     // 1. Immediately update active tab highlight

@@ -24,7 +24,7 @@
 /* Modern Full-Width Carousel */
 .modern-carousel {
   width: 100%;
-  height: 680px;
+  height: 470px;
   position: relative;
   overflow: hidden;
 }
@@ -149,6 +149,180 @@
 .hero-ff-input::placeholder {
   color: #94a3b8;
   font-weight: 600;
+}
+
+.hero-ff-subdate-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+  background: #f0f9ff;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #bae6fd;
+  width: fit-content;
+  max-width: 100%;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.hero-ff-subdate-row:hover {
+  background: #e0f2fe;
+  border-color: #0284c7;
+}
+
+.hero-ff-subdate-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #0284c7;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hero-ff-subdate-label i {
+  color: #0284c7;
+  font-size: 11px;
+}
+
+.hero-ff-subdate-text {
+  font-size: 11px;
+  font-weight: 800;
+  color: #0369a1;
+  white-space: nowrap;
+}
+
+.hero-ff-subdate-chevron {
+  font-size: 9px;
+  color: #0284c7;
+  margin-left: 2px;
+}
+
+/* Calendar Popup Modal */
+.hero-calendar-popup {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 240px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.22), 0 0 1px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e2e8f0;
+  z-index: 200;
+  padding: 8px 10px;
+  cursor: default;
+  animation: fbFadeInDown 0.18s ease;
+}
+
+.hero-cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 5px;
+}
+
+.hero-cal-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.hero-cal-nav-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hero-cal-nav-btn:hover {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+.hero-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+
+.hero-cal-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.hero-cal-day-cell {
+  height: 23px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hero-cal-day-cell:hover:not(.empty) {
+  background: #f0f9ff;
+  color: #0284c7;
+}
+
+.hero-cal-day-cell.selected {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  font-weight: 800;
+}
+
+.hero-cal-day-cell.empty {
+  cursor: default;
+}
+
+.hero-cal-footer {
+  display: flex;
+  gap: 5px;
+  margin-top: 6px;
+  padding-top: 5px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.hero-cal-quick-action {
+  flex: 1;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  padding: 3px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hero-cal-quick-action:hover {
+  background: #e0f2fe;
+  color: #0284c7;
+  border-color: #0284c7;
 }
 
 .hero-ff-swap-btn {
@@ -316,6 +490,7 @@
     opacity: 0;
     transform: translateY(-6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -481,27 +656,201 @@
   color: #0284c7;
 }
 
-.hero-td-footer {
-  padding-top: 16px;
+.hero-ride-dropdown {
+  min-width: 330px !important;
+  max-width: 380px;
+  padding: 14px 16px;
+  animation: fadeInDown 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.hero-td-done-btn {
-  background: #0084c7;
-  color: #ffffff;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 14px;
+.hero-ride-dropdown .hero-td-header {
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.hero-ride-dropdown .hero-td-header h4 {
+  font-size: 15px;
   font-weight: 800;
-  cursor: pointer;
-  width: 100%;
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.28);
-  transition: all 0.15s ease;
 }
 
-.hero-td-done-btn:hover {
-  background: #0277b6;
+.hero-ride-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 6px 0;
+  max-height: 155px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 #f1f5f9;
+}
+
+.hero-ride-options-list::-webkit-scrollbar {
+  width: 6px;
+  display: block;
+}
+
+.hero-ride-options-list::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.hero-ride-options-list::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+}
+
+.hero-ride-options-list::-webkit-scrollbar-thumb:hover {
+  background: #0284c7;
+}
+
+.hero-ride-option-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-sizing: border-box;
+}
+
+.hero-ride-option-card:hover {
+  border-color: #0284c7;
+  background: #f0f9ff;
   transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(2, 132, 199, 0.12);
+}
+
+.hero-ride-option-card.active {
+  border-color: #0284c7;
+  background: #e0f2fe;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.15);
+}
+
+.hero-ride-option-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+}
+
+.hero-ride-icon-wrap {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.hero-ride-option-card:hover .hero-ride-icon-wrap,
+.hero-ride-icon-wrap.active {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.hero-ride-info-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1;
+}
+
+.hero-ride-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1;
+}
+
+.hero-ride-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.hero-ride-count-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0284c7;
+  background: #e0f2fe;
+  padding: 2px 6px;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.hero-ride-option-card.active .hero-ride-count-badge {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.hero-ride-desc {
+  display: none;
+}
+
+.hero-ride-arrow {
+  color: #94a3b8;
+  font-size: 11px;
+  transition: transform 0.15s ease, color 0.15s ease;
+  margin-left: 6px;
+}
+
+.hero-ride-option-card:hover .hero-ride-arrow {
+  color: #0284c7;
+  transform: translateX(2px);
+}
+
+.hero-td-footer {
+  padding-top: 6px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.hero-td-rides-info {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hero-td-rides-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #0284c7;
+  font-size: 12px;
+}
+
+.hero-td-rides-badge i {
+  font-size: 13px;
+  color: #0284c7;
+}
+
+.hero-td-rides-badge strong {
+  color: #0369a1;
+  font-weight: 800;
+}
+
+.hero-td-rides-sub {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 500;
+  margin-left: 19px;
+  line-height: 1.2;
 }
 
 /* Search Flights CTA Button (Orange gradient pill with chevron) */

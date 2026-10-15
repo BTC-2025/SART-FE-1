@@ -1,0 +1,471 @@
+.showcase-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 20px auto 40px auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+}
+
+.showcase-section {
+  width: 100%;
+  position: relative;
+}
+
+/* Header row styling */
+.showcase-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.showcase-header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.showcase-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.4px;
+}
+
+.showcase-subtitle-tag {
+  font-size: 13px;
+  color: #d97706;
+  font-weight: 700;
+}
+
+.showcase-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.showcase-category-pills {
+  display: flex;
+  gap: 8px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 30px;
+}
+
+.showcase-pill-btn {
+  background: transparent;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.showcase-pill-btn.active {
+  background: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+}
+
+.showcase-view-all-link {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ea580c;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.showcase-view-all-link:hover {
+  background: #ffedd5;
+  border-color: #fdba74;
+  transform: translateY(-1px);
+}
+
+.showcase-view-all-link.orange {
+  color: #ea580c;
+}
+
+/* Relative container for Left/Right arrows */
+.showcase-slider-relative {
+  position: relative;
+  width: 100%;
+}
+
+.showcase-arrow-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.16);
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.showcase-arrow-btn:hover {
+  background: #f8fafc;
+  box-shadow: 0 6px 22px rgba(15, 23, 42, 0.24);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.showcase-arrow-btn.left {
+  left: -18px;
+}
+
+.showcase-arrow-btn.right {
+  right: -18px;
+}
+
+/* Tracks */
+.showcase-cards-track,
+.showcase-why-track,
+.showcase-hotels-track {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 8px 4px 16px 4px;
+  scrollbar-width: none;
+}
+
+.showcase-cards-track::-webkit-scrollbar,
+.showcase-why-track::-webkit-scrollbar,
+.showcase-hotels-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Grid layout when user clicks View All */
+.showcase-cards-track.grid-expanded,
+.showcase-hotels-track.grid-expanded {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 20px;
+  overflow-x: visible;
+}
+
+/* 1. OFFERS FOR YOU CARD STYLING - FULL BACKGROUND IMAGE IN BACK */
+.showcase-offer-card {
+  flex: 0 0 calc(25% - 12px);
+  min-width: 260px;
+  max-width: 285px;
+  height: 185px;
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+}
+
+.showcase-offer-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.22);
+}
+
+/* Dark gradient overlay so white text & badges pop crisp and legible */
+.showcase-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.35) 0%,
+    rgba(15, 23, 42, 0.65) 45%,
+    rgba(15, 23, 42, 0.94) 100%
+  );
+  z-index: 1;
+}
+
+.showcase-card-inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.showcase-card-top-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.showcase-offer-badge {
+  font-size: 10px;
+  font-weight: 800;
+  color: #ffffff;
+  padding: 4px 9px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.showcase-bank-pill {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(4px);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.showcase-bank-text {
+  font-size: 10px;
+  font-weight: 800;
+  color: #991b1b;
+  letter-spacing: 0.3px;
+}
+
+.showcase-card-bottom-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.showcase-offer-heading {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.3;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.showcase-offer-sub {
+  font-size: 12px;
+  color: #e2e8f0;
+  margin: 0;
+  line-height: 1.35;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.showcase-code-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px;
+  padding: 3px 9px;
+  font-size: 11px;
+  color: #0f172a;
+  width: fit-content;
+  margin-top: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* 2. WHY BOOK CARDS */
+.showcase-why-card {
+  flex: 0 0 270px;
+  background: #ffffff;
+  border: 1px solid #edf2f7;
+  border-radius: 16px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.04);
+  transition: transform 0.2s;
+}
+
+.showcase-why-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.showcase-why-icon-box {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  flex-shrink: 0;
+}
+
+.showcase-why-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.showcase-why-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 3px 0;
+}
+
+.showcase-why-desc {
+  font-size: 11.5px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* 3. HOTELS SECTION */
+.hotels-section {
+  background: #fffbeb;
+  border-radius: 22px;
+  padding: 26px;
+  border: 1px solid #fef3c7;
+}
+
+.showcase-hotel-card {
+  flex: 0 0 calc(25% - 12px);
+  min-width: 250px;
+  max-width: 285px;
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.showcase-hotel-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.showcase-hotel-img-wrap {
+  width: 100%;
+  height: 155px;
+  position: relative;
+  overflow: hidden;
+}
+
+.showcase-hotel-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.showcase-hotel-card:hover .showcase-hotel-img-wrap img {
+  transform: scale(1.06);
+}
+
+.showcase-hotel-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(16, 185, 129, 0.95);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.showcase-hotel-details {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.showcase-hotel-name-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.showcase-hotel-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.showcase-stars {
+  display: flex;
+  gap: 2px;
+  color: #f59e0b;
+  font-size: 10px;
+  margin-top: 2px;
+}
+
+.showcase-hotel-loc {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0 0 10px 0;
+}
+
+.showcase-hotel-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #f8fafc;
+}
+
+.showcase-rating-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rating-score {
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.rating-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.price-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+}
