@@ -2030,11 +2030,6 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
                         <div style={{ fontSize: '20px', fontWeight: '800', color: '#111827' }}>
                           {(pickup.length > 1 && dropoff.length > 1 && cargoWeight !== '') ? `₹${Math.max(selectedVehicleObj.price, Math.round(selectedVehicleObj.price * (estimatedDistance / 20))).toLocaleString('en-IN')}` : '--'}
                         </div>
-                        {pickup && dropoff && pickup !== 'Current Location' && pickup.length > 1 && dropoff.length > 1 && cargoWeight !== '' && (
-                          <div style={{ fontSize: '12px', color: '#3b82f6', fontWeight: '700', marginTop: '4px' }}>
-                            <i className="fa-solid fa-route"></i> ~{estimatedDistance} km route
-                          </div>
-                        )}
                       </div>
                     </div>
                   )}
@@ -2178,12 +2173,7 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
 
               {/* Map Floating Header Overlay */}
               <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '10px', zIndex: 10 }}>
-                {pickup && dropoff && (
-                  <div style={{ background: '#ffffff', padding: '10px 16px', borderRadius: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.12)', fontSize: '13px', fontWeight: '800', color: '#166534', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #bbf7d0' }}>
-                    <i className="fa-solid fa-route" style={{ color: '#16a34a' }}></i>
-                    <span>~{estimatedDistance} km Live Route</span>
-                  </div>
-                )}
+
                 <div style={{ background: '#ffffff', padding: '10px 16px', borderRadius: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.12)', fontSize: '13px', fontWeight: '800', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #e2e8f0' }}>
                   <i className="fa-solid fa-location-crosshairs" style={{ color: '#2563eb' }}></i> Google Maps Live
                 </div>
