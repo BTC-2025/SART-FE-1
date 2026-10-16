@@ -1938,13 +1938,19 @@ h6 {
 }
 
 /* Override Modals to behave as pages inside #tab-service-pages */
+#tab-service-pages {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
 #tab-service-pages .modal-overlay {
   position: static !important;
   background: transparent !important;
   padding: 0 !important;
+  margin: 0 !important;
 }
 
-#tab-service-pages .modal-sheet {
+#tab-service-pages .modal-sheet:not(.drivers-booking-modal-sheet):not(.parking-booking-modal-sheet) {
   max-width: 100% !important;
   width: 100% !important;
   height: auto !important;
@@ -1952,6 +1958,18 @@ h6 {
   border-radius: 0 !important;
   box-shadow: none !important;
   background: transparent !important;
+}
+
+#tab-service-pages .drivers-booking-modal-sheet,
+#tab-service-pages .parking-booking-modal-sheet {
+  max-width: 100% !important;
+  width: 100% !important;
+  height: calc(100vh - 70px) !important;
+  max-height: calc(100vh - 70px) !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  background: #f8fafc !important;
 }
 
 #tab-service-pages .modal-sheet>div:first-child {

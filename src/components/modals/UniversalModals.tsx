@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 export default function UniversalModals() {
   const [mounted, setMounted] = useState(false);
-  
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -14,7 +14,8 @@ export default function UniversalModals() {
   return (
     <>
       {/* RESTORED LEGACY MODALS */}
-      <div dangerouslySetInnerHTML={{ __html: `
+      <div dangerouslySetInnerHTML={{
+        __html: `
 
   <div class="modal-overlay" id="modal-ride">
     <div class="modal-sheet centered-modal" style="max-width: 600px;">
@@ -63,10 +64,10 @@ export default function UniversalModals() {
             </div>
             <div class="fleet-item-price">₹150</div>
           </div>
-          <div class="fleet-item" onclick="selectFleetItem(this, 'Auto-Rickshaw', 350)">
+          <div class="fleet-item" onclick="selectFleetItem(this, 'Auto', 350)">
             <div class="fleet-item-icon"><i class="fa-solid fa-taxi"></i></div>
             <div class="fleet-item-details">
-              <h4>Auto-Rickshaw</h4>
+              <h4>Auto</h4>
               <p>Traditional three-wheelers for affordable urban travel.</p>
             </div>
             <div class="fleet-item-price">₹350</div>
