@@ -758,21 +758,20 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
         {step === 1 && (
           <div style={{ flex: 1, overflowY: 'auto', padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-            {/* 🚚 Unified Carrier Search Card (Matching User Image 1) */}
+            {/* 🚚 Unified Carrier Search Card (Matching User Image 2) */}
             <div style={{
               background: '#ffffff',
               borderRadius: '16px',
               border: '1px solid #e2e8f0',
               boxShadow: '0 8px 30px rgba(15, 23, 42, 0.08)',
-              padding: '16px 20px',
+              padding: '12px 14px',
               display: 'flex',
-              flexDirection: 'column',
-              gap: '12px'
+              flexDirection: 'column'
             }}>
               {/* Form Inputs Row */}
               <div style={{
                 display: 'flex',
-                alignItems: 'stretch',
+                alignItems: 'center',
                 border: '1px solid #e2e8f0',
                 borderRadius: '12px',
                 background: '#ffffff',
@@ -780,7 +779,7 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
                 position: 'relative'
               }}>
                 {/* FROM Address Box */}
-                <div style={{ flex: 1, minWidth: 0, padding: '10px 16px', borderRight: '1px solid #e2e8f0', position: 'relative', display: 'flex', flexDirection: 'column' }} ref={fromRef}>
+                <div style={{ flex: 1.1, minWidth: 0, padding: '10px 16px', borderRight: '1px solid #e2e8f0', position: 'relative', display: 'flex', flexDirection: 'column' }} ref={fromRef}>
                   <span style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'capitalize', marginBottom: '3px' }}>From</span>
                   <input
                     type="text"
@@ -923,6 +922,34 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
                     )}
                   </div>
 
+                  {/* Swap Button floating on divider line */}
+                  <button
+                    type="button"
+                    onClick={handleSwap}
+                    title="Swap From and To locations"
+                    style={{
+                      position: 'absolute',
+                      right: '-15px',
+                      top: '18px',
+                      width: '30px',
+                      height: '30px',
+                      borderRadius: '50%',
+                      background: '#ffffff',
+                      border: '1px solid #cbd5e1',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#475569',
+                      fontSize: '11px',
+                      cursor: 'pointer',
+                      zIndex: 10,
+                      boxShadow: '0 2px 5px rgba(0,0,0,0.08)',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <i className="fa-solid fa-arrow-right-arrow-left"></i>
+                  </button>
+
                   {/* Popular Cities Suggestion */}
                   {showLocationList && (
                     <div className="hero-suggestions-popup">
@@ -954,18 +981,8 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
                   )}
                 </div>
 
-                {/* Swap Button */}
-                <button
-                  type="button"
-                  className="hero-ff-swap-btn"
-                  onClick={handleSwap}
-                  title="Swap From and To locations"
-                >
-                  <i className="fa-solid fa-arrow-right-arrow-left"></i>
-                </button>
-
                 {/* TO Address Box */}
-                <div style={{ flex: 1, minWidth: 0, padding: '10px 16px', borderRight: '1px solid #e2e8f0', position: 'relative', display: 'flex', flexDirection: 'column' }} ref={toRef}>
+                <div style={{ flex: 1.1, minWidth: 0, padding: '10px 16px 10px 24px', borderRight: '1px solid #e2e8f0', position: 'relative', display: 'flex', flexDirection: 'column' }} ref={toRef}>
                   <span style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'capitalize', marginBottom: '3px' }}>To</span>
                   <input
                     type="text"
@@ -1009,31 +1026,18 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
                   )}
                 </div>
 
-                {/* SENDER MOBILE NUMBER BOX */}
-                <div style={{ flex: 0.9, minWidth: 0, padding: '10px 16px', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'capitalize', marginBottom: '3px' }}>Sender Mobile</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <i className="fa-solid fa-phone" style={{ color: '#64748b', fontSize: '12px' }}></i>
-                    <input
-                      type="tel"
-                      value={senderPhone}
-                      onChange={(e) => setSenderPhone(e.target.value)}
-                      placeholder="+91 Mobile Number"
-                      style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '14px', fontWeight: 800, color: '#0f172a', padding: 0, width: '100%' }}
-                    />
-                  </div>
-                </div>
+
 
                 {/* SELECT CARRIER DROPDOWN (ALL 19 CARRIERS WITH ICONS) */}
                 <div
-                  style={{ flex: 1.1, minWidth: 0, padding: '10px 16px', cursor: 'pointer', position: 'relative', display: 'flex', flexDirection: 'column' }}
+                  style={{ flex: 1.3, minWidth: 0, padding: '10px 16px', cursor: 'pointer', position: 'relative', display: 'flex', flexDirection: 'column' }}
                   ref={carrierBoxRef}
                   onClick={() => setShowCarrierDropdown(prev => !prev)}
                 >
                   <span style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'capitalize', marginBottom: '3px' }}>Select Carrier</span>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
-                      <i className={`fa-solid ${ALL_CARRIERS.find(c => c.id === selectedVehicle)?.icon || 'fa-motorcycle'}`} style={{ color: ALL_CARRIERS.find(c => c.id === selectedVehicle)?.color || '#0284c7', fontSize: '15px' }}></i>
+                      <i className={`fa-solid ${ALL_CARRIERS.find(c => c.id === selectedVehicle)?.icon || 'fa-motorcycle'}`} style={{ color: ALL_CARRIERS.find(c => c.id === selectedVehicle)?.color || '#f97316', fontSize: '15px' }}></i>
                       <span style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {ALL_CARRIERS.find(c => c.id === selectedVehicle)?.name || 'Delivery Bike / Moto'}
                       </span>
@@ -1041,54 +1045,125 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
                     <i className="fa-solid fa-chevron-down" style={{ fontSize: '11px', color: '#64748b' }}></i>
                   </div>
 
-                  {/* Dropdown displaying all carrier options and icons */}
+                  {/* Dropdown displaying all carrier options directly below the button */}
                   {showCarrierDropdown && (
                     <div
-                      className="hero-traveller-dropdown hero-ride-dropdown"
-                      style={{ width: '380px', maxHeight: '380px', overflowY: 'auto' }}
+                      style={{
+                        position: 'absolute',
+                        top: 'calc(100% + 8px)',
+                        right: 0,
+                        width: '380px',
+                        maxWidth: '92vw',
+                        background: '#ffffff',
+                        borderRadius: '16px',
+                        border: '1px solid #e2e8f0',
+                        boxShadow: '0 20px 45px -10px rgba(15, 23, 42, 0.25), 0 0 1px rgba(0,0,0,0.1)',
+                        padding: '16px',
+                        zIndex: 1000,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                        animation: 'fbFadeInDown 0.18s ease'
+                      }}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="hero-td-header">
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '10px', borderBottom: '1px solid #f1f5f9' }}>
                         <div>
-                          <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 800 }}>All Carrier Options</h4>
-                          <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 600 }}>Select cargo vehicle or freight mode</span>
+                          <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>All Available Carriers</h4>
+                          <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 600 }}>Select cargo vehicle or freight mode ({ALL_CARRIERS.length} total)</span>
                         </div>
                         <button
                           type="button"
                           className="hero-td-close"
                           onClick={() => setShowCarrierDropdown(false)}
+                          style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '26px', height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b' }}
                         >
                           <i className="fa-solid fa-xmark"></i>
                         </button>
                       </div>
 
-                      <div className="hero-ride-options-list" style={{ maxHeight: '280px', overflowY: 'auto' }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px',
+                          maxHeight: '340px',
+                          overflowY: 'auto',
+                          paddingRight: '4px'
+                        }}
+                      >
                         {ALL_CARRIERS.map((carrier) => {
                           const isSelected = selectedVehicle === carrier.id;
                           return (
                             <div
                               key={carrier.id}
-                              className={`hero-ride-option-card ${isSelected ? 'active' : ''}`}
                               onClick={() => {
                                 setSelectedVehicle(carrier.id);
                                 setShowCarrierDropdown(false);
                               }}
-                              style={{ height: '42px', minHeight: '42px' }}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '8px 12px',
+                                borderRadius: '10px',
+                                border: isSelected ? '1.5px solid #f97316' : '1px solid #e2e8f0',
+                                background: isSelected ? '#fff7ed' : '#ffffff',
+                                cursor: 'pointer',
+                                transition: 'all 0.15s ease'
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!isSelected) {
+                                  e.currentTarget.style.background = '#f8fafc';
+                                  e.currentTarget.style.borderColor = '#cbd5e1';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!isSelected) {
+                                  e.currentTarget.style.background = '#ffffff';
+                                  e.currentTarget.style.borderColor = '#e2e8f0';
+                                }
+                              }}
                             >
-                              <div className="hero-ride-option-left">
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <div
-                                  className="hero-ride-icon-wrap"
-                                  style={{ background: carrier.color + '15', color: carrier.color, width: '30px', height: '30px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                  style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    borderRadius: '8px',
+                                    background: carrier.color + '15',
+                                    color: carrier.color,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '14px',
+                                    flexShrink: 0
+                                  }}
                                 >
-                                  <i className={`fa-solid ${carrier.icon}`} style={{ fontSize: '14px' }}></i>
+                                  <i className={`fa-solid ${carrier.icon}`}></i>
                                 </div>
-                                <div className="hero-ride-info-wrap">
-                                  <span className="hero-ride-name" style={{ fontSize: '13px', fontWeight: 700 }}>{carrier.name}</span>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                  <span style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>
+                                    {carrier.name}
+                                  </span>
+                                  {(carrier as any).capacityTon ? (
+                                    <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
+                                      Capacity: {(carrier as any).capacityTon} Ton • ₹{(carrier as any).perKmRate || 35}/km
+                                    </span>
+                                  ) : (
+                                    <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
+                                      Specialized Freight Carrier
+                                    </span>
+                                  )}
                                 </div>
                               </div>
-                              <div className="hero-ride-arrow">
-                                <i className="fa-solid fa-chevron-right" style={{ fontSize: '11px', color: '#94a3b8' }}></i>
-                              </div>
+                              <i
+                                className="fa-solid fa-chevron-right"
+                                style={{
+                                  fontSize: '11px',
+                                  color: isSelected ? '#f97316' : '#94a3b8'
+                                }}
+                              ></i>
                             </div>
                           );
                         })}
@@ -1097,10 +1172,9 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
                   )}
                 </div>
 
-                {/* SEARCH CTA BUTTON (Orange gradient pill with chevron matching Image 1) */}
+                {/* SEARCH CTA BUTTON (Orange gradient rounded right matching Image 2) */}
                 <button
                   type="button"
-                  className="hero-ff-search-btn"
                   onClick={() => {
                     const chosen = ALL_CARRIERS.find(c => c.id === selectedVehicle);
                     if (chosen) {
@@ -1111,9 +1185,30 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
                     }
                   }}
                   title="Search & Enter Carrier Fleet Details"
+                  style={{
+                    background: '#f25a1b',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '0 11px 11px 0',
+                    padding: '0 28px',
+                    height: '64px',
+                    fontSize: '16px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    flexShrink: 0,
+                    alignSelf: 'stretch',
+                    transition: 'background 0.2s ease',
+                    boxShadow: 'none'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = '#ea580c')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = '#f25a1b')}
                 >
                   <span>Search</span>
-                  <i className="fa-solid fa-chevron-right"></i>
+                  <i className="fa-solid fa-chevron-right" style={{ fontSize: '14px' }}></i>
                 </button>
               </div>
             </div>
@@ -2030,11 +2125,6 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
                         <div style={{ fontSize: '20px', fontWeight: '800', color: '#111827' }}>
                           {(pickup.length > 1 && dropoff.length > 1 && cargoWeight !== '') ? `₹${Math.max(selectedVehicleObj.price, Math.round(selectedVehicleObj.price * (estimatedDistance / 20))).toLocaleString('en-IN')}` : '--'}
                         </div>
-                        {pickup && dropoff && pickup !== 'Current Location' && pickup.length > 1 && dropoff.length > 1 && cargoWeight !== '' && (
-                          <div style={{ fontSize: '12px', color: '#3b82f6', fontWeight: '700', marginTop: '4px' }}>
-                            <i className="fa-solid fa-route"></i> ~{estimatedDistance} km route
-                          </div>
-                        )}
                       </div>
                     </div>
                   )}
@@ -2178,12 +2268,7 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
 
               {/* Map Floating Header Overlay */}
               <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '10px', zIndex: 10 }}>
-                {pickup && dropoff && (
-                  <div style={{ background: '#ffffff', padding: '10px 16px', borderRadius: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.12)', fontSize: '13px', fontWeight: '800', color: '#166534', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #bbf7d0' }}>
-                    <i className="fa-solid fa-route" style={{ color: '#16a34a' }}></i>
-                    <span>~{estimatedDistance} km Live Route</span>
-                  </div>
-                )}
+
                 <div style={{ background: '#ffffff', padding: '10px 16px', borderRadius: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.12)', fontSize: '13px', fontWeight: '800', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #e2e8f0' }}>
                   <i className="fa-solid fa-location-crosshairs" style={{ color: '#2563eb' }}></i> Google Maps Live
                 </div>

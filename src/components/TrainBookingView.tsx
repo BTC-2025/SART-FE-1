@@ -6,6 +6,7 @@ import './TrainBookingView.css';
 import BusBookingView from './BusBookingView';
 import RideBookingView from './RideBookingView';
 import FlightBookingView from './FlightBookingView';
+import HelicopterBookingView from './helicopter/HelicopterBookingView';
 import TrainPassengerDetailsModal, { TrainPassenger } from './TrainPassengerDetails';
 import { useSartStore } from '@/store/useSartStore';
 
@@ -24,12 +25,13 @@ import {
 export type { TrainClassOption, TrainItem, BikeStopItem, CityLocation };
 export { POPULAR_CITIES, INDIAN_STATIONS, INITIAL_TRAINS, EXPANDED_CORRIDOR_TRAINS, getCorridorTrains };
 
-export type RideMode = 'bike' | 'auto' | 'car' | 'bus' | 'train' | 'flight';
+export type RideMode = 'bike' | 'auto' | 'car' | 'bus' | 'train' | 'flight' | 'helicopter';
 
 export function getRideModeFromPath(urlPath?: string): RideMode {
   if (typeof window !== 'undefined') {
     const sp = new URLSearchParams(window.location.search);
     const m = sp.get('mode')?.toLowerCase();
+    if (m === 'helicopter' || m === 'heli' || m === 'chopper') return 'helicopter';
     if (m === 'flight' || m === 'filght') return 'flight';
     if (m === 'bus') return 'bus';
     if (m === 'train') return 'train';
@@ -42,6 +44,7 @@ export function getRideModeFromPath(urlPath?: string): RideMode {
     ? window.location.pathname
     : (urlPath || '');
   const lower = p.toLowerCase();
+  if (lower.includes('/helicopter') || lower.includes('/heli') || lower.includes('/chopper')) return 'helicopter';
   if (lower.includes('/bus')) return 'bus';
   if (lower.includes('/flight') || lower.includes('/filght')) return 'flight';
   if (lower.includes('/car')) return 'car';
@@ -58,6 +61,7 @@ export const INITIAL_MODE_ORDER: { id: RideMode; label: string; icon: string }[]
   { id: 'bus', label: 'Bus', icon: 'fa-bus' },
   { id: 'train', label: 'Train', icon: 'fa-train' },
   { id: 'flight', label: 'Flight', icon: 'fa-plane' },
+  { id: 'helicopter', label: 'Helicopter', icon: 'fa-helicopter' },
 ];
 
 export default function TrainBookingView() {
@@ -640,7 +644,7 @@ export default function TrainBookingView() {
         >
           <i className="fa-solid fa-arrow-left"></i>
         </button>
-        {(activeMode === 'bus' || activeMode === 'train' || activeMode === 'flight') && (
+        {(activeMode === 'bus' || activeMode === 'train' || activeMode === 'flight' || activeMode === 'helicopter') && (
           <div>
             <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span>{formatStationName(source) || 'Select Source'}</span>
@@ -650,7 +654,8 @@ export default function TrainBookingView() {
             <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
               {activeMode === 'bus' ? 'Buses available' :
                 activeMode === 'train' ? `${displayedTrains.length} ${displayedTrains.length === 1 ? 'train' : 'trains'} running on this route` :
-                  'Flights available'}
+                  activeMode === 'helicopter' ? 'Helicopter charters & helipads available' :
+                    'Flights available'}
             </div>
           </div>
         )}
@@ -1750,6 +1755,15 @@ export default function TrainBookingView() {
       {/* ---------------- Flight Booking View ---------------- */}
       {activeMode === 'flight' && (
         <FlightBookingView
+          source={formatStationName(source)}
+          destination={formatStationName(destination)}
+          dateOfJourney={dateOfJourney}
+        />
+      )}
+
+      {/* ---------------- Helicopter Booking View ---------------- */}
+      {activeMode === 'helicopter' && (
+        <HelicopterBookingView
           source={formatStationName(source)}
           destination={formatStationName(destination)}
           dateOfJourney={dateOfJourney}

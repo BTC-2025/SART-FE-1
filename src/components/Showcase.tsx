@@ -449,8 +449,8 @@ export default function Showcase() {
       <section className="showcase-section hotels-section">
         <div className="showcase-section-header">
           <div className="showcase-header-left">
-            <h2 className="showcase-title">Top Hotels in New Delhi</h2>
-            <span className="showcase-subtitle-tag">Best Price Guarantee</span>
+            <h2 className="showcase-title">Explore Top Travel Destinations</h2>
+            <span className="showcase-subtitle-tag">Best Travel Deals</span>
           </div>
           <button
             type="button"

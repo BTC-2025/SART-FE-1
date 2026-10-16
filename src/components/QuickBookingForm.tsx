@@ -77,7 +77,7 @@ export default function QuickBookingForm() {
     ],
     driver: [
       { id: 'd-bike', label: 'Bike / Scooter Rider', icon: 'fa-solid fa-motorcycle', colorClass: 'icon-bg-green' },
-      { id: 'd-auto', label: 'Auto-Rickshaw Driver', icon: 'fa-solid fa-taxi', colorClass: 'icon-bg-yellow' },
+      { id: 'd-auto', label: 'Auto Driver', icon: 'fa-solid fa-taxi', colorClass: 'icon-bg-yellow' },
       { id: 'd-car', label: 'Personal Car Chauffeur', icon: 'fa-solid fa-car-side', colorClass: 'icon-bg-blue' },
       { id: 'd-suv', label: 'SUV / MUV Driver', icon: 'fa-solid fa-car', colorClass: 'icon-bg-pink' },
       { id: 'd-luxury', label: 'Luxury Chauffeur', icon: 'fa-solid fa-user-tie', colorClass: 'icon-bg-purple' },
@@ -112,10 +112,10 @@ export default function QuickBookingForm() {
     if (origin) query.append('origin', origin);
     if (destination) query.append('destination', destination);
     if (date) query.append('date', date);
-    
+
     const queryString = query.toString() ? `?${query.toString()}` : '';
     const tabName = activeTab === 'rides' ? 'ride' : activeTab;
-    
+
     // We must use Next.js standard router push to trigger React state updates naturally,
     // but we use the query string format instead of nested slugs to prevent Next.js Route Reversion bugs
     router.push(`/home/${tabName}?subService=${activeSubTab}&${query.toString()}`);
@@ -129,13 +129,13 @@ export default function QuickBookingForm() {
 
       <div className="qb-main-container">
         {/* Dynamic Expanding Tabs */}
-        <div 
+        <div
           className="qb-tabs-nav"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
           {tabs.map((tab) => (
-            <button 
+            <button
               key={tab.id}
               className={`qb-tab-btn btn-${tab.id} ${activeTab === tab.id ? 'active' : ''} ${isHovered ? 'show' : ''}`}
               onClick={() => setActiveTab(tab.id)}
@@ -151,8 +151,8 @@ export default function QuickBookingForm() {
             <div className="qb-marquee-track">
               {/* Render items twice for seamless looping */}
               {[...currentSubServices, ...currentSubServices].map((sub, index) => (
-                <div 
-                  key={`${sub.id}-${index}`} 
+                <div
+                  key={`${sub.id}-${index}`}
                   className={`qb-sub-icon ${sub.colorClass} ${activeSubTab === sub.id ? 'active' : ''}`}
                   onClick={() => setActiveSubTab(sub.id)}
                   title={sub.label}
@@ -168,17 +168,17 @@ export default function QuickBookingForm() {
         <div className="qb-form-box">
           {/* Pickup / Origin */}
           <div className="qb-field qb-location">
-            <i className="fa-solid fa-location-dot icon-gray" style={{marginRight: '12px'}}></i>
-            <div className="qb-input-wrap" style={{justifyContent: 'center'}}>
-              <input 
-                type="text" 
-                placeholder={['parking', 'rental'].includes(activeTab) ? 'Enter Location' : 'Enter Pickup Location'} 
+            <i className="fa-solid fa-location-dot icon-gray" style={{ marginRight: '12px' }}></i>
+            <div className="qb-input-wrap" style={{ justifyContent: 'center' }}>
+              <input
+                type="text"
+                placeholder={['parking', 'rental'].includes(activeTab) ? 'Enter Location' : 'Enter Pickup Location'}
                 value={origin}
                 onChange={(e) => setOrigin(e.target.value)}
               />
             </div>
             {!['parking', 'rental'].includes(activeTab) && (
-              <button 
+              <button
                 className="qb-swap-btn"
                 onClick={() => {
                   const temp = origin;
@@ -194,11 +194,11 @@ export default function QuickBookingForm() {
           {/* Drop / Destination (Only for some) */}
           {!['parking', 'rental'].includes(activeTab) && (
             <div className="qb-field qb-location">
-              <i className="fa-solid fa-circle-dot icon-gray" style={{marginRight: '12px'}}></i>
-              <div className="qb-input-wrap" style={{justifyContent: 'center'}}>
-                <input 
-                  type="text" 
-                  placeholder="Enter Drop Location" 
+              <i className="fa-solid fa-circle-dot icon-gray" style={{ marginRight: '12px' }}></i>
+              <div className="qb-input-wrap" style={{ justifyContent: 'center' }}>
+                <input
+                  type="text"
+                  placeholder="Enter Drop Location"
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
                 />
