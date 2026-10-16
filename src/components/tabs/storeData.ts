@@ -2,7 +2,7 @@ export interface VehicleShowcaseItem {
   id: string;
   name: string;
   brand: string;
-  type: 'Car' | 'Bike' | 'EV' | 'Auto' | 'Van' | 'Lorry' | 'Bus' | 'Commercial';
+  type: 'Car' | 'Bike' | 'EV' | 'Auto' | 'Van' | 'Lorry' | 'Bus' | 'Tractor' | 'Commercial' | 'Emergency' | 'Construction';
   status: 'popular' | 'upcoming' | 'electric' | 'used';
   priceRange: string;
   priceRaw: number; // in Lakhs / thousands
@@ -17,6 +17,8 @@ export interface VehicleShowcaseItem {
   owners?: string;
   location?: string;
   features: string[];
+  badgeTag?: string;
+  transmission?: string;
 }
 
 export const VEHICLE_SHOWCASE_DATA: VehicleShowcaseItem[] = [
@@ -248,6 +250,76 @@ export const VEHICLE_SHOWCASE_DATA: VehicleShowcaseItem[] = [
     features: ['10-ft Container Cargo', 'FC Valid Till 2026', 'Engine Overhauled', 'All 6 Tyres 80% Life']
   },
 
+  // CarBike360 New Cars (User Image 1 Reference)
+  {
+    id: 'cb-new-1',
+    name: 'Rolls-Royce Ghost',
+    brand: 'Rolls-Royce',
+    type: 'Car',
+    status: 'popular',
+    badgeTag: 'Petrol',
+    priceRange: '₹6.95 - 7.95 Crore',
+    priceRaw: 695.0,
+    image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80',
+    rating: 4.96,
+    fuel: 'Petrol (6.75L Twin-Turbo V12)',
+    transmission: '8-Speed Satellite Aided Auto',
+    mileage: '6.33 kmpl',
+    seating: '5 Seater Ultra-Luxury Saloon',
+    features: ['Effortless Doors', 'Starlight Headliner with Shooting Stars', 'Illuminated Grille', 'Planar Suspension System']
+  },
+  {
+    id: 'cb-new-2',
+    name: 'Mahindra Scorpio Classic',
+    brand: 'Mahindra',
+    type: 'Car',
+    status: 'popular',
+    badgeTag: 'Diesel',
+    priceRange: '₹13.62 - 17.42 Lakh',
+    priceRaw: 13.62,
+    image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
+    rating: 4.82,
+    fuel: 'Diesel (2.2L Gen-2 mHawk)',
+    transmission: '6-Speed Manual',
+    mileage: '15.0 kmpl',
+    seating: '7 / 9 Seater Rugged SUV',
+    features: ['mHawk 132 PS Diesel', 'Cable Shift Gearbox', '9" Android Touchscreen', 'Signature Scorpio Grille']
+  },
+  {
+    id: 'cb-new-3',
+    name: 'Maruti Suzuki Baleno',
+    brand: 'Maruti Suzuki',
+    type: 'Car',
+    status: 'popular',
+    badgeTag: 'Petrol',
+    priceRange: '₹6.66 - 9.88 Lakh',
+    priceRaw: 6.66,
+    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+    rating: 4.78,
+    fuel: 'Petrol / CNG (1.2L DualJet)',
+    transmission: '5-Speed Manual • AGS AMT',
+    mileage: '22.35 - 30.61 km/kg',
+    seating: '5 Seater Premium Hatchback',
+    features: ['Head-Up Display', '360 View HD Camera', '9" SmartPlay Pro+ Audio', '6 Airbags Standard']
+  },
+  {
+    id: 'cb-new-4',
+    name: 'Maruti Suzuki Brezza',
+    brand: 'Maruti Suzuki',
+    type: 'Car',
+    status: 'popular',
+    badgeTag: 'Petrol',
+    priceRange: '₹8.34 - 14.14 Lakh',
+    priceRaw: 8.34,
+    image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80',
+    rating: 4.8,
+    fuel: 'Petrol / CNG (1.5L K15C)',
+    transmission: 'Manual • 6-Speed AT with Paddle Shifters',
+    mileage: '19.8 - 25.51 km/kg',
+    seating: '5 Seater Compact SUV',
+    features: ['Electric Sunroof', 'Wireless Charging', 'Arkamy Surround Sound', 'HUD Display']
+  },
+
   // Popular Cars
   {
     id: 'car-pop-1',
@@ -293,6 +365,143 @@ export const VEHICLE_SHOWCASE_DATA: VehicleShowcaseItem[] = [
     mileage: '13.5 - 15.2 kmpl',
     seating: '5 Door SUV',
     features: ['4x4 Terrain Mode', 'Panoramic Skyroof', 'Harman Kardon Audio', 'Level 2 ADAS']
+  },
+  // CarBike360 Latest Cars in India (User Image 2 Reference)
+  {
+    id: 'cb-latest-1',
+    name: 'Toyota Glanza',
+    brand: 'Toyota',
+    type: 'Car',
+    status: 'popular',
+    badgeTag: 'Petrol',
+    priceRange: '₹6.80 - 10.00 Lakh',
+    priceRaw: 6.80,
+    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+    rating: 4.8,
+    fuel: 'Petrol',
+    transmission: 'Manual • AMT',
+    mileage: '22.35 - 22.94 kmpl',
+    seating: '5 Seater Hatchback',
+    features: ['Head-up Display', '360 View Camera', '9" Smart Playcast Audio', '6 Airbags']
+  },
+  {
+    id: 'cb-latest-2',
+    name: 'Volvo EX30',
+    brand: 'Volvo',
+    type: 'EV',
+    status: 'popular',
+    badgeTag: 'Electric',
+    priceRange: '₹41.20 Lakh',
+    priceRaw: 41.20,
+    image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80',
+    rating: 4.9,
+    fuel: 'Electric (69 kWh)',
+    transmission: 'Automatic',
+    mileage: '475 km Range',
+    seating: '5 Seater Compact SUV',
+    features: ['0-100 in 3.6s', 'Harman Kardon Soundbar', 'Pilot Assist 3.0', '10-80% Fast Charge 26 min']
+  },
+  {
+    id: 'cb-latest-3',
+    name: 'Honda Elevate',
+    brand: 'Honda',
+    type: 'Car',
+    status: 'popular',
+    badgeTag: 'Petrol',
+    priceRange: '₹11.60 - 16.40 Lakh',
+    priceRaw: 11.60,
+    image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80',
+    rating: 4.85,
+    fuel: 'Petrol (1.5L i-VTEC)',
+    transmission: '6-Speed MT • 7-Speed CVT',
+    mileage: '15.31 - 16.92 kmpl',
+    seating: '5 Seater Mid-Size SUV',
+    features: ['Honda Sensing ADAS', '220mm Ground Clearance', '10.25" Touchscreen', 'LaneWatch Camera']
+  },
+  {
+    id: 'cb-latest-4',
+    name: 'Skoda Slavia',
+    brand: 'Skoda',
+    type: 'Car',
+    status: 'popular',
+    badgeTag: 'Petrol',
+    priceRange: '₹10.69 - 18.69 Lakh',
+    priceRaw: 10.69,
+    image: 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=600&q=80',
+    rating: 4.8,
+    fuel: 'Petrol (1.0L / 1.5L TSI)',
+    transmission: 'Manual • Torque Converter • DSG',
+    mileage: '18.73 - 19.47 kmpl',
+    seating: '5 Seater Sedan',
+    features: ['5-Star Global NCAP', '521L Boot Space', 'Electric Sunroof', 'Ventilated Front Seats']
+  },
+  {
+    id: 'cb-latest-5',
+    name: 'Mercedes-Maybach S-Class',
+    brand: 'Mercedes-Benz',
+    type: 'Car',
+    status: 'popular',
+    badgeTag: 'Luxury',
+    priceRange: '₹2.35 - 3.40 Crore',
+    priceRaw: 235.0,
+    image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80',
+    rating: 4.95,
+    fuel: 'Petrol (4.0L V8 Biturbo)',
+    transmission: '9G-TRONIC Automatic',
+    mileage: '9.8 kmpl',
+    seating: '4 Seater Executive Limousine',
+    features: ['First-Class Rear Compartment', 'Burmester High-End 4D Sound', 'E-ACTIVE Body Control', 'Rear Seat Massage']
+  },
+  {
+    id: 'cb-latest-6',
+    name: 'Porsche Macan Electric',
+    brand: 'Porsche',
+    type: 'EV',
+    status: 'popular',
+    badgeTag: 'Electric',
+    priceRange: '₹1.22 - 2.05 Crore',
+    priceRaw: 122.0,
+    image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80',
+    rating: 4.92,
+    fuel: 'Electric (100 kWh)',
+    transmission: 'Single-Speed Automatic AWD',
+    mileage: '613 km WLTP Range',
+    seating: '5 Seater Performance SUV',
+    features: ['639 PS Launch Control', '270 kW DC Fast Charging', 'Porsche Active Suspension (PASM)', 'Rear-Axle Steering']
+  },
+  {
+    id: 'cb-latest-7',
+    name: 'Tata Altroz Racer',
+    brand: 'Tata Motors',
+    type: 'Car',
+    status: 'popular',
+    badgeTag: 'Petrol',
+    priceRange: '₹9.49 - 10.99 Lakh',
+    priceRaw: 9.49,
+    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+    rating: 4.75,
+    fuel: 'Petrol (1.2L Turbo 120 PS)',
+    transmission: '6-Speed Manual',
+    mileage: '18.0 kmpl',
+    seating: '5 Seater Hot Hatch',
+    features: ['Race-Tuned Dual Exhaust', 'Ventilated Front Seats', '10.25" Harman Infotainment', '360 HD Camera']
+  },
+  {
+    id: 'cb-latest-8',
+    name: 'BMW i7 eDrive50',
+    brand: 'BMW',
+    type: 'EV',
+    status: 'popular',
+    badgeTag: 'Electric',
+    priceRange: '₹2.03 - 2.50 Crore',
+    priceRaw: 203.0,
+    image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=600&q=80',
+    rating: 4.9,
+    fuel: 'Electric (101.7 kWh)',
+    transmission: 'Automatic',
+    mileage: '625 km WLTP Range',
+    seating: '5 Seater Luxury Sedan',
+    features: ['31.3" 8K BMW Theatre Screen', 'Executive Lounge Seating', 'BMW Interaction Bar', 'Crystal Headlights']
   },
   {
     id: 'car-pop-4',
@@ -369,7 +578,133 @@ export const VEHICLE_SHOWCASE_DATA: VehicleShowcaseItem[] = [
     features: ['120 km/h Top Speed', 'Party Mode Audio', 'MoveOS 4 Smart UI', 'Cruise Control']
   },
 
-  // Upcoming Cars
+  // Upcoming Cars (CarBike360 Images 3 & 4 Reference)
+  {
+    id: 'cb-up-1',
+    name: '2026 Toyota Fortuner',
+    brand: 'Toyota',
+    type: 'Car',
+    status: 'upcoming',
+    badgeTag: 'Upcoming',
+    priceRange: '₹35.00 - 45.00 Lakh (Expected)',
+    priceRaw: 35.0,
+    image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
+    rating: 4.9,
+    fuel: '2.8L Turbo Diesel + 48V Mild Hybrid',
+    transmission: '6-Speed Automatic 4x4',
+    mileage: '14.2 kmpl Est.',
+    seating: '7 Seater SUV',
+    launchDate: 'Expected Dec 2025',
+    features: ['TNGA-F Global Platform', '48V Mild Hybrid Powertrain', 'Level 2 ADAS Suite', 'Electronic Locking Differentials']
+  },
+  {
+    id: 'cb-up-2',
+    name: 'Audi Q3 2026',
+    brand: 'Audi',
+    type: 'Car',
+    status: 'upcoming',
+    badgeTag: 'Upcoming',
+    priceRange: '₹46.00 - 52.00 Lakh (Expected)',
+    priceRaw: 46.0,
+    image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80',
+    rating: 4.85,
+    fuel: '2.0L TFSI Turbo Petrol Quattro',
+    transmission: '7-Speed S-Tronic',
+    mileage: '15.5 kmpl Est.',
+    seating: '5 Seater Luxury SUV',
+    launchDate: 'Expected Nov 2025',
+    features: ['Matrix LED Headlights', 'Audi Virtual Cockpit Plus', 'Bang & Olufsen 3D Sound', 'Quattro AWD']
+  },
+  {
+    id: 'cb-up-3',
+    name: 'Audi A6 E-Tron',
+    brand: 'Audi',
+    type: 'EV',
+    status: 'upcoming',
+    badgeTag: 'Electric',
+    priceRange: '₹78.00 Lakh (Expected)',
+    priceRaw: 78.0,
+    image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=600&q=80',
+    rating: 4.9,
+    fuel: '100 kWh Electric PPE Platform',
+    transmission: 'Automatic Quattro',
+    mileage: '700 km Est. Range',
+    seating: '5 Seater Executive Sportback',
+    launchDate: 'Expected Jan 2026',
+    features: ['800-Volt Architecture', '270 kW DC Fast Charging', 'Digital Matrix LED with Projectors', 'Virtual Exterior Mirrors']
+  },
+  {
+    id: 'cb-up-4',
+    name: 'Volkswagen Tayron (7-Seater Tiguan)',
+    brand: 'Volkswagen',
+    type: 'Car',
+    status: 'upcoming',
+    badgeTag: 'Upcoming',
+    priceRange: '₹35.00 - 40.00 Lakh (Expected)',
+    priceRaw: 35.0,
+    image: 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=600&q=80',
+    rating: 4.8,
+    fuel: '2.0L TSI Turbo Petrol 4MOTION',
+    transmission: '7-Speed DSG',
+    mileage: '15.8 kmpl Est.',
+    seating: '7 Seater Premium SUV',
+    launchDate: 'Expected Dec 2025',
+    features: ['MQB EVO Platform', '15" OLED Display', 'DCC Pro Adaptive Chassis', 'Travel Assist ADAS']
+  },
+  {
+    id: 'cb-up-5',
+    name: 'Audi Q5 2026',
+    brand: 'Audi',
+    type: 'Car',
+    status: 'upcoming',
+    badgeTag: 'Upcoming',
+    priceRange: '₹70.00 Lakh (Expected)',
+    priceRaw: 70.0,
+    image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80',
+    rating: 4.88,
+    fuel: '2.0L MHEV Plus Petrol Quattro',
+    transmission: '7-Speed S-Tronic',
+    mileage: '14.5 kmpl Est.',
+    seating: '5 Seater Luxury SUV',
+    launchDate: 'Expected Nov 2025',
+    features: ['PPC Premium Combustion Architecture', 'Active Digital OLED Taillights', 'MMI Panoramic Display', 'Air Suspension']
+  },
+  {
+    id: 'cb-up-6',
+    name: 'Land Rover Range Rover Sport Electric',
+    brand: 'Land Rover',
+    type: 'EV',
+    status: 'upcoming',
+    badgeTag: 'Electric',
+    priceRange: 'Price Coming Soon',
+    priceRaw: 150.0,
+    image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
+    rating: 4.95,
+    fuel: '800V Dedicated Electric Powertrain',
+    transmission: 'All-Wheel Drive Electric',
+    mileage: '550 km Est. Range',
+    seating: '5 Seater Luxury Off-Road SUV',
+    launchDate: 'Expected Mid 2026',
+    features: ['850mm Wading Depth in EV', 'Terrain Response 2 Electric', 'Ultra-Quiet Cabin Tech', 'All-Wheel Steering']
+  },
+  {
+    id: 'cb-up-7',
+    name: 'Tata Sierra EV',
+    brand: 'Tata Motors',
+    type: 'EV',
+    status: 'upcoming',
+    badgeTag: 'Electric',
+    priceRange: '₹22.00 - 28.00 Lakh (Expected)',
+    priceRaw: 22.0,
+    image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80',
+    rating: 4.92,
+    fuel: 'Electric Acti.ev Architecture',
+    transmission: 'Single-Speed Automatic AWD',
+    mileage: '500 km Est. Range',
+    seating: '5 Seater Iconic SUV',
+    launchDate: 'Expected Feb 2026',
+    features: ['Iconic Curved Rear Glasshouse', 'Lounge Seating Mode', 'Vehicle-to-Load (V2L)', 'Dual-Motor AWD']
+  },
   {
     id: 'car-up-1',
     name: 'Maruti Suzuki eVX (EV)',
@@ -400,7 +735,102 @@ export const VEHICLE_SHOWCASE_DATA: VehicleShowcaseItem[] = [
     launchDate: 'Expected Jan 2025',
     features: ['MQB-A0-IN Architecture', '6 Airbags Standard', 'German Safety Dynamics', '10" Infotainment']
   },
+  {
+    id: 'bike-up-1',
+    name: 'Royal Enfield Classic 650 Twin',
+    brand: 'Royal Enfield',
+    type: 'Bike',
+    status: 'upcoming',
+    priceRange: '₹3.25 - 3.50 Lakh (Expected)',
+    priceRaw: 3.25,
+    image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
+    rating: 4.92,
+    fuel: '648cc Parallel-Twin Petrol',
+    mileage: '24.5 kmpl Est.',
+    launchDate: 'Expected Early 2025',
+    features: ['648cc Twin Engine', 'Dual Exhaust Pipes', 'Showa Upside-Down Suspension', 'All-LED Headlamps']
+  },
+  {
+    id: 'bike-up-2',
+    name: 'KTM 390 Adventure 2025 Next-Gen',
+    brand: 'KTM',
+    type: 'Bike',
+    status: 'upcoming',
+    priceRange: '₹3.65 - 3.85 Lakh (Expected)',
+    priceRaw: 3.65,
+    image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=600&q=80',
+    rating: 4.95,
+    fuel: '399cc LC4c Engine',
+    mileage: '28.0 kmpl Est.',
+    launchDate: 'Expected Mid 2025',
+    features: ['21-inch Front Spoke Wheel', 'Cornering Traction Control', 'Rally Dashboard', 'Long Travel Suspension']
+  },
 
+  
+  // Agricultural Tractors (TractorGuru Reference)
+  {
+    id: 'tractor-pop-1',
+    name: 'Mahindra 575 DI XP Plus Tractor',
+    brand: 'Mahindra',
+    type: 'Tractor',
+    status: 'popular',
+    priceRange: '₹6.85 - 7.20 Lakh',
+    priceRaw: 6.85,
+    image: 'https://images.unsplash.com/photo-1592838064575-70ed626d3a0e?auto=format&fit=crop&w=600&q=80',
+    rating: 4.88,
+    fuel: 'Diesel (47 HP ELS Engine)',
+    mileage: 'High Fuel Efficiency',
+    seating: 'Heavy Duty 2WD Farm Tractor',
+    features: ['4-Cylinder 47 HP Engine', 'Advanced ADDC Hydraulics', '6-Year Warranty', 'Dual Clutch Option']
+  },
+  {
+    id: 'tractor-pop-2',
+    name: 'Swaraj 744 FE 4WD Tractor',
+    brand: 'Swaraj',
+    type: 'Tractor',
+    status: 'popular',
+    priceRange: '₹8.20 - 8.65 Lakh',
+    priceRaw: 8.20,
+    image: 'https://images.unsplash.com/photo-1592838064575-70ed626d3a0e?auto=format&fit=crop&w=600&q=80',
+    rating: 4.92,
+    fuel: 'Diesel (48 HP 3-Cylinder)',
+    mileage: 'Rugged Farm Field Rating',
+    seating: '4WD Heavy Agricultural Rig',
+    features: ['4-Wheel Drive Traction', 'Power Steering Standard', 'Multi-Speed Reverse PTO', '2000 kg Lift Capacity']
+  },
+  {
+    id: 'tractor-pop-3',
+    name: 'John Deere 5050 D GearPro',
+    brand: 'John Deere',
+    type: 'Tractor',
+    status: 'popular',
+    priceRange: '₹7.99 - 8.45 Lakh',
+    priceRaw: 7.99,
+    image: 'https://images.unsplash.com/photo-1592838064575-70ed626d3a0e?auto=format&fit=crop&w=600&q=80',
+    rating: 4.95,
+    fuel: 'Diesel (50 HP Turbocharged)',
+    mileage: 'Optimized Heavy Haulage',
+    seating: 'Agricultural / Haulage Workhorse',
+    features: ['Top Shaft Synchronized Gearbox', 'Oil Immersed Disc Brakes', 'Selective Control Valve', 'Heavy Front Axle']
+  },
+  {
+    id: 'tractor-used-1',
+    name: '2022 Sonalika DI 745 III Sikander',
+    brand: 'Sonalika',
+    type: 'Tractor',
+    status: 'used',
+    priceRange: '₹4.60 Lakh',
+    priceRaw: 4.60,
+    image: 'https://images.unsplash.com/photo-1592838064575-70ed626d3a0e?auto=format&fit=crop&w=600&q=80',
+    rating: 4.8,
+    fuel: 'Diesel (50 HP)',
+    mileage: 'Single Farm Owner',
+    year: '2022',
+    kmsDriven: '1,420 Hours',
+    owners: '1st Owner',
+    location: 'Coimbatore / Erode Hub',
+    features: ['New Rear Radial Tyres', 'Cultivator & Rotavator Linkage', 'Zero Hydraulic Leakage', 'RC & Fitness Valid']
+  },
   // Certified Used Cars
   {
     id: 'car-used-1',
@@ -455,6 +885,348 @@ export const VEHICLE_SHOWCASE_DATA: VehicleShowcaseItem[] = [
     owners: '1st Owner',
     location: 'Chennai (Velachery)',
     features: ['5-Star GNCAP Safety', 'Touchscreen with Harman', 'Alloy Wheels', 'Ready for Delivery']
+  },
+  {
+    id: 'bike-used-2',
+    name: '2023 Yamaha MT-15 V2 Moto GP Edition',
+    brand: 'Yamaha',
+    type: 'Bike',
+    status: 'used',
+    priceRange: '₹1.32 Lakh',
+    priceRaw: 1.32,
+    image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=600&q=80',
+    rating: 4.85,
+    fuel: 'Petrol (155cc)',
+    mileage: '48 kmpl',
+    year: '2023',
+    kmsDriven: '11,400 km',
+    owners: '1st Owner',
+    location: 'Chennai (Anna Nagar)',
+    features: ['Single Owner Doctor Driven', 'All Periodic Services at Yamaha Authorized', 'Zero Scratch Condition', 'Comprehensive Insurance']
+  },
+  {
+    id: 'bike-used-3',
+    name: '2022 Honda Activa 6G Premium',
+    brand: 'Honda 2Wheelers',
+    type: 'Bike',
+    status: 'used',
+    priceRange: '₹58,000',
+    priceRaw: 0.58,
+    image: 'https://images.unsplash.com/photo-1558981420-87aa9dad1c89?auto=format&fit=crop&w=600&q=80',
+    rating: 4.75,
+    fuel: 'Petrol (110cc)',
+    mileage: '52 kmpl',
+    year: '2022',
+    kmsDriven: '18,200 km',
+    owners: '1st Owner',
+    location: 'Chennai (T. Nagar)',
+    features: ['Golden Emblem Special Edition', 'New Battery with Warranty', 'Clean RC & Pollution Pass', 'Smooth Engine']
+  },
+  {
+    id: 'car-used-bengaluru-1',
+    name: '2021 Tata Nexon XZ+ Diesel',
+    brand: 'Tata Motors',
+    type: 'Car',
+    status: 'used',
+    priceRange: '₹9.40 Lakh',
+    priceRaw: 9.40,
+    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+    rating: 4.85,
+    fuel: 'Diesel • Manual',
+    mileage: '21.5 kmpl',
+    year: '2021',
+    kmsDriven: '38,500 km',
+    owners: '1st Owner',
+    location: 'Bengaluru (Koramangala)',
+    features: ['Single Owner IT Professional', 'Dual Tone Roof', 'Zero Depreciation Insurance', 'All Service Records']
+  },
+  {
+    id: 'bike-used-bengaluru-1',
+    name: '2022 TVS Apache RTR 160 4V',
+    brand: 'TVS Motor',
+    type: 'Bike',
+    status: 'used',
+    priceRange: '₹89,000',
+    priceRaw: 0.89,
+    image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=600&q=80',
+    rating: 4.7,
+    fuel: 'Petrol',
+    mileage: '45 kmpl',
+    year: '2022',
+    kmsDriven: '16,200 km',
+    owners: '1st Owner',
+    location: 'Bengaluru (Indiranagar)',
+    features: ['Bluetooth SmartXonnect', 'Ride Modes', 'New Chain Sprocket', 'Verified Clean RC']
+  },
+  {
+    id: 'car-used-mumbai-1',
+    name: '2020 Hyundai Creta SX 1.5 Petrol',
+    brand: 'Hyundai',
+    type: 'Car',
+    status: 'used',
+    priceRange: '₹11.85 Lakh',
+    priceRaw: 11.85,
+    image: 'https://images.unsplash.com/photo-1541348263662-e0c8de4259ba?auto=format&fit=crop&w=600&q=80',
+    rating: 4.9,
+    fuel: 'Petrol • Manual',
+    mileage: '16.8 kmpl',
+    year: '2020',
+    kmsDriven: '36,000 km',
+    owners: '1st Owner',
+    location: 'Mumbai (Andheri West)',
+    features: ['Panoramic Sunroof', '10.25" Bose Sound', 'Non-Flood Checked', 'Brand New Bridgestone Tyres']
+  },
+  {
+    id: 'auto-used-chennai-1',
+    name: '2022 Bajaj RE Compact 4S CNG',
+    brand: 'Bajaj Auto (RE)',
+    type: 'Auto',
+    status: 'used',
+    priceRange: '₹1.45 Lakh',
+    priceRaw: 1.45,
+    image: 'https://images.unsplash.com/photo-1596707328904-897d81a95449?auto=format&fit=crop&w=600&q=80',
+    rating: 4.8,
+    fuel: 'CNG',
+    mileage: '36 km/kg',
+    year: '2022',
+    kmsDriven: '28,000 km',
+    owners: '1st Owner',
+    location: 'Chennai (Tambaram)',
+    features: ['Chennai Metro Permit Active', 'Valid Hydro Test CNG Tank', 'New Battery', 'Zero Police Challans']
+  },
+  {
+    id: 'van-used-hyderabad-1',
+    name: '2021 Maruti Suzuki Eeco 7-Seater AC',
+    brand: 'Maruti Suzuki (Eeco/Omni)',
+    type: 'Van',
+    status: 'used',
+    priceRange: '₹3.95 Lakh',
+    priceRaw: 3.95,
+    image: 'https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=600&q=80',
+    rating: 4.75,
+    fuel: 'Petrol + CNG',
+    mileage: '20.8 km/kg',
+    year: '2021',
+    kmsDriven: '44,000 km',
+    owners: '1st Owner',
+    location: 'Hyderabad (Secunderabad)',
+    features: ['Factory Fitted Chilled AC', 'Company CNG Kit', 'Commercial / Private Use', 'Clean Chassis']
+  },
+  {
+    id: 'car-used-delhi-1',
+    name: '2022 Mahindra Thar LX 4x4 Hard Top',
+    brand: 'Mahindra',
+    type: 'Car',
+    status: 'used',
+    priceRange: '₹13.50 Lakh',
+    priceRaw: 13.50,
+    image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
+    rating: 4.95,
+    fuel: 'Diesel • Manual 4x4',
+    mileage: '14.5 kmpl',
+    year: '2022',
+    kmsDriven: '24,000 km',
+    owners: '1st Owner',
+    location: 'Delhi NCR (Gurugram)',
+    features: ['True 4x4 Low Range', 'Factory Hardtop', 'Underbody Armor Plated', 'Complete Delhi NCR NOC Available']
+  },
+  {
+    id: 'car-used-4',
+    name: '2021 Kia Seltos GTX Plus 1.4 Turbo',
+    brand: 'Kia',
+    type: 'Car',
+    status: 'used',
+    priceRange: '₹14.25 Lakh',
+    priceRaw: 14.25,
+    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+    rating: 4.88,
+    fuel: 'Petrol • Automatic',
+    mileage: '16.5 kmpl',
+    year: '2021',
+    kmsDriven: '31,000 km',
+    owners: '1st Owner',
+    location: 'Chennai (Adyar)',
+    features: ['Bose 8-Speaker Sound', 'Ventilated Front Seats', '360 Camera', 'Sunroof & HUD']
+  },
+  {
+    id: 'car-used-5',
+    name: '2022 Toyota Fortuner 4x2 AT',
+    brand: 'Toyota',
+    type: 'Car',
+    status: 'used',
+    priceRange: '₹34.50 Lakh',
+    priceRaw: 34.50,
+    image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
+    rating: 4.92,
+    fuel: 'Diesel • Automatic',
+    mileage: '12.8 kmpl',
+    year: '2022',
+    kmsDriven: '42,000 km',
+    owners: '1st Owner',
+    location: 'Chennai (OMR)',
+    features: ['Full Toyota Service Record', 'Leather Seating', 'Zero Accidental History', '7 Airbags']
+  },
+  {
+    id: 'car-used-6',
+    name: '2021 Honda City ZX CVT',
+    brand: 'Honda',
+    type: 'Car',
+    status: 'used',
+    priceRange: '₹11.20 Lakh',
+    priceRaw: 11.20,
+    image: 'https://images.unsplash.com/photo-1541348263662-e0c8de4259ba?auto=format&fit=crop&w=600&q=80',
+    rating: 4.82,
+    fuel: 'Petrol • Automatic',
+    mileage: '18.4 kmpl',
+    year: '2021',
+    kmsDriven: '29,400 km',
+    owners: '1st Owner',
+    location: 'Bengaluru (Whitefield)',
+    features: ['Sunroof', 'LaneWatch Camera', 'All 4 Power Windows', 'Leather Upholstery']
+  },
+  {
+    id: 'bike-used-4',
+    name: '2022 Royal Enfield Classic 350 Dark Stealth',
+    brand: 'Royal Enfield',
+    type: 'Bike',
+    status: 'used',
+    priceRange: '₹1.72 Lakh',
+    priceRaw: 1.72,
+    image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
+    rating: 4.88,
+    fuel: 'Petrol',
+    mileage: '38.0 kmpl',
+    year: '2022',
+    kmsDriven: '14,500 km',
+    owners: '1st Owner',
+    location: 'Chennai (Mylapore)',
+    features: ['Dual Channel ABS', 'Alloy Wheels with Tubeless Tyres', 'Single Hand Driven', 'Valid Insurance']
+  },
+  {
+    id: 'bike-used-5',
+    name: '2021 KTM Duke 250 ABS',
+    brand: 'KTM',
+    type: 'Bike',
+    status: 'used',
+    priceRange: '₹1.85 Lakh',
+    priceRaw: 1.85,
+    image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=600&q=80',
+    rating: 4.8,
+    fuel: 'Petrol',
+    mileage: '32.0 kmpl',
+    year: '2021',
+    kmsDriven: '19,000 km',
+    owners: '1st Owner',
+    location: 'Bengaluru (HSR Layout)',
+    features: ['Slipper Clutch', 'Dual Channel Supermoto ABS', 'Showroom Condition', 'New Metzelers']
+  },
+  {
+    id: 'lorry-used-tipper-1',
+    name: '2021 Tata Signa 4825.TK Heavy Tipper',
+    brand: 'Tata Motors',
+    type: 'Lorry',
+    status: 'used',
+    priceRange: '₹28.50 Lakh',
+    priceRaw: 28.50,
+    image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80',
+    rating: 4.84,
+    fuel: 'Diesel',
+    mileage: '3.8 kmpl',
+    year: '2021',
+    kmsDriven: '1,12,000 km',
+    owners: '1st Owner',
+    location: 'Chennai (Madhavaram)',
+    features: ['Cummins ISBe 6.7L 250HP Engine', 'Heavy Duty 29 Cu.M Box Body', 'Valid Fitness & National Permit', 'Fleet Telematics Active']
+  },
+  {
+    id: 'lorry-used-2',
+    name: '2022 Ashok Leyland Ecomet 1615 HE',
+    brand: 'Ashok Leyland',
+    type: 'Lorry',
+    status: 'used',
+    priceRange: '₹17.80 Lakh',
+    priceRaw: 17.80,
+    image: 'https://images.unsplash.com/photo-1586191582056-a602058331df?auto=format&fit=crop&w=600&q=80',
+    rating: 4.8,
+    fuel: 'Diesel',
+    mileage: '6.2 kmpl',
+    year: '2022',
+    kmsDriven: '78,000 km',
+    owners: '1st Owner',
+    location: 'Coimbatore (Trichy Road)',
+    features: ['i-Gen6 BS6 150HP Engine', '20ft High Deck Load Body', 'All Radial Tyres 80% Life', 'Zero Penalty Clean RC']
+  },
+  {
+    id: 'bus-used-1',
+    name: '2020 Volvo 9400 B11R Multi-Axle Luxury Coach',
+    brand: 'Volvo',
+    type: 'Bus',
+    status: 'used',
+    priceRange: '₹55.00 Lakh',
+    priceRaw: 55.00,
+    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=600&q=80',
+    rating: 4.9,
+    fuel: 'Diesel',
+    mileage: '4.2 kmpl',
+    year: '2020',
+    kmsDriven: '3,20,000 km',
+    owners: '1st Owner',
+    location: 'Chennai (Koyambedu)',
+    features: ['430HP 11L Engine • I-Shift AT', '53 Sleeper / Semi-Sleeper Berths', 'Individual AC & USB Ports', 'Full Volvo Authorized Service Records']
+  },
+  {
+    id: 'bus-used-2',
+    name: '2022 BharatBenz 1017 36-Seater AC Staff Bus',
+    brand: 'BharatBenz',
+    type: 'Bus',
+    status: 'used',
+    priceRange: '₹22.50 Lakh',
+    priceRaw: 22.50,
+    image: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=600&q=80',
+    rating: 4.78,
+    fuel: 'Diesel',
+    mileage: '6.5 kmpl',
+    year: '2022',
+    kmsDriven: '64,000 km',
+    owners: '1st Owner',
+    location: 'Bengaluru (Electronic City)',
+    features: ['Chilled ThermoKing AC', 'High Back Pushback Recliners', 'Valid RTO School/Staff Fitness', 'ABS & Air Brakes']
+  },
+  {
+    id: 'ev-used-1',
+    name: '2022 Tata Nexon EV Max XZ+ Lux',
+    brand: 'Tata Motors',
+    type: 'EV',
+    status: 'used',
+    priceRange: '₹12.60 Lakh',
+    priceRaw: 12.60,
+    image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80',
+    rating: 4.88,
+    fuel: 'Electric (40.5 kWh)',
+    mileage: '437 km Certified Range',
+    year: '2022',
+    kmsDriven: '26,500 km',
+    owners: '1st Owner',
+    location: 'Chennai (T. Nagar)',
+    features: ['Battery State-of-Health 97%', 'Fast 7.2 kW Home Wallbox Included', 'Sunroof & Wireless Charger', '8-Year Battery Warranty Active']
+  },
+  {
+    id: 'ev-used-2',
+    name: '2023 Ather 450X Gen 3.1 Pro Pack',
+    brand: 'Ather Energy',
+    type: 'EV',
+    status: 'used',
+    priceRange: '₹1.05 Lakh',
+    priceRaw: 1.05,
+    image: 'https://images.unsplash.com/photo-1558981420-87aa9dad1c89?auto=format&fit=crop&w=600&q=80',
+    rating: 4.85,
+    fuel: 'Electric (3.7 kWh)',
+    mileage: '146 km Certified Range',
+    year: '2023',
+    kmsDriven: '9,200 km',
+    owners: '1st Owner',
+    location: 'Bengaluru (Indiranagar)',
+    features: ['Ather Connect Pro Lifetime', 'Warp Mode Enabled', 'Battery Health 98%', 'Portable Fast Charger Box']
   }
 ];
 
@@ -462,6 +1234,7 @@ export interface ComparisonVehicle {
   id: string;
   name: string;
   brand: string;
+  category: 'Scooter' | 'Bike' | 'Car' | 'EV' | 'Commercial';
   price: string;
   image: string;
   engine: string;
@@ -474,80 +1247,164 @@ export interface ComparisonVehicle {
 }
 
 export const COMPARISON_VEHICLES: ComparisonVehicle[] = [
+  // SCOOTERS (Direct Match to User CarBike360 Reference Screenshot)
   {
-    id: 'comp-nexon',
-    name: 'Tata Nexon Facelift',
-    brand: 'Tata Motors',
-    price: '₹8.15 - 15.80 Lakh',
-    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
-    engine: '1.2L Turbo Petrol / 1.5L Diesel',
-    power: '120 PS / 170 Nm',
-    mileage: '17.44 - 24.08 kmpl',
-    safety: '5 Stars (Bharat NCAP)',
-    airbags: '6 Airbags (Standard)',
-    seating: '5 Seater SUV',
-    warranty: '3 Years / 1,00,000 km'
+    id: 'comp-ntorq',
+    name: 'TVS NTORQ 125',
+    brand: 'TVS',
+    category: 'Scooter',
+    price: '₹83.85k - 1.05 Lakh',
+    image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
+    engine: '124.8cc 3-Valve Single Cylinder',
+    power: '9.38 PS @ 7000 rpm / 10.5 Nm',
+    mileage: '47 - 51 kmpl',
+    safety: 'SBT (Synchronized Braking) + Roto Petal Disc',
+    airbags: 'High Rigidity Underbone Chassis',
+    seating: '2 Seater Sport Scooter',
+    warranty: '5 Years / 50,000 km'
   },
   {
-    id: 'comp-creta',
-    name: 'Hyundai Creta 2024',
-    brand: 'Hyundai',
-    price: '₹11.00 - 20.15 Lakh',
-    image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80',
-    engine: '1.5L MPi / 1.5L Turbo / 1.5L Diesel',
-    power: '160 PS / 253 Nm (Turbo)',
-    mileage: '17.4 - 21.8 kmpl',
-    safety: 'Level 2 ADAS + 70+ Safety Features',
-    airbags: '6 Airbags (Standard)',
-    seating: '5 Seater SUV',
-    warranty: '3 Years / Unlimited km'
+    id: 'comp-rayzr',
+    name: 'Yamaha Ray ZR 125',
+    brand: 'Yamaha',
+    category: 'Scooter',
+    price: '₹80.68k - 94.50k',
+    image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=600&q=80',
+    engine: '125cc Fi Hybrid Air-Cooled',
+    power: '8.2 PS @ 6500 rpm / 10.3 Nm',
+    mileage: '58.3 kmpl (Smart Hybrid)',
+    safety: 'Unified Braking System (UBS) Disc',
+    airbags: 'Lightweight 99kg Tough Frame',
+    seating: '2 Seater Street Scooter',
+    warranty: '5 Years / 50,000 km'
   },
   {
-    id: 'comp-curvv',
-    name: 'Tata Curvv EV',
-    brand: 'Tata Motors',
-    price: '₹17.49 - 21.99 Lakh',
-    image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80',
-    engine: 'Permanent Magnet Synchronous Motor',
-    power: '167 PS / 215 Nm',
-    mileage: '585 km (Certified Range)',
-    safety: '5 Stars (Bharat NCAP Expected)',
-    airbags: '6 Airbags + Level 2 ADAS',
-    seating: '5 Seater Coupe SUV',
-    warranty: '8 Years / 1,60,000 km (Battery)'
+    id: 'comp-olas1x',
+    name: 'OLA S1 X',
+    brand: 'OLA Electric',
+    category: 'Scooter',
+    price: '₹74.99k - 99.99k',
+    image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
+    engine: 'Hub Motor / 3 kWh Lithium-ion Pack',
+    power: '6.0 kW Peak / 90 km/h Top Speed',
+    mileage: '151 km (Certified Range)',
+    safety: 'Combined Braking System + Reverse Mode',
+    airbags: 'High Strength Steel Frame',
+    seating: '2 Seater EV Scooter',
+    warranty: '8 Years / 80,000 km (Battery)'
   },
   {
-    id: 'comp-thar',
-    name: 'Mahindra Thar Roxx',
-    brand: 'Mahindra',
-    price: '₹12.99 - 22.49 Lakh',
-    image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
-    engine: '2.0L mStallion Turbo / 2.2L mHawk',
-    power: '177 PS / 380 Nm',
-    mileage: '13.5 - 15.2 kmpl',
-    safety: '5 Stars (Bharat NCAP 2024)',
-    airbags: '6 Airbags + ESC Standard',
-    seating: '5 Door Off-Roader',
-    warranty: '3 Years / 1,00,000 km'
+    id: 'comp-qc1',
+    name: 'Honda QC1 EV',
+    brand: 'Honda',
+    category: 'Scooter',
+    price: '₹90.71k - 1.10 Lakh',
+    image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=600&q=80',
+    engine: 'Honda Mobile Power Pack e: Swappable',
+    power: '1.8 kW Motor / 80 km/h',
+    mileage: '100 km Range per Charge',
+    safety: 'Combi-Braking System (CBS)',
+    airbags: 'Reinforced Underbone Frame',
+    seating: '2 Seater Smart EV',
+    warranty: '3 Years / 50,000 km'
   },
   {
-    id: 'comp-seltos',
-    name: 'Kia Seltos Facelift',
-    brand: 'Kia',
-    price: '₹10.90 - 20.35 Lakh',
-    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
-    engine: '1.5L Smartstream / 1.5L Turbo GDi',
-    power: '160 PS / 253 Nm (Turbo)',
-    mileage: '17.0 - 20.7 kmpl',
-    safety: 'Level 2 ADAS (17 autonomous features)',
-    airbags: '6 Airbags (Standard all variants)',
-    seating: '5 Seater SUV',
-    warranty: '3 Years / Unlimited km'
+    id: 'comp-activa',
+    name: 'Honda Activa 6G',
+    brand: 'Honda',
+    category: 'Scooter',
+    price: '₹76.36k - 91.48k',
+    image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
+    engine: '109.5cc PGM-FI 4-Stroke SI Engine',
+    power: '7.99 PS @ 8000 rpm / 8.90 Nm',
+    mileage: '59.5 kmpl',
+    safety: 'Combi Brake System with Equalizer',
+    airbags: 'Full Metal Body Construction',
+    seating: '2 Seater Family Scooter',
+    warranty: '3 Years + 3 Years Extended'
+  },
+  {
+    id: 'comp-jupiter',
+    name: 'TVS Jupiter 110',
+    brand: 'TVS',
+    category: 'Scooter',
+    price: '₹74.13k - 89.83k',
+    image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=600&q=80',
+    engine: '113.3cc 4-Stroke Single Cylinder',
+    power: '8.02 PS @ 6500 rpm / 9.8 Nm',
+    mileage: '53.84 kmpl',
+    safety: 'Synchronized Braking Technology Disc',
+    airbags: 'Rigid Underbone Frame with Gas Canister Shock',
+    seating: '2 Seater Daily Commuter',
+    warranty: '5 Years / 50,000 km'
+  },
+  {
+    id: 'comp-access',
+    name: 'Suzuki Access 125',
+    brand: 'Suzuki',
+    category: 'Scooter',
+    price: '₹82.19k - 1.01 Lakh',
+    image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
+    engine: '124cc 4-Stroke Air-Cooled SEP',
+    power: '8.42 PS @ 6500 rpm / 10 Nm',
+    mileage: '45.0 - 52.0 kmpl',
+    safety: 'Combined Brake System with Front Disc',
+    airbags: 'Telescopic Suspension Frame',
+    seating: '2 Seater Retro Classic',
+    warranty: '5 Years / 50,000 km'
+  },
+  {
+    id: 'comp-xl100',
+    name: 'TVS XL100 Heavy Duty',
+    brand: 'TVS',
+    category: 'Scooter',
+    price: '₹48.25k - 61.86k',
+    image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=600&q=80',
+    engine: '100cc 4-Stroke EcoThrust Fuel Injection',
+    power: '4.4 PS @ 6000 rpm / 6.5 Nm',
+    mileage: '60 - 65 kmpl',
+    safety: 'Synchronized Braking System',
+    airbags: 'Heavy Duty Detachable Rear Seat Frame',
+    seating: '2 Seater Commercial Multi-Utility',
+    warranty: '3 Years / 36,000 km'
+  },
+
+  // BIKES
+  {
+    id: 'comp-r15',
+    name: 'Yamaha R15 V4',
+    brand: 'Yamaha',
+    category: 'Bike',
+    price: '₹1.73 - 1.98 Lakh',
+    image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=600&q=80',
+    engine: '155cc Liquid-Cooled 4-Valve VVA',
+    power: '18.4 PS @ 10,000 rpm / 14.2 Nm',
+    mileage: '45 - 51 kmpl',
+    safety: 'Dual-Channel ABS + Traction Control System',
+    airbags: 'Deltabox Frame + Upside Down Forks',
+    seating: '2 Seater Supersport',
+    warranty: '5 Years / 50,000 km'
+  },
+  {
+    id: 'comp-rr300',
+    name: 'Keeway RR 300',
+    brand: 'Keeway',
+    category: 'Bike',
+    price: '₹1.85 - 2.10 Lakh',
+    image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
+    engine: '298cc Liquid-Cooled Twin Cylinder',
+    power: '30 PS @ 8500 rpm / 25 Nm',
+    mileage: '30 - 35 kmpl',
+    safety: 'Dual Channel ABS with Dual Discs',
+    airbags: 'Trellis High-Tensile Steel Frame',
+    seating: '2 Seater Streetfighter',
+    warranty: '3 Years / 30,000 km'
   },
   {
     id: 'comp-classic',
     name: 'Royal Enfield Classic 350',
     brand: 'Royal Enfield',
+    category: 'Bike',
     price: '₹1.93 - 2.25 Lakh',
     image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
     engine: '349cc Single Cylinder J-Series',
@@ -562,26 +1419,109 @@ export const COMPARISON_VEHICLES: ComparisonVehicle[] = [
     id: 'comp-hunter',
     name: 'Royal Enfield Hunter 350',
     brand: 'Royal Enfield',
+    category: 'Bike',
     price: '₹1.49 - 1.74 Lakh',
     image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=600&q=80',
     engine: '349cc Air-Oil Cooled J-Series',
     power: '20.2 PS / 27 Nm',
     mileage: '36.9 kmpl',
     safety: 'Dual Channel ABS + 300mm Disc',
-    airbags: 'Compact Roadsteer Chassis',
+    airbags: 'Compact Roadster Chassis',
     seating: '2 Seater Roadster',
     warranty: '3 Years / 30,000 km'
   },
+
+  // CARS & SUVS
+  {
+    id: 'comp-nexon',
+    name: 'Tata Nexon Facelift',
+    brand: 'Tata Motors',
+    category: 'Car',
+    price: '₹8.15 - 15.80 Lakh',
+    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+    engine: '1.2L Turbo Petrol / 1.5L Diesel',
+    power: '120 PS / 170 Nm',
+    mileage: '17.44 - 24.08 kmpl',
+    safety: '5 Stars (Bharat NCAP)',
+    airbags: '6 Airbags (Standard)',
+    seating: '5 Seater SUV',
+    warranty: '3 Years / 1,00,000 km'
+  },
+  {
+    id: 'comp-creta',
+    name: 'Hyundai Creta 2024',
+    brand: 'Hyundai',
+    category: 'Car',
+    price: '₹11.00 - 20.15 Lakh',
+    image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80',
+    engine: '1.5L MPi / 1.5L Turbo / 1.5L Diesel',
+    power: '160 PS / 253 Nm (Turbo)',
+    mileage: '17.4 - 21.8 kmpl',
+    safety: 'Level 2 ADAS + 70+ Safety Features',
+    airbags: '6 Airbags (Standard)',
+    seating: '5 Seater SUV',
+    warranty: '3 Years / Unlimited km'
+  },
+  {
+    id: 'comp-thar',
+    name: 'Mahindra Thar Roxx',
+    brand: 'Mahindra',
+    category: 'Car',
+    price: '₹12.99 - 22.49 Lakh',
+    image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
+    engine: '2.0L mStallion Turbo / 2.2L mHawk',
+    power: '177 PS / 380 Nm',
+    mileage: '13.5 - 15.2 kmpl',
+    safety: '5 Stars (Bharat NCAP 2024)',
+    airbags: '6 Airbags + ESC Standard',
+    seating: '5 Door Off-Roader',
+    warranty: '3 Years / 1,00,000 km'
+  },
+  {
+    id: 'comp-seltos',
+    name: 'Kia Seltos Facelift',
+    brand: 'Kia',
+    category: 'Car',
+    price: '₹10.90 - 20.35 Lakh',
+    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+    engine: '1.5L Smartstream / 1.5L Turbo GDi',
+    power: '160 PS / 253 Nm (Turbo)',
+    mileage: '17.0 - 20.7 kmpl',
+    safety: 'Level 2 ADAS (17 autonomous features)',
+    airbags: '6 Airbags (Standard all variants)',
+    seating: '5 Seater SUV',
+    warranty: '3 Years / Unlimited km'
+  },
+
+  // ELECTRIC VEHICLES
+  {
+    id: 'comp-curvv',
+    name: 'Tata Curvv EV',
+    brand: 'Tata Motors',
+    category: 'EV',
+    price: '₹17.49 - 21.99 Lakh',
+    image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80',
+    engine: 'Permanent Magnet Synchronous Motor',
+    power: '167 PS / 215 Nm',
+    mileage: '585 km (Certified Range)',
+    safety: '5 Stars (Bharat NCAP Expected)',
+    airbags: '6 Airbags + Level 2 ADAS',
+    seating: '5 Seater Coupe SUV',
+    warranty: '8 Years / 1,60,000 km (Battery)'
+  },
+
+  // COMMERCIAL FLEET
   {
     id: 'comp-signa',
     name: 'Tata Signa 2823 Tipper Truck',
     brand: 'Tata Motors Commercial',
+    category: 'Commercial',
     price: '₹37.50 - 41.20 Lakh',
     image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=600&q=80',
     engine: 'Cummins ISBe 5.6L BS6 Turbodiesel',
     power: '230 HP / 850 Nm',
     mileage: '4.5 - 5.5 km/l (Loaded)',
-    safety: 'Signa High-Strength Crash Crash Tested Cabin',
+    safety: 'Signa High-Strength Crash Tested Cabin',
     airbags: 'Driver Seatbelt + Air Brake System',
     seating: 'Driver + Co-Driver Sleeper Cabin',
     warranty: '6 Years / 6,00,000 km Driveline'
@@ -590,6 +1530,7 @@ export const COMPARISON_VEHICLES: ComparisonVehicle[] = [
     id: 'comp-ashok',
     name: 'Ashok Leyland 1920 Multi-Axle Haulage',
     brand: 'Ashok Leyland',
+    category: 'Commercial',
     price: '₹28.40 - 32.80 Lakh',
     image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=600&q=80',
     engine: 'H-Series 4-Cylinder i-Gen6 Diesel',
@@ -604,18 +1545,54 @@ export const COMPARISON_VEHICLES: ComparisonVehicle[] = [
 
 export interface FuelPriceItem {
   city: string;
+  state: string;
   petrol: number;
   diesel: number;
   cng: number;
+  electricUnitRate: number; // ₹ per kWh
   updated: string;
+  trend?: 'steady' | 'up' | 'down';
+  petrolChange?: number;
+  dieselChange?: number;
 }
 
 export const LIVE_FUEL_PRICES: FuelPriceItem[] = [
-  { city: 'Chennai', petrol: 100.75, diesel: 92.34, cng: 85.50, updated: 'Today 06:00 AM' },
-  { city: 'Coimbatore', petrol: 101.20, diesel: 92.80, cng: 86.10, updated: 'Today 06:00 AM' },
-  { city: 'Madurai', petrol: 101.45, diesel: 93.05, cng: 86.40, updated: 'Today 06:00 AM' },
-  { city: 'Bangalore', petrol: 102.86, diesel: 88.94, cng: 82.00, updated: 'Today 06:00 AM' },
-  { city: 'Hyderabad', petrol: 107.41, diesel: 95.65, cng: 89.20, updated: 'Today 06:00 AM' },
+  // Tamil Nadu
+  { city: 'Chennai', state: 'Tamil Nadu', petrol: 107.76, diesel: 99.55, cng: 99.50, electricUnitRate: 18.50, updated: 'Today 06:00 AM', trend: 'steady', petrolChange: 0.00, dieselChange: 0.00 },
+  { city: 'Coimbatore', state: 'Tamil Nadu', petrol: 108.45, diesel: 100.45, cng: 96.90, electricUnitRate: 17.50, updated: 'Today 06:00 AM', trend: 'up', petrolChange: +0.18, dieselChange: +0.15 },
+  { city: 'Madurai', state: 'Tamil Nadu', petrol: 108.62, diesel: 100.60, cng: 97.40, electricUnitRate: 17.50, updated: 'Today 06:00 AM', trend: 'steady', petrolChange: 0.00, dieselChange: 0.00 },
+  { city: 'Tiruchirappalli', state: 'Tamil Nadu', petrol: 108.15, diesel: 99.95, cng: 96.80, electricUnitRate: 17.00, updated: 'Today 06:00 AM', trend: 'down', petrolChange: -0.10, dieselChange: -0.08 },
+  { city: 'Salem', state: 'Tamil Nadu', petrol: 108.38, diesel: 100.25, cng: 97.10, electricUnitRate: 17.00, updated: 'Today 06:00 AM', trend: 'steady', petrolChange: 0.00, dieselChange: 0.00 },
+
+  // Karnataka
+  { city: 'Bengaluru', state: 'Karnataka', petrol: 110.82, diesel: 99.56, cng: 98.00, electricUnitRate: 19.00, updated: 'Today 06:00 AM', trend: 'up', petrolChange: +0.22, dieselChange: +0.18 },
+  { city: 'Mysuru', state: 'Karnataka', petrol: 110.45, diesel: 99.20, cng: 97.80, electricUnitRate: 18.00, updated: 'Today 06:00 AM', trend: 'steady', petrolChange: 0.00, dieselChange: 0.00 },
+  { city: 'Mangaluru', state: 'Karnataka', petrol: 109.80, diesel: 98.90, cng: 97.20, electricUnitRate: 17.50, updated: 'Today 06:00 AM', trend: 'down', petrolChange: -0.12, dieselChange: -0.10 },
+
+  // Telangana & Andhra
+  { city: 'Hyderabad', state: 'Telangana', petrol: 115.69, diesel: 104.23, cng: 97.00, electricUnitRate: 19.50, updated: 'Today 06:00 AM', trend: 'steady', petrolChange: 0.00, dieselChange: 0.00 },
+  { city: 'Warangal', state: 'Telangana', petrol: 115.10, diesel: 103.80, cng: 96.50, electricUnitRate: 18.00, updated: 'Today 06:00 AM', trend: 'down', petrolChange: -0.14, dieselChange: -0.10 },
+
+  // Maharashtra
+  { city: 'Mumbai', state: 'Maharashtra', petrol: 111.21, diesel: 97.28, cng: 89.50, electricUnitRate: 20.00, updated: 'Today 06:00 AM', trend: 'down', petrolChange: -0.18, dieselChange: -0.15 },
+  { city: 'Pune', state: 'Maharashtra', petrol: 110.95, diesel: 96.90, cng: 92.00, electricUnitRate: 18.50, updated: 'Today 06:00 AM', trend: 'steady', petrolChange: 0.00, dieselChange: 0.00 },
+  { city: 'Nagpur', state: 'Maharashtra', petrol: 111.80, diesel: 97.85, cng: 93.50, electricUnitRate: 18.00, updated: 'Today 06:00 AM', trend: 'up', petrolChange: +0.25, dieselChange: +0.20 },
+
+  // Delhi NCR
+  { city: 'New Delhi', state: 'Delhi NCR', petrol: 94.72, diesel: 87.62, cng: 79.70, electricUnitRate: 16.00, updated: 'Today 06:00 AM', trend: 'steady', petrolChange: 0.00, dieselChange: 0.00 },
+  { city: 'Noida', state: 'Delhi NCR', petrol: 96.65, diesel: 89.82, cng: 82.20, electricUnitRate: 16.50, updated: 'Today 06:00 AM', trend: 'up', petrolChange: +0.14, dieselChange: +0.11 },
+  { city: 'Gurugram', state: 'Delhi NCR', petrol: 95.25, diesel: 88.10, cng: 81.60, electricUnitRate: 16.80, updated: 'Today 06:00 AM', trend: 'steady', petrolChange: 0.00, dieselChange: 0.00 },
+
+  // Kerala
+  { city: 'Kochi', state: 'Kerala', petrol: 108.80, diesel: 97.75, cng: 94.50, electricUnitRate: 18.00, updated: 'Today 06:00 AM', trend: 'steady', petrolChange: 0.00, dieselChange: 0.00 },
+  { city: 'Thiruvananthapuram', state: 'Kerala', petrol: 109.95, diesel: 98.90, cng: 95.00, electricUnitRate: 18.50, updated: 'Today 06:00 AM', trend: 'up', petrolChange: +0.20, dieselChange: +0.16 },
+
+  // Gujarat
+  { city: 'Ahmedabad', state: 'Gujarat', petrol: 96.44, diesel: 92.11, cng: 84.40, electricUnitRate: 15.50, updated: 'Today 06:00 AM', trend: 'down', petrolChange: -0.22, dieselChange: -0.19 },
+  { city: 'Surat', state: 'Gujarat', petrol: 96.30, diesel: 91.98, cng: 83.90, electricUnitRate: 15.00, updated: 'Today 06:00 AM', trend: 'steady', petrolChange: 0.00, dieselChange: 0.00 },
+
+  // West Bengal
+  { city: 'Kolkata', state: 'West Bengal', petrol: 104.95, diesel: 91.76, cng: 89.00, electricUnitRate: 18.00, updated: 'Today 06:00 AM', trend: 'steady', petrolChange: 0.00, dieselChange: 0.00 },
 ];
 
 export interface EvChargingStation {
@@ -905,13 +1882,13 @@ export const LOCATION_BASED_STATIONS: LocationFuelEvStation[] = [
     rating: 4.9
   },
 
-  // Bangalore Stations
+  // Bengaluru Stations
   {
     id: 'loc-blr-1',
     name: 'Shell Petrol Station - Whitefield Main Road',
     brand: 'Shell India',
-    city: 'Bangalore',
-    address: 'ITPL Main Road, Near Hope Farm Junction, Whitefield, 560066, Bangalore',
+    city: 'Bengaluru',
+    address: 'ITPL Main Road, Near Hope Farm Junction, Whitefield, 560066, Bengaluru',
     status: 'Open 24 Hours • Shell V-Power',
     phone: '080 4123 9081',
     fuels: ['Petrol (V-Power)', 'Diesel', 'Shell Deli2go'],
@@ -923,13 +1900,660 @@ export const LOCATION_BASED_STATIONS: LocationFuelEvStation[] = [
     id: 'loc-blr-2',
     name: 'Statiq EV Fast Charging Superhub - Indiranagar',
     brand: 'Statiq EV',
-    city: 'Bangalore',
-    address: '100 Feet Road, 12th Main Junction, HAL 2nd Stage, Indiranagar, 560038, Bangalore',
+    city: 'Bengaluru',
+    address: '100 Feet Road, 12th Main Junction, HAL 2nd Stage, Indiranagar, 560038, Bengaluru',
     status: 'Open now • 24x7 Multi-Vehicle Hub',
     phone: '011 4118 7800',
     fuels: ['150kW DC Dual Gun (CCS2)', '60kW DC (GB/T)'],
     type: 'ev',
     distance: '2.1 km',
     rating: 4.8
+  },
+  {
+    id: 'loc-blr-3',
+    name: 'HPCL Auto & CNG Station - Koramangala',
+    brand: 'Hindustan Petroleum (HPCL)',
+    city: 'Bengaluru',
+    address: '80 Feet Road, 4th Block, Koramangala, 560034, Bengaluru',
+    status: 'Open 24 Hours • High Volume Station',
+    phone: '080 2553 4410',
+    fuels: ['Petrol', 'Diesel', 'CNG (GAIL Gas)'],
+    type: 'fuel',
+    distance: '1.9 km',
+    rating: 4.6
+  },
+  {
+    id: 'loc-blr-4',
+    name: 'Tata Power EZ EV Hub - Electronic City Phase 1',
+    brand: 'Tata Power EV',
+    city: 'Bengaluru',
+    address: 'Hosur Main Road, Near Infosys Gate 1, Electronic City, 560100, Bengaluru',
+    status: 'Open 24 Hours • Ultra-Fast DC Hub',
+    phone: '1800 209 5161',
+    fuels: ['120kW DC Fast Charge', '60kW DC CCS2', 'Type 2 AC'],
+    type: 'ev',
+    distance: '3.4 km',
+    rating: 4.9
+  },
+
+  // Coimbatore Stations
+  {
+    id: 'loc-cbe-1',
+    name: 'BPCL Auto & Green CNG Station - Avinashi Road',
+    brand: 'Bharat Petroleum (BPCL)',
+    city: 'Coimbatore',
+    address: 'Avinashi Road, Near Lakshmi Mills Junction, Peelamedu, 641004, Coimbatore',
+    status: 'Open 24 Hours • High Speed Dispenser',
+    phone: '0422 256 7180',
+    fuels: ['Petrol', 'Diesel', 'CNG'],
+    type: 'fuel',
+    distance: '1.0 km',
+    rating: 4.8
+  },
+  {
+    id: 'loc-cbe-2',
+    name: 'Zeon Electric Fast Charging Hub - Brookefields',
+    brand: 'Zeon Charging',
+    city: 'Coimbatore',
+    address: 'Brookefields Mall Parking, Krishnaswamy Road, 641001, Coimbatore',
+    status: 'Open now • 07:00 AM - 11:00 PM',
+    phone: '0422 438 8899',
+    fuels: ['60kW Dual CCS2 DC', '22kW Type 2 AC'],
+    type: 'ev',
+    distance: '2.2 km',
+    rating: 4.9
+  },
+
+  // Madurai Stations
+  {
+    id: 'loc-mdu-1',
+    name: 'IOCL Highway Service Station - Mattuthavani',
+    brand: 'Indian Oil (IOCL)',
+    city: 'Madurai',
+    address: 'Melur High Road, Near Mattuthavani Integrated Bus Terminal, 625007, Madurai',
+    status: 'Open 24 Hours • All Days',
+    phone: '0452 258 3311',
+    fuels: ['Petrol', 'Diesel', 'CNG Available'],
+    type: 'fuel',
+    distance: '1.5 km',
+    rating: 4.7
+  },
+  {
+    id: 'loc-mdu-2',
+    name: 'Relux Electric EV Fast Charging Station',
+    brand: 'Relux Electric',
+    city: 'Madurai',
+    address: 'Bypass Road, Near Ponmeni, 625016, Madurai',
+    status: 'Open 24 Hours • Fast EV Hub',
+    phone: '1800 123 73589',
+    fuels: ['50kW DC Fast Gun', '22kW AC Charger'],
+    type: 'ev',
+    distance: '2.8 km',
+    rating: 4.8
+  },
+
+  // Mumbai Stations
+  {
+    id: 'loc-mum-1',
+    name: 'MGL Auto CNG & BPCL Pump - Bandra Kurla Complex',
+    brand: 'Mahanagar Gas & BPCL',
+    city: 'Mumbai',
+    address: 'BKC Main Avenue, Bandra East, 400051, Mumbai',
+    status: 'Open 24 Hours • 8 CNG Dispensers',
+    phone: '022 2659 0100',
+    fuels: ['CNG Clean Fuel', 'Speed Petrol', 'Diesel'],
+    type: 'both',
+    distance: '1.1 km',
+    rating: 4.7
+  },
+  {
+    id: 'loc-mum-2',
+    name: 'Tata Power EV Mega Charger - Lower Parel',
+    brand: 'Tata Power EV',
+    city: 'Mumbai',
+    address: 'Senapati Bapat Marg, High Street Phoenix Compound, Lower Parel, 400013, Mumbai',
+    status: 'Open 24 Hours • 120kW Supercharger',
+    phone: '1800 209 5161',
+    fuels: ['120kW Dual CCS2 DC', '60kW DC Fast', 'Type 2 AC'],
+    type: 'ev',
+    distance: '2.6 km',
+    rating: 4.9
+  },
+
+  // Hyderabad Stations
+  {
+    id: 'loc-hyd-1',
+    name: 'HPCL Auto & Bhagyanagar CNG - Hitec City',
+    brand: 'Hindustan Petroleum (HPCL)',
+    city: 'Hyderabad',
+    address: 'Madhapur Main Road, Cyber Towers Junction, Hitec City, 500081, Hyderabad',
+    status: 'Open 24 Hours • High Volume Pump',
+    phone: '040 2311 8844',
+    fuels: ['Petrol (Power)', 'Diesel', 'Auto CNG'],
+    type: 'fuel',
+    distance: '0.9 km',
+    rating: 4.8
+  },
+  {
+    id: 'loc-hyd-2',
+    name: 'Jio-bp pulse EV Hub - Gachibowli Stadium Road',
+    brand: 'Jio-bp pulse',
+    city: 'Hyderabad',
+    address: 'Old Mumbai Highway, Gachibowli, 500032, Hyderabad',
+    status: 'Open 24 Hours • Super Fast EV',
+    phone: '1800 891 9023',
+    fuels: ['150kW Ultra Fast DC', '60kW CCS2 DC', '22kW AC'],
+    type: 'ev',
+    distance: '2.4 km',
+    rating: 4.9
   }
 ];
+
+export interface AutomotiveNewsItem {
+  id: string;
+  title: string;
+  category: string;
+  readTime: string;
+  date: string;
+  image: string;
+  snippet: string;
+  author: string;
+}
+
+export const AUTOMOTIVE_NEWS_DATA: AutomotiveNewsItem[] = [
+  {
+    id: 'news-1',
+    title: 'Mahindra Thar Roxx 4x4 Road Test Review: The Five-Door Off-Road King',
+    category: 'Expert Review',
+    readTime: '6 min read',
+    date: 'Oct 2024',
+    image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
+    snippet: 'With 5 doors, panoramic skyroof, and genuine 4x4 low range, can the Thar Roxx become the ultimate family adventure SUV?',
+    author: 'SART Automotive Desk'
+  },
+  {
+    id: 'news-2',
+    title: 'Tata Curvv EV 500km Real-World Highway Range & DC Fast Charge Test',
+    category: 'First Drive',
+    readTime: '5 min read',
+    date: 'Oct 2024',
+    image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80',
+    snippet: 'Tested on the Chennai-Bangalore expressway with full AC and luggage: how does the 55 kWh battery pack hold up?',
+    author: 'Electric Mobility Team'
+  },
+  {
+    id: 'news-3',
+    title: 'Royal Enfield Classic 650 Twin & Himalayan 450 Tubeless Rims: Launch Timeline',
+    category: 'New Launch',
+    readTime: '4 min read',
+    date: 'Oct 2024',
+    image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
+    snippet: 'The iconic Classic styling meets Royal Enfield’s smooth 648cc parallel-twin engine with dual peashooter exhausts.',
+    author: 'Two-Wheeler Bureau'
+  },
+  {
+    id: 'news-4',
+    title: 'Heavy Commercial Telematics: How Tata Fleet Edge & Ashok Leyland i-Gen6 Save 18% Fuel',
+    category: 'Commercial & Fleet',
+    readTime: '7 min read',
+    date: 'Oct 2024',
+    image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80',
+    snippet: 'Modern Indian freight operators are deploying IoT fuel monitoring and predictive diagnostics on heavy tippers and container trucks.',
+    author: 'Commercial Fleet Insights'
+  }
+];
+
+export interface VehicleVideoItem {
+  id: string;
+  title: string;
+  duration: string;
+  views: string;
+  image: string;
+  channel: string;
+  vehicleType: string;
+}
+
+export const VEHICLE_VIDEO_REVIEWS: VehicleVideoItem[] = [
+  {
+    id: 'vid-1',
+    title: 'Mahindra Thar Roxx vs Force Gurkha 5-Door: Ultimate Mud Off-Road Battle',
+    duration: '18:45',
+    views: '480K views',
+    image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
+    channel: 'SART Motors Video',
+    vehicleType: 'Car & SUV'
+  },
+  {
+    id: 'vid-2',
+    title: 'Honda Amaze 3rd Gen 2024: Premium Cabin, ADAS & City Mileage Walkaround',
+    duration: '14:20',
+    views: '320K views',
+    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+    channel: 'SART Car Reviews',
+    vehicleType: 'Sedan'
+  },
+  {
+    id: 'vid-3',
+    title: 'Royal Enfield Classic 350 vs Hunter 350: Which J-Series Bike Should You Buy?',
+    duration: '16:10',
+    views: '610K views',
+    image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
+    channel: 'SART Moto Vlog',
+    vehicleType: 'Motorcycle'
+  },
+  {
+    id: 'vid-4',
+    title: 'Ather 450X Gen 3 vs Ola S1 Pro Gen 2: True Range & Warp Mode Tested in Traffic',
+    duration: '19:35',
+    views: '750K views',
+    image: 'https://images.unsplash.com/photo-1558981420-87aa9dad1c89?auto=format&fit=crop&w=600&q=80',
+    channel: 'EV Revolution India',
+    vehicleType: 'Electric Scooter'
+  }
+];
+
+export interface VehicleComparisonPair {
+  id: string;
+  title: string;
+  category: 'Car' | 'Bike' | 'Truck' | 'Tractor' | 'EV';
+  vehicleA: {
+    name: string;
+    brand: string;
+    price: string;
+    image: string;
+    spec: string;
+  };
+  vehicleB: {
+    name: string;
+    brand: string;
+    price: string;
+    image: string;
+    spec: string;
+  };
+}
+
+export const POPULAR_COMPARISON_PAIRS: VehicleComparisonPair[] = [
+  {
+    id: 'comp-pair-1',
+    title: 'Compact SUV Battle',
+    category: 'Car',
+    vehicleA: {
+      name: 'Tata Nexon Facelift',
+      brand: 'Tata Motors',
+      price: '₹8.15 - 15.80 Lakh',
+      image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+      spec: '120 PS • 17.44 kmpl • 5-Star BNCAP'
+    },
+    vehicleB: {
+      name: 'Hyundai Creta 2024',
+      brand: 'Hyundai',
+      price: '₹11.00 - 20.15 Lakh',
+      image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80',
+      spec: '160 PS • 17.4 kmpl • Level 2 ADAS'
+    }
+  },
+  {
+    id: 'comp-pair-2',
+    title: '350cc Cruiser Showdown',
+    category: 'Bike',
+    vehicleA: {
+      name: 'Royal Enfield Classic 350',
+      brand: 'Royal Enfield',
+      price: '₹1.93 - 2.30 Lakh',
+      image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
+      spec: '349cc J-Series • 37.7 kmpl • Dual ABS'
+    },
+    vehicleB: {
+      name: 'Yamaha MT-15 V2',
+      brand: 'Yamaha',
+      price: '₹1.68 - 1.74 Lakh',
+      image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=600&q=80',
+      spec: '155cc Liquid-Cooled • 47.9 kmpl • Traction Control'
+    }
+  },
+  {
+    id: 'comp-pair-3',
+    title: 'Heavy Commercial Haulage',
+    category: 'Truck',
+    vehicleA: {
+      name: 'Tata Signa 4825.TK Tipper',
+      brand: 'Tata Motors',
+      price: '₹46.50 - 52.80 Lakh',
+      image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80',
+      spec: '250 HP Cummins • 16-Wheeler • Pneumatic ABS'
+    },
+    vehicleB: {
+      name: 'Ashok Leyland 2820-6x2',
+      brand: 'Ashok Leyland',
+      price: '₹31.20 - 36.50 Lakh',
+      image: 'https://images.unsplash.com/photo-1586191582056-a607185d5656?auto=format&fit=crop&w=600&q=80',
+      spec: '200 HP i-Gen6 • 10-Wheeler • Unitized Bearings'
+    }
+  },
+  {
+    id: 'comp-pair-4',
+    title: 'Heavy Agricultural Workhorses',
+    category: 'Tractor',
+    vehicleA: {
+      name: 'Mahindra 575 DI XP Plus',
+      brand: 'Mahindra',
+      price: '₹6.85 - 7.20 Lakh',
+      image: 'https://images.unsplash.com/photo-1592838064575-70ed626d3a0e?auto=format&fit=crop&w=600&q=80',
+      spec: '47 HP 4-Cyl ELS • 1480 kg Lift • 6-Yr Warranty'
+    },
+    vehicleB: {
+      name: 'Swaraj 744 FE 4WD',
+      brand: 'Swaraj',
+      price: '₹8.20 - 8.65 Lakh',
+      image: 'https://images.unsplash.com/photo-1592838064575-70ed626d3a0e?auto=format&fit=crop&w=600&q=80',
+      spec: '48 HP 4WD • 2000 kg Lift • Multi-Speed PTO'
+    }
+  }
+];
+
+export interface UpcomingCarsFaq {
+  q: string;
+  a: string;
+}
+
+export const UPCOMING_CARS_FAQS: UpcomingCarsFaq[] = [
+  {
+    q: 'How many upcoming cars are expected to launch in India 2026/2027?',
+    a: 'As per automotive intelligence, 70+ new cars, SUVs and electric vehicles are scheduled to launch in India across SUV, Sedan, MPV and luxury segments in 2025-2027.'
+  },
+  {
+    q: 'How many upcoming cars will launch in India in the next 3 months?',
+    a: 'Around 12 to 15 key vehicles are slated for commercial launch within the next 90 days, including the 2026 Toyota Fortuner, Skoda Kylaq, New Honda City facelift, and Tata Curvv EV.'
+  },
+  {
+    q: 'Which is the lowest price car in this list?',
+    a: 'The most affordable upcoming car in India is the Skoda Kylaq sub-compact SUV, with expected prices starting from ₹7.89 Lakh (Ex-showroom).'
+  },
+  {
+    q: 'Which upcoming SUVs are launching in India soon?',
+    a: 'Major upcoming SUVs include the next-gen Toyota Fortuner 2026/2027, Tata Sierra EV, Volkswagen Tayron 7-Seater, Audi Q3, and Mahindra XUV.e8.'
+  },
+  {
+    q: 'How can I get alerted when an upcoming car launches in India?',
+    a: 'Click "Notify Me on Launch" on any upcoming vehicle card to receive instantaneous SMS and WhatsApp alerts on official price reveal, dealership test drive availability, and booking commencement.'
+  },
+  {
+    q: 'Can I filter upcoming cars by brand, body type, or launch period?',
+    a: 'Yes, you can use our dedicated filters above to sort upcoming models by your preferred automaker, body style (SUV, Sedan, Hatchback, etc.), and expected price range.'
+  }
+];
+
+export interface VehicleVariant {
+  id: string;
+  name: string;
+  fuel: string;
+  transmission: string;
+  exShowroom: number;
+  onRoadPrice: number;
+  engine: string;
+  mileage: string;
+}
+
+export interface VehicleModelItem {
+  id: string;
+  name: string;
+  brand: string;
+  category: 'Car' | 'Bike' | 'Scooter' | 'EV' | 'Commercial' | 'Auto';
+  image: string;
+  rating: number;
+  reviewCount: number;
+  priceRange: string;
+  variants: VehicleVariant[];
+  alternatives: {
+    name: string;
+    price: string;
+    img: string;
+    emiBtn: string;
+  }[];
+}
+
+export const VEHICLE_EMI_CATALOG: VehicleModelItem[] = [
+  // CARS
+  {
+    id: 'car-sierra',
+    name: 'Tata Sierra',
+    brand: 'Tata',
+    category: 'Car',
+    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+    rating: 4.7,
+    reviewCount: 209,
+    priceRange: '₹11.49 - 21.59 Lakh*',
+    variants: [
+      { id: 'sierra-smart-plus', name: 'Smart Plus (Petrol 1.5L Manual)', fuel: 'Petrol', transmission: 'Manual', exShowroom: 1149000, onRoadPrice: 1311000, engine: '1498cc Turbo Petrol', mileage: '16.5 kmpl' },
+      { id: 'sierra-pure', name: 'Pure Edition (Petrol 1.5L AMT)', fuel: 'Petrol', transmission: 'Automatic', exShowroom: 1320000, onRoadPrice: 1495000, engine: '1498cc Turbo Petrol', mileage: '15.8 kmpl' },
+      { id: 'sierra-adventure-plus', name: 'Adventure Plus (Diesel 2.0L Manual)', fuel: 'Diesel', transmission: 'Manual', exShowroom: 1548000, onRoadPrice: 1748000, engine: '1956cc Kryotec Diesel', mileage: '18.2 kmpl' },
+      { id: 'sierra-accomplished', name: 'Accomplished Plus (Diesel 2.0L AT 4x4)', fuel: 'Diesel', transmission: 'Automatic', exShowroom: 1890000, onRoadPrice: 2159000, engine: '1956cc Kryotec Diesel', mileage: '17.0 kmpl' }
+    ],
+    alternatives: [
+      { name: 'Kia Seltos', price: '₹10.90 - 20.35 Lakh*', img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=500&q=80', emiBtn: 'Seltos EMI' },
+      { name: 'Tata Harrier', price: '₹14.99 - 26.44 Lakh*', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=500&q=80', emiBtn: 'Harrier EMI' },
+      { name: 'Hyundai Creta', price: '₹11.00 - 20.15 Lakh*', img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=500&q=80', emiBtn: 'Creta EMI' }
+    ]
+  },
+  {
+    id: 'car-nexon',
+    name: 'Tata Nexon Facelift',
+    brand: 'Tata',
+    category: 'Car',
+    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+    rating: 4.8,
+    reviewCount: 345,
+    priceRange: '₹8.00 - 15.80 Lakh*',
+    variants: [
+      { id: 'nexon-smart', name: 'Smart 1.2L Revotron (Petrol)', fuel: 'Petrol', transmission: 'Manual', exShowroom: 799990, onRoadPrice: 915000, engine: '1199cc Turbo Petrol', mileage: '17.44 kmpl' },
+      { id: 'nexon-pure', name: 'Pure 1.2L Petrol (Sunroof)', fuel: 'Petrol', transmission: 'Manual', exShowroom: 979990, onRoadPrice: 1120000, engine: '1199cc Turbo Petrol', mileage: '17.44 kmpl' },
+      { id: 'nexon-creative', name: 'Creative Plus 1.5L Diesel DCA', fuel: 'Diesel', transmission: 'Dual-Clutch AT', exShowroom: 1229990, onRoadPrice: 1410000, engine: '1497cc Revotorq Diesel', mileage: '24.08 kmpl' },
+      { id: 'nexon-fearless', name: 'Fearless Plus S Diesel DCA Dual-Tone', fuel: 'Diesel', transmission: 'Dual-Clutch AT', exShowroom: 1379990, onRoadPrice: 1580000, engine: '1497cc Revotorq Diesel', mileage: '23.20 kmpl' }
+    ],
+    alternatives: [
+      { name: 'Maruti Brezza', price: '₹8.34 - 14.14 Lakh*', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=500&q=80', emiBtn: 'Brezza EMI' },
+      { name: 'Hyundai Venue', price: '₹7.94 - 13.48 Lakh*', img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=500&q=80', emiBtn: 'Venue EMI' },
+      { name: 'Kia Sonet', price: '₹7.99 - 15.75 Lakh*', img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=500&q=80', emiBtn: 'Sonet EMI' }
+    ]
+  },
+  {
+    id: 'car-creta',
+    name: 'Hyundai Creta 2024',
+    brand: 'Hyundai',
+    category: 'Car',
+    image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80',
+    rating: 4.85,
+    reviewCount: 412,
+    priceRange: '₹11.00 - 20.15 Lakh*',
+    variants: [
+      { id: 'creta-e', name: 'E 1.5L Petrol Manual', fuel: 'Petrol', transmission: 'Manual', exShowroom: 1099900, onRoadPrice: 1270000, engine: '1497cc MPi Petrol', mileage: '17.4 kmpl' },
+      { id: 'creta-ex', name: 'EX 1.5L Diesel Manual', fuel: 'Diesel', transmission: 'Manual', exShowroom: 1368000, onRoadPrice: 1575000, engine: '1493cc U2 CRDi Diesel', mileage: '21.8 kmpl' },
+      { id: 'creta-sx-tech', name: 'SX (Tech) 1.5L Turbo Petrol DCT ADAS', fuel: 'Petrol', transmission: 'Dual-Clutch AT', exShowroom: 1598000, onRoadPrice: 1845000, engine: '1482cc Turbo GDi', mileage: '18.4 kmpl' },
+      { id: 'creta-sx-opt', name: 'SX (O) 1.5L Diesel Automatic Knight', fuel: 'Diesel', transmission: 'Automatic', exShowroom: 1748000, onRoadPrice: 2015000, engine: '1493cc CRDi Diesel', mileage: '19.1 kmpl' }
+    ],
+    alternatives: [
+      { name: 'Kia Seltos', price: '₹10.90 - 20.35 Lakh*', img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=500&q=80', emiBtn: 'Seltos EMI' },
+      { name: 'Maruti Grand Vitara', price: '₹10.87 - 19.97 Lakh*', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=500&q=80', emiBtn: 'Vitara EMI' },
+      { name: 'Honda Elevate', price: '₹11.69 - 16.51 Lakh*', img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=500&q=80', emiBtn: 'Elevate EMI' }
+    ]
+  },
+  {
+    id: 'car-thar-roxx',
+    name: 'Mahindra Thar Roxx',
+    brand: 'Mahindra',
+    category: 'Car',
+    image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
+    rating: 4.9,
+    reviewCount: 180,
+    priceRange: '₹12.99 - 22.49 Lakh*',
+    variants: [
+      { id: 'thar-mx1', name: 'MX1 Petrol Manual RWD', fuel: 'Petrol', transmission: 'Manual', exShowroom: 1299000, onRoadPrice: 1489000, engine: '2.0L mStallion Turbo', mileage: '14.0 kmpl' },
+      { id: 'thar-mx3', name: 'MX3 Diesel Manual RWD', fuel: 'Diesel', transmission: 'Manual', exShowroom: 1499000, onRoadPrice: 1720000, engine: '2.2L mHawk Diesel', mileage: '15.2 kmpl' },
+      { id: 'thar-ax5l', name: 'AX5L Diesel Automatic RWD (Level 2 ADAS)', fuel: 'Diesel', transmission: 'Automatic', exShowroom: 1899000, onRoadPrice: 2175000, engine: '2.2L mHawk Diesel', mileage: '14.6 kmpl' },
+      { id: 'thar-ax7l-4x4', name: 'AX7L Diesel Automatic 4x4 (Panoramic Sunroof)', fuel: 'Diesel', transmission: 'Automatic 4x4', exShowroom: 2049000, onRoadPrice: 2249000, engine: '2.2L mHawk High Output', mileage: '13.8 kmpl' }
+    ],
+    alternatives: [
+      { name: 'Force Gurkha 5-Door', price: '₹16.75 - 18.00 Lakh*', img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=500&q=80', emiBtn: 'Gurkha EMI' },
+      { name: 'Scorpio-N', price: '₹13.85 - 24.54 Lakh*', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=500&q=80', emiBtn: 'Scorpio-N EMI' }
+    ]
+  },
+  {
+    id: 'car-curvv',
+    name: 'Tata Curvv EV',
+    brand: 'Tata',
+    category: 'EV',
+    image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80',
+    rating: 4.8,
+    reviewCount: 98,
+    priceRange: '₹17.49 - 21.99 Lakh*',
+    variants: [
+      { id: 'curvv-creative-45', name: 'Creative 45 (45 kWh Battery - 502 km Range)', fuel: 'Electric', transmission: 'Automatic', exShowroom: 1749000, onRoadPrice: 1845000, engine: 'PMSM 150 PS Motor', mileage: '502 km / charge' },
+      { id: 'curvv-accomplished-55', name: 'Accomplished 55 (55 kWh - 585 km Range)', fuel: 'Electric', transmission: 'Automatic', exShowroom: 1925000, onRoadPrice: 2030000, engine: 'PMSM 167 PS Motor', mileage: '585 km / charge' },
+      { id: 'curvv-empowered-55', name: 'Empowered Plus 55 (Level 2 ADAS + V2L/V2V)', fuel: 'Electric', transmission: 'Automatic', exShowroom: 2199000, onRoadPrice: 2315000, engine: 'PMSM 167 PS Motor', mileage: '585 km / charge' }
+    ],
+    alternatives: [
+      { name: 'MG ZS EV', price: '₹18.98 - 25.44 Lakh*', img: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=500&q=80', emiBtn: 'MG ZS EMI' },
+      { name: 'BYD Atto 3', price: '₹24.99 - 33.99 Lakh*', img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=500&q=80', emiBtn: 'BYD EMI' }
+    ]
+  },
+
+  // SCOOTERS
+  {
+    id: 'scooter-activa',
+    name: 'Honda Activa 6G',
+    brand: 'Honda',
+    category: 'Scooter',
+    image: 'https://images.unsplash.com/photo-1558981420-87aa9dad1c89?auto=format&fit=crop&w=600&q=80',
+    rating: 4.8,
+    reviewCount: 840,
+    priceRange: '₹76,364 - 91,480',
+    variants: [
+      { id: 'activa-std', name: 'Standard (Drum Brakes / Steel Wheels)', fuel: 'Petrol', transmission: 'CVT Automatic', exShowroom: 76364, onRoadPrice: 91500, engine: '109.5cc PGM-FI', mileage: '50 kmpl' },
+      { id: 'activa-dlx', name: 'Deluxe (LED Headlamp / Digital Display)', fuel: 'Petrol', transmission: 'CVT Automatic', exShowroom: 81364, onRoadPrice: 97500, engine: '109.5cc PGM-FI', mileage: '50 kmpl' },
+      { id: 'activa-hsmart', name: 'H-Smart (Keyless Smart Start / Anti-Theft)', fuel: 'Petrol', transmission: 'CVT Automatic', exShowroom: 83864, onRoadPrice: 100500, engine: '109.5cc PGM-FI', mileage: '50 kmpl' }
+    ],
+    alternatives: [
+      { name: 'TVS Jupiter 110', price: '₹74,130 - 89,830', img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=500&q=80', emiBtn: 'Jupiter EMI' },
+      { name: 'Suzuki Access 125', price: '₹82,190 - 1.01 Lakh', img: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=500&q=80', emiBtn: 'Access EMI' }
+    ]
+  },
+  {
+    id: 'scooter-ntorq',
+    name: 'TVS NTORQ 125',
+    brand: 'TVS',
+    category: 'Scooter',
+    image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
+    rating: 4.85,
+    reviewCount: 520,
+    priceRange: '₹84,850 - 1.05 Lakh',
+    variants: [
+      { id: 'ntorq-drum', name: 'Drum Brake Commuter', fuel: 'Petrol', transmission: 'CVT Automatic', exShowroom: 84850, onRoadPrice: 101500, engine: '124.8cc 3-Valve Fi', mileage: '47 kmpl' },
+      { id: 'ntorq-disc', name: 'Disc Brake SmartXonnect', fuel: 'Petrol', transmission: 'CVT Automatic', exShowroom: 89900, onRoadPrice: 107500, engine: '124.8cc 3-Valve Fi', mileage: '47 kmpl' },
+      { id: 'ntorq-race-xp', name: 'Race XP (Dual Ride Modes + 10.2 PS)', fuel: 'Petrol', transmission: 'CVT Automatic', exShowroom: 97850, onRoadPrice: 116500, engine: '124.8cc High Output', mileage: '45 kmpl' }
+    ],
+    alternatives: [
+      { name: 'Yamaha Ray ZR 125', price: '₹80,680 - 94,500', img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=500&q=80', emiBtn: 'Ray ZR EMI' },
+      { name: 'Honda Dio 125', price: '₹84,500 - 92,800', img: 'https://images.unsplash.com/photo-1558981420-87aa9dad1c89?auto=format&fit=crop&w=500&q=80', emiBtn: 'Dio EMI' }
+    ]
+  },
+  {
+    id: 'scooter-olas1',
+    name: 'OLA S1 Pro Gen 2',
+    brand: 'OLA Electric',
+    category: 'EV',
+    image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
+    rating: 4.7,
+    reviewCount: 390,
+    priceRange: '₹1.15 - 1.34 Lakh',
+    variants: [
+      { id: 'ola-s1-air', name: 'S1 Air (3 kWh Battery - 151 km Range)', fuel: 'Electric', transmission: 'Automatic', exShowroom: 104999, onRoadPrice: 116500, engine: 'Hub Motor 6 kW Peak', mileage: '151 km / charge' },
+      { id: 'ola-s1-pro', name: 'S1 Pro Gen 2 (4 kWh Battery - 195 km Range / 120 km/h)', fuel: 'Electric', transmission: 'Automatic', exShowroom: 133999, onRoadPrice: 147500, engine: 'Mid-Drive 11 kW Peak', mileage: '195 km / charge' }
+    ],
+    alternatives: [
+      { name: 'Ather 450X', price: '₹1.41 - 1.55 Lakh', img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=500&q=80', emiBtn: 'Ather EMI' },
+      { name: 'Bajaj Chetak EV', price: '₹99,800 - 1.25 Lakh', img: 'https://images.unsplash.com/photo-1558981420-87aa9dad1c89?auto=format&fit=crop&w=500&q=80', emiBtn: 'Chetak EMI' }
+    ]
+  },
+
+  // BIKES & MOTORCYCLES
+  {
+    id: 'bike-classic350',
+    name: 'Royal Enfield Classic 350',
+    brand: 'Royal Enfield',
+    category: 'Bike',
+    image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
+    rating: 4.88,
+    reviewCount: 760,
+    priceRange: '₹1.93 - 2.30 Lakh',
+    variants: [
+      { id: 'classic-heritage', name: 'Heritage Series (Single Channel ABS)', fuel: 'Petrol', transmission: '5-Speed Manual', exShowroom: 193000, onRoadPrice: 226000, engine: '349cc J-Series Air-Oil Cooled', mileage: '37 kmpl' },
+      { id: 'classic-signals', name: 'Signals Edition (Dual Channel ABS)', fuel: 'Petrol', transmission: '5-Speed Manual', exShowroom: 216000, onRoadPrice: 252000, engine: '349cc J-Series Air-Oil Cooled', mileage: '37 kmpl' },
+      { id: 'classic-dark', name: 'Dark Stealth Black (Alloy Wheels + Tubeless)', fuel: 'Petrol', transmission: '5-Speed Manual', exShowroom: 225000, onRoadPrice: 262000, engine: '349cc J-Series Air-Oil Cooled', mileage: '36 kmpl' },
+      { id: 'classic-emerald', name: 'Emerald Chrome Deluxe (Dual Disc ABS)', fuel: 'Petrol', transmission: '5-Speed Manual', exShowroom: 230000, onRoadPrice: 268000, engine: '349cc J-Series Air-Oil Cooled', mileage: '36 kmpl' }
+    ],
+    alternatives: [
+      { name: 'Honda Hness CB350', price: '₹2.10 - 2.16 Lakh', img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=500&q=80', emiBtn: 'CB350 EMI' },
+      { name: 'Jawa 350', price: '₹1.99 - 2.15 Lakh', img: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=500&q=80', emiBtn: 'Jawa EMI' }
+    ]
+  },
+  {
+    id: 'bike-r15',
+    name: 'Yamaha R15 V4',
+    brand: 'Yamaha',
+    category: 'Bike',
+    image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=600&q=80',
+    rating: 4.9,
+    reviewCount: 480,
+    priceRange: '₹1.73 - 1.98 Lakh',
+    variants: [
+      { id: 'r15-metallic-red', name: 'Metallic Red Edition (Dual ABS + TCS)', fuel: 'Petrol', transmission: '6-Speed Manual / Quickshifter', exShowroom: 173000, onRoadPrice: 204000, engine: '155cc Liquid-Cooled 4V VVA', mileage: '48 kmpl' },
+      { id: 'r15-racing-blue', name: 'Racing Blue (Quickshifter Standard)', fuel: 'Petrol', transmission: '6-Speed Manual', exShowroom: 187000, onRoadPrice: 219000, engine: '155cc Liquid-Cooled 4V VVA', mileage: '48 kmpl' },
+      { id: 'r15m-carbon', name: 'R15M Carbon Edition (TFT Display + Lap Timer)', fuel: 'Petrol', transmission: '6-Speed Quickshifter', exShowroom: 198000, onRoadPrice: 232000, engine: '155cc Liquid-Cooled 4V VVA', mileage: '46 kmpl' }
+    ],
+    alternatives: [
+      { name: 'KTM RC 200', price: '₹2.18 Lakh', img: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=500&q=80', emiBtn: 'RC 200 EMI' },
+      { name: 'Suzuki Gixxer SF 250', price: '₹1.92 - 2.05 Lakh', img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=500&q=80', emiBtn: 'Gixxer EMI' }
+    ]
+  },
+
+  // COMMERCIAL TRUCKS & LORRIES
+  {
+    id: 'comm-signa-2823',
+    name: 'Tata Signa 2823 Tipper',
+    brand: 'Tata',
+    category: 'Commercial',
+    image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=600&q=80',
+    rating: 4.86,
+    reviewCount: 95,
+    priceRange: '₹37.50 - 41.20 Lakh',
+    variants: [
+      { id: 'signa-14cum', name: 'Signa 2823.TK 14m³ Box Body Cabin', fuel: 'Diesel', transmission: '9-Speed Manual Heavy Duty', exShowroom: 3750000, onRoadPrice: 4125000, engine: 'Cummins ISBe 5.6L 230 HP', mileage: '4.8 km/l' },
+      { id: 'signa-16cum', name: 'Signa 2823.TK 16m³ Box Body HD Hub', fuel: 'Diesel', transmission: '9-Speed Manual Heavy Duty', exShowroom: 3980000, onRoadPrice: 4375000, engine: 'Cummins ISBe 5.6L 230 HP', mileage: '4.5 km/l' }
+    ],
+    alternatives: [
+      { name: 'Ashok Leyland 2820', price: '₹31.20 - 36.50 Lakh', img: 'https://images.unsplash.com/photo-1586191582056-a607185d5656?auto=format&fit=crop&w=500&q=80', emiBtn: 'AL 2820 EMI' },
+      { name: 'BharatBenz 2823R', price: '₹38.90 - 42.10 Lakh', img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=500&q=80', emiBtn: 'Benz 2823 EMI' }
+    ]
+  },
+
+  // 3-WHEELERS & AUTO
+  {
+    id: 'auto-bajaj-re',
+    name: 'Bajaj RE Compact 4S',
+    brand: 'Bajaj',
+    category: 'Auto',
+    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+    rating: 4.8,
+    reviewCount: 160,
+    priceRange: '₹2.34 - 2.55 Lakh',
+    variants: [
+      { id: 're-cng', name: 'Compact 4S Factory CNG Kit', fuel: 'CNG', transmission: '4-Speed Manual Hand Shift', exShowroom: 234000, onRoadPrice: 258000, engine: '236cc DTS-i 4-Stroke', mileage: '36 km/kg' },
+      { id: 're-petrol', name: 'Compact 4S Petrol Passenger Auto', fuel: 'Petrol', transmission: '4-Speed Manual Hand Shift', exShowroom: 221000, onRoadPrice: 244000, engine: '236cc DTS-i Petrol', mileage: '28 kmpl' }
+    ],
+    alternatives: [
+      { name: 'Piaggio Ape DX', price: '₹2.25 - 2.45 Lakh', img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=500&q=80', emiBtn: 'Ape EMI' },
+      { name: 'Mahindra Alfa', price: '₹2.30 - 2.50 Lakh', img: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=500&q=80', emiBtn: 'Alfa EMI' }
+    ]
+  }
+];
+
