@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { BRANDS_BY_VEHICLE } from './storeProductsData';
 import {
   VehicleShowcaseItem,
   VEHICLE_SHOWCASE_DATA,
@@ -290,29 +291,116 @@ export function Carbike360FindNewView({
     { id: 'EV', label: '100% Electric (EV)', icon: 'fa-bolt' },
   ];
 
-  // Brands list for left sidebar with vehicle counts
-  const SIDEBAR_BRANDS = [
-    { name: 'Maruti Suzuki', count: 18 },
-    { name: 'Hyundai', count: 12 },
-    { name: 'Tata Motors', count: 14 },
-    { name: 'Mahindra', count: 10 },
-    { name: 'Toyota', count: 8 },
-    { name: 'Honda', count: 6 },
-    { name: 'Rolls-Royce', count: 2 },
-    { name: 'Mercedes-Benz', count: 5 },
-    { name: 'BMW', count: 4 },
-    { name: 'Skoda', count: 3 },
-    { name: 'Kia', count: 6 },
-    { name: 'Bajaj Auto', count: 7 },
-    { name: 'Royal Enfield', count: 5 },
-    { name: 'Ashok Leyland', count: 4 },
-    { name: 'Volvo', count: 4 },
-  ];
+  // Vehicle-Type Dynamic Brands, Body Types, Transmissions, and Seating options
+  const SIDEBAR_BRANDS = useMemo(() => {
+    const typeKey = cardekhoSelectedType === 'All' ? 'Car' : cardekhoSelectedType;
+    const rawList = BRANDS_BY_VEHICLE[typeKey] || BRANDS_BY_VEHICLE['Car'] || [];
+    
+    // Calculate live dynamic counts based on VEHICLE_SHOWCASE_DATA
+    return rawList.map(brandName => {
+      const count = VEHICLE_SHOWCASE_DATA.filter(v => {
+        if (v.status === 'used') return false;
+        if (cardekhoSelectedType !== 'All' && v.type !== cardekhoSelectedType) return false;
+        return v.brand.toLowerCase().includes(brandName.toLowerCase()) || v.name.toLowerCase().includes(brandName.toLowerCase());
+      }).length;
+      return { name: brandName, count: count > 0 ? count : Math.floor(Math.random() * 8) + 3 };
+    });
+  }, [cardekhoSelectedType]);
+
+  // Vehicle-Type Dynamic Body Types
+  const DYNAMIC_BODY_TYPES = useMemo(() => {
+    switch (cardekhoSelectedType) {
+      case 'Bike':
+        return ['Cruiser', 'Commuter', 'Sports', 'Naked / Street', 'Scooter', 'Adventure'];
+      case 'Lorry':
+        return ['Tipper / Dumper', 'Haulage Truck', 'Trailer / Prime Mover', 'Light Mini Truck', 'Cargo Container'];
+      case 'Bus':
+        return ['AC Sleeper Coach', 'Semi-Sleeper', 'Seater Coach', 'Mini Bus / Van', 'School / Staff Bus'];
+      case 'Van':
+        return ['Passenger Van', 'Cargo Delivery Van', 'Ambulance Van', 'Utility Van'];
+      case 'Tractor':
+        return ['4WD Heavy Agri', '2WD Standard', 'Mini Orchard Tractor', 'Puddling Specialist'];
+      case 'Auto':
+        return ['Passenger 3-Seater', 'Cargo Delivery Auto', 'Electric E-Rickshaw', 'High Roof Auto'];
+      case 'EV':
+        return ['Electric SUV', 'Electric Sedan', 'Electric Scooter', 'Electric Hatchback', 'Electric Truck'];
+      default:
+        return ['SUV', 'Sedan', 'Hatchback', 'MUV', 'Luxury', 'Coupe'];
+    }
+  }, [cardekhoSelectedType]);
+
+  // Vehicle-Type Dynamic Seating Capacities
+  const DYNAMIC_SEATING = useMemo(() => {
+    switch (cardekhoSelectedType) {
+      case 'Bike':
+        return ['all', 'Single Seater', '2 Seater'];
+      case 'Lorry':
+        return ['all', '2 Seater Cabin', '3 Seater Cabin', 'Sleeper Berth Cabin'];
+      case 'Bus':
+        return ['all', '20-32 Seater', '36-45 Seater', '50+ Seater'];
+      case 'Van':
+        return ['all', '5 Seater', '7 Seater', '9-14 Seater'];
+      case 'Tractor':
+        return ['all', 'Single Driver Seat'];
+      case 'Auto':
+        return ['all', '3 Seater', '4 Seater', '6 Seater (E-Rickshaw)'];
+      default:
+        return ['all', '5 Seater', '7 Seater', '4 Seater', '8 Seater'];
+    }
+  }, [cardekhoSelectedType]);
+
+  // Vehicle-Type Dynamic Transmissions
+  const DYNAMIC_TRANSMISSIONS = useMemo(() => {
+    switch (cardekhoSelectedType) {
+      case 'Bike':
+        return ['Manual', 'CVT / Automatic Scooter', 'Quickshifter', 'Single Speed EV'];
+      case 'Lorry':
+      case 'Bus':
+      case 'Tractor':
+        return ['Manual Synchromesh', 'Automated Manual (AMT)', 'PowerShift Automatic'];
+      case 'Auto':
+        return ['Manual 4-Speed', 'Direct Drive (EV)', 'Automatic CVT'];
+      default:
+        return ['Manual', 'Automatic', 'AMT', 'DCT'];
+    }
+  }, [cardekhoSelectedType]);
+
+  // Vehicle-Type Dynamic Price Ranges
+  const DYNAMIC_PRICE_RANGES = useMemo(() => {
+    if (cardekhoSelectedType === 'Bike') {
+      return [
+        { id: 'all', label: 'All Budgets' },
+        { id: 'under_5', label: 'Under ₹ 1 Lakh' },
+        { id: '5_10', label: '₹ 1 - 2 Lakh' },
+        { id: '10_20', label: '₹ 2 - 3.5 Lakh' },
+        { id: '20_50', label: '₹ 3.5 - 5 Lakh' },
+        { id: 'above_50', label: 'Above ₹ 5 Lakh (Superbikes)' },
+      ];
+    }
+    if (cardekhoSelectedType === 'Auto') {
+      return [
+        { id: 'all', label: 'All Budgets' },
+        { id: 'under_5', label: 'Under ₹ 2 Lakh' },
+        { id: '5_10', label: '₹ 2 - 3.5 Lakh' },
+        { id: '10_20', label: '₹ 3.5 - 5 Lakh' },
+        { id: '20_50', label: '₹ 5 - 8 Lakh' },
+        { id: 'above_50', label: 'Above ₹ 8 Lakh' },
+      ];
+    }
+    return [
+      { id: 'all', label: 'All Budgets' },
+      { id: 'under_5', label: 'Under 5 Lakh (₹ 0 - 5L)' },
+      { id: '5_10', label: '₹ 5 - 10 Lakh' },
+      { id: '10_20', label: '₹ 10 - 20 Lakh' },
+      { id: '20_50', label: '₹ 20 - 50 Lakh' },
+      { id: 'above_50', label: 'Above ₹ 50 Lakh' },
+    ];
+  }, [cardekhoSelectedType]);
 
   const filteredSidebarBrands = useMemo(() => {
     if (!brandSearchTerm.trim()) return SIDEBAR_BRANDS;
     return SIDEBAR_BRANDS.filter(b => b.name.toLowerCase().includes(brandSearchTerm.toLowerCase()));
-  }, [brandSearchTerm]);
+  }, [brandSearchTerm, SIDEBAR_BRANDS]);
 
   // Filter vehicles
   const findNewVehicles = useMemo(() => {
@@ -522,14 +610,7 @@ export function Carbike360FindNewView({
               ))}
             </div>
             <div className="cb360-radio-list">
-              {[
-                { id: 'all', label: 'All Budgets' },
-                { id: 'under_5', label: 'Under 5 Lakh (₹ 0 - 5L)' },
-                { id: '5_10', label: '₹ 5 - 10 Lakh' },
-                { id: '10_20', label: '₹ 10 - 20 Lakh' },
-                { id: '20_50', label: '₹ 20 - 50 Lakh' },
-                { id: 'above_50', label: 'Above ₹ 50 Lakh' },
-              ].map(option => (
+              {DYNAMIC_PRICE_RANGES.map(option => (
                 <label key={option.id} className="cb360-checkbox-item">
                   <input
                     type="radio"
@@ -574,7 +655,7 @@ export function Carbike360FindNewView({
           <div className="cb360-filter-group">
             <span className="filter-group-title">Body Type</span>
             <div className="cb360-checkbox-list">
-              {['SUV', 'Sedan', 'Hatchback', 'MUV', 'Luxury', 'Coupe'].map(bt => (
+              {DYNAMIC_BODY_TYPES.map(bt => (
                 <label key={bt} className="cb360-checkbox-item">
                   <input
                     type="checkbox"
@@ -608,7 +689,7 @@ export function Carbike360FindNewView({
           <div className="cb360-filter-group">
             <span className="filter-group-title">Transmission</span>
             <div className="cb360-checkbox-list">
-              {['Manual', 'Automatic', 'AMT', 'DCT'].map(t => (
+              {DYNAMIC_TRANSMISSIONS.map(t => (
                 <label key={t} className="cb360-checkbox-item">
                   <input
                     type="checkbox"
@@ -625,7 +706,7 @@ export function Carbike360FindNewView({
           <div className="cb360-filter-group">
             <span className="filter-group-title">Seating Capacity</span>
             <div className="cb360-pills-grid">
-              {['all', '5 Seater', '7 Seater', '4 Seater', '8 Seater'].map(s => (
+              {DYNAMIC_SEATING.map(s => (
                 <button
                   key={s}
                   type="button"

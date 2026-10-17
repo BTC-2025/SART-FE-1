@@ -360,6 +360,36 @@
   margin: 0;
 }
 
+
+.cb-compare-emi-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  background: #0284c7;
+  color: #ffffff;
+  border: 1px solid #0284c7;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.28);
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+}
+
+.cb-compare-emi-btn:hover {
+  background: #0369a1;
+  border-color: #0369a1;
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.38);
+  transform: translateY(-1px);
+}
+
+.cb-compare-emi-btn i {
+  font-size: 14px;
+}
+
 .cb-active-class-pill {
   display: inline-flex;
   align-items: center;

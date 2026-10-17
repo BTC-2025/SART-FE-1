@@ -2,13 +2,15 @@
 
 import React, { useState } from 'react';
 import { COMPARISON_VEHICLES, ComparisonVehicle, POPULAR_COMPARISON_PAIRS } from '../storeData';
+import { StoreHubTab } from '../storeProductsData';
 
 interface StoreCompareHubProps {
   showToast: (msg: string) => void;
   userLocationCity?: string;
+  setActiveHubTab?: (tab: StoreHubTab) => void;
 }
 
-export default function StoreCompareHub({ showToast, userLocationCity = 'Chennai' }: StoreCompareHubProps) {
+export default function StoreCompareHub({ showToast, userLocationCity = 'Chennai', setActiveHubTab }: StoreCompareHubProps) {
   const [selectedCompareVehicleType, setSelectedCompareVehicleType] = useState<string>('Car');
   const [compareSelectedVehicles, setCompareSelectedVehicles] = useState<(ComparisonVehicle | null)[]>([
     COMPARISON_VEHICLES.find((v) => v.category === 'Car') || COMPARISON_VEHICLES[12],
@@ -69,9 +71,20 @@ export default function StoreCompareHub({ showToast, userLocationCity = 'Chennai
                     </p>
                   </div>
 
-                  <span className="cb-active-class-pill">
-                    <i className="fa-solid fa-shapes"></i> Category: {selectedCompareVehicleType}
-                  </span>
+                  <button
+                    type="button"
+                    className="cb-compare-emi-btn"
+                    onClick={() => {
+                      if (setActiveHubTab) {
+                        setActiveHubTab('finance_insurance');
+                      }
+                      showToast('Opened EMI & Loan Calculator');
+                    }}
+                    title="Calculate Vehicle EMI & Loan Options"
+                  >
+                    <i className="fa-solid fa-calculator"></i>
+                    <span>EMI &amp; Loan</span>
+                  </button>
                 </div>
 
                 {/* STEP 1: CHOOSE VEHICLE OPTION FIRST (ALL SART VEHICLE CLASSES) */}
