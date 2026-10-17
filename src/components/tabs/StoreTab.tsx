@@ -25,6 +25,7 @@ import {
 } from './storeProductsData';
 import { VehicleShowcaseItem } from './storeData';
 import { Carbike360OnRoadPriceModal } from './CarBike360Views';
+import { ACCESSORIES_POINTS } from './storeSparesAccessoriesData';
 
 // Subcomponents for each SART Automotive Hub Tab
 import StoreBuySellHub from './store/StoreBuySellHub';
@@ -67,16 +68,16 @@ export default function StoreTab() {
   const { activeTab, addToCart, wishlist, toggleWishlist } = useSartStore();
   const [mounted, setMounted] = useState(false);
 
-  // Top Vehicle Selector State
-  const [selectedVehicleType, setSelectedVehicleType] = useState<string>('Car');
+  // Top Vehicle Selector State (Default unselected, users choose step-by-step)
+  const [selectedVehicleType, setSelectedVehicleType] = useState<string>('');
   const [selectedVehicleCategory, setSelectedVehicleCategory] = useState<string>('All Categories');
-  const [selectedBrand, setSelectedBrand] = useState<string>('Maruti Suzuki');
-  const [selectedModel, setSelectedModel] = useState<string>('Swift');
-  const [selectedYear, setSelectedYear] = useState<string>('2023');
-  const [selectedFuel, setSelectedFuel] = useState<string>('Petrol');
+  const [selectedBrand, setSelectedBrand] = useState<string>('');
+  const [selectedModel, setSelectedModel] = useState<string>('');
+  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [selectedFuel, setSelectedFuel] = useState<string>('');
 
-  // Garage and Applied Search
-  const [garageActive, setGarageActive] = useState<boolean>(true);
+  // Garage and Applied Search (null by default so full universal catalog shows)
+  const [garageActive, setGarageActive] = useState<boolean>(false);
   const [appliedVehicleSearch, setAppliedVehicleSearch] = useState<{
     type: string;
     brand: string;
@@ -84,14 +85,11 @@ export default function StoreTab() {
     year: string;
     fuel: string;
     category: string;
-  } | null>({
-    type: 'Car',
-    brand: 'Maruti Suzuki',
-    model: 'Swift',
-    year: '2023',
-    fuel: 'Petrol',
-    category: 'All Categories',
-  });
+  } | null>(null);
+
+  // Accessories Point Modal State
+  const [showAccessoriesPointModal, setShowAccessoriesPointModal] = useState<boolean>(false);
+  const [accPointCityFilter, setAccPointCityFilter] = useState<string>('Chennai');
 
   const [savedVehicles, setSavedVehicles] = useState<SavedGarageVehicle[]>([
     {
@@ -201,17 +199,17 @@ export default function StoreTab() {
   const handleVehicleTypeChange = (type: string) => {
     setSelectedVehicleType(type);
     setSelectedVehicleCategory('All Categories');
-    const brands = BRANDS_BY_VEHICLE[type] || [];
-    const firstBrand = brands[0] || 'Universal';
-    setSelectedBrand(firstBrand);
-    const models = MODELS_BY_BRAND[firstBrand] || [];
-    setSelectedModel(models[0] || 'All Models');
+    setSelectedBrand('');
+    setSelectedModel('');
+    setSelectedYear('');
+    setSelectedFuel('');
   };
 
   const handleBrandChange = (brand: string) => {
     setSelectedBrand(brand);
-    const models = MODELS_BY_BRAND[brand] || [];
-    setSelectedModel(models[0] || 'All Models');
+    setSelectedModel('');
+    setSelectedYear('');
+    setSelectedFuel('');
   };
 
   const handleSaveNewVehicle = (e: React.FormEvent) => {
@@ -253,16 +251,20 @@ export default function StoreTab() {
   };
 
   const handleApplyVehicleSearch = () => {
+    if (!selectedVehicleType) {
+      showToast('Please select a Vehicle Type first');
+      return;
+    }
     setGarageActive(true);
     setAppliedVehicleSearch({
       type: selectedVehicleType,
-      brand: selectedBrand,
-      model: selectedModel,
-      year: selectedYear,
-      fuel: selectedFuel,
+      brand: selectedBrand || 'Universal',
+      model: selectedModel || 'All Models',
+      year: selectedYear || '2024',
+      fuel: selectedFuel || 'Petrol',
       category: selectedVehicleCategory,
     });
-    showToast(`Showing parts & services for: ${selectedYear} ${selectedBrand} ${selectedModel} (${selectedVehicleType})`);
+    showToast(`Showing guaranteed parts & accessories for: ${selectedBrand || ''} ${selectedModel || ''} (${selectedVehicleType})`);
   };
 
   const filteredNearbyStores = useMemo(() => {
@@ -346,8 +348,7 @@ export default function StoreTab() {
                 { id: 'mechanic_service', label: 'Mechanic & Service', icon: 'fa-wrench' },
                 { id: 'emergency_sos', label: '24/7 Roadside Assistance', icon: 'fa-truck-medical', badge: 'SOS' },
                 { id: 'compare_vehicles', label: 'Compare Vehicles', icon: 'fa-code-compare' },
-                { id: 'ev_fuel_stations', label: 'EV & Fuel Prices', icon: 'fa-charging-station' },
-                { id: 'finance_insurance', label: 'EMI & Loan', icon: 'fa-calculator' },
+                { id: 'ev_fuel_stations', label: 'EV & Fuel', icon: 'fa-charging-station' },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -470,6 +471,10 @@ export default function StoreTab() {
             handleApplyVehicleSearch={handleApplyVehicleSearch}
             search={search}
             setSearch={setSearch}
+            onOpenAccessoriesPointModal={() => {
+              setAccPointCityFilter(userLocationCity || 'Chennai');
+              setShowAccessoriesPointModal(true);
+            }}
           />
         )}
 
@@ -492,6 +497,7 @@ export default function StoreTab() {
           <StoreCompareHub
             showToast={showToast}
             userLocationCity={userLocationCity}
+            setActiveHubTab={setActiveHubTab}
           />
         )}
 
@@ -1031,6 +1037,96 @@ export default function StoreTab() {
                 <i className="fa-solid fa-cart-shopping"></i>
                 <span>Add To Cart • {formatPrice(getProductTotalPrice(selectedProductModal))}</span>
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ACCESSORIES POINT NEARBY STORES MODAL */}
+      {showAccessoriesPointModal && (
+        <div className="modal-backdrop-accessories-point" onClick={() => setShowAccessoriesPointModal(false)}>
+          <div className="acc-point-modal-card animate-scale" onClick={(e) => e.stopPropagation()}>
+            <div className="acc-point-modal-header">
+              <div className="acc-point-title-group">
+                <i className="fa-solid fa-building-circle-check"></i>
+                <div>
+                  <h3>Nearby Authorized Service Centers &amp; Accessories Points</h3>
+                  <p>Certified multi-brand car &amp; bike service stations, authorized garages &amp; genuine accessories fitment studios.</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn-modal-close"
+                onClick={() => setShowAccessoriesPointModal(false)}
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            {/* City Tabs */}
+            <div className="acc-point-city-tabs">
+              {['Chennai', 'Bengaluru', 'Mumbai', 'Delhi NCR', 'Hyderabad'].map((city) => (
+                <button
+                  key={city}
+                  type="button"
+                  className={`acc-city-tab-btn ${accPointCityFilter === city ? 'active' : ''}`}
+                  onClick={() => setAccPointCityFilter(city)}
+                >
+                  📍 {city}
+                </button>
+              ))}
+            </div>
+
+            {/* Stores List */}
+            <div className="acc-point-modal-body">
+              {ACCESSORIES_POINTS
+                .filter(pt => pt.city === accPointCityFilter)
+                .map((point) => (
+                  <div key={point.id} className="acc-store-card">
+                    <div className="acc-store-info">
+                      <h4>
+                        <span>{point.name}</span>
+                        <span className="acc-store-distance">{point.distance}</span>
+                      </h4>
+                      <p className="acc-store-address">
+                        <i className="fa-solid fa-location-dot" style={{ color: '#ef4444', marginRight: '6px' }}></i>
+                        {point.address}
+                      </p>
+                      <div className="acc-store-tags">
+                        <span className="acc-store-tag">⭐ {point.rating} ({point.reviewsCount}+ Reviews)</span>
+                        <span className="acc-store-tag" style={{ color: '#059669', background: '#d1fae5' }}>● {point.openStatus}</span>
+                        {point.specialization.map((spec, i) => (
+                          <span key={i} className="acc-store-tag">{spec}</span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="acc-store-actions">
+                      <a href={`tel:${point.phone}`} className="btn-acc-store-call">
+                        <i className="fa-solid fa-phone"></i>
+                        <span>Call Store</span>
+                      </a>
+                      <button
+                        type="button"
+                        className="btn-acc-store-visit"
+                        onClick={() => {
+                          showToast(`Directions to ${point.name} sent to your GPS map!`);
+                          setShowAccessoriesPointModal(false);
+                        }}
+                      >
+                        <i className="fa-solid fa-diamond-turn-right"></i>
+                        <span>Get Directions</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+              {ACCESSORIES_POINTS.filter(pt => pt.city === accPointCityFilter).length === 0 && (
+                <div style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
+                  <i className="fa-solid fa-store-slash" style={{ fontSize: '32px', marginBottom: '8px' }}></i>
+                  <p>Expanding verified accessory points in {accPointCityFilter} soon. Direct seller doorstep dispatch is active!</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -9,6 +9,7 @@
 @import "./store/StoreFuel.css";
 @import "./store/StoreFinance.css";
 @import "./store/StoreSos.css";
+@import "./store/StoreAccessoriesPoint.css";
 
 /* Core Store Tab, Product Grid, Navigation & Common Modals */
 /* ============================================================================
@@ -58,15 +59,17 @@
    -------------------------------------------------------------------------- */
 .store-top-bar-clean {
   background: #ffffff;
-  padding: 12px 20px;
+  padding: 12px 0;
   border-bottom: 1px solid #eef2f6;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .store-top-bar-content {
   width: 100%;
-  max-width: 100%;
+  max-width: 1360px;
   margin: 0 auto;
+  padding: 0 32px;
+  box-sizing: border-box;
 }
 
 
@@ -809,7 +812,7 @@
    -------------------------------------------------------------------------- */
 .store-container {
   max-width: 1360px;
-  margin: 36px auto 0;
+  margin: 14px auto 0;
   padding: 0 32px;
 }
 
@@ -1036,9 +1039,17 @@
 }
 
 @keyframes heartPop {
-  0% { transform: scale(0.7); }
-  50% { transform: scale(1.35); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0.7);
+  }
+
+  50% {
+    transform: scale(1.35);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .media-overlay-tags {
@@ -1921,6 +1932,7 @@
     transform: translateY(20px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -1932,6 +1944,7 @@
     transform: scale(0.92);
     opacity: 0;
   }
+
   to {
     transform: scale(1);
     opacity: 1;
@@ -2137,9 +2150,17 @@
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Common Hub View Structure */
@@ -2189,19 +2210,19 @@
 .store-single-row-header {
   display: flex !important;
   align-items: center !important;
-  justify-content: space-between !important;
-  gap: 16px !important;
+  justify-content: flex-start !important;
+  gap: 14px !important;
   width: 100% !important;
   flex-wrap: nowrap !important;
 }
 
-/* 7 BUTTONS STRIP IN SINGLE ROW */
+/* 6 BUTTONS STRIP IN SINGLE ROW */
 .sart-super-hub-nav.single-row-nav {
-  display: flex !important;
+  display: inline-flex !important;
   align-items: center !important;
-  gap: 8px !important;
-  flex: 1 1 auto !important;
-  padding: 6px 8px !important;
+  gap: 4px !important;
+  flex: 0 0 auto !important;
+  padding: 4px 6px !important;
   margin: 0 !important;
   background: #f1f5f9 !important;
   border-radius: 14px !important;
@@ -2214,8 +2235,8 @@
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 7px !important;
-  padding: 8px 10px !important;
+  gap: 6px !important;
+  padding: 8px 11px !important;
   border-radius: 10px !important;
   border: 1px solid transparent !important;
   background: transparent !important;
@@ -2226,7 +2247,8 @@
   white-space: nowrap !important;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
   text-decoration: none !important;
-  flex: 1 1 0% !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
   min-width: 0 !important;
   box-sizing: border-box !important;
 }
@@ -2295,6 +2317,7 @@
     flex-wrap: wrap !important;
     gap: 10px !important;
   }
+
   .sart-super-hub-nav.single-row-nav {
     width: 100% !important;
   }
@@ -2304,7 +2327,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-shrink: 0;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 /* Search Bar Pill (User Screenshot Reference: 'Search cars, bikes, scooters... 🔍') */
@@ -2316,7 +2340,8 @@
   border: 1.5px solid #e2e8f0;
   border-radius: 9999px;
   padding: 4px 12px 4px 14px;
-  width: 220px;
+  flex: 1 1 auto;
+  min-width: 180px;
   height: 40px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   transition: all 0.25s ease;
@@ -2326,7 +2351,6 @@
   background: #ffffff;
   border-color: #0f172a;
   box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
-  width: 250px;
 }
 
 .store-top-search-pill input {
@@ -2451,12 +2475,13 @@
     justify-content: space-between;
     margin-top: 6px;
   }
+
   .store-top-search-pill {
     flex: 1;
     width: auto;
   }
+
   .store-top-search-pill:focus-within {
     width: auto;
   }
 }
-
