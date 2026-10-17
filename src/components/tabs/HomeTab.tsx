@@ -19,28 +19,36 @@ export default function HomeTab() {
   const carouselSlides = [
 
     {
+      id: 1,
+      img: '/great_indian_bus_sale.jpg',
+      title1: '',
+      subtitle: '',
+      action1: 'ride',
+      btn1: ''
+    },
+    {
       id: 2,
       img: '/slider1.jpg',
-      title1: 'Future of Commute Autonomous Luxury.',
-
-      subtitle: 'Experience the next generation of smart city travel with our premium electric fleet.',
-      action1: 'ride', btn1: 'BOOK A RIDE'
+      title1: '',
+      subtitle: '',
+      action1: 'ride',
+      btn1: ''
     },
     {
       id: 3,
       img: '/slider2.jpg',
-      title1: 'Cybernetic Logistics Automated Freight.',
-
-      subtitle: 'Seamless intra-city cargo and parcel delivery with real-time tracking.',
-      action1: 'carrier', btn1: 'HIRE CARRIER'
+      title1: '',
+      subtitle: '',
+      action1: 'carrier',
+      btn1: ''
     },
     {
       id: 4,
       img: '/slider3.jpg',
-      title1: 'Unleash Freedom Premium Rentals.',
-
-      subtitle: 'Zero-deposit luxury sedans, SUVs & flexible daily fleet for your every journey.',
-      action1: 'rental', btn1: 'RENT VEHICLE'
+      title1: '',
+      subtitle: '',
+      action1: 'rental',
+      btn1: ''
     }
   ];
 
@@ -146,6 +154,9 @@ export default function HomeTab() {
       if (rideRef.current && !rideRef.current.contains(e.target as Node)) {
         setShowRideDropdown(false);
       }
+      if (vehicleRef.current && !vehicleRef.current.contains(e.target as Node)) {
+        setShowVehicleDropdown(false);
+      }
       if (calendarRef.current && !calendarRef.current.contains(e.target as Node)) {
         setShowCalendarPicker(false);
       }
@@ -165,32 +176,101 @@ export default function HomeTab() {
 
   const totalTravellers = adultsCount + childrenCount + infantsCount;
 
-  const handleSearchRide = (rideModeToUse?: 'flight' | 'train' | 'bus' | 'car' | 'auto' | 'bike' | 'helicopter') => {
-    const mode = rideModeToUse || selectedRide;
+  // 5 Main Service Categories (Rides, Cargo & Logistics, Vehicle Rental, Drivers Hire, Parking Slots)
+  type ServiceCategory = 'rides' | 'carrier' | 'rental' | 'drivers' | 'parking';
+  const [selectedCategory, setSelectedCategory] = useState<ServiceCategory>('rides');
+
+  // Common rich vehicle list requested: bike, car, auto, bus, truck, ship, helicopter, jcb, tractor, train
+  const SHARED_VEHICLES = [
+    { id: 'bike', name: 'Bike', icon: 'fa-motorcycle', count: '30+ bikes nearby' },
+    { id: 'car', name: 'Car', icon: 'fa-car', count: '40+ cars nearby' },
+    { id: 'auto', name: 'Auto', icon: 'fa-taxi', count: '25+ autos nearby' },
+    { id: 'bus', name: 'Bus', icon: 'fa-bus', count: '35+ buses' },
+    { id: 'truck', name: 'Truck', icon: 'fa-truck', count: '20+ trucks' },
+    { id: 'ship', name: 'Ship', icon: 'fa-ship', count: '8+ boats' },
+    { id: 'helicopter', name: 'Helicopter', icon: 'fa-helicopter', count: '6+ helipads' },
+    { id: 'jcb', name: 'JCB', icon: 'fa-trowel-bricks', count: '10+ JCBs nearby' },
+    { id: 'tractor', name: 'Tractor', icon: 'fa-tractor', count: '12+ tractors' },
+    { id: 'train', name: 'Train', icon: 'fa-train', count: '18+ trains' }
+  ];
+
+  const RIDES_VEHICLES = [
+    { id: 'bike', name: 'Bike', icon: 'fa-motorcycle', count: '30+ bikes nearby' },
+    { id: 'car', name: 'Car', icon: 'fa-car', count: '40+ cars nearby' },
+    { id: 'auto', name: 'Auto', icon: 'fa-taxi', count: '25+ autos nearby' },
+    { id: 'bus', name: 'Bus', icon: 'fa-bus', count: '35+ buses' },
+    { id: 'truck', name: 'Truck', icon: 'fa-truck', count: '20+ trucks' },
+    { id: 'ship', name: 'Ship', icon: 'fa-ship', count: '8+ ferries' },
+    { id: 'helicopter', name: 'Helicopter', icon: 'fa-helicopter', count: '6+ helipads' },
+    { id: 'jcb', name: 'JCB', icon: 'fa-trowel-bricks', count: '10+ JCBs nearby' },
+    { id: 'tractor', name: 'Tractor', icon: 'fa-tractor', count: '12+ tractors' },
+    { id: 'train', name: 'Train', icon: 'fa-train', count: '18+ trains' }
+  ];
+
+  const CARRIER_VEHICLES = [
+    { id: 'truck', name: 'Truck', icon: 'fa-truck', count: '22+ nearby' },
+    { id: 'mini-truck', name: 'Mini Truck (Tata Ace)', icon: 'fa-truck-pickup', count: '28+ nearby' },
+    { id: 'cargo-van', name: 'Cargo Van', icon: 'fa-van-shuttle', count: '15+ nearby' },
+    { id: 'jcb', name: 'JCB Earthmover', icon: 'fa-trowel-bricks', count: '10+ nearby' },
+    { id: 'tractor', name: 'Tractor Cargo', icon: 'fa-tractor', count: '12+ nearby' },
+    { id: 'ship', name: 'Cargo Ship / Barge', icon: 'fa-ship', count: '5+ nearby' }
+  ];
+
+  // Category specific vehicle options
+  const CATEGORY_VEHICLES: Record<ServiceCategory, Array<{ id: string; name: string; icon: string; count?: string }>> = {
+    rides: RIDES_VEHICLES,
+    carrier: CARRIER_VEHICLES,
+    rental: SHARED_VEHICLES,
+    drivers: SHARED_VEHICLES,
+    parking: SHARED_VEHICLES
+  };
+
+  const [selectedVehicle, setSelectedVehicle] = useState<string>('bike');
+  const [showVehicleDropdown, setShowVehicleDropdown] = useState(false);
+  const vehicleRef = React.useRef<HTMLDivElement>(null);
+
+  // When changing category, reset selected vehicle to the first option
+  const handleSelectCategory = (cat: ServiceCategory) => {
+    setSelectedCategory(cat);
+    const firstVeh = CATEGORY_VEHICLES[cat][0]?.id || '';
+    setSelectedVehicle(firstVeh);
+  };
+
+  const handleExecuteSearch = () => {
     const src = fromCity.includes('-') ? fromCity.split('-')[1].trim() : fromCity.trim();
     const dest = toCity.includes('-') ? toCity.split('-')[1].trim() : toCity.trim();
 
     if (typeof window !== 'undefined') {
-      if (src) localStorage.setItem('sart_ride_pickup', src);
-      if (dest) localStorage.setItem('sart_ride_dropoff', dest);
-      window.dispatchEvent(new CustomEvent('sart_ride_location_update', {
-        detail: { pickup: src, dropoff: dest }
-      }));
+      if (src) localStorage.setItem('sart_search_from', src);
+      if (dest) localStorage.setItem('sart_search_to', dest);
     }
 
     const query = new URLSearchParams({
       source: src,
       destination: dest,
-      date: departDate
+      date: departDate,
+      vehicle: selectedVehicle
     }).toString();
 
-    setActiveRideMode(mode);
-    setActiveTab('ride');
-    const targetUrl = `/home/ride/${mode}?${query}`;
-    if (typeof window !== 'undefined') {
-      window.history.pushState({ mode }, '', targetUrl);
+    if (selectedCategory === 'rides') {
+      const mode = (['bike', 'auto', 'car', 'bus', 'train', 'flight', 'helicopter', 'ship', 'truck', 'tractor'].includes(selectedVehicle) ? selectedVehicle : 'bike') as any;
+      setActiveRideMode(mode);
+      setActiveTab('ride');
+      const targetUrl = `/home/ride/${mode}?${query}`;
+      router.push(targetUrl);
+    } else if (selectedCategory === 'carrier') {
+      setActiveTab('carrier');
+      router.push(`/home/carrier?${query}`);
+    } else if (selectedCategory === 'rental') {
+      setActiveTab('rental');
+      router.push(`/home/rental?${query}`);
+    } else if (selectedCategory === 'drivers') {
+      setActiveTab('drivers');
+      router.push(`/home/drivers?${query}`);
+    } else if (selectedCategory === 'parking') {
+      setActiveTab('parking');
+      router.push(`/home/parking?${query}`);
     }
-    router.push(targetUrl);
   };
 
   const handleServiceClick = (tab: string) => {
@@ -208,545 +288,446 @@ export default function HomeTab() {
           <SubNavbar />
         </div>
 
-        {/* ✈️ Hero Flight Search Floating Overlay (Matching User's 1st Image) */}
-        <div className="hero-flight-search-wrapper">
-          <div className="hero-flight-card">
-            {/* Top Row: One Way / Round Trip Toggle Pills */}
-            <div className="hero-grid-top-row">
-              <div className="hero-grid-pills">
-                <button
-                  type="button"
-                  className={`hero-grid-pill ${tripType === 'one_way' ? 'active' : ''}`}
-                  onClick={() => setTripType('one_way')}
-                >
-                  One Way
-                </button>
-                <button
-                  type="button"
-                  className={`hero-grid-pill ${tripType === 'round_trip' ? 'active' : ''}`}
-                  onClick={() => setTripType('round_trip')}
-                >
-                  Round Trip
-                </button>
-              </div>
-            </div>
-
-            {/* Grid Table Container */}
-            <div className="hero-grid-table">
-              {/* Row 1: Origin & Destination */}
-              <div className="hero-grid-row">
-                {/* Enter origin */}
-                <div className="hero-grid-cell" ref={fromRef}>
-                  <div className="hero-cell-icon">
-                    <i className="fa-solid fa-plane-departure"></i>
-                  </div>
-                  <div className="hero-cell-content">
-                    <input
-                      type="text"
-                      className="hero-grid-input"
-                      value={fromCity}
-                      onChange={(e) => {
-                        setFromCity(e.target.value);
-                        setShowFromDropdown(true);
-                      }}
-                      onFocus={() => setShowFromDropdown(true)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          setShowFromDropdown(false);
-                          handleSearchRide();
-                        }
-                      }}
-                      placeholder="Enter origin"
-                    />
-                  </div>
-
-                  {showFromDropdown && (
-                    <div className="hero-suggestions-popup">
-                      <div className="hero-suggestions-header">
-                        <span>Popular Cities</span>
-                        <i className="fa-solid fa-city"></i>
-                      </div>
-                      <div className="hero-suggestions-list">
-                        {POPULAR_CITIES.filter(c =>
-                          !fromCity || c.name.toLowerCase().includes(fromCity.toLowerCase()) || c.code.toLowerCase().includes(fromCity.toLowerCase())
-                        ).map(c => (
-                          <div
-                            key={`from-${c.code}`}
-                            className="hero-city-item"
-                            onClick={() => {
-                              setFromCity(`${c.code} - ${c.name}`);
-                              setShowFromDropdown(false);
-                            }}
-                          >
-                            <div className="hero-city-icon">
-                              <i className="fa-solid fa-plane-departure"></i>
-                            </div>
-                            <div className="hero-city-info">
-                              <span className="hero-city-name">{c.name} ({c.code})</span>
-                              <span className="hero-city-state">{c.state}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Enter destination */}
-                <div className="hero-grid-cell" ref={toRef}>
-                  <div className="hero-cell-icon">
-                    <i className="fa-solid fa-plane-arrival"></i>
-                  </div>
-                  <div className="hero-cell-content">
-                    <input
-                      type="text"
-                      className="hero-grid-input"
-                      value={toCity}
-                      onChange={(e) => {
-                        setToCity(e.target.value);
-                        setShowToDropdown(true);
-                      }}
-                      onFocus={() => setShowToDropdown(true)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          setShowToDropdown(false);
-                          handleSearchRide();
-                        }
-                      }}
-                      placeholder="Enter destination"
-                    />
-                  </div>
-
-                  {showToDropdown && (
-                    <div className="hero-suggestions-popup">
-                      <div className="hero-suggestions-header">
-                        <span>Popular Cities</span>
-                        <i className="fa-solid fa-city"></i>
-                      </div>
-                      <div className="hero-suggestions-list">
-                        {POPULAR_CITIES.filter(c =>
-                          !toCity || c.name.toLowerCase().includes(toCity.toLowerCase()) || c.code.toLowerCase().includes(toCity.toLowerCase())
-                        ).map(c => (
-                          <div
-                            key={`to-${c.code}`}
-                            className="hero-city-item"
-                            onClick={() => {
-                              setToCity(`${c.code} - ${c.name}`);
-                              setShowToDropdown(false);
-                            }}
-                          >
-                            <div className="hero-city-icon">
-                              <i className="fa-solid fa-plane-arrival"></i>
-                            </div>
-                            <div className="hero-city-info">
-                              <span className="hero-city-name">{c.name} ({c.code})</span>
-                              <span className="hero-city-state">{c.state}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Row 2: Departure & Return */}
-              <div className="hero-grid-row">
-                {/* Departure Date */}
-                <div
-                  className="hero-grid-cell hero-grid-interactive"
-                  ref={calendarRef}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowCalendarPicker(prev => !prev);
-                    setShowReturnCalendarPicker(false);
-                  }}
-                >
-                  <div className="hero-cell-icon">
-                    <i className="fa-regular fa-calendar-days"></i>
-                  </div>
-                  <div className="hero-cell-content">
-                    <span className="hero-cell-placeholder-label">Departure</span>
-                    <span className="hero-cell-value-text">{departDate}</span>
-                  </div>
-
-                  {showCalendarPicker && (
-                    <div className="hero-calendar-popup" onClick={(e) => e.stopPropagation()}>
-                      <div className="hero-cal-header">
-                        <button
-                          type="button"
-                          className="hero-cal-nav-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (calMonth === 0) {
-                              setCalMonth(11);
-                              setCalYear(y => y - 1);
-                            } else {
-                              setCalMonth(m => m - 1);
-                            }
-                          }}
-                          title="Previous month"
-                        >
-                          <i className="fa-solid fa-chevron-left"></i>
-                        </button>
-                        <span className="hero-cal-title">
-                          {MONTH_NAMES[calMonth]} {calYear}
-                        </span>
-                        <button
-                          type="button"
-                          className="hero-cal-nav-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (calMonth === 11) {
-                              setCalMonth(0);
-                              setCalYear(y => y + 1);
-                            } else {
-                              setCalMonth(m => m + 1);
-                            }
-                          }}
-                          title="Next month"
-                        >
-                          <i className="fa-solid fa-chevron-right"></i>
-                        </button>
-                      </div>
-
-                      <div className="hero-cal-weekdays">
-                        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(w => (
-                          <span key={w} className="hero-cal-weekday">{w}</span>
-                        ))}
-                      </div>
-
-                      <div className="hero-cal-days-grid">
-                        {Array.from({ length: getFirstDayOfMonth(calYear, calMonth) }).map((_, i) => (
-                          <div key={`empty-${i}`} className="hero-cal-day-cell empty"></div>
-                        ))}
-                        {Array.from({ length: getDaysInMonth(calYear, calMonth) }).map((_, i) => {
-                          const dayNum = i + 1;
-                          const dayFormatted = String(dayNum).padStart(2, '0');
-                          const isSelected =
-                            departDate.includes(`${dayFormatted} ${MONTH_SHORT[calMonth]}`) ||
-                            departDate.includes(`${dayNum} ${MONTH_SHORT[calMonth]}`);
-
-                          return (
-                            <button
-                              key={dayNum}
-                              type="button"
-                              className={`hero-cal-day-cell ${isSelected ? 'selected' : ''}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleSelectDate(dayNum);
-                              }}
-                            >
-                              <span className="hero-cal-day-number">{dayNum}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      <div className="hero-cal-footer">
-                        <button
-                          type="button"
-                          className="hero-cal-quick-action"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setCalMonth(9);
-                            setCalYear(2026);
-                            handleSelectDate(15, 9, 2026);
-                          }}
-                        >
-                          Today (15 Oct)
-                        </button>
-                        <button
-                          type="button"
-                          className="hero-cal-quick-action"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setCalMonth(9);
-                            setCalYear(2026);
-                            handleSelectDate(16, 9, 2026);
-                          }}
-                        >
-                          Tomorrow (16 Oct)
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Return Date */}
-                <div
-                  className={`hero-grid-cell hero-grid-interactive ${tripType === 'one_way' ? 'cell-disabled' : ''}`}
-                  ref={returnCalendarRef}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (tripType === 'one_way') {
-                      setTripType('round_trip');
-                    }
-                    setShowReturnCalendarPicker(prev => !prev);
-                    setShowCalendarPicker(false);
-                  }}
-                >
-                  <div className="hero-cell-icon">
-                    <i className="fa-regular fa-calendar-days"></i>
-                  </div>
-                  <div className="hero-cell-content">
-                    <span className="hero-cell-placeholder-label">Return</span>
-                    <span className="hero-cell-value-text">{tripType === 'one_way' ? 'Tap for round trip' : returnDate}</span>
-                  </div>
-
-                  {showReturnCalendarPicker && tripType === 'round_trip' && (
-                    <div className="hero-calendar-popup" onClick={(e) => e.stopPropagation()}>
-                      <div className="hero-cal-header">
-                        <button
-                          type="button"
-                          className="hero-cal-nav-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (returnCalMonth === 0) {
-                              setReturnCalMonth(11);
-                              setReturnCalYear(y => y - 1);
-                            } else {
-                              setReturnCalMonth(m => m - 1);
-                            }
-                          }}
-                          title="Previous month"
-                        >
-                          <i className="fa-solid fa-chevron-left"></i>
-                        </button>
-                        <span className="hero-cal-title">
-                          {MONTH_NAMES[returnCalMonth]} {returnCalYear}
-                        </span>
-                        <button
-                          type="button"
-                          className="hero-cal-nav-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (returnCalMonth === 11) {
-                              setReturnCalMonth(0);
-                              setReturnCalYear(y => y + 1);
-                            } else {
-                              setReturnCalMonth(m => m + 1);
-                            }
-                          }}
-                          title="Next month"
-                        >
-                          <i className="fa-solid fa-chevron-right"></i>
-                        </button>
-                      </div>
-
-                      <div className="hero-cal-weekdays">
-                        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(w => (
-                          <span key={w} className="hero-cal-weekday">{w}</span>
-                        ))}
-                      </div>
-
-                      <div className="hero-cal-days-grid">
-                        {Array.from({ length: getFirstDayOfMonth(returnCalYear, returnCalMonth) }).map((_, i) => (
-                          <div key={`ret-empty-${i}`} className="hero-cal-day-cell empty"></div>
-                        ))}
-                        {Array.from({ length: getDaysInMonth(returnCalYear, returnCalMonth) }).map((_, i) => {
-                          const dayNum = i + 1;
-                          const dayFormatted = String(dayNum).padStart(2, '0');
-                          const isSelected =
-                            returnDate.includes(`${dayFormatted} ${MONTH_SHORT[returnCalMonth]}`) ||
-                            returnDate.includes(`${dayNum} ${MONTH_SHORT[returnCalMonth]}`);
-
-                          return (
-                            <button
-                              key={`ret-day-${dayNum}`}
-                              type="button"
-                              className={`hero-cal-day-cell ${isSelected ? 'selected' : ''}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleSelectReturnDate(dayNum);
-                              }}
-                            >
-                              <span className="hero-cal-day-number">{dayNum}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      <div className="hero-cal-footer">
-                        <button
-                          type="button"
-                          className="hero-cal-quick-action"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setReturnCalMonth(9);
-                            setReturnCalYear(2026);
-                            handleSelectReturnDate(17, 9, 2026);
-                          }}
-                        >
-                          +2 Days (17 Oct)
-                        </button>
-                        <button
-                          type="button"
-                          className="hero-cal-quick-action"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setReturnCalMonth(9);
-                            setReturnCalYear(2026);
-                            handleSelectReturnDate(20, 9, 2026);
-                          }}
-                        >
-                          +5 Days (20 Oct)
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Row 3: Number of passengers & Select Ride (Full Width) */}
-              <div className="hero-grid-row">
-                <div
-                  className="hero-grid-cell hero-grid-full-cell hero-grid-interactive"
-                  ref={rideRef}
-                  onClick={() => setShowRideDropdown(prev => !prev)}
-                >
-
-                  <div className="hero-cell-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <h4>Ride Selection</h4>
-
-                    </div>
-                    <i className="fa-solid fa-chevron-down" style={{ fontSize: '11px', color: '#94a3b8' }}></i>
-                  </div>
-
-                  {showRideDropdown && (
-                    <div className="hero-traveller-dropdown hero-ride-dropdown" onClick={(e) => e.stopPropagation()}>
-                      <div className="hero-td-header">
-                        <div>
-                          <h4>Passengers & Ride Selection</h4>
-                          <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>Choose travel party & preferred vehicle</span>
-                        </div>
-                        <button
-                          type="button"
-                          className="hero-td-close"
-                          onClick={() => setShowRideDropdown(false)}
-                        >
-                          <i className="fa-solid fa-xmark"></i>
-                        </button>
-                      </div>
-
-                      {/* Passenger count selector */}
-                      <div style={{ padding: '6px 0 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', marginBottom: '12px' }}>
-                        <span style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>Passengers</span>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <button
-                            type="button"
-                            className="hero-counter-btn"
-                            onClick={() => setAdultsCount(prev => Math.max(1, prev - 1))}
-                            disabled={adultsCount <= 1}
-                          >
-                            <i className="fa-solid fa-minus"></i>
-                          </button>
-                          <span style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', minWidth: '18px', textAlign: 'center' }}>
-                            {adultsCount}
-                          </span>
-                          <button
-                            type="button"
-                            className="hero-counter-btn"
-                            onClick={() => setAdultsCount(prev => prev + 1)}
-                          >
-                            <i className="fa-solid fa-plus"></i>
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="hero-ride-options-list">
-                        {AVAILABLE_RIDES.map((ride) => {
-                          const isSelected = selectedRide === ride.id;
-                          return (
-                            <div
-                              key={ride.id}
-                              className={`hero-ride-option-card ${isSelected ? 'active' : ''}`}
-                              onClick={() => {
-                                setSelectedRide(ride.id);
-                                setShowRideDropdown(false);
-                              }}
-                            >
-                              <div className="hero-ride-option-left">
-                                <div className={`hero-ride-icon-wrap ${isSelected ? 'active' : ''}`}>
-                                  <i className={`fa-solid ${ride.icon}`}></i>
-                                </div>
-                                <div className="hero-ride-info-wrap">
-                                  <div className="hero-ride-name-row">
-                                    <span className="hero-ride-name">{ride.name}</span>
-                                    <span className="hero-ride-count-badge">{ride.count}</span>
-                                  </div>
-                                  <span className="hero-ride-desc">{ride.desc}</span>
-                                </div>
-                              </div>
-                              <div className="hero-ride-arrow">
-                                <i className="fa-solid fa-chevron-right"></i>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-
-
-              {/* Bottom Row: Full-Width Submit CTA Button */}
+        {/* 🌟 Two Distinct Floating Cards (Category Tabs Card & Search Card) at bottom of Header */}
+        <div className="hero-booking-cards-stack">
+          {/* Top Card: Category Selection Strip */}
+          <div className="hero-cat-tabs-card">
+            <div className="hero-cat-tabs-list">
               <button
                 type="button"
-                className="hero-grid-submit-btn"
-                onClick={() => handleSearchRide()}
-                title="Submit & Search"
+                className={`hero-cat-tab-btn ${selectedCategory === 'rides' ? 'active' : ''}`}
+                onClick={() => handleSelectCategory('rides')}
               >
-                Submit
+                <div className="hero-cat-icon-box cat-rides">
+                  <i className="fa-solid fa-car-side"></i>
+                </div>
+                <span>Rides</span>
+              </button>
+
+              <button
+                type="button"
+                className={`hero-cat-tab-btn ${selectedCategory === 'carrier' ? 'active' : ''}`}
+                onClick={() => handleSelectCategory('carrier')}
+              >
+                <div className="hero-cat-icon-box cat-carrier">
+                  <i className="fa-solid fa-truck-fast"></i>
+                </div>
+                <span>Cargo &amp; Logistics</span>
+              </button>
+
+              <button
+                type="button"
+                className={`hero-cat-tab-btn ${selectedCategory === 'rental' ? 'active' : ''}`}
+                onClick={() => handleSelectCategory('rental')}
+              >
+                <div className="hero-cat-icon-box cat-rental">
+                  <i className="fa-solid fa-key"></i>
+                </div>
+                <span>Vehicle Rental</span>
+              </button>
+
+              <button
+                type="button"
+                className={`hero-cat-tab-btn ${selectedCategory === 'drivers' ? 'active' : ''}`}
+                onClick={() => handleSelectCategory('drivers')}
+              >
+                <div className="hero-cat-icon-box cat-drivers">
+                  <i className="fa-solid fa-user-tie"></i>
+                </div>
+                <span>Drivers Hire</span>
+              </button>
+
+              <button
+                type="button"
+                className={`hero-cat-tab-btn ${selectedCategory === 'parking' ? 'active' : ''}`}
+                onClick={() => handleSelectCategory('parking')}
+              >
+                <div className="hero-cat-icon-box cat-parking">
+                  <i className="fa-solid fa-square-parking"></i>
+                </div>
+                <span>Parking Slots</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Bottom Card: Search & Booking Bar */}
+          <div className="hero-search-card">
+            <div className="hero-search-horizontal-row">
+              {/* 1. Vehicle Dropdown on the Left of From */}
+              <div className="hero-h-cell hero-h-vehicle-cell" ref={vehicleRef}>
+                <div
+                  className="hero-h-vehicle-trigger"
+                  onClick={() => setShowVehicleDropdown(prev => !prev)}
+                >
+                  <div className="hero-h-icon">
+                    <i className={`fa-solid ${CATEGORY_VEHICLES[selectedCategory].find(v => v.id === selectedVehicle)?.icon || 'fa-car'}`}></i>
+                  </div>
+                  <div className="hero-h-input-wrap">
+                    <span className="hero-h-label">Vehicle</span>
+                    <span className="hero-h-val">
+                      {CATEGORY_VEHICLES[selectedCategory].find(v => v.id === selectedVehicle)?.name || 'Select'}
+                    </span>
+                  </div>
+                  <i className="fa-solid fa-chevron-down hero-h-chevron"></i>
+                </div>
+
+                {showVehicleDropdown && (
+                  <div className="hero-vehicle-dropdown-menu" onClick={(e) => e.stopPropagation()}>
+                    <div className="hero-vdp-header">
+                      <div>
+                        <h4 className="hero-vdp-title">Ride Selection</h4>
+                        <span className="hero-vdp-subtitle">Choose travel party &amp; preferred vehicle</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="hero-vdp-close-btn"
+                        onClick={() => setShowVehicleDropdown(false)}
+                      >
+                        <i className="fa-solid fa-xmark"></i>
+                      </button>
+                    </div>
+
+
+
+                    {/* Scrollable Vehicle Cards List */}
+                    <div className="hero-vehicle-dropdown-list">
+                      {CATEGORY_VEHICLES[selectedCategory].map((veh) => {
+                        const isSelected = selectedVehicle === veh.id;
+                        return (
+                          <div
+                            key={veh.id}
+                            className={`hero-vdp-card ${isSelected ? 'active' : ''}`}
+                            onClick={() => {
+                              setSelectedVehicle(veh.id);
+                              setShowVehicleDropdown(false);
+                            }}
+                          >
+                            <div className="hero-vdp-card-left">
+                              <div className={`hero-vdp-icon-box ${isSelected ? 'active' : ''}`}>
+                                <i className={`fa-solid ${veh.icon}`}></i>
+                              </div>
+                              <span className="hero-vdp-name">{veh.name}</span>
+                              {veh.count && (
+                                <span className={`hero-vdp-badge ${isSelected ? 'active' : ''}`}>
+                                  {veh.count}
+                                </span>
+                              )}
+                            </div>
+                            <div className="hero-vdp-arrow">
+                              <i className="fa-solid fa-chevron-right"></i>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Divider */}
+              <div className="hero-h-divider"></div>
+
+              {/* 2. Leaving From */}
+              <div className="hero-h-cell hero-h-from-cell" ref={fromRef}>
+                <div className="hero-h-icon">
+                  <i className="fa-solid fa-location-arrow"></i>
+                </div>
+                <div className="hero-h-input-wrap">
+                  <span className="hero-h-label">Leaving From</span>
+                  <input
+                    type="text"
+                    className="hero-h-input"
+                    value={fromCity}
+                    onChange={(e) => {
+                      setFromCity(e.target.value);
+                      setShowFromDropdown(true);
+                    }}
+                    onFocus={() => setShowFromDropdown(true)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        setShowFromDropdown(false);
+                        handleExecuteSearch();
+                      }
+                    }}
+                    placeholder="Enter city or terminal"
+                  />
+                </div>
+
+                {showFromDropdown && (
+                  <div className="hero-suggestions-popup">
+                    <div className="hero-suggestions-header">
+                      <span>Popular Cities</span>
+                      <i className="fa-solid fa-city"></i>
+                    </div>
+                    <div className="hero-suggestions-list">
+                      {POPULAR_CITIES.filter(c =>
+                        !fromCity || c.name.toLowerCase().includes(fromCity.toLowerCase()) || c.code.toLowerCase().includes(fromCity.toLowerCase())
+                      ).map(c => (
+                        <div
+                          key={`from-${c.code}`}
+                          className="hero-city-item"
+                          onClick={() => {
+                            setFromCity(`${c.name} (${c.code})`);
+                            setShowFromDropdown(false);
+                          }}
+                        >
+                          <div className="hero-city-icon">
+                            <i className="fa-solid fa-location-dot"></i>
+                          </div>
+                          <div className="hero-city-info">
+                            <span className="hero-city-name">{c.name} ({c.code})</span>
+                            <span className="hero-city-state">{c.state}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Swap Button */}
+              <button
+                type="button"
+                className="hero-h-swap-btn"
+                onClick={handleSwapCities}
+                title="Swap Locations"
+              >
+                <i className="fa-solid fa-right-left"></i>
+              </button>
+
+              {/* 3. Going To */}
+              <div className="hero-h-cell hero-h-to-cell" ref={toRef}>
+                <div className="hero-h-icon">
+                  <i className="fa-solid fa-location-dot"></i>
+                </div>
+                <div className="hero-h-input-wrap">
+                  <span className="hero-h-label">Going To</span>
+                  <input
+                    type="text"
+                    className="hero-h-input"
+                    value={toCity}
+                    onChange={(e) => {
+                      setToCity(e.target.value);
+                      setShowToDropdown(true);
+                    }}
+                    onFocus={() => setShowToDropdown(true)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        setShowToDropdown(false);
+                        handleExecuteSearch();
+                      }
+                    }}
+                    placeholder="Enter destination"
+                  />
+                </div>
+
+                {showToDropdown && (
+                  <div className="hero-suggestions-popup">
+                    <div className="hero-suggestions-header">
+                      <span>Popular Cities</span>
+                      <i className="fa-solid fa-city"></i>
+                    </div>
+                    <div className="hero-suggestions-list">
+                      {POPULAR_CITIES.filter(c =>
+                        !toCity || c.name.toLowerCase().includes(toCity.toLowerCase()) || c.code.toLowerCase().includes(toCity.toLowerCase())
+                      ).map(c => (
+                        <div
+                          key={`to-${c.code}`}
+                          className="hero-city-item"
+                          onClick={() => {
+                            setToCity(`${c.name} (${c.code})`);
+                            setShowToDropdown(false);
+                          }}
+                        >
+                          <div className="hero-city-icon">
+                            <i className="fa-solid fa-location-dot"></i>
+                          </div>
+                          <div className="hero-city-info">
+                            <span className="hero-city-name">{c.name} ({c.code})</span>
+                            <span className="hero-city-state">{c.state}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Divider */}
+              <div className="hero-h-divider"></div>
+
+              {/* 4. Departure Date */}
+              <div
+                className="hero-h-cell hero-h-date-cell"
+                ref={calendarRef}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowCalendarPicker(prev => !prev);
+                }}
+              >
+                <div className="hero-h-icon">
+                  <i className="fa-regular fa-calendar-days"></i>
+                </div>
+                <div className="hero-h-input-wrap">
+                  <span className="hero-h-label">Departure</span>
+                  <span className="hero-h-val">{departDate}</span>
+                </div>
+
+                {showCalendarPicker && (
+                  <div className="hero-calendar-popup" onClick={(e) => e.stopPropagation()}>
+                    <div className="hero-cal-header">
+                      <button
+                        type="button"
+                        className="hero-cal-nav-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (calMonth === 0) {
+                            setCalMonth(11);
+                            setCalYear(y => y - 1);
+                          } else {
+                            setCalMonth(m => m - 1);
+                          }
+                        }}
+                      >
+                        <i className="fa-solid fa-chevron-left"></i>
+                      </button>
+                      <span className="hero-cal-title">
+                        {MONTH_NAMES[calMonth]} {calYear}
+                      </span>
+                      <button
+                        type="button"
+                        className="hero-cal-nav-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (calMonth === 11) {
+                            setCalMonth(0);
+                            setCalYear(y => y + 1);
+                          } else {
+                            setCalMonth(m => m + 1);
+                          }
+                        }}
+                      >
+                        <i className="fa-solid fa-chevron-right"></i>
+                      </button>
+                    </div>
+
+                    <div className="hero-cal-weekdays">
+                      {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(w => (
+                        <span key={w} className="hero-cal-weekday">{w}</span>
+                      ))}
+                    </div>
+
+                    <div className="hero-cal-days-grid">
+                      {Array.from({ length: getFirstDayOfMonth(calYear, calMonth) }).map((_, i) => (
+                        <div key={`empty-${i}`} className="hero-cal-day-cell empty"></div>
+                      ))}
+                      {Array.from({ length: getDaysInMonth(calYear, calMonth) }).map((_, i) => {
+                        const dayNum = i + 1;
+                        const dayFormatted = String(dayNum).padStart(2, '0');
+                        const isSelected =
+                          departDate.includes(`${dayFormatted} ${MONTH_SHORT[calMonth]}`) ||
+                          departDate.includes(`${dayNum} ${MONTH_SHORT[calMonth]}`);
+
+                        return (
+                          <button
+                            key={dayNum}
+                            type="button"
+                            className={`hero-cal-day-cell ${isSelected ? 'selected' : ''}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectDate(dayNum);
+                            }}
+                          >
+                            <span className="hero-cal-day-number">{dayNum}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="hero-cal-footer">
+                      <button
+                        type="button"
+                        className="hero-cal-quick-action"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCalMonth(9);
+                          setCalYear(2026);
+                          handleSelectDate(17, 9, 2026);
+                        }}
+                      >
+                        Today (17 Oct)
+                      </button>
+                      <button
+                        type="button"
+                        className="hero-cal-quick-action"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCalMonth(9);
+                          setCalYear(2026);
+                          handleSelectDate(18, 9, 2026);
+                        }}
+                      >
+                        Tomorrow (18 Oct)
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 5. Quick Date Buttons (Today / Tomorrow) */}
+              <div className="hero-h-quick-dates">
+                <button
+                  type="button"
+                  className="hero-h-quick-date-btn"
+                  onClick={() => {
+                    setCalMonth(9);
+                    setCalYear(2026);
+                    handleSelectDate(17, 9, 2026);
+                  }}
+                >
+                  Today
+                </button>
+                <button
+                  type="button"
+                  className="hero-h-quick-date-btn"
+                  onClick={() => {
+                    setCalMonth(9);
+                    setCalYear(2026);
+                    handleSelectDate(18, 9, 2026);
+                  }}
+                >
+                  Tomorrow
+                </button>
+              </div>
+
+              {/* 6. Red Search Button */}
+              <button
+                type="button"
+                className="hero-h-search-btn"
+                onClick={handleExecuteSearch}
+              >
+                <span>Search</span>
+                <i className="fa-solid fa-chevron-right"></i>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Modern Full-Width Carousel */}
+        {/* Modern Full-Width Carousel (Clean Background Only) */}
         <div className="modern-carousel">
           {carouselSlides.map((slide, index) => (
-            <div key={slide.id} className={`carousel-slide ${index === currentSlide ? 'active' : ''}`} style={{ backgroundImage: `url(${slide.img})`, backgroundColor: '#0c2217' }}>
-              <div className="carousel-overlay-gradient"></div>
-              <div className="carousel-content">
-                <div className="carousel-badge">
-                  <span className="carousel-badge-pulse"></span>
-                  <i className="fa-solid fa-bolt"></i> SART Mobility &amp; Logistics
-                </div>
-                <h1 className="carousel-title">
-                  {slide.title1}
-                </h1>
-                <p className="carousel-subtitle">
-                  {slide.subtitle}
-                </p>
-                <div className="carousel-actions">
-                  <button
-                    className="carousel-cta"
-                    onClick={() => {
-                      if (slide.action1 === 'ride') {
-                        setActiveTab('ride');
-                        window.scrollTo({ top: 400, behavior: 'smooth' });
-                      } else if (slide.action1 === 'carrier') {
-                        setActiveTab('carrier');
-                      } else if (slide.action1 === 'rental') {
-                        setActiveTab('rental');
-                      }
-                    }}
-                  >
-                    <span>{slide.btn1}</span>
-                    <i className="fa-solid fa-arrow-right"></i>
-                  </button>
-
-                  <div className="carousel-quick-tags">
-                    <span onClick={() => setActiveTab('ride')} className="carousel-tag"><i className="fa-solid fa-taxi"></i> Rides</span>
-                    <span onClick={() => setActiveTab('rental')} className="carousel-tag"><i className="fa-solid fa-car"></i> Rentals</span>
-                    <span onClick={() => setActiveTab('carrier')} className="carousel-tag"><i className="fa-solid fa-truck-fast"></i> Freight</span>
-                  </div>
-                </div>
-              </div>
+            <div
+              key={slide.id}
+              className={`carousel-slide ${index === currentSlide ? 'active' : ''}`}
+              style={{
+                backgroundImage: `url(${slide.img})`,
+                backgroundColor: '#0c2217',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+            >
+              {/* Optional slight ambient overlay for depth */}
+              <div className="carousel-overlay-clean"></div>
             </div>
           ))}
 

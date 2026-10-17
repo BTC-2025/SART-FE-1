@@ -21,9 +21,9 @@ export default function MechanicModal({ isOpen, onClose }: { isOpen: boolean, on
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay open" style={{ display: 'flex', zIndex: 1000, background: 'rgba(0,0,0,0.6)' }} onClick={onClose}>
+    <div className="sart-modal-backdrop" style={{ display: 'flex', zIndex: 1000, background: 'rgba(0,0,0,0.6)' }} onClick={onClose}>
       <div className="modal-sheet centered-modal" style={{ maxWidth: '900px', width: '95%', height: '85vh', display: 'flex', flexDirection: 'column', backgroundColor: '#f9fafb', borderRadius: '24px', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
-        
+
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', background: '#ffffff', borderBottom: '1px solid #e5e7eb' }}>
           <div style={{ fontSize: '22px', fontWeight: '800', color: '#111827', display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -33,10 +33,10 @@ export default function MechanicModal({ isOpen, onClose }: { isOpen: boolean, on
             <i className="fa-solid fa-xmark"></i>
           </button>
         </div>
-        
+
         {/* Main Content Area */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
-          
+
           <div style={{ marginBottom: '24px', padding: '16px', background: '#e0f2fe', borderRadius: '16px', border: '1px solid #bae6fd', display: 'flex', alignItems: 'center', gap: '12px' }}>
             <i className="fa-solid fa-location-crosshairs" style={{ fontSize: '24px', color: '#0ea5e9' }}></i>
             <div>
@@ -47,7 +47,7 @@ export default function MechanicModal({ isOpen, onClose }: { isOpen: boolean, on
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
-            
+
             {/* Left Column: Roadside Assistance */}
             <div>
               <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#1f2937', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -55,14 +55,14 @@ export default function MechanicModal({ isOpen, onClose }: { isOpen: boolean, on
               </h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 {ROADSIDE_SERVICES.map(service => (
-                  <div 
-                    key={service.id} 
+                  <div
+                    key={service.id}
                     onClick={() => setSelectedService(service.id)}
-                    style={{ 
-                      background: '#ffffff', 
-                      border: selectedService === service.id ? '2px solid #ef4444' : '1px solid #e5e7eb', 
-                      borderRadius: '16px', 
-                      padding: '16px', 
+                    style={{
+                      background: '#ffffff',
+                      border: selectedService === service.id ? '2px solid #ef4444' : '1px solid #e5e7eb',
+                      borderRadius: '16px',
+                      padding: '16px',
                       cursor: 'pointer',
                       textAlign: 'center',
                       boxShadow: selectedService === service.id ? '0 4px 12px rgba(239, 68, 68, 0.1)' : '0 2px 4px rgba(0,0,0,0.02)',
@@ -78,19 +78,19 @@ export default function MechanicModal({ isOpen, onClose }: { isOpen: boolean, on
                   </div>
                 ))}
               </div>
-              
-              <button 
+
+              <button
                 disabled={!selectedService}
-                style={{ 
-                  marginTop: '24px', 
-                  width: '100%', 
-                  background: selectedService ? '#ef4444' : '#f3f4f6', 
-                  color: selectedService ? '#ffffff' : '#9ca3af', 
-                  border: 'none', 
-                  padding: '16px', 
-                  borderRadius: '12px', 
-                  fontSize: '16px', 
-                  fontWeight: '700', 
+                style={{
+                  marginTop: '24px',
+                  width: '100%',
+                  background: selectedService ? '#ef4444' : '#f3f4f6',
+                  color: selectedService ? '#ffffff' : '#9ca3af',
+                  border: 'none',
+                  padding: '16px',
+                  borderRadius: '12px',
+                  fontSize: '16px',
+                  fontWeight: '700',
                   cursor: selectedService ? 'pointer' : 'not-allowed',
                   transition: 'background 0.2s'
                 }}
@@ -124,16 +124,16 @@ export default function MechanicModal({ isOpen, onClose }: { isOpen: boolean, on
                         </div>
                       </div>
                     </div>
-                    <button 
-                      style={{ 
-                        background: '#ecfdf5', 
-                        color: '#10b981', 
-                        border: '1px solid #a7f3d0', 
-                        padding: '8px 16px', 
-                        borderRadius: '20px', 
-                        fontWeight: '700', 
-                        fontSize: '13px', 
-                        cursor: 'pointer' 
+                    <button
+                      style={{
+                        background: '#ecfdf5',
+                        color: '#10b981',
+                        border: '1px solid #a7f3d0',
+                        padding: '8px 16px',
+                        borderRadius: '20px',
+                        fontWeight: '700',
+                        fontSize: '13px',
+                        cursor: 'pointer'
                       }}
                       onClick={() => alert(`Navigating to ${shop.name}...`)}
                     >

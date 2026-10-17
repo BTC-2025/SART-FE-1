@@ -168,6 +168,40 @@ export default function Navbar() {
           <i className="fa-solid fa-bag-shopping"></i>
           {cart.length > 0 && <span className="ctrl-badge">{cart.length}</span>}
         </div>
+
+        <div
+          className="ctrl-btn"
+          onClick={() => {
+            setActiveTab('support' as any);
+            router.push('/support', { scroll: false });
+          }}
+          title="Customer Support"
+          style={{
+            background: '#ffffff',
+            color: '#0f172a',
+            border: '1.5px solid #e2e8f0',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+          }}
+        >
+          <i className="fa-solid fa-headset" style={{ fontSize: '15px' }}></i>
+        </div>
+
+        <div
+          className="ctrl-btn"
+          onClick={() => {
+            setActiveTab('profile');
+            router.push('/profile', { scroll: false });
+          }}
+          title="Settings"
+          style={{
+            background: '#ffffff',
+            color: '#0f172a',
+            border: '1.5px solid #e2e8f0',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+          }}
+        >
+          <i className="fa-solid fa-gear" style={{ fontSize: '15px' }}></i>
+        </div>
         
         <div ref={profileRef}>
           <div className="profile-nav-btn" onClick={() => setIsProfileOpen(!isProfileOpen)} style={{ position: 'relative' }}>

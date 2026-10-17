@@ -56,14 +56,14 @@ export default function BookingsRegistryModal({ isOpen, onClose }: { isOpen: boo
 
   if (!isOpen) return null;
 
-  const filteredBookings = MOCK_BOOKINGS.filter(b => 
+  const filteredBookings = MOCK_BOOKINGS.filter(b =>
     activeTab === 'active' ? b.status === 'Active' : b.status === 'Completed'
   );
 
   return (
-    <div className="modal-overlay open" style={{ display: 'flex', zIndex: 1000, background: 'rgba(0,0,0,0.6)' }} onClick={onClose}>
+    <div className="sart-modal-backdrop" style={{ display: 'flex', zIndex: 1000, background: 'rgba(0,0,0,0.6)' }} onClick={onClose}>
       <div className="modal-sheet centered-modal" style={{ maxWidth: '600px', width: '95%', height: '80vh', display: 'flex', flexDirection: 'column', backgroundColor: '#f9fafb', borderRadius: '24px', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
-        
+
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', background: '#ffffff', borderBottom: '1px solid #e5e7eb' }}>
           <div style={{ fontSize: '22px', fontWeight: '800', color: '#111827', display: 'flex', alignItems: 'center', gap: '12px' }}>
             <i className="fa-solid fa-bag-shopping" style={{ color: 'var(--primary)' }}></i> My Bookings
@@ -72,16 +72,16 @@ export default function BookingsRegistryModal({ isOpen, onClose }: { isOpen: boo
             <i className="fa-solid fa-xmark"></i>
           </button>
         </div>
-        
+
         <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
           <div className="bookings-tabs">
-            <button 
+            <button
               className={`booking-tab-btn ${activeTab === 'active' ? 'active' : ''}`}
               onClick={() => setActiveTab('active')}
             >
               Active
             </button>
-            <button 
+            <button
               className={`booking-tab-btn ${activeTab === 'past' ? 'active' : ''}`}
               onClick={() => setActiveTab('past')}
             >

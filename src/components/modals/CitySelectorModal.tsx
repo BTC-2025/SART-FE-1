@@ -65,9 +65,9 @@ export default function CitySelectorModal({ isOpen, onClose }: CitySelectorModal
   const visibleCities = ALL_CITIES_DICT[selectedAlphabet] || [];
 
   return (
-    <div className="modal-overlay open" style={{ display: 'flex', zIndex: 1000 }} onClick={onClose}>
+    <div className="sart-modal-backdrop" style={{ display: 'flex', zIndex: 1000 }} onClick={onClose}>
       <div className="new-city-modal" onClick={e => e.stopPropagation()}>
-        
+
         {/* Header Section */}
         <div className="new-city-header">
           <h2 className="new-city-title">Select Location</h2>
@@ -78,11 +78,11 @@ export default function CitySelectorModal({ isOpen, onClose }: CitySelectorModal
 
         {/* Scrollable Body */}
         <div className="new-city-body">
-          
+
           <div className="new-city-search">
             <i className="fa-solid fa-magnifying-glass search-icon"></i>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="Search city, area or locality"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -107,11 +107,11 @@ export default function CitySelectorModal({ isOpen, onClose }: CitySelectorModal
           </div>
 
           <h3 className="all-cities-title">All Cities</h3>
-          
+
           <div className="alphabet-row">
             {ALPHABETS.map((letter) => (
-              <span 
-                key={letter} 
+              <span
+                key={letter}
                 className={`alphabet-letter ${selectedAlphabet === letter ? 'active' : ''}`}
                 onClick={() => setSelectedAlphabet(letter)}
               >
@@ -132,7 +132,7 @@ export default function CitySelectorModal({ isOpen, onClose }: CitySelectorModal
               </div>
             </div>
           )}
-          
+
         </div>
       </div>
     </div>
