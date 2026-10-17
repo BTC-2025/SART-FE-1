@@ -734,8 +734,8 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
   };
 
   return (
-    <div className="modal-overlay open" style={{ display: 'flex', zIndex: 1000, background: 'rgba(0,0,0,0.6)' }} onClick={handleClose}>
-      <div className="modal-sheet centered-modal" style={{ maxWidth: '1440px', width: '98%', height: '92vh', display: 'flex', flexDirection: 'column', backgroundColor: '#f9fafb', borderRadius: '24px', overflow: 'hidden', transition: 'max-width 0.3s ease' }} onClick={e => e.stopPropagation()}>
+    <div style={{ display: 'flex', zIndex: 1000, background: '#ffffff', minHeight: '100%', width: '100%' }} onClick={handleClose}>
+      <div className="modal-sheet centered-modal" style={{ maxWidth: '1440px', width: '98%', height: '92vh', display: 'flex', flexDirection: 'column', backgroundColor: '#ffffff', borderRadius: '24px', overflow: 'hidden', transition: 'max-width 0.3s ease' }} onClick={e => e.stopPropagation()}>
 
         {/* Dummy div to absorb the globals.css >div:first-child { display: none } rule */}
         <div style={{ display: 'none' }}></div>

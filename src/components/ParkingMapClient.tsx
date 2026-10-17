@@ -13,22 +13,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-interface ParkingSpot {
-  id: string;
-  name: string;
-  address: string;
-  lat: number;
-  lng: number;
-  priceDisplay: string;
-  pricePerHour: number;
-  rating: number;
-  reviewsCount: number;
-  distance: string;
-  host: string;
-  features: string[];
-  image: string;
-  availableSlots: number;
-}
+import { ParkingSpot } from './parking/parkingData';
 
 interface ParkingMapClientProps {
   vehicleIconClass: string;

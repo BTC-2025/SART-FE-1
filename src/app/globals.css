@@ -1943,11 +1943,14 @@ h6 {
   margin-top: 0 !important;
 }
 
-#tab-service-pages .modal-overlay {
+#tab-service-pages .modal-overlay,
+#tab-service-pages .sart-modal-backdrop {
   position: static !important;
   background: transparent !important;
+  backdrop-filter: none !important;
   padding: 0 !important;
   margin: 0 !important;
+  z-index: 1 !important;
 }
 
 #tab-service-pages .modal-sheet:not(.drivers-booking-modal-sheet):not(.parking-booking-modal-sheet) {
@@ -1970,6 +1973,17 @@ h6 {
   margin: 0 !important;
   box-shadow: none !important;
   background: #f8fafc !important;
+}
+
+#tab-service-pages .rental-booking-modal-sheet {
+  max-width: 1200px !important;
+  width: 96% !important;
+  height: auto !important;
+  min-height: calc(100vh - 90px);
+  border-radius: 20px !important;
+  margin: 16px auto !important;
+  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08) !important;
+  background: #ffffff !important;
 }
 
 #tab-service-pages .modal-sheet>div:first-child {

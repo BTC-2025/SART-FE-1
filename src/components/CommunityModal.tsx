@@ -393,7 +393,7 @@ export default function CommunityModal({ isOpen, onClose }: { isOpen: boolean, o
   };
 
   return (
-    <div className="modal-overlay open" style={{ display: 'flex', zIndex: 1000, background: 'rgba(0,0,0,0.6)' }} onClick={handleClose}>
+    <div className="sart-modal-backdrop" style={{ display: 'flex', zIndex: 1000, background: 'rgba(0,0,0,0.6)' }} onClick={handleClose}>
       <div className="modal-sheet centered-modal" style={{ maxWidth: '1000px', width: '95%', height: '90vh', display: 'flex', flexDirection: 'column', backgroundColor: '#f9fafb', borderRadius: '24px', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
 
         {/* Header */}
@@ -1353,7 +1353,7 @@ export default function CommunityModal({ isOpen, onClose }: { isOpen: boolean, o
         </div>
       )}
 
-    
+
       {/* 4-Step ADWA Driver Registration Modal with Fee Breakdown */}
       <PublicDriverRegistrationModal
         isOpen={showDriverRegistrationModal}
@@ -1372,6 +1372,6 @@ export default function CommunityModal({ isOpen, onClose }: { isOpen: boolean, o
           alert('🎉 Congratulations ' + newMember.fullName + '! Your ADWA Driver Registration was successful. Your profile and digital card are now live in the Public Directory.');
         }}
       />
-  </div>
+    </div>
   );
 }
