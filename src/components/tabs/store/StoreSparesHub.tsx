@@ -12,7 +12,8 @@ import {
   BIKE_DETAILED_CATEGORIES,
   CAR_DETAILED_CATEGORIES,
   EXTENDED_ACCESSORIES_CATALOG,
-  VehicleSpareCategory
+  VehicleSpareCategory,
+  getVehicleDetailedCategories
 } from '../storeSparesAccessoriesData';
 
 interface StoreSparesHubProps {
@@ -97,10 +98,7 @@ export default function StoreSparesHub({
   // Determine which detailed categories to show based on selected vehicle
   const activeDetailedCategories: VehicleSpareCategory[] = useMemo(() => {
     const effectiveType = appliedVehicleSearch ? appliedVehicleSearch.type : selectedVehicleType;
-    if (effectiveType === 'Bike') {
-      return BIKE_DETAILED_CATEGORIES;
-    }
-    return CAR_DETAILED_CATEGORIES;
+    return getVehicleDetailedCategories(effectiveType);
   }, [appliedVehicleSearch, selectedVehicleType]);
 
   // Combined master catalog including extended riding gear, tyres, dashcams
@@ -337,47 +335,75 @@ export default function StoreSparesHub({
               <span>All Spares &amp; Accessories</span>
             </button>
 
-            {/* Accordion List for Detailed Categories */}
+            {/* Image 2 Tree-Style Category Directory */}
             <div className="spares-category-accordion">
               {activeDetailedCategories.map((cat) => {
                 const isExpanded = !!expandedCategories[cat.id];
-                const isCatActive = selectedCategoryId === cat.id;
+                const isCatActive = selectedCategoryId === cat.id && !selectedSubItem;
 
                 return (
-                  <div key={cat.id} className={`spares-cat-group ${isExpanded ? 'expanded' : ''}`}>
+                  <div key={cat.id} className={`spares-tree-group ${isExpanded ? 'open' : ''} ${isCatActive ? 'active-parent' : ''}`}>
+                    {/* Top Level Category (e.g. Trims, Suspension, Transmission) */}
                     <button
                       type="button"
-                      className="spares-cat-header"
+                      className={`spares-tree-header ${isCatActive ? 'active' : ''}`}
                       onClick={() => {
                         toggleCategoryExpand(cat.id);
                         setSelectedCategoryId(cat.id);
                         setSelectedSubItem(null);
+                        showToast(`Filtered by ${cat.name}`);
                       }}
                     >
-                      <div className="spares-cat-header-left">
-                        <i className={`fa-solid ${cat.icon}`}></i>
-                        <span>{cat.name}</span>
-                      </div>
-                      <i className="fa-solid fa-chevron-down spares-cat-arrow"></i>
+                      <span className="spares-tree-title">{cat.name}</span>
+                      <i className={`fa-solid ${isExpanded ? 'fa-chevron-down' : 'fa-chevron-right'} spares-tree-chevron`}></i>
                     </button>
 
+                    {/* Subcategories & Nested Items */}
                     {isExpanded && (
-                      <div className="spares-subcat-list">
-                        {cat.subCategories.map((sub) => (
-                          <button
-                            key={sub.id}
-                            type="button"
-                            className={`spares-subcat-item-btn ${selectedSubItem === sub.name ? 'active' : ''}`}
-                            onClick={() => {
-                              setSelectedCategoryId(cat.id);
-                              setSelectedSubItem(sub.name);
-                              showToast(`Filtered by ${sub.name}`);
-                            }}
-                          >
-                            <span>{sub.name}</span>
-                            <i className="fa-solid fa-angle-right" style={{ fontSize: '9px', opacity: 0.6 }}></i>
-                          </button>
-                        ))}
+                      <div className="spares-tree-children">
+                        {cat.subCategories.map((sub) => {
+                          const isSubSelected = selectedSubItem === sub.name;
+                          return (
+                            <div key={sub.id} className="spares-tree-subgroup">
+                              {/* Subcategory (e.g. Bumper, Mirrors) */}
+                              <button
+                                type="button"
+                                className={`spares-tree-sub-btn ${isSubSelected ? 'active' : ''}`}
+                                onClick={() => {
+                                  setSelectedCategoryId(cat.id);
+                                  setSelectedSubItem(sub.name);
+                                  showToast(`Filtered by ${sub.name}`);
+                                }}
+                              >
+                                <span>{sub.name}</span>
+                                <i className="fa-solid fa-angle-right spares-tree-mini-arrow"></i>
+                              </button>
+
+                              {/* Nested Sub-Items (e.g. Front Bumper, Rear Bumper, Bumper Trim) */}
+                              {sub.items && sub.items.length > 0 && (
+                                <div className="spares-tree-leaf-list">
+                                  {sub.items.map((leaf, leafIdx) => {
+                                    const isLeafSelected = selectedSubItem === leaf;
+                                    return (
+                                      <button
+                                        key={leafIdx}
+                                        type="button"
+                                        className={`spares-tree-leaf-btn ${isLeafSelected ? 'active' : ''}`}
+                                        onClick={() => {
+                                          setSelectedCategoryId(cat.id);
+                                          setSelectedSubItem(leaf);
+                                          showToast(`Filtered by ${leaf}`);
+                                        }}
+                                      >
+                                        <span>{leaf}</span>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>

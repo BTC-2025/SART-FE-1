@@ -32,155 +32,224 @@
   color: #38bdf8;
 }
 
-/* Left Sidebar: Sticky and fully visible without cutting off */
+/* Top Fitment Bar: Sticky below the Top Nav */
+.boodmo-fitment-selector-card {
+  position: sticky !important;
+  top: 70px !important;
+  z-index: 950 !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Left Sidebar: Sticky and clean container */
 .store-left-sidebar {
   position: sticky !important;
-  top: 80px !important;
-  height: fit-content !important;
-  max-height: calc(100vh - 100px) !important;
+  top: 260px !important;
+  height: calc(100vh - 280px) !important;
+  max-height: calc(100vh - 280px) !important;
   display: flex !important;
   flex-direction: column !important;
   overflow: visible !important;
+  z-index: 900 !important;
 }
 
 .store-left-sidebar .sidebar-card {
   display: flex !important;
   flex-direction: column !important;
-  height: auto !important;
-  max-height: calc(100vh - 110px) !important;
+  height: 100% !important;
+  max-height: 100% !important;
   overflow: hidden !important;
   padding: 16px 14px 12px !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06) !important;
 }
 
-/* Single Smooth Scrollbar on Category Accordion */
+/* Image 2 Vertical Category Tree & Visible Scroll Container */
 .spares-category-accordion {
+  flex: 1 1 auto !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 8px !important;
-  max-height: 480px !important;
+  gap: 2px !important;
   overflow-y: scroll !important;
   overflow-x: hidden !important;
-  padding-right: 8px !important;
-  padding-bottom: 12px !important;
+  padding-right: 6px !important;
+  padding-bottom: 16px !important;
   scrollbar-width: thin !important;
-  scrollbar-color: #0284c7 #e2e8f0 !important;
+  scrollbar-color: #0284c7 #f1f5f9 !important;
 }
 
 .spares-category-accordion::-webkit-scrollbar {
-  width: 8px !important;
+  width: 6px !important;
   display: block !important;
 }
 
 .spares-category-accordion::-webkit-scrollbar-track {
-  background: #f1f5f9 !important;
-  border-radius: 6px !important;
-  border: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  border-radius: 4px !important;
 }
 
 .spares-category-accordion::-webkit-scrollbar-thumb {
   background: #0284c7 !important;
-  border-radius: 6px !important;
+  border-radius: 4px !important;
 }
 
 .spares-category-accordion::-webkit-scrollbar-thumb:hover {
   background: #0369a1 !important;
 }
 
-.spares-cat-group {
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  background: #ffffff;
-  overflow: hidden;
-  transition: all 0.2s ease;
-}
-
-.spares-cat-group.expanded {
-  border-color: #0284c7;
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.08);
-}
-
-.spares-cat-header {
-  width: 100%;
-  padding: 10px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #f8fafc;
-  border: none;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 800;
-  color: #1e293b;
-  text-align: left;
-  transition: background 0.2s ease;
-}
-
-.spares-cat-header:hover,
-.spares-cat-group.expanded .spares-cat-header {
-  background: #f0f9ff;
-  color: #0369a1;
-}
-
-.spares-cat-header-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.spares-cat-header-left i {
-  color: #0284c7;
-  font-size: 13px;
-  width: 16px;
-  text-align: center;
-}
-
-.spares-cat-arrow {
-  font-size: 10px;
-  color: #64748b;
-  transition: transform 0.2s ease;
-}
-
-.spares-cat-group.expanded .spares-cat-arrow {
-  transform: rotate(180deg);
-  color: #0284c7;
-}
-
-.spares-subcat-list {
-  padding: 6px 8px 10px;
-  background: #ffffff;
+/* Tree Navigation Node: Flat, Clean Typography matching Image 2 */
+.spares-tree-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  border-top: 1px solid #f1f5f9;
-}
-
-.spares-subcat-item-btn {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: none;
-  background: transparent;
-  color: #475569;
-  font-size: 11.5px;
-  font-weight: 600;
-  text-align: left;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   transition: all 0.15s ease;
 }
 
-.spares-subcat-item-btn:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-  padding-left: 14px;
+/* Category Header (e.g. Trims, Suspension, Transmission, Tyres) */
+.spares-tree-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
-.spares-subcat-item-btn.active {
-  background: #e0f2fe;
-  color: #0369a1;
+.spares-tree-header:hover {
+  background: #f8fafc;
+}
+
+.spares-tree-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #334155;
+  line-height: 1.3;
+}
+
+.spares-tree-header:hover .spares-tree-title {
+  color: #0f172a;
+}
+
+.spares-tree-chevron {
+  font-size: 10px;
+  color: #94a3b8;
+  transition: transform 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+
+.spares-tree-group.open > .spares-tree-header {
+  background: #f0f9ff;
+}
+
+.spares-tree-group.open > .spares-tree-header .spares-tree-title {
+  color: #0284c7;
   font-weight: 800;
-  padding-left: 14px;
+}
+
+.spares-tree-group.open > .spares-tree-header .spares-tree-chevron {
+  color: #0284c7;
+}
+
+/* Child block under open category (Light blue shaded container matching Image 2) */
+.spares-tree-children {
+  background: #f0f9ff;
+  border-left: 2px solid #bae6fd;
+  border-radius: 0 8px 8px 0;
+  padding: 6px 4px 8px 12px;
+  margin: 2px 0 6px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Subcategory Group (e.g. Bumper, Mirrors) */
+.spares-tree-subgroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.spares-tree-sub-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0369a1;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.spares-tree-sub-btn:hover {
+  background: rgba(2, 132, 199, 0.12);
+  color: #0284c7;
+}
+
+.spares-tree-sub-btn.active {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.spares-tree-sub-btn.active .spares-tree-mini-arrow {
+  color: #ffffff;
+}
+
+.spares-tree-mini-arrow {
+  font-size: 9px;
+  color: #0284c7;
+  opacity: 0.7;
+}
+
+/* Leaf items under Subcategory (e.g. Front Bumper, Rear Bumper, Bumper Trim) */
+.spares-tree-leaf-list {
+  display: flex;
+  flex-direction: column;
+  padding-left: 12px;
+  gap: 2px;
+  border-left: 1px dashed rgba(2, 132, 199, 0.3);
+  margin-left: 6px;
+  margin-top: 2px;
+  margin-bottom: 4px;
+}
+
+.spares-tree-leaf-btn {
+  width: 100%;
+  text-align: left;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.spares-tree-leaf-btn:hover {
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.08);
+  padding-left: 10px;
+}
+
+.spares-tree-leaf-btn.active {
+  color: #0369a1;
+  background: #bae6fd;
+  font-weight: 800;
+  padding-left: 10px;
 }
 
 /* Quick Filter Pills Above Products Grid (Budget, Brand, Tyre Specs, etc.) */
@@ -432,5 +501,368 @@
 }
 
 .btn-acc-store-visit:hover {
+  background: #0369a1;
+}
+
+/* ==========================================================================
+   MECHANIC & SERVICE HUB: VIEW SWITCHER, LOCATION FILTER & STATIONS GRID
+   ========================================================================== */
+
+.service-hub-switch-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 10px 16px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.service-tab-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.service-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 10px;
+  border: 1.5px solid transparent;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.service-tab-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.service-tab-btn.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);
+}
+
+.service-location-filter-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 6px 14px;
+  min-width: 320px;
+  flex: 1;
+  max-width: 480px;
+  transition: border-color 0.2s ease;
+}
+
+.service-location-filter-box:focus-within {
+  border-color: #0284c7;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.service-location-filter-box i {
+  color: #0284c7;
+  font-size: 14px;
+}
+
+.service-location-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.btn-clear-loc-search {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 13px;
+  padding: 2px 4px;
+}
+
+.btn-clear-loc-search:hover {
+  color: #0f172a;
+}
+
+/* Nearby Service Centers Grid & Cards */
+.nearby-service-centers-view {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.service-center-results-banner {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.service-center-results-banner h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.service-center-results-banner h3 i {
+  color: #0284c7;
+}
+
+.service-center-results-banner p {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+.sc-count-badge {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0284c7;
+  background: #e0f2fe;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.service-centers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
+}
+
+.service-center-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  transition: all 0.2s ease;
+}
+
+.service-center-card:hover {
+  border-color: #0284c7;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.12);
+}
+
+.sc-card-top {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sc-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sc-type-pill {
+  font-size: 11px;
+  font-weight: 800;
+  color: #047857;
+  background: #d1fae5;
+  padding: 2px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sc-distance-pill {
+  font-size: 11px;
+  font-weight: 800;
+  color: #0284c7;
+  background: #e0f2fe;
+  padding: 2px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sc-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 4px 0 0;
+  line-height: 1.3;
+}
+
+.sc-address {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  line-height: 1.4;
+}
+
+.sc-address i {
+  color: #ef4444;
+  margin-top: 2px;
+}
+
+.sc-specs-box {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sc-specs-box strong {
+  font-size: 11px;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.sc-specs-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sc-spec-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: #1e293b;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 2px 7px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sc-spec-tag i {
+  color: #10b981;
+  font-size: 10px;
+}
+
+.sc-timing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 6px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.sc-status {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #059669;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sc-status i {
+  font-size: 7px;
+  animation: pulse 2s infinite;
+}
+
+.sc-rating-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.sc-rating-wrap i {
+  color: #f59e0b;
+}
+
+.sc-rating-wrap strong {
+  color: #0f172a;
+}
+
+.sc-rating-wrap span {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.sc-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.btn-sc-call {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-sc-call:hover {
+  background: #e2e8f0;
+}
+
+.btn-sc-book {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #0284c7;
+  border: none;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-sc-book:hover {
   background: #0369a1;
 }

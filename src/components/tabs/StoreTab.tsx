@@ -484,9 +484,22 @@ export default function StoreTab() {
             showToast={showToast}
             setSelectedProductModal={setSelectedProductModal}
             handleAddToCart={handleAddToCart}
+            selectedVehicleType={selectedVehicleType}
             selectedBrand={selectedBrand}
             selectedModel={selectedModel}
             selectedYear={selectedYear}
+            selectedFuel={selectedFuel}
+            setSelectedFuel={setSelectedFuel}
+            appliedVehicleSearch={appliedVehicleSearch}
+            handleVehicleTypeChange={handleVehicleTypeChange}
+            availableBrands={availableBrands}
+            handleBrandChange={handleBrandChange}
+            setSelectedModel={setSelectedModel}
+            availableModels={availableModels}
+            setSelectedYear={setSelectedYear}
+            handleApplyVehicleSearch={handleApplyVehicleSearch}
+            userLocationCity={userLocationCity}
+            setUserLocationCity={setUserLocationCity}
             selectedEquipment={selectedEquipment}
             getProductTotalPrice={getProductTotalPrice}
           />
