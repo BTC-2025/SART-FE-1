@@ -802,4 +802,1270 @@
   background: #1e293b;
   transform: translateY(-1px);
 }
+
+/* ==========================================================================
+   13. BUY FUEL & EV DELIVERY BUTTON & BOOKING MODAL STYLES
+   ========================================================================== */
+
+/* Button in Controls Bar */
+.btn-open-buy-fuel-modal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.btn-open-buy-fuel-modal:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(220, 38, 38, 0.55);
+}
+
+.btn-fuel-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 8px #ffffff;
+  animation: pulse 1.6s infinite;
+}
+
+/* Modal Overlay */
+.fuel-order-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.fuel-order-modal-card {
+  width: 100%;
+  max-width: 680px;
+  max-height: 92vh;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Modal Header */
+.fuel-modal-header {
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.f-modal-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.f-modal-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.f-modal-hdr-left h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 3px;
+  letter-spacing: -0.3px;
+}
+
+.f-modal-hdr-left p {
+  font-size: 12px;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.btn-close-fuel-modal {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.btn-close-fuel-modal:hover {
+  background: #ef4444;
+  color: #ffffff;
+  transform: rotate(90deg);
+}
+
+/* Modal Form Body */
+.fuel-order-form {
+  padding: 22px 26px;
+  overflow-y: auto;
+  max-height: calc(92vh - 84px);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-label-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.form-label-title i {
+  font-size: 14px;
+}
+
+/* Fuel Type Choices Grid */
+.fuel-type-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 600px) {
+  .fuel-type-selector-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.fuel-type-choice-btn {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.fuel-type-choice-btn:hover {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  transform: translateY(-2px);
+}
+
+.fuel-type-choice-btn.active {
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.fuel-type-choice-btn.petrol.active { border-color: #ef4444; }
+.fuel-type-choice-btn.diesel.active { border-color: #f59e0b; }
+.fuel-type-choice-btn.cng.active { border-color: #10b981; }
+.fuel-type-choice-btn.ev.active { border-color: #0284c7; }
+
+.ft-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.fuel-type-choice-btn.petrol .ft-icon { background: #fee2e2; color: #dc2626; }
+.fuel-type-choice-btn.diesel .ft-icon { background: #fef3c7; color: #d97706; }
+.fuel-type-choice-btn.cng .ft-icon { background: #dcfce7; color: #16a34a; }
+.fuel-type-choice-btn.ev .ft-icon { background: #e0f2fe; color: #0284c7; }
+
+.ft-info strong {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+  display: block;
+}
+
+.ft-info small {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  display: block;
+}
+
+.ft-check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  color: #16a34a;
+  font-size: 13px;
+}
+
+/* Quantity Selection */
+.qty-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.qty-pill-display {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.qty-pill-display strong {
+  font-size: 14px;
+}
+
+.quick-qty-chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.qty-chip-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.qty-chip-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.qty-chip-btn.active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+.qty-slider-row {
+  padding: 4px 0;
+}
+
+.qty-range-slider {
+  width: 100%;
+  accent-color: #ef4444;
+  cursor: pointer;
+}
+
+.est-cost-pill {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #475569;
+  flex-wrap: wrap;
+}
+
+.est-cost-pill strong {
+  font-size: 16px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.est-cost-pill small {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* Delivery Mode Selection: Nearby GPS vs Manual Address */
+.delivery-mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 540px) {
+  .delivery-mode-tabs {
+    grid-template-columns: 1fr;
+  }
+}
+
+.del-mode-tab {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.del-mode-tab i {
+  font-size: 20px;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.del-mode-tab strong {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+  display: block;
+}
+
+.del-mode-tab small {
+  font-size: 11px;
+  color: #64748b;
+  display: block;
+  line-height: 1.25;
+}
+
+.del-mode-tab.active {
+  background: #ffffff;
+  border-color: #10b981;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.15);
+}
+
+.del-mode-tab.active i {
+  color: #10b981;
+}
+
+/* GPS Live Detected Card */
+.gps-live-detected-card {
+  background: #f0fdf4;
+  border: 1.5px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.gps-live-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #dcfce7;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.gps-live-details {
+  flex: 1;
+  min-width: 200px;
+}
+
+.gps-detected-badge {
+  font-size: 10px;
+  font-weight: 800;
+  color: #15803d;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.5px;
+}
+
+.gps-loc-name {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0f172a;
+  display: block;
+  margin: 2px 0;
+}
+
+.gps-live-details small {
+  font-size: 11.5px;
+  color: #166534;
+  font-weight: 600;
+  display: block;
+}
+
+.btn-recheck-gps {
+  background: #ffffff;
+  border: 1px solid #86efac;
+  color: #15803d;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-recheck-gps:hover {
+  background: #dcfce7;
+}
+
+/* Manual Address Textarea */
+.manual-address-input-wrap {
+  width: 100%;
+}
+
+.manual-address-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #0f172a;
+  font-family: inherit;
+  resize: vertical;
+  background: #f8fafc;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.manual-address-textarea:focus {
+  border-color: #ef4444;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+/* Form Two Column Inputs */
+.form-two-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 580px) {
+  .form-two-col-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-input-field label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.form-control-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  outline: none;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.form-control-input:focus {
+  border-color: #ef4444;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+.input-with-prefix {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  background: #f8fafc;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.input-with-prefix:focus-within {
+  border-color: #ef4444;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+.input-prefix {
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #64748b;
+  background: #f1f5f9;
+  border-right: 1px solid #cbd5e1;
+  height: 38px;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-prefix .form-control-input {
+  border: none;
+  background: transparent;
+  box-shadow: none !important;
+}
+
+/* Urgency Toggle Pill */
+.urgency-toggle-pill {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-urgency {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-urgency.urgent {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #b91c1c;
+  font-weight: 800;
+}
+
+.btn-urgency.standard {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+  font-weight: 800;
+}
+
+/* Modal Footer */
+.fuel-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 8px;
+}
+
+.btn-fuel-cancel {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #64748b;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-fuel-cancel:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.btn-fuel-confirm-order {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+  color: #ffffff;
+  border: none;
+  padding: 11px 22px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.45);
+  transition: all 0.2s ease;
+}
+
+.btn-fuel-confirm-order:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.6);
+}
+
+/* ==========================================================================
+   IN-PAGE FUEL DELIVERY & LIVE EMERGENCY TRACKING VIEWS (Full Page, No Modal)
+   ========================================================================== */
+.fuel-inpage-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fuel-inpage-nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 4px;
+}
+
+.btn-back-to-stations {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.btn-back-to-stations:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  transform: translateX(-2px);
+}
+
+.inpage-nav-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #059669;
+  background: #d1fae5;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  border: 1px solid #a7f3d0;
+}
+
+.inpage-nav-badge.live-beacon {
+  color: #dc2626;
+  background: #fee2e2;
+  border-color: #fecaca;
+  letter-spacing: 0.5px;
+}
+
+.pulse-red-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #dc2626;
+  box-shadow: 0 0 10px #dc2626;
+  animation: pulse 1.5s infinite;
+}
+
+/* In-Page Card Layout matching Image 2 */
+.fuel-inpage-view-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.fuel-order-hero-banner {
+  background: #171d2b;
+  padding: 22px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.f-hero-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.f-hero-icon-badge {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.f-hero-text h3 {
+  font-size: 19px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.f-hero-text p {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 4px 0 0;
+}
+
+.btn-inpage-close {
+  background: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-inpage-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.inpage-form {
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.slider-ticks-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.cost-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13.5px;
+  color: #334155;
+  padding: 4px 0;
+}
+
+.cost-breakdown-row.delivery-row {
+  border-bottom: 1px dashed #cbd5e1;
+  padding-bottom: 8px;
+}
+
+.cost-breakdown-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.cost-breakdown-total .total-val {
+  font-size: 22px;
+  font-weight: 900;
+  color: #dc2626;
+}
+
+.cost-notice-sub {
+  display: block;
+  font-size: 11.5px;
+  color: #64748b;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.fuel-form-actions-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* ==========================================================================
+   LIVE EMERGENCY DISPATCH TRACKING STYLES (Matching User Image 3)
+   ========================================================================== */
+.tracking-inpage-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
+  overflow: hidden;
+}
+
+.tracking-header-banner {
+  background: #121824;
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.th-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.live-status-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 14px #ef4444;
+  animation: pulse 1.6s infinite;
+  flex-shrink: 0;
+}
+
+.tracking-main-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.tracking-sub-meta {
+  font-size: 12.5px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.tracking-sub-meta strong {
+  color: #f1f5f9;
+}
+
+.priority-critical {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #ffffff;
+  background: #dc2626;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  margin-left: 2px;
+}
+
+.btn-tracking-close {
+  background: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-tracking-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.tracking-card-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Alert Ribbon: Red/Pink Tint with Truck Icon (Image 3) */
+.patrol-route-alert-box {
+  background: #fef2f2;
+  border: 1.5px solid #fee2e2;
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.alert-truck-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #ef4444;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+  flex-shrink: 0;
+}
+
+.alert-badge-top {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: #ef4444;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.alert-heading {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 3px;
+}
+
+.alert-destination {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.alert-destination i {
+  color: #ef4444;
+}
+
+/* Technician Profile Card matching Image 3 */
+.technician-profile-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.tech-avatar-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: #0f172a;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.tech-meta-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tech-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tech-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.verified-sart-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #059669;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.tech-unit-info {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.tech-equip-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.tech-equip-row i {
+  color: #3b82f6;
+}
+
+.eta-badge-pill {
+  background: #fff1f2;
+  border: 1.5px solid #ffe4e6;
+  border-radius: 12px;
+  padding: 10px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.eta-label {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #f43f5e;
+}
+
+.eta-time {
+  font-size: 18px;
+  font-weight: 900;
+  color: #e11d48;
+  line-height: 1.2;
+}
+
+/* Step-by-Step Checklist Timeline matching Image 3 */
+.tracking-checklist-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0;
+}
+
+.timeline-step-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  position: relative;
+}
+
+.timeline-step-row:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 13px;
+  top: 28px;
+  bottom: -14px;
+  width: 2px;
+  background: #e2e8f0;
+}
+
+.timeline-step-row.completed::after {
+  background: #10b981;
+}
+
+.step-icon-wrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: #ffffff;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.timeline-step-row.completed .step-icon-wrap {
+  color: #10b981;
+}
+
+.timeline-step-row.active .step-icon-wrap {
+  color: #3b82f6;
+}
+
+.timeline-step-row.active .step-icon-wrap.pulsing {
+  animation: pulse 1.6s infinite;
+}
+
+.timeline-step-row.pending .step-icon-wrap {
+  color: #94a3b8;
+  font-size: 15px;
+}
+
+.step-details {
+  flex: 1;
+}
+
+.step-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0f172a;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.step-desc {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Tracking Bottom Actions */
+.tracking-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+
+.btn-call-responder {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #16a34a;
+  color: #ffffff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+.btn-call-responder:hover {
+  background: #15803d;
+  transform: translateY(-1px);
+}
+
+.btn-share-live-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-share-live-link:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.btn-done-back {
+  margin-left: auto;
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-done-back:hover {
+  background: #1e293b;
+}
+
+@media (max-width: 640px) {
+  .technician-profile-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .eta-badge-pill {
+    width: 100%;
+  }
+
+  .tracking-actions-bar {
+    flex-direction: column;
+  }
+
+  .btn-call-responder,
+  .btn-share-live-link,
+  .btn-done-back {
+    width: 100%;
+    justify-content: center;
+    margin-left: 0;
+  }
+}
+
+
 

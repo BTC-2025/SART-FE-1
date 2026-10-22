@@ -704,8 +704,10 @@ export interface AccessoriesStorePoint {
   specialization: string[];
   distance: string;
   mapCoordinates: string;
-  vehicleType?: string; // 'Car' | 'Bike' | 'Commercial' | 'EV' | 'Universal'
+  vehicleType?: string; // 'Car' | 'Bike' | 'Lorry' | 'Bus' | 'Auto' | 'EV' | 'Universal'
   isServiceCenter?: boolean;
+  isOfficial?: boolean; // Official OEM Authorized vs Independent Multi-brand Workshop
+  centerCategory?: 'official' | 'multibrand' | 'water_wash' | 'accessory_shop';
 }
 
 export const ACCESSORIES_POINTS: AccessoriesStorePoint[] = [
@@ -724,7 +726,9 @@ export const ACCESSORIES_POINTS: AccessoriesStorePoint[] = [
     distance: '1.4 km from you',
     mapCoordinates: '13.0850, 80.2101',
     vehicleType: 'Car',
-    isServiceCenter: false
+    isServiceCenter: false,
+    isOfficial: false,
+    centerCategory: 'accessory_shop'
   },
   {
     id: 'acc-chn-sc-1',
@@ -740,11 +744,31 @@ export const ACCESSORIES_POINTS: AccessoriesStorePoint[] = [
     distance: '2.3 km from you',
     mapCoordinates: '13.0067, 80.2025',
     vehicleType: 'Car',
-    isServiceCenter: true
+    isServiceCenter: true,
+    isOfficial: true,
+    centerCategory: 'official'
+  },
+  {
+    id: 'acc-chn-sc-local-car',
+    name: 'Apex Car Care & Multi-Brand Garage',
+    city: 'Chennai',
+    area: 'Koyambedu',
+    address: 'Near Wholesale Market, 100 Feet Road, Koyambedu, Chennai - 600107',
+    phone: '+91 98405 66778',
+    rating: 4.82,
+    reviewsCount: 520,
+    openStatus: 'Open Now • Closes 9:00 PM',
+    specialization: ['Affordable Car Service', 'Denting & Painting', 'Clutch Plate Overhaul', 'Doorstep Mechanic Visit'],
+    distance: '1.9 km from you',
+    mapCoordinates: '13.0694, 80.1948',
+    vehicleType: 'Car',
+    isServiceCenter: true,
+    isOfficial: false,
+    centerCategory: 'multibrand'
   },
   {
     id: 'acc-chn-bike-sc',
-    name: 'SART Pro-Bikers Master Workshop & Two-Wheeler Center',
+    name: 'SART Pro-Bikers Official Two-Wheeler Workshop',
     city: 'Chennai',
     area: 'Velachery Bypass',
     address: '142 100ft Inner Ring Road, Velachery, Chennai - 600042',
@@ -756,11 +780,49 @@ export const ACCESSORIES_POINTS: AccessoriesStorePoint[] = [
     distance: '1.8 km from you',
     mapCoordinates: '12.9815, 80.2180',
     vehicleType: 'Bike',
-    isServiceCenter: true
+    isServiceCenter: true,
+    isOfficial: true,
+    centerCategory: 'official'
+  },
+  {
+    id: 'acc-chn-bike-local',
+    name: 'SpeedyCare Two-Wheeler Multi-Brand Service & Tuning Garage',
+    city: 'Chennai',
+    area: 'T. Nagar',
+    address: '45 Venkatnarayana Road, T. Nagar, Chennai - 600017',
+    phone: '+91 98411 90876',
+    rating: 4.87,
+    reviewsCount: 890,
+    openStatus: 'Open Now • Closes 8:30 PM',
+    specialization: ['Quick Oil Change 15-Mins', 'Bike Chain Sprocket Overhaul', 'Disc Pad Replacement', 'Emergency Puncture'],
+    distance: '2.8 km from you',
+    mapCoordinates: '13.0418, 80.2341',
+    vehicleType: 'Bike',
+    isServiceCenter: true,
+    isOfficial: false,
+    centerCategory: 'multibrand'
+  },
+  {
+    id: 'acc-chn-auto-sc',
+    name: 'Auto Raja Multi-Brand 3-Wheeler & CNG Service Station',
+    city: 'Chennai',
+    area: 'Vadapalani',
+    address: 'Near Bus Depot, Arcot Road, Vadapalani, Chennai - 600026',
+    phone: '+91 98402 33112',
+    rating: 4.85,
+    reviewsCount: 460,
+    openStatus: 'Open Now • Closes 10:00 PM',
+    specialization: ['CNG Kit Tuning & Leak Test', 'Auto Piston & Block Overhaul', 'Clutch Wire & Brake Shoes', 'Fare Meter Repair'],
+    distance: '2.0 km from you',
+    mapCoordinates: '13.0500, 80.2121',
+    vehicleType: 'Auto',
+    isServiceCenter: true,
+    isOfficial: false,
+    centerCategory: 'multibrand'
   },
   {
     id: 'acc-chn-truck-sc',
-    name: 'SART Heavy Truck & Commercial Fleet Workshop',
+    name: 'SART Heavy Truck & Commercial Fleet Official Terminal',
     city: 'Chennai',
     area: 'Madhavaram Truck Terminal',
     address: 'Bay 24, Chennai Truck Terminal Complex, Madhavaram, Chennai - 600110',
@@ -772,11 +834,31 @@ export const ACCESSORIES_POINTS: AccessoriesStorePoint[] = [
     distance: '5.2 km from you',
     mapCoordinates: '13.1489, 80.2312',
     vehicleType: 'Lorry',
-    isServiceCenter: true
+    isServiceCenter: true,
+    isOfficial: true,
+    centerCategory: 'official'
+  },
+  {
+    id: 'acc-chn-bus-sc',
+    name: 'SART Passenger Coach & Fleet Depot Care',
+    city: 'Chennai',
+    area: 'Koyambedu CMBT Area',
+    address: 'Depot Gate 3, Ring Road, Koyambedu, Chennai - 600107',
+    phone: '+91 98409 11223',
+    rating: 4.9,
+    reviewsCount: 680,
+    openStatus: 'Open Now • 24x7 Fleet Service',
+    specialization: ['Rooftop AC Maintenance & Gas', 'Pneumatic Air Brakes', 'Passenger Recliner Seat Spares', 'Engine Overhaul'],
+    distance: '2.5 km from you',
+    mapCoordinates: '13.0680, 80.1920',
+    vehicleType: 'Bus',
+    isServiceCenter: true,
+    isOfficial: true,
+    centerCategory: 'official'
   },
   {
     id: 'acc-chn-ev-sc',
-    name: 'SART EV Tech & High-Voltage Battery Service Station',
+    name: 'SART EV Tech & High-Voltage Battery Official Station',
     city: 'Chennai',
     area: 'OMR Sholinganallur',
     address: 'Tech Park Zone, OMR Sholinganallur, Chennai - 600119',
@@ -788,7 +870,9 @@ export const ACCESSORIES_POINTS: AccessoriesStorePoint[] = [
     distance: '3.5 km from you',
     mapCoordinates: '12.9010, 80.2279',
     vehicleType: 'EV',
-    isServiceCenter: true
+    isServiceCenter: true,
+    isOfficial: true,
+    centerCategory: 'official'
   },
   {
     id: 'acc-chn-2',
@@ -802,7 +886,11 @@ export const ACCESSORIES_POINTS: AccessoriesStorePoint[] = [
     openStatus: 'Open Now • Wholesale & Retail Direct Counter',
     specialization: ['OEM Engine & Clutch Spares', 'Brembo / Bosch Brake Kits', 'High Performance Oils & Filters', 'Crash Guards & Touring Luggage'],
     distance: '3.2 km from you',
-    mapCoordinates: '13.0610, 80.2642'
+    mapCoordinates: '13.0610, 80.2642',
+    vehicleType: 'Universal',
+    isServiceCenter: false,
+    isOfficial: false,
+    centerCategory: 'accessory_shop'
   },
   {
     id: 'acc-chn-sc-2',
@@ -877,5 +965,197 @@ export const ACCESSORIES_POINTS: AccessoriesStorePoint[] = [
     specialization: ['Car & Bike Full Service', 'Engine Overhaul & ECU Scan', 'Ceramic Paint Booth & Detailing', 'Genuine Parts Fitment'],
     distance: '3.1 km from you',
     mapCoordinates: '19.1363, 72.8277'
+  },
+
+  // --- WATER WASH & VEHICLE SPA STATIONS ---
+  {
+    id: 'wash-chn-1',
+    name: 'SpeedShine 360° Automatic & Foam Water Wash Hub',
+    city: 'Chennai',
+    area: 'Anna Nagar / Koyambedu',
+    address: '12 Jawaharlal Nehru Road, 100ft Ring Road, Anna Nagar West, Chennai - 600040',
+    phone: '+91 98402 77889',
+    rating: 4.94,
+    reviewsCount: 1420,
+    openStatus: 'Open Now • 7:00 AM - 10:00 PM',
+    specialization: ['Automated Underbody Chassis Jet', 'Active Snow Foam Wash', 'Interior Steam Vacuum', 'Alloy Wheel Brake Dust Flush'],
+    distance: '1.1 km from you',
+    mapCoordinates: '13.0835, 80.2078',
+    vehicleType: 'Car',
+    isServiceCenter: true,
+    isOfficial: false,
+    centerCategory: 'water_wash'
+  },
+  {
+    id: 'wash-chn-2',
+    name: 'MotoSpa Bike & Superbike Foam Pressure Wash',
+    city: 'Chennai',
+    area: 'T. Nagar / Nandanam',
+    address: '28 Chamiers Road, Nandanam, Chennai - 600035',
+    phone: '+91 98408 55432',
+    rating: 4.91,
+    reviewsCount: 980,
+    openStatus: 'Open Now • 7:30 AM - 9:30 PM',
+    specialization: ['Non-Scratch pH-Neutral Snow Foam', 'Chain Degreasing & Motul Paste Lube', 'Silencer Heat Stain Removal', 'Ceramic Spray Wax Coat'],
+    distance: '1.8 km from you',
+    mapCoordinates: '13.0305, 80.2392',
+    vehicleType: 'Bike',
+    isServiceCenter: true,
+    isOfficial: false,
+    centerCategory: 'water_wash'
+  },
+  {
+    id: 'wash-chn-3',
+    name: 'HeavyClean Commercial Truck & Bus High-Pressure Wash Yard',
+    city: 'Chennai',
+    area: 'Madhavaram Truck Terminal',
+    address: 'Gate 4, Madhavaram Commercial Truck Depot, Chennai - 600060',
+    phone: '+91 98419 66778',
+    rating: 4.86,
+    reviewsCount: 520,
+    openStatus: 'Open 24 Hours • Truck Bay Ramp Active',
+    specialization: ['Heavy 250-Bar Diesel Chassis Wash', 'Multi-Axle Tipper Mud Blast', 'Tanker Interior Sanitization', 'Leaf Spring High-Pressure Rinse'],
+    distance: '4.5 km from you',
+    mapCoordinates: '13.1491, 80.2289',
+    vehicleType: 'Lorry',
+    isServiceCenter: true,
+    isOfficial: false,
+    centerCategory: 'water_wash'
+  },
+  {
+    id: 'wash-blr-1',
+    name: 'GlossWorks Robotic Touchless Car Wash & Detailing Lounge',
+    city: 'Bengaluru',
+    area: 'Koramangala / HSR Layout',
+    address: 'Plot 18, 14th Main, HSR Layout Sector 4, Bengaluru - 560102',
+    phone: '+91 98862 11990',
+    rating: 4.96,
+    reviewsCount: 1680,
+    openStatus: 'Open Now • Closes 10:00 PM',
+    specialization: ['Touchless Laser Wash Bay', 'Teflon & Carnauba Wet Gloss Wax', 'Leather Seat Steam Disinfection', 'Underchassis Rust Proofing'],
+    distance: '1.5 km from you',
+    mapCoordinates: '12.9116, 77.6389',
+    vehicleType: 'Car',
+    isServiceCenter: true,
+    isOfficial: false,
+    centerCategory: 'water_wash'
   }
 ];
+
+/* ------------------------------------------------------------------ */
+/* 4. VEHICLE SPECIFIC SERVICE PACKAGES CATEGORIES FOR MECHANIC HUB   */
+/* ------------------------------------------------------------------ */
+
+export interface ServicePackageCategoryItem {
+  id: string;
+  label: string;
+  icon: string;
+}
+
+export const CAR_SERVICE_CATEGORIES: ServicePackageCategoryItem[] = [
+  { id: 'All Services', label: 'All Car Workshop Services', icon: 'fa-globe' },
+  { id: 'Water Wash & Detailing', label: 'Foam Water Wash, Steam & Spa', icon: 'fa-shower' },
+  { id: 'Periodic Services', label: 'Periodic Maintenance & Oil Flush', icon: 'fa-oil-can' },
+  { id: 'AC Service & Repair', label: 'AC Deep Clean & R134a Gas', icon: 'fa-snowflake' },
+  { id: 'Brakes & Clutch', label: 'Brakes & Clutch Disc Overhaul', icon: 'fa-circle-dot' },
+  { id: 'Tyres & Wheel Care', label: 'Laser Wheel Alignment & Balancing', icon: 'fa-circle-notch' },
+  { id: 'Cleaning & Detailing', label: '10H Ceramic Paint Polish & Spa', icon: 'fa-sparkles' },
+  { id: 'Custom Tuning & Mods', label: 'ECU Stage 1 Remap & Exhaust', icon: 'fa-wand-magic-sparkles' },
+  { id: 'Authorized Workshop', label: 'Authorized OEM Bay Inspection', icon: 'fa-building-shield' },
+  { id: 'Batteries & Electricals', label: 'Car Battery & Alternator Scan', icon: 'fa-bolt' },
+];
+
+export const BIKE_SERVICE_CATEGORIES: ServicePackageCategoryItem[] = [
+  { id: 'All Services', label: 'All Two-Wheeler Services', icon: 'fa-globe' },
+  { id: 'Water Wash & Detailing', label: 'Bike Foam Pressure Wash & Lube', icon: 'fa-shower' },
+  { id: 'Periodic Services', label: 'Bike General Engine Oil & Filter Service', icon: 'fa-oil-can' },
+  { id: 'Chain & Sprocket', label: 'Chain Sprocket Degrease & Overhaul', icon: 'fa-link' },
+  { id: 'Brakes & Clutch', label: 'Brake Disc Caliper & Clutch Cable Service', icon: 'fa-circle-dot' },
+  { id: 'Suspension & Fork', label: 'Front Fork Oil Seal & Mono-Shock Tune', icon: 'fa-arrows-up-down' },
+  { id: 'Custom Tuning & Mods', label: 'Superbike ECU Tuning & Performance Exhaust', icon: 'fa-wand-magic-sparkles' },
+  { id: 'Cleaning & Detailing', label: 'Foam Wash & Ceramic Armor Coating', icon: 'fa-sparkles' },
+  { id: 'Tyres & Tubes', label: 'Tubeless Tyre Fitment & Puncture Care', icon: 'fa-circle-notch' },
+  { id: 'Emergency Roadside', label: 'Two-Wheeler Roadside Triage & Tow', icon: 'fa-truck-medical' },
+];
+
+export const TRUCK_SERVICE_CATEGORIES: ServicePackageCategoryItem[] = [
+  { id: 'All Services', label: 'All Commercial Fleet Services', icon: 'fa-globe' },
+  { id: 'Water Wash & Detailing', label: 'Heavy Truck Chassis Ramp Wash', icon: 'fa-shower' },
+  { id: 'Heavy Diesel Engine', label: 'Heavy Diesel Turbo & Engine Overhaul', icon: 'fa-gears' },
+  { id: 'Air Brake Chambers', label: 'Air Brake Chamber Calibration & Valves', icon: 'fa-circle-stop' },
+  { id: 'Leaf Spring & Axle', label: 'Multi-Leaf Springs Recambering & Hubs', icon: 'fa-arrows-up-down' },
+  { id: 'Heavy Tyres & Rims', label: 'Commercial 20-inch Radial Alignment', icon: 'fa-circle-notch' },
+  { id: 'Fleet Preventive Care', label: 'Fleet Scheduled Safety Bay Inspection', icon: 'fa-building-shield' },
+  { id: 'Highway Crane Tow', label: 'Heavy Highway Crane Breakdown SOS', icon: 'fa-truck-medical' },
+];
+
+export const BUS_SERVICE_CATEGORIES: ServicePackageCategoryItem[] = [
+  { id: 'All Services', label: 'All Bus & Coach Depot Services', icon: 'fa-globe' },
+  { id: 'Water Wash & Detailing', label: 'Coach High-Pressure Foam Wash', icon: 'fa-shower' },
+  { id: 'AC Service & Repair', label: 'Bus Rooftop AC Compressor & Gas Service', icon: 'fa-snowflake' },
+  { id: 'Air Brakes & Pneumatics', label: 'Pneumatic Passenger Door & Air Brakes', icon: 'fa-circle-stop' },
+  { id: 'Air Suspension Bellows', label: 'Air Suspension Bellows & Shock Absorbers', icon: 'fa-arrows-up-down' },
+  { id: 'Coach Interior & Seats', label: 'Pushback Seat Mechanism & USB Wiring', icon: 'fa-couch' },
+  { id: 'Depot Scheduled Audit', label: 'Depot Multi-Point Fleet Bay Audit', icon: 'fa-building-shield' },
+];
+
+export const AUTO_SERVICE_CATEGORIES: ServicePackageCategoryItem[] = [
+  { id: 'All Services', label: 'All 3-Wheeler Auto Services', icon: 'fa-globe' },
+  { id: 'Water Wash & Detailing', label: 'Auto Full Body Jet Wash & Polish', icon: 'fa-shower' },
+  { id: 'Auto CNG System', label: 'CNG Kit Tuning, Leakage Test & Filter', icon: 'fa-gas-pump' },
+  { id: 'Engine & Gearbox', label: 'Auto Piston Block & Gearbox Overhaul', icon: 'fa-gears' },
+  { id: 'Brakes & Clutch', label: 'Auto Clutch Plate & Brake Drum Shoes', icon: 'fa-circle-dot' },
+  { id: 'Fork & Helical Spring', label: 'Front Fork & Rear Helical Springs', icon: 'fa-arrows-up-down' },
+  { id: 'Hood & Meter Repair', label: 'Hood Canopy Canvas & Fare Meter Tuning', icon: 'fa-bolt' },
+];
+
+export const EV_SERVICE_CATEGORIES: ServicePackageCategoryItem[] = [
+  { id: 'All Services', label: 'All Electric Vehicle Services', icon: 'fa-globe' },
+  { id: 'Water Wash & Detailing', label: 'EV Safe Dry Steam Wash & Ceramic', icon: 'fa-shower' },
+  { id: 'Lithium Battery Health', label: 'Lithium Battery Health & Cell Diagnostics', icon: 'fa-battery-three-quarters' },
+  { id: 'EV Motor & Inverter', label: 'PMSM Motor Inverter Tuning & Electronics', icon: 'fa-bolt' },
+  { id: 'EV Fast Charging', label: 'Home Wallbox Charger Inspection & Type-2 Port', icon: 'fa-charging-station' },
+  { id: 'Regen Braking & Tyres', label: 'Regen Braking Booster & Low-Noise Tyres', icon: 'fa-circle-stop' },
+  { id: 'Cooling Liquid Flush', label: 'Battery Liquid Coolant Flush & Thermal Audit', icon: 'fa-snowflake' },
+];
+
+export const ALL_VEHICLE_SERVICE_CATEGORIES: ServicePackageCategoryItem[] = [
+  { id: 'All Services', label: 'All Workshop Services (All Vehicles)', icon: 'fa-globe' },
+  { id: 'Water Wash & Detailing', label: 'Water Wash, Foam Spa & Detailing', icon: 'fa-shower' },
+  { id: 'Periodic Services', label: 'Periodic Maintenance & Oil Flush', icon: 'fa-oil-can' },
+  { id: 'AC Service & Repair', label: 'AC Deep Clean & Cooling System', icon: 'fa-snowflake' },
+  { id: 'Brakes & Clutch', label: 'Brakes & Clutch Overhaul', icon: 'fa-circle-dot' },
+  { id: 'Tyres & Wheel Care', label: 'Tyres, Balancing & Wheel Care', icon: 'fa-circle-notch' },
+  { id: 'Cleaning & Detailing', label: 'Vehicle Spa & Ceramic Polish', icon: 'fa-sparkles' },
+  { id: 'Custom Tuning & Mods', label: 'Custom Modification & ECU Tune', icon: 'fa-wand-magic-sparkles' },
+  { id: 'Authorized Workshop', label: 'Authorized Center Bay Audit', icon: 'fa-building-shield' },
+  { id: 'Commercial & Fleet', label: 'Truck, Bus & Commercial Fleet Care', icon: 'fa-truck-moving' },
+  { id: 'EV Battery & Charging', label: 'EV High-Voltage & Charger Diagnostics', icon: 'fa-bolt' },
+  { id: 'Auto 3-Wheeler Care', label: 'Auto Rickshaw & CNG Tuning', icon: 'fa-gas-pump' },
+];
+
+export function getVehicleServiceCategories(vehicleType?: string): ServicePackageCategoryItem[] {
+  if (!vehicleType || vehicleType.trim() === '' || vehicleType.toLowerCase() === 'all') {
+    return ALL_VEHICLE_SERVICE_CATEGORIES;
+  }
+  const t = vehicleType.toLowerCase();
+  if (t === 'car' || t.includes('suv')) {
+    return CAR_SERVICE_CATEGORIES;
+  }
+  if (t.includes('bike') || t.includes('motorcycle') || t.includes('scooter')) {
+    return BIKE_SERVICE_CATEGORIES;
+  }
+  if (t.includes('lorry') || t.includes('truck')) {
+    return TRUCK_SERVICE_CATEGORIES;
+  }
+  if (t.includes('bus')) {
+    return BUS_SERVICE_CATEGORIES;
+  }
+  if (t.includes('auto') || t.includes('rickshaw')) {
+    return AUTO_SERVICE_CATEGORIES;
+  }
+  if (t.includes('ev') || t.includes('electric')) {
+    return EV_SERVICE_CATEGORIES;
+  }
+  return CAR_SERVICE_CATEGORIES;
+}

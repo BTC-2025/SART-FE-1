@@ -10,7 +10,9 @@ import {
 } from '../storeProductsData';
 import {
   ACCESSORIES_POINTS,
-  AccessoriesStorePoint
+  AccessoriesStorePoint,
+  getVehicleServiceCategories,
+  ServicePackageCategoryItem
 } from '../storeSparesAccessoriesData';
 
 interface StoreServicesHubProps {
@@ -70,9 +72,15 @@ export default function StoreServicesHub({
   const [activeServiceTab, setActiveServiceTab] = useState<'packages' | 'service_centers'>('packages');
   const [mechanicCategoryFilter, setMechanicCategoryFilter] = useState<string>('All Services');
   const [locationSearchInput, setLocationSearchInput] = useState<string>('');
+  const [stationTypeFilter, setStationTypeFilter] = useState<'all' | 'official' | 'multibrand' | 'water_wash'>('all');
 
   // Effective vehicle type
   const effectiveVehType = appliedVehicleSearch ? appliedVehicleSearch.type : selectedVehicleType;
+
+  // Dynamic Service Package Categories based on selected/applied vehicle type
+  const activeServiceCategories: ServicePackageCategoryItem[] = useMemo(() => {
+    return getVehicleServiceCategories(effectiveVehType);
+  }, [effectiveVehType]);
 
   // Filter service packages by vehicle & category
   const filteredServices = useMemo(() => {
@@ -91,22 +99,39 @@ export default function StoreServicesHub({
         // Category filter
         if (mechanicCategoryFilter === 'All Services') return true;
         const blob = `${item.name} ${item.desc} ${item.section} ${item.category}`.toLowerCase();
-        if (mechanicCategoryFilter === 'Periodic Services') return blob.includes('periodic') || blob.includes('engine oil') || blob.includes('tune-up');
-        if (mechanicCategoryFilter === 'AC Service & Repair') return blob.includes('ac') || blob.includes('gas') || blob.includes('cooling');
-        if (mechanicCategoryFilter === 'Brakes & Clutch') return blob.includes('brake') || blob.includes('caliper') || blob.includes('clutch');
-        if (mechanicCategoryFilter === 'Tyres & Wheel Care') return blob.includes('tyre') || blob.includes('wheel') || blob.includes('puncture');
-        if (mechanicCategoryFilter === 'Cleaning & Detailing') return blob.includes('ceramic') || blob.includes('wash') || blob.includes('polish') || blob.includes('clean');
-        if (mechanicCategoryFilter === 'Custom Tuning & Mods') return blob.includes('remap') || blob.includes('wrap') || blob.includes('exhaust') || blob.includes('modification') || blob.includes('ambient');
-        if (mechanicCategoryFilter === 'Authorized Workshop') return blob.includes('authorized') || blob.includes('service center');
-        if (mechanicCategoryFilter === 'Heavy Commercial Fleet') return blob.includes('lorry') || blob.includes('commercial') || blob.includes('fleet') || blob.includes('auto');
+        const filterLower = mechanicCategoryFilter.toLowerCase();
+        
+        // Exact / broad match with category name
+        if (blob.includes(filterLower)) return true;
+
+        if (mechanicCategoryFilter.includes('Water Wash') || mechanicCategoryFilter.includes('Wash')) return blob.includes('wash') || blob.includes('foam') || blob.includes('underchassis') || blob.includes('steam') || blob.includes('spa');
+        if (mechanicCategoryFilter.includes('Periodic')) return blob.includes('periodic') || blob.includes('engine oil') || blob.includes('tune-up') || blob.includes('maintenance');
+        if (mechanicCategoryFilter.includes('AC Service')) return blob.includes('ac') || blob.includes('gas') || blob.includes('cooling');
+        if (mechanicCategoryFilter.includes('Brake') || mechanicCategoryFilter.includes('Clutch')) return blob.includes('brake') || blob.includes('caliper') || blob.includes('clutch');
+        if (mechanicCategoryFilter.includes('Tyre') || mechanicCategoryFilter.includes('Wheel')) return blob.includes('tyre') || blob.includes('wheel') || blob.includes('puncture') || blob.includes('alignment');
+        if (mechanicCategoryFilter.includes('Cleaning') || mechanicCategoryFilter.includes('Detailing')) return blob.includes('ceramic') || blob.includes('wash') || blob.includes('polish') || blob.includes('clean') || blob.includes('spa');
+        if (mechanicCategoryFilter.includes('Tuning') || mechanicCategoryFilter.includes('Mod')) return blob.includes('remap') || blob.includes('wrap') || blob.includes('exhaust') || blob.includes('modification') || blob.includes('ambient') || blob.includes('ecu');
+        if (mechanicCategoryFilter.includes('Authorized')) return blob.includes('authorized') || blob.includes('service center') || blob.includes('audit');
+        if (mechanicCategoryFilter.includes('Commercial') || mechanicCategoryFilter.includes('Fleet') || mechanicCategoryFilter.includes('Diesel') || mechanicCategoryFilter.includes('Truck')) return blob.includes('lorry') || blob.includes('commercial') || blob.includes('fleet') || blob.includes('truck') || blob.includes('diesel') || blob.includes('heavy');
+        if (mechanicCategoryFilter.includes('Battery') || mechanicCategoryFilter.includes('EV') || mechanicCategoryFilter.includes('Motor')) return blob.includes('battery') || blob.includes('ev') || blob.includes('charging') || blob.includes('motor') || blob.includes('electric');
+        if (mechanicCategoryFilter.includes('CNG') || mechanicCategoryFilter.includes('Auto') || mechanicCategoryFilter.includes('Hood')) return blob.includes('cng') || blob.includes('auto') || blob.includes('rickshaw');
+
         return true;
       });
   }, [effectiveVehType, mechanicCategoryFilter]);
 
-  // Filter nearby service centers by location and vehicle
+  // Filter nearby service centers by location, vehicle, and official/multibrand/water_wash type
   const filteredServiceCenters = useMemo(() => {
     return ACCESSORIES_POINTS.filter((store) => {
-      // 1. City / Location match
+      // 1. Station Type (Official OEM Authorized vs Multi-brand Local Garages vs Water Wash Hubs)
+      if (stationTypeFilter === 'official' && !store.isOfficial) return false;
+      if (stationTypeFilter === 'multibrand' && (store.isOfficial || store.centerCategory === 'water_wash')) return false;
+      if (stationTypeFilter === 'water_wash') {
+        const isWash = store.centerCategory === 'water_wash' || store.name.toLowerCase().includes('wash') || store.specialization.some(s => s.toLowerCase().includes('wash') || s.toLowerCase().includes('foam'));
+        if (!isWash) return false;
+      }
+
+      // 2. City / Location match
       const currentCity = (userLocationCity || 'Chennai').toLowerCase();
       const storeCity = (store.city || '').toLowerCase();
       const storeArea = (store.area || '').toLowerCase();
@@ -121,7 +146,7 @@ export default function StoreServicesHub({
         if (!matchesQuery) return false;
       }
 
-      // 2. Vehicle Type match
+      // 3. Vehicle Type match
       if (effectiveVehType) {
         const vTypeLower = effectiveVehType.toLowerCase();
         const storeVeh = (store.vehicleType || '').toLowerCase();
@@ -132,7 +157,7 @@ export default function StoreServicesHub({
 
       return true;
     });
-  }, [userLocationCity, locationSearchInput, effectiveVehType]);
+  }, [userLocationCity, locationSearchInput, effectiveVehType, stationTypeFilter]);
 
   return (
     <section className="gomechanic-hub-view animate-pop">
@@ -310,18 +335,9 @@ export default function StoreServicesHub({
                 </button>
               </div>
 
-              <div className="sidebar-nav-pills">
-                {[
-                  { id: 'All Services', label: 'All Workshop Services', icon: 'fa-globe' },
-                  { id: 'Periodic Services', label: 'Periodic Maintenance', icon: 'fa-oil-can' },
-                  { id: 'AC Service & Repair', label: 'AC Deep Clean & Gas', icon: 'fa-snowflake' },
-                  { id: 'Brakes & Clutch', label: 'Brakes & Clutch Overhaul', icon: 'fa-circle-dot' },
-                  { id: 'Tyres & Wheel Care', label: 'Tyres & Wheel Alignment', icon: 'fa-circle-notch' },
-                  { id: 'Cleaning & Detailing', label: 'Car Spa & Ceramic Polish', icon: 'fa-sparkles' },
-                  { id: 'Custom Tuning & Mods', label: 'ECU Remap & Modifications', icon: 'fa-wand-magic-sparkles' },
-                  { id: 'Authorized Workshop', label: 'Authorized Center Stamp', icon: 'fa-building-shield' },
-                  { id: 'Heavy Commercial Fleet', label: 'Heavy Truck & Bus Fleet', icon: 'fa-truck-moving' },
-                ].map((srv) => (
+              {/* Scrollable Dynamic Service Packages Category List */}
+              <div className="service-sidebar-nav-scroll">
+                {activeServiceCategories.map((srv) => (
                   <button
                     key={srv.id}
                     type="button"
@@ -463,30 +479,68 @@ export default function StoreServicesHub({
             <div>
               <h3>
                 <i className="fa-solid fa-building-circle-check"></i>{' '}
-                Authorized Service Stations in {userLocationCity || 'Chennai'}
+                {effectiveVehType ? `${effectiveVehType} ` : ''}Service Stations in {userLocationCity || 'Chennai'}
               </h3>
-              <p>Certified multi-brand mechanic workshops equipped with computerized bay scanners &amp; cashless warranty claims.</p>
+              <p>Official Authorized OEM Service Centers and verified local multi-brand garages with computer diagnostic bays.</p>
             </div>
-            <span className="sc-count-badge">{filteredServiceCenters.length} Stations Found</span>
+            
+            {/* Filter pills: All vs Official OEM vs Multi-brand Local */}
+            <div className="sc-station-filter-pills">
+              <button
+                type="button"
+                className={`sc-filter-btn ${stationTypeFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setStationTypeFilter('all')}
+              >
+                All ({ACCESSORIES_POINTS.length})
+              </button>
+              <button
+                type="button"
+                className={`sc-filter-btn official-btn ${stationTypeFilter === 'official' ? 'active' : ''}`}
+                onClick={() => setStationTypeFilter('official')}
+              >
+                <i className="fa-solid fa-shield-halved"></i> Official OEM Authorized
+              </button>
+              <button
+                type="button"
+                className={`sc-filter-btn multibrand-btn ${stationTypeFilter === 'multibrand' ? 'active' : ''}`}
+                onClick={() => setStationTypeFilter('multibrand')}
+              >
+                <i className="fa-solid fa-wrench"></i> Multi-Brand Garages
+              </button>
+              <button
+                type="button"
+                className={`sc-filter-btn wash-btn ${stationTypeFilter === 'water_wash' ? 'active' : ''}`}
+                onClick={() => setStationTypeFilter('water_wash')}
+              >
+                <i className="fa-solid fa-shower"></i> Water Wash &amp; Spa
+              </button>
+            </div>
           </div>
 
           <div className="service-centers-grid">
-            {filteredServiceCenters.map((center) => (
-              <div key={center.id} className="service-center-card">
-                <div className="sc-card-top">
-                  <div className="sc-badge-row">
-                    <span className="sc-type-pill">
-                      <i className="fa-solid fa-shield-halved"></i> Authorized Station
-                    </span>
-                    <span className="sc-distance-pill">
-                      <i className="fa-solid fa-location-arrow"></i> {center.distance}
-                    </span>
+            {filteredServiceCenters.map((center) => {
+              const isWaterWash = center.centerCategory === 'water_wash' || center.name.toLowerCase().includes('wash');
+              const badgeClass = center.isOfficial ? 'official' : isWaterWash ? 'waterwash' : 'multibrand';
+              const badgeLabel = center.isOfficial ? 'Official OEM Authorized' : isWaterWash ? 'Water Wash & Detailing Hub' : 'Multi-Brand Garage';
+              const badgeIcon = center.isOfficial ? 'fa-shield-halved' : isWaterWash ? 'fa-shower' : 'fa-wrench';
+
+              return (
+                <div key={center.id} className="service-center-card">
+                  <div className="sc-card-top">
+                    <div className="sc-badge-row">
+                      <span className={`sc-type-pill ${badgeClass}`}>
+                        <i className={`fa-solid ${badgeIcon}`}></i>{' '}
+                        {badgeLabel}
+                      </span>
+                      <span className="sc-distance-pill">
+                        <i className="fa-solid fa-location-arrow"></i> {center.distance}
+                      </span>
+                    </div>
+                    <h4 className="sc-title">{center.name}</h4>
+                    <p className="sc-address">
+                      <i className="fa-solid fa-map-pin"></i> {center.address}
+                    </p>
                   </div>
-                  <h4 className="sc-title">{center.name}</h4>
-                  <p className="sc-address">
-                    <i className="fa-solid fa-map-pin"></i> {center.address}
-                  </p>
-                </div>
 
                 <div className="sc-specs-box">
                   <strong>Specialization &amp; Facilities:</strong>
@@ -523,7 +577,8 @@ export default function StoreServicesHub({
                   </button>
                 </div>
               </div>
-            ))}
+            );
+          })}
           </div>
         </div>
       )}

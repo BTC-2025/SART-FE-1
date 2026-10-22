@@ -1241,7 +1241,7 @@ export interface ComparisonVehicle {
   id: string;
   name: string;
   brand: string;
-  category: 'Scooter' | 'Bike' | 'Car' | 'EV' | 'Commercial';
+  category: 'Scooter' | 'Bike' | 'Car' | 'EV' | 'Commercial' | 'Auto';
   price: string;
   image: string;
   engine: string;
@@ -1547,6 +1547,52 @@ export const COMPARISON_VEHICLES: ComparisonVehicle[] = [
     airbags: 'Heavy Rollover Protected Cowl',
     seating: 'Driver + Sleeper Berth',
     warranty: '4 Years / 4,00,000 km'
+  },
+  // 3-WHEELER AUTO RICKSHAWS
+  {
+    id: 'comp-bajaj-re',
+    name: 'Bajaj RE Compact 4S CNG',
+    brand: 'Bajaj Auto',
+    category: 'Auto',
+    price: '₹2.34 - 2.55 Lakh',
+    image: 'https://images.unsplash.com/photo-1558981420-87aa9dad1c89?auto=format&fit=crop&w=600&q=80',
+    engine: '236cc DTS-i 4-Stroke CNG',
+    power: '9.65 HP @ 5000 rpm / 16.2 Nm',
+    mileage: '38 - 42 km/kg',
+    safety: 'Hydraulic Drum Brakes with Twin Circuit',
+    airbags: 'High Tensile Pressed Steel Monocoque',
+    seating: 'Driver + 3 Passenger Auto',
+    warranty: '1 Year / 40,000 km'
+  },
+  {
+    id: 'comp-piaggio-ape',
+    name: 'Piaggio Ape City Plus Petrol',
+    brand: 'Piaggio',
+    category: 'Auto',
+    price: '₹2.22 - 2.45 Lakh',
+    image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=600&q=80',
+    engine: '230cc 3-Valve Single Cylinder Air-Cooled',
+    power: '10.2 HP @ 4800 rpm / 17.5 Nm',
+    mileage: '32 - 36 kmpl',
+    safety: 'Tough Heavy Suspension & Front Bumper Guard',
+    airbags: 'Monocoque High Rigidity Tub',
+    seating: 'Driver + 3 Passenger',
+    warranty: '3 Years / 1,00,000 km Super Warranty'
+  },
+  {
+    id: 'comp-mahindra-treo',
+    name: 'Mahindra Treo Electric Auto',
+    brand: 'Mahindra',
+    category: 'Auto',
+    price: '₹2.92 - 3.12 Lakh',
+    image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
+    engine: 'AC Induction Motor / 7.37 kWh Li-ion',
+    power: '10.7 HP / 42 Nm Instant Torque',
+    mileage: '130 - 141 km (Certified Range)',
+    safety: 'Hydraulic Brakes + Regenerative Braking',
+    airbags: 'Rust-Free Modular Hard Top Spaceframe',
+    seating: 'Driver + 3 Passenger Zero-Emission',
+    warranty: '3 Years / 80,000 km Battery'
   }
 ];
 

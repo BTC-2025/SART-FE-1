@@ -10,7 +10,7 @@ export default function StoreSosHub({ showToast }: StoreSosHubProps) {
   const [sosVehicleType, setSosVehicleType] = useState<string>('All');
   const [sosEmergencyIssue, setSosEmergencyIssue] = useState<string>('all');
   const [sosLocationName, setSosLocationName] = useState<string>('Anna Salai, Guindy, Chennai • NH-45 Highway km 18');
-  const [showSosDispatchModal, setShowSosDispatchModal] = useState<boolean>(false);
+  const [sosActiveSubView, setSosActiveSubView] = useState<'overview' | 'tracking'>('overview');
   const [selectedSosService, setSelectedSosService] = useState<{
     title: string;
     icon: string;
@@ -23,80 +23,134 @@ export default function StoreSosHub({ showToast }: StoreSosHubProps) {
     driverName: string;
     driverPhone: string;
   } | null>(null);
-  const [sosDispatchStage, setSosDispatchStage] = useState<'finding' | 'assigned' | 'en_route'>('finding');
+  const [sosDispatchStage, setSosDispatchStage] = useState<'finding' | 'assigned' | 'en_route'>('en_route');
 
   return (
-          <section className="hub-showcase-view sart-sos-view animate-pop">
-            {/* TOP EMERGENCY RADAR HERO BANNER */}
-            <div className="sart-sos-hero-card">
+    <section className="hub-showcase-view sart-sos-view animate-pop">
+      {sosActiveSubView === 'overview' && (
+        <>
+          {/* TOP EMERGENCY RADAR HERO BANNER */}
+          <div className="sart-sos-hero-card">
+              {/* Background ambient lighting */}
+              <div className="sos-glow-circle-red"></div>
+              <div className="sos-glow-circle-blue"></div>
+
               <div className="sos-radar-header">
                 <div className="sos-live-pill">
                   <span className="sos-blinking-dot"></span>
-                  <span>24/7 LIVE EMERGENCY RESCUE ACTIVE • PAN-INDIA DISPATCH</span>
+                  <span className="sos-live-pulse-text">24/7 LIVE EMERGENCY RESCUE ACTIVE • PAN-INDIA DISPATCH</span>
+                  <span className="sos-badge-avg-time"><i className="fa-solid fa-clock-rotate-left"></i> 11-15 Mins Avg</span>
                 </div>
-                <div className="sos-hotline-badge">
-                  <i className="fa-solid fa-phone-volume"></i>
-                  <span>TOLL-FREE: <strong>1800-SART-SOS (7278-767)</strong></span>
+                <div className="sos-hotline-actions">
+                  <a href="tel:18007278767" className="sos-hotline-badge">
+                    <div className="hotline-icon-ring">
+                      <i className="fa-solid fa-phone-volume"></i>
+                    </div>
+                    <div className="hotline-text-col">
+                      <span className="hotline-sub">NATIONAL 24/7 TOLL-FREE DESK</span>
+                      <strong>1800-SART-SOS (1800-7278-767)</strong>
+                    </div>
+                  </a>
                 </div>
               </div>
 
-              <div className="sos-hero-main-body">
-                <div className="sos-hero-text">
-                  <h2>Rapid Roadside Assistance (RSA) &amp; Vehicle Rescue</h2>
-                  <p>
-                    Stranded on a highway, caught in city traffic, or broken down at home? SART dispatches the nearest certified mechanic,
-                    zero-damage hydraulic flatbed, emergency fuel unit, or mobile EV charging van within <strong>12 to 15 minutes</strong>.
-                  </p>
+              <div className="sos-hero-main-grid">
+                <div className="sos-hero-left-col">
+                  <div className="sos-hero-text">
+                    <h2>Highway Breakdown, Accident or Flat Tyre?</h2>
+                    <p>
+                      Stranded on a highway, caught in city traffic, or broken down at home? SART dispatches the nearest certified mechanic,
+                      zero-damage hydraulic flatbed, emergency fuel unit, or mobile EV charging van within <strong>12 to 15 minutes</strong>.
+                    </p>
+                  </div>
+
+                  <div className="sos-hero-cta-group">
+                    <button
+                      type="button"
+                      className="sos-btn-primary-gps"
+                      onClick={() => {
+                        setSelectedSosService({
+                          title: 'Rapid Emergency GPS Patrol Dispatch',
+                          icon: 'fa-truck-medical',
+                          time: '11 Mins Arrival',
+                          price: '₹349 Visit Fee',
+                          categoryTag: 'All Vehicles',
+                          desc: 'Nearest SART highway patrol unit dispatched immediately to your live GPS coordinates.',
+                          features: ['Nearest patrol van allocated', 'Real-time GPS track on map', 'On-spot diagnostic tools included', 'Cashless insurance claim integration'],
+                          assignedUnit: 'Patrol Van #TN-09-RSA-412',
+                          driverName: 'Murugan K. (4.9 ★ • 1,420+ Dispatches)',
+                          driverPhone: '+91 98400 12345'
+                        });
+                        setSosDispatchStage('en_route');
+                        setSosActiveSubView('tracking');
+                        showToast('🚨 Live GPS Patrol Dispatch activated! Murugan K. en route (11 Mins)');
+                      }}
+                    >
+                      <div className="gps-btn-icon-wrap">
+                        <i className="fa-solid fa-location-crosshairs"></i>
+                      </div>
+                      <div className="gps-btn-text">
+                        <strong>One-Tap Instant GPS Dispatch</strong>
+                        <span>Dispatches Nearest Patrol Unit (11 Mins)</span>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="sos-btn-primary-call"
+                      onClick={() => {
+                        showToast('Dialing 24/7 SART Emergency Rescue Desk: 1800-SART-SOS...');
+                      }}
+                    >
+                      <i className="fa-solid fa-phone"></i>
+                      <span>Emergency Hotline</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="sos-btn-whatsapp"
+                      onClick={() => {
+                        showToast('Opening WhatsApp SOS Channel with SART Dispatch Controller...');
+                      }}
+                    >
+                      <i className="fa-brands fa-whatsapp"></i>
+                      <span>WhatsApp SOS</span>
+                    </button>
+                  </div>
                 </div>
 
-                <div className="sos-hero-cta-group">
-                  <button
-                    type="button"
-                    className="sos-btn-primary-call"
-                    onClick={() => {
-                      showToast('Dialing 24/7 SART Emergency Rescue Desk: 1800-SART-SOS...');
-                    }}
-                  >
-                    <i className="fa-solid fa-phone"></i>
-                    <span>Call 24/7 Emergency Hotline</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="sos-btn-primary-gps"
-                    onClick={() => {
-                      setSelectedSosService({
-                        title: 'Rapid Emergency GPS Patrol Dispatch',
-                        icon: 'fa-truck-medical',
-                        time: '11 Mins Arrival',
-                        price: '₹349 Visit Fee',
-                        categoryTag: 'All Vehicles',
-                        desc: 'Nearest SART highway patrol unit dispatched immediately to your live GPS coordinates.',
-                        features: ['Nearest patrol van allocated', 'Real-time GPS track on map', 'On-spot diagnostic tools included', 'Cashless insurance claim integration'],
-                        assignedUnit: 'Patrol Van #TN-09-RSA-412',
-                        driverName: 'Murugan K. (4.9 ★ • 1,420+ Dispatches)',
-                        driverPhone: '+91 98400 12345'
-                      });
-                      setSosDispatchStage('finding');
-                      setShowSosDispatchModal(true);
-                      setTimeout(() => setSosDispatchStage('assigned'), 1800);
-                      setTimeout(() => setSosDispatchStage('en_route'), 3600);
-                    }}
-                  >
-                    <i className="fa-solid fa-location-crosshairs"></i>
-                    <span>One-Tap GPS Auto-Dispatch</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="sos-btn-whatsapp"
-                    onClick={() => {
-                      showToast('Opening WhatsApp SOS Channel with SART Dispatch Controller...');
-                    }}
-                  >
-                    <i className="fa-brands fa-whatsapp"></i>
-                    <span>WhatsApp SOS</span>
-                  </button>
+                {/* Right Interactive Live Radar Scanner HUD */}
+                <div className="sos-hero-radar-hud">
+                  <div className="radar-hud-card">
+                    <div className="radar-screen">
+                      <div className="radar-sweep-beam"></div>
+                      <div className="radar-blip-user" title="Your Stranded GPS Location">
+                        <i className="fa-solid fa-car-burst"></i>
+                        <span className="blip-ripple"></span>
+                      </div>
+                      <div className="radar-blip-patrol-1" title="Patrol Van #412 (1.2 km away)">
+                        <i className="fa-solid fa-truck-pickup"></i>
+                      </div>
+                      <div className="radar-blip-patrol-2" title="Hydraulic Flatbed (2.4 km away)">
+                        <i className="fa-solid fa-truck-medical"></i>
+                      </div>
+                      <div className="radar-compass-ring"></div>
+                    </div>
+                    <div className="radar-hud-data">
+                      <div className="hud-metric">
+                        <span className="hud-lbl">ACTIVE PATROL UNITS</span>
+                        <strong className="hud-val text-green"><i className="fa-solid fa-circle-check"></i> 14 Units Active Nearby</strong>
+                      </div>
+                      <div className="hud-metric">
+                        <span className="hud-lbl">AVERAGE ARRIVAL TIME</span>
+                        <strong className="hud-val text-amber"><i className="fa-solid fa-bolt"></i> 11.4 Minutes</strong>
+                      </div>
+                      <div className="hud-metric">
+                        <span className="hud-lbl">HIGHWAY CORRIDOR</span>
+                        <strong className="hud-val text-white">NH-45 • NH-4 • ECR • OMR</strong>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -347,10 +401,9 @@ export default function StoreSosHub({ showToast }: StoreSosHubProps) {
                         className="btn-sos-card-dispatch"
                         onClick={() => {
                           setSelectedSosService(srv);
-                          setSosDispatchStage('finding');
-                          setShowSosDispatchModal(true);
-                          setTimeout(() => setSosDispatchStage('assigned'), 1800);
-                          setTimeout(() => setSosDispatchStage('en_route'), 3600);
+                          setSosDispatchStage('en_route');
+                          setSosActiveSubView('tracking');
+                          showToast(`🚨 Dispatched ${srv.title}! Patrol unit en route.`);
                         }}
                       >
                         <i className="fa-solid fa-truck-fast"></i>
@@ -434,137 +487,162 @@ export default function StoreSosHub({ showToast }: StoreSosHubProps) {
                 </div>
               </div>
             </div>
+          </>
+        )}
 
-            {/* INTERACTIVE LIVE SOS DISPATCH MODAL */}
-            {showSosDispatchModal && selectedSosService && (
-              <div className="sos-modal-overlay animate-fade">
-                <div className="sos-modal-box animate-pop">
-                  <div className="sos-modal-header">
-                    <div className="sos-modal-title">
-                      <div className="sos-beacon-pulse"></div>
-                      <div>
-                        <h3>Live Emergency Dispatch Tracking</h3>
-                        <span className="sos-order-ref">Request ID: #SART-SOS-98124 • Priority Level: CRITICAL</span>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      className="sos-modal-close-btn"
-                      onClick={() => setShowSosDispatchModal(false)}
-                    >
-                      <i className="fa-solid fa-xmark"></i>
-                    </button>
-                  </div>
+        {/* =========================================================================
+            IN-PAGE LIVE EMERGENCY DISPATCH TRACKING VIEW (NO POPUP / NO BLACK OVERLAY)
+            ========================================================================= */}
+        {sosActiveSubView === 'tracking' && selectedSosService && (
+          <div className="sos-inpage-tracking-container animate-pop">
+            {/* Top Navigation Strip */}
+            <div className="sos-inpage-nav-bar">
+              <button
+                type="button"
+                className="btn-back-to-sos"
+                onClick={() => setSosActiveSubView('overview')}
+              >
+                <i className="fa-solid fa-arrow-left"></i> Back to 24/7 Roadside Assistance
+              </button>
+              <span className="inpage-nav-beacon-badge">
+                <span className="pulse-red-dot"></span> LIVE EMERGENCY PATROL TELEMETRY ACTIVE
+              </span>
+            </div>
 
-                  <div className="sos-modal-body">
-                    {/* DISPATCH PROGRESS RADAR */}
-                    <div className="sos-tracker-radar-panel">
-                      <div className="radar-circle-anim">
-                        <div className="radar-sweep"></div>
-                        <i className="fa-solid fa-truck-medical radar-center-icon"></i>
-                      </div>
-                      <div className="radar-status-info">
-                        <span className="radar-tag">
-                          {sosDispatchStage === 'finding' && 'SEARCHING NEAREST PATROL UNIT...'}
-                          {sosDispatchStage === 'assigned' && 'PATROL OFFICER ALLOCATED!'}
-                          {sosDispatchStage === 'en_route' && 'PATROL VEHICLE EN ROUTE VIA GPS!'}
-                        </span>
-                        <h4>{selectedSosService.title}</h4>
-                        <p className="radar-loc-txt">
-                          <i className="fa-solid fa-location-dot"></i> Destination: {sosLocationName}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* DRIVER & VEHICLE DETAILS */}
-                    <div className="sos-driver-card">
-                      <div className="driver-avatar-box">
-                        <i className="fa-solid fa-user-shield"></i>
-                      </div>
-                      <div className="driver-details">
-                        <div className="driver-name-row">
-                          <strong>{selectedSosService.driverName}</strong>
-                          <span className="driver-badge">VERIFIED SART RESPONDER</span>
-                        </div>
-                        <span className="driver-sub">{selectedSosService.assignedUnit}</span>
-                        <div className="driver-specs">
-                          <span><i className="fa-solid fa-toolbox"></i> Fully Equipped RSA Unit</span>
-                          <span><i className="fa-solid fa-route"></i> Distance: 2.4 km away</span>
-                        </div>
-                      </div>
-                      <div className="driver-eta-box">
-                        <span className="eta-lbl">EST. ARRIVAL</span>
-                        <strong className="eta-val">11 MINS</strong>
-                      </div>
-                    </div>
-
-                    {/* TIMELINE STEPS */}
-                    <div className="sos-timeline-steps">
-                      <div className="timeline-step completed">
-                        <div className="step-circle"><i className="fa-solid fa-check"></i></div>
-                        <div className="step-content">
-                          <strong>SOS Request Received &amp; GPS Locked</strong>
-                          <small>Coordinates verified by Chennai Highway Dispatch Desk</small>
-                        </div>
-                      </div>
-
-                      <div className={`timeline-step ${sosDispatchStage === 'assigned' || sosDispatchStage === 'en_route' ? 'completed' : 'active'}`}>
-                        <div className="step-circle">
-                          {sosDispatchStage === 'finding' ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-check"></i>}
-                        </div>
-                        <div className="step-content">
-                          <strong>Unit #412 Dispatched from Guindy RSA Depot</strong>
-                          <small>Technician rolling with hydraulic gear, booster pack &amp; tyre kit</small>
-                        </div>
-                      </div>
-
-                      <div className={`timeline-step ${sosDispatchStage === 'en_route' ? 'active' : ''}`}>
-                        <div className="step-circle">
-                          {sosDispatchStage === 'en_route' ? <i className="fa-solid fa-location-arrow"></i> : <i className="fa-solid fa-circle"></i>}
-                        </div>
-                        <div className="step-content">
-                          <strong>Patrol Unit Approaching Your Vehicle</strong>
-                          <small>Keep your hazard lights flashing for rapid visual identification</small>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* MODAL FOOTER ACTIONS */}
-                  <div className="sos-modal-footer">
-                    <button
-                      type="button"
-                      className="btn-modal-call-driver"
-                      onClick={() => showToast(`Dialing Patrol Driver (${selectedSosService.driverPhone})...`)}
-                    >
-                      <i className="fa-solid fa-phone"></i>
-                      <span>Call Patrol Driver</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      className="btn-modal-share-loc"
-                      onClick={() => showToast('Live GPS location shared via WhatsApp to Emergency Contacts!')}
-                    >
-                      <i className="fa-brands fa-whatsapp"></i>
-                      <span>Share Location With Family</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      className="btn-modal-close"
-                      onClick={() => {
-                        setShowSosDispatchModal(false);
-                        showToast('Dispatch modal closed. Live tracking continues in background.');
-                      }}
-                    >
-                      Dismiss
-                    </button>
+            <div className="sos-inpage-tracking-card">
+              {/* Header Banner */}
+              <div className="sos-inpage-header">
+                <div className="sos-inpage-title-wrap">
+                  <div className="sos-live-pulse-dot"></div>
+                  <div>
+                    <h3 className="sos-inpage-heading">Live Emergency Dispatch Tracking</h3>
+                    <span className="sos-inpage-sub-ref">
+                      Request ID: <strong>#SART-SOS-98124</strong> • Priority Level: <span className="sos-prio-tag">CRITICAL</span>
+                    </span>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  className="btn-inpage-close-sos"
+                  onClick={() => setSosActiveSubView('overview')}
+                  title="Close tracking and return to directory"
+                >
+                  <i className="fa-solid fa-xmark"></i>
+                </button>
               </div>
-            )}
 
-          </section>
+              <div className="sos-inpage-body">
+                {/* Patrol Vehicle Alert Banner */}
+                <div className="sos-patrol-alert-box">
+                  <div className="sos-alert-truck-badge">
+                    <i className="fa-solid fa-truck-medical"></i>
+                  </div>
+                  <div className="sos-alert-meta">
+                    <span className="sos-alert-tag">PATROL VEHICLE EN ROUTE VIA GPS!</span>
+                    <h4>{selectedSosService.title}</h4>
+                    <p className="sos-alert-dest">
+                      <i className="fa-solid fa-location-dot"></i> Destination: {sosLocationName}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Driver / Responder Profile Card */}
+                <div className="sos-responder-profile-card">
+                  <div className="responder-avatar">
+                    <i className="fa-solid fa-user-shield"></i>
+                  </div>
+                  <div className="responder-details">
+                    <div className="responder-name-line">
+                      <strong>{selectedSosService.driverName}</strong>
+                      <span className="responder-verified-pill">VERIFIED SART RESPONDER</span>
+                    </div>
+                    <span className="responder-unit-txt">{selectedSosService.assignedUnit}</span>
+                    <div className="responder-amenities">
+                      <span><i className="fa-solid fa-toolbox text-blue"></i> Fully Equipped RSA Unit</span>
+                      <span><i className="fa-solid fa-location-arrow text-emerald"></i> Distance: 2.4 km away</span>
+                    </div>
+                  </div>
+                  <div className="responder-eta-pill">
+                    <span className="eta-badge-lbl">EST. ARRIVAL</span>
+                    <strong className="eta-badge-val">11 MINS</strong>
+                  </div>
+                </div>
+
+                {/* Step-by-Step Progress Timeline */}
+                <div className="sos-inpage-timeline">
+                  <div className="timeline-item completed">
+                    <div className="timeline-icon-wrap">
+                      <i className="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div className="timeline-text">
+                      <strong>SOS Request Received &amp; GPS Locked</strong>
+                      <p>Coordinates verified by Chennai Highway Dispatch Desk</p>
+                    </div>
+                  </div>
+
+                  <div className="timeline-item completed">
+                    <div className="timeline-icon-wrap">
+                      <i className="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div className="timeline-text">
+                      <strong>Unit #412 Dispatched from Guindy RSA Depot</strong>
+                      <p>Technician rolling with hydraulic gear, booster pack, jump kit &amp; diagnostics</p>
+                    </div>
+                  </div>
+
+                  <div className="timeline-item active">
+                    <div className="timeline-icon-wrap pulsing">
+                      <i className="fa-solid fa-circle-dot"></i>
+                    </div>
+                    <div className="timeline-text">
+                      <strong>Patrol Unit Approaching Your Vehicle (2.4 km)</strong>
+                      <p>Turn on vehicle hazard lights to assist technician in night/highway sighting</p>
+                    </div>
+                  </div>
+
+                  <div className="timeline-item pending">
+                    <div className="timeline-icon-wrap">
+                      <i className="fa-regular fa-circle"></i>
+                    </div>
+                    <div className="timeline-text">
+                      <strong>On-Spot Resolution &amp; Cashless Insurance Sign-Off</strong>
+                      <p>Zero-damage assistance, safety perimeter setup, and instant digital job card clearance</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Actions Bar */}
+                <div className="sos-inpage-actions-bar">
+                  <button
+                    type="button"
+                    className="btn-sos-action-call"
+                    onClick={() => showToast(`Dialing Patrol Driver (${selectedSosService.driverPhone})...`)}
+                  >
+                    <i className="fa-solid fa-phone"></i>
+                    <span>Call Patrol Driver (Murugan K.)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn-sos-action-share"
+                    onClick={() => showToast('Live GPS location shared via WhatsApp to Emergency Contacts!')}
+                  >
+                    <i className="fa-brands fa-whatsapp"></i>
+                    <span>Share Location With Family</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn-sos-action-back"
+                    onClick={() => setSosActiveSubView('overview')}
+                  >
+                    Back to Assistance Directory
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
   );
 }

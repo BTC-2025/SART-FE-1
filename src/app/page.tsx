@@ -69,8 +69,10 @@ export default function Home() {
       }
     } else if (pathname.startsWith('/booking/')) {
       setActiveTab('booking');
+    } else if (pathname.startsWith('/store')) {
+      setActiveTab('store');
     } else {
-      // Check for top-level tabs (e.g. /store)
+      // Check for top-level tabs (e.g. /store, /wallet)
       const tab = pathname.replace('/', '');
       if (['store', 'booking', 'wallet', 'profile', 'support', 'favorites'].includes(tab)) {
         setActiveTab(tab as any);
