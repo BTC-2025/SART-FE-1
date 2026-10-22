@@ -43,7 +43,7 @@ const DEFAULT_STATE: AppState = {
   location: "Indiranagar, Bengaluru",
   activeBookingId: null,
   activeTab: 'home',
-  activeRideMode: 'train'
+  activeRideMode: 'bike'
 };
 
 interface SartStore extends AppState {
@@ -146,11 +146,11 @@ export const useSartStore = create<SartStore>()(
           if (topLevelTabs.includes(tab)) {
             newUrl = `/${tab}`;
           } else if (tab === 'ride') {
-            // Keep specific ride mode if already on /home/ride/xxx, otherwise default to /home/ride/train
+            // Keep specific ride mode if already on /home/ride/xxx, otherwise respect user's activeRideMode or bike
             if (window.location.pathname.startsWith('/home/ride/') && window.location.pathname !== '/home/ride') {
               newUrl = window.location.pathname;
             } else {
-              const currentMode = get().activeRideMode || 'train';
+              const currentMode = get().activeRideMode || (localStorage.getItem('sart_active_ride_mode') as any) || 'bike';
               newUrl = `/home/ride/${currentMode}`;
             }
           } else if (tab !== 'home') {

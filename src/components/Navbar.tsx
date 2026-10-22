@@ -57,7 +57,7 @@ export default function Navbar() {
           <span>SART</span>
           <span className="brand-badge">UNIVERSAL</span>
         </div>
-        
+
         <div className="location-nav-btn" style={{ flexShrink: 0, alignSelf: 'center' }} onClick={() => {
           if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('openReactModal', { detail: 'modal-city-selector' }));
@@ -68,11 +68,11 @@ export default function Navbar() {
           <i className="fa-solid fa-chevron-down" style={{ fontSize: '10px' }}></i>
         </div>
       </div>
-      
+
       <nav className="nav-links">
-        <div 
-          className={`nav-link ${['home', 'ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking'].includes(activeTab) ? 'active' : ''}`} 
-          id="nav-btn-home" 
+        <div
+          className={`nav-link ${['home', 'ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking'].includes(activeTab) ? 'active' : ''}`}
+          id="nav-btn-home"
           onClick={() => {
             setActiveTab('home');
             router.push('/', { scroll: false });
@@ -80,9 +80,9 @@ export default function Navbar() {
         >
           <span>Home</span>
         </div>
-        <div 
-          className={`nav-link ${activeTab === 'store' ? 'active' : ''}`} 
-          id="nav-btn-store" 
+        <div
+          className={`nav-link ${activeTab === 'store' ? 'active' : ''}`}
+          id="nav-btn-store"
           onClick={() => {
             setActiveTab('store');
             router.push('/store', { scroll: false });
@@ -90,25 +90,25 @@ export default function Navbar() {
         >
           <span>Store</span>
         </div>
-        <div 
-          className={`nav-link ${activeTab === 'booking' ? 'active' : ''}`} 
-          id="nav-btn-booking" 
+        <div
+          className={`nav-link ${activeTab === 'booking' ? 'active' : ''}`}
+          id="nav-btn-booking"
           onClick={() => {
             setActiveTab('booking');
             router.push('/booking', { scroll: false });
           }}
         >
-          <span>Booking</span>
+          <span>Tracks</span>
         </div>
       </nav>
 
       {isSearchExpanded && (
         <div className="expanded-search-container">
           <i className="fa-solid fa-magnifying-glass search-icon-left"></i>
-          <input 
-            type="text" 
-            className="expanded-search-input" 
-            placeholder="Search..." 
+          <input
+            type="text"
+            className="expanded-search-input"
+            placeholder="Search..."
             autoFocus
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -140,13 +140,13 @@ export default function Navbar() {
           )}
         </div>
       )}
-      
+
       <div className="nav-controls">
 
         <div className="ctrl-btn" style={{ visibility: isSearchExpanded ? 'hidden' : 'visible' }} onClick={() => setIsSearchExpanded(true)}>
           <i className="fa-solid fa-magnifying-glass"></i>
         </div>
-        
+
         <div
           className={`ctrl-btn ${activeTab === 'favorites' ? 'active' : ''}`}
           onClick={() => setActiveTab('favorites')}
@@ -155,7 +155,7 @@ export default function Navbar() {
           <i className="fa-solid fa-heart"></i>
           {wishlist.length > 0 && <span className="ctrl-badge">{wishlist.length}</span>}
         </div>
-        
+
         <div
           className="ctrl-btn"
           onClick={() => {
@@ -169,40 +169,10 @@ export default function Navbar() {
           {cart.length > 0 && <span className="ctrl-badge">{cart.length}</span>}
         </div>
 
-        <div
-          className="ctrl-btn"
-          onClick={() => {
-            setActiveTab('support' as any);
-            router.push('/support', { scroll: false });
-          }}
-          title="Customer Support"
-          style={{
-            background: '#ffffff',
-            color: '#0f172a',
-            border: '1.5px solid #e2e8f0',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
-          }}
-        >
-          <i className="fa-solid fa-headset" style={{ fontSize: '15px' }}></i>
-        </div>
 
-        <div
-          className="ctrl-btn"
-          onClick={() => {
-            setActiveTab('profile');
-            router.push('/profile', { scroll: false });
-          }}
-          title="Settings"
-          style={{
-            background: '#ffffff',
-            color: '#0f172a',
-            border: '1.5px solid #e2e8f0',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
-          }}
-        >
-          <i className="fa-solid fa-gear" style={{ fontSize: '15px' }}></i>
-        </div>
-        
+
+
+
         <div ref={profileRef}>
           <div className="profile-nav-btn" onClick={() => setIsProfileOpen(!isProfileOpen)} style={{ position: 'relative' }}>
             <i className="fa-solid fa-circle-user"></i>
@@ -211,30 +181,36 @@ export default function Navbar() {
           </div>
 
           {isProfileOpen && (
-            <div className="profile-dropdown-menu show" style={{ width: '320px', padding: '24px', borderRadius: '28px', textAlign: 'center', background: '#ffffff', border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', color: '#000000' }}>
+            <div className="profile-dropdown-menu show" style={{ width: '320px', height: '470px', padding: '14px', borderRadius: '28px', textAlign: 'center', background: '#ffffff', border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', color: '#000000' }}>
               <div style={{ position: 'relative', width: '80px', height: '80px', margin: '0 auto 12px' }}>
                 <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#0b57d0', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', fontWeight: 500 }}>V</div>
                 <label style={{ position: 'absolute', bottom: 0, right: 0, background: 'white', color: 'black', width: '26px', height: '26px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', cursor: 'pointer' }}>
                   <i className="fa-solid fa-camera"></i>
-                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => { if(e.target.files && e.target.files[0]) alert('Selected file: ' + e.target.files[0].name) }} />
+                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => { if (e.target.files && e.target.files[0]) alert('Selected file: ' + e.target.files[0].name) }} />
                 </label>
               </div>
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#000000' }}>vinothkumar</h3>
               <p style={{ margin: '4px 0 16px', fontSize: '14px', color: '#4b5563' }}>gmvinoth@bnxmail.com</p>
-              
+
               <button onClick={() => console.log('Manage Account')} style={{ background: 'transparent', border: '1px solid #d1d5db', color: '#000000', borderRadius: '24px', padding: '10px 20px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '20px', width: 'auto' }}>
                 <i className="fa-solid fa-user-gear"></i> Manage your account
               </button>
-              
+
               <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
                 <button onClick={() => { document.body.classList.add('light-theme'); localStorage.setItem('sart-theme', 'light'); }} style={{ background: '#f3f4f6', border: 'none', color: '#000000', padding: '8px 16px', borderRadius: '12px', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}><i className="fa-solid fa-sun"></i> Light</button>
                 <button onClick={() => { document.body.classList.remove('light-theme'); localStorage.setItem('sart-theme', 'dark'); }} style={{ background: '#f3f4f6', border: 'none', color: '#000000', padding: '8px 16px', borderRadius: '12px', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}><i className="fa-solid fa-moon"></i> Dark</button>
               </div>
 
               <div style={{ borderTop: '1px solid #e5e7eb', margin: '0 -24px 10px' }}></div>
-              
+
               <a className="dropdown-item" style={{ padding: '12px 24px', textAlign: 'left', fontSize: '14px', fontWeight: 500, color: '#000000', display: 'flex', alignItems: 'center', gap: '12px' }} onClick={() => console.log('Add account')}>
                 <i className="fa-solid fa-user-plus" style={{ fontSize: '18px', color: '#4b5563' }}></i> Add another account
+              </a>
+              <a className="dropdown-item" style={{ padding: '12px 24px', textAlign: 'left', fontSize: '14px', fontWeight: 500, color: '#000000', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => { setActiveTab('community'); setIsProfileOpen(false); }}>
+                <i className="fa-solid fa-headset" style={{ fontSize: '18px', color: '#4b5563' }}></i> Help & Support
+              </a>
+              <a className="dropdown-item" style={{ padding: '12px 24px', textAlign: 'left', fontSize: '14px', fontWeight: 500, color: '#000000', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => { setActiveTab('profile'); router.push('/profile', { scroll: false }); setIsProfileOpen(false); }}>
+                <i className="fa-solid fa-gear" style={{ fontSize: '18px', color: '#4b5563' }}></i> Settings
               </a>
               <a className="dropdown-item signout-btn" style={{ padding: '12px 24px', textAlign: 'left', fontSize: '14px', fontWeight: 500, color: '#000000', display: 'flex', alignItems: 'center', gap: '12px' }} onClick={() => { console.log('Sign out'); setIsProfileOpen(false); }}>
                 <i className="fa-solid fa-arrow-right-from-bracket" style={{ fontSize: '18px', color: '#4b5563' }}></i> Sign out of this account
