@@ -163,8 +163,8 @@
   background: #fafafa;
   border-bottom-left-radius: 14px;
   border-bottom-right-radius: 14px;
-  overflow-x: auto;
-  scrollbar-width: none;
+  overflow: visible;
+  position: relative;
 }
 
 .tb-mode-tabs::-webkit-scrollbar {

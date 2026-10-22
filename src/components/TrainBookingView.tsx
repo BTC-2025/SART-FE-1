@@ -27,7 +27,7 @@ export { POPULAR_CITIES, INDIAN_STATIONS, INITIAL_TRAINS, EXPANDED_CORRIDOR_TRAI
 
 export type RideMode = 'bike' | 'auto' | 'car' | 'bus' | 'train' | 'flight' | 'helicopter';
 
-export function getRideModeFromPath(urlPath?: string): RideMode {
+export function getRideModeFromPath(urlPath?: string, fallbackMode?: RideMode): RideMode {
   if (typeof window !== 'undefined') {
     const sp = new URLSearchParams(window.location.search);
     const m = sp.get('mode')?.toLowerCase();
@@ -51,7 +51,15 @@ export function getRideModeFromPath(urlPath?: string): RideMode {
   if (lower.includes('/bike') || lower.includes('/bick')) return 'bike';
   if (lower.includes('/auto')) return 'auto';
   if (lower.includes('/train')) return 'train';
-  return 'train';
+
+  if (fallbackMode) return fallbackMode;
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('sart_active_ride_mode') as RideMode;
+    if (['bike', 'auto', 'car', 'bus', 'train', 'flight', 'helicopter'].includes(stored)) {
+      return stored;
+    }
+  }
+  return 'bike';
 }
 
 export const INITIAL_MODE_ORDER: { id: RideMode; label: string; icon: string }[] = [
@@ -67,40 +75,38 @@ export const INITIAL_MODE_ORDER: { id: RideMode; label: string; icon: string }[]
 export default function TrainBookingView() {
   const pathname = usePathname();
   const router = useRouter();
-  const { setActiveTab, setActiveRideMode } = useSartStore();
+  const { setActiveTab, setActiveRideMode, activeRideMode: storeMode } = useSartStore();
 
-  // Navigation & Mode - single source of truth initialized from path
-  const [activeMode, setActiveMode] = useState<RideMode>(() => getRideModeFromPath(pathname));
+  // Navigation & Mode - single source of truth initialized from path, falling back to user's selected mode
+  const [activeMode, setActiveMode] = useState<RideMode>(() => getRideModeFromPath(pathname, (storeMode as RideMode) || undefined));
   const [isLoadingMode, setIsLoadingMode] = useState<boolean>(false);
   const activeReqIdRef = useRef<number>(0);
 
-  // Fixed static order of mode tabs: Bike -> Auto -> Car -> Bus -> Train -> Flight (No reshuffling)
-  const modeList = INITIAL_MODE_ORDER;
+  // State for "Other Rides" dropdown in place of helicopter
+  const [showOtherRidesDropdown, setShowOtherRidesDropdown] = useState<boolean>(false);
+  const otherRidesRef = useRef<HTMLDivElement>(null);
 
-  // Sync mode with pathname changes immediately
+  // Mode change handler: updates UI tab immediately, keeps fixed positions, shows skeleton loader, updates URL consistently
   useEffect(() => {
-    const currentPathMode = getRideModeFromPath(pathname);
+    const currentPathMode = getRideModeFromPath(pathname, (storeMode as RideMode) || undefined);
     if (currentPathMode !== activeMode) {
       setActiveMode(currentPathMode);
       setActiveRideMode(currentPathMode);
     }
-  }, [pathname, activeMode, setActiveRideMode]);
+  }, [pathname, activeMode, setActiveRideMode, storeMode]);
 
-  // Synchronize activeMode with browser Back/Forward (popstate)
+  // Close Other Rides dropdown on outside click
   useEffect(() => {
-    const handlePopState = () => {
-      if (typeof window !== 'undefined') {
-        const mode = getRideModeFromPath(window.location.pathname);
-        setActiveMode(mode);
-        setActiveRideMode(mode);
-        setIsLoadingMode(false);
+    const handleClickOutside = (e: MouseEvent) => {
+      if (otherRidesRef.current && !otherRidesRef.current.contains(e.target as Node)) {
+        setShowOtherRidesDropdown(false);
       }
     };
-    window.addEventListener('popstate', handlePopState);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      window.removeEventListener('popstate', handlePopState);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [setActiveRideMode]);
+  }, []);
 
   // Mode change handler: updates UI tab immediately, keeps fixed positions, shows skeleton loader, updates URL consistently
   const handleModeChange = (mode: RideMode) => {
@@ -109,6 +115,9 @@ export default function TrainBookingView() {
     // 1. Immediately update active tab highlight
     setActiveMode(mode);
     setActiveRideMode(mode);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sart_active_ride_mode', mode);
+    }
     setRideBookingStep('select_service');
     if (mode === 'bike') setSelectedRideService('bike');
     if (mode === 'auto') setSelectedRideService('auto');
@@ -671,7 +680,8 @@ export default function TrainBookingView() {
                 activeMode === 'car' ? 'fa-car' :
                   activeMode === 'bus' ? 'fa-bus' :
                     activeMode === 'flight' ? 'fa-plane' :
-                      'fa-train-subway'
+                      activeMode === 'helicopter' ? 'fa-helicopter' :
+                        'fa-train-subway'
               } tb-field-icon`}></i>
             <div className="tb-field-content">
               <span className="tb-field-label">Source</span>
@@ -783,7 +793,8 @@ export default function TrainBookingView() {
                 activeMode === 'car' ? 'fa-car' :
                   activeMode === 'bus' ? 'fa-bus' :
                     activeMode === 'flight' ? 'fa-plane' :
-                      'fa-train-subway'
+                      activeMode === 'helicopter' ? 'fa-helicopter' :
+                        'fa-train-subway'
               } tb-field-icon`}></i>
             <div className="tb-field-content">
               <span className="tb-field-label">Destination</span>
@@ -1080,17 +1091,103 @@ export default function TrainBookingView() {
           </button>
         </div>
 
-        {/* Mode Tabs: Dynamic order starting with Flight, Train, Bus, Car, Auto, Bike, where any clicked icon moves to the 1st position */}
-        <div className="tb-mode-tabs">
-          {modeList.map((m) => (
+        {/* Mode Tabs: Bike, Auto, Car, Bus, Train, Flight, plus 'Other Rides' dropdown with Helicopter */}
+        <div className="tb-mode-tabs" style={{ position: 'relative', overflow: 'visible' }}>
+          {INITIAL_MODE_ORDER.filter(m => m.id !== 'helicopter').map((m) => (
             <button
               key={m.id}
               className={`tb-mode-tab ${activeMode === m.id ? 'active' : ''}`}
-              onClick={() => handleModeChange(m.id)}
+              onClick={() => {
+                setShowOtherRidesDropdown(false);
+                handleModeChange(m.id);
+              }}
             >
               <i className={`fa-solid ${m.icon}`}></i> {m.label}
             </button>
           ))}
+
+          {/* 'Other Rides' button with dropdown containing Helicopter */}
+          <div ref={otherRidesRef} style={{ position: 'relative', display: 'inline-block' }}>
+            <button
+              type="button"
+              className={`tb-mode-tab ${activeMode === 'helicopter' ? 'active' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowOtherRidesDropdown(prev => !prev);
+              }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer'
+              }}
+              title="Click to view Other Rides"
+            >
+              <i className={`fa-solid ${activeMode === 'helicopter' ? 'fa-helicopter' : 'fa-bars'}`} style={{ color: activeMode === 'helicopter' ? '#dc2626' : 'inherit' }}></i>
+              <span>{activeMode === 'helicopter' ? 'Helicopter' : 'Other Rides'}</span>
+              <i className={`fa-solid fa-chevron-${showOtherRidesDropdown ? 'up' : 'down'}`} style={{ fontSize: '11px', opacity: 0.7 }}></i>
+            </button>
+
+            {/* Other Rides Dropdown Menu */}
+            {showOtherRidesDropdown && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 4px)',
+                  left: 0,
+                  minWidth: '220px',
+                  background: '#ffffff',
+                  borderRadius: '12px',
+                  boxShadow: '0 16px 36px rgba(15, 23, 42, 0.2), 0 2px 10px rgba(0, 0, 0, 0.08)',
+                  border: '1px solid #cbd5e1',
+                  zIndex: 99999,
+                  padding: '8px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px',
+                  animation: 'fbFadeInDown 0.18s ease'
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div style={{ padding: '6px 12px 4px', fontSize: '11px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Special Aerial Charters
+                </div>
+                <div
+                  onClick={() => {
+                    setShowOtherRidesDropdown(false);
+                    handleModeChange('helicopter');
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    background: activeMode === 'helicopter' ? '#fee2e2' : 'transparent',
+                    color: activeMode === 'helicopter' ? '#dc2626' : '#1e293b',
+                    fontWeight: 700,
+                    fontSize: '14px',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (activeMode !== 'helicopter') e.currentTarget.style.background = '#f8fafc';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeMode !== 'helicopter') e.currentTarget.style.background = 'transparent';
+                  }}
+                >
+                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#fee2e2', color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>
+                    <i className="fa-solid fa-helicopter"></i>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: '13.5px', fontWeight: 800 }}>Helicopter</span>
+                    <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Helipad transfers & charters</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

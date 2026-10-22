@@ -199,21 +199,19 @@ export default function HomeTab() {
     { id: 'car', name: 'Car', icon: 'fa-car', count: '40+ cars nearby' },
     { id: 'auto', name: 'Auto', icon: 'fa-taxi', count: '25+ autos nearby' },
     { id: 'bus', name: 'Bus', icon: 'fa-bus', count: '35+ buses' },
-    { id: 'truck', name: 'Truck', icon: 'fa-truck', count: '20+ trucks' },
     { id: 'ship', name: 'Ship', icon: 'fa-ship', count: '8+ ferries' },
     { id: 'helicopter', name: 'Helicopter', icon: 'fa-helicopter', count: '6+ helipads' },
-    { id: 'jcb', name: 'JCB', icon: 'fa-trowel-bricks', count: '10+ JCBs nearby' },
-    { id: 'tractor', name: 'Tractor', icon: 'fa-tractor', count: '12+ tractors' },
     { id: 'train', name: 'Train', icon: 'fa-train', count: '18+ trains' }
   ];
 
   const CARRIER_VEHICLES = [
-    { id: 'truck', name: 'Truck', icon: 'fa-truck', count: '22+ nearby' },
-    { id: 'mini-truck', name: 'Mini Truck (Tata Ace)', icon: 'fa-truck-pickup', count: '28+ nearby' },
-    { id: 'cargo-van', name: 'Cargo Van', icon: 'fa-van-shuttle', count: '15+ nearby' },
-    { id: 'jcb', name: 'JCB Earthmover', icon: 'fa-trowel-bricks', count: '10+ nearby' },
-    { id: 'tractor', name: 'Tractor Cargo', icon: 'fa-tractor', count: '12+ nearby' },
-    { id: 'ship', name: 'Cargo Ship / Barge', icon: 'fa-ship', count: '5+ nearby' }
+    { id: 'train', name: 'Train Cargo', icon: 'fa-train', count: '15+ rakes available' },
+    { id: 'flight', name: 'Flight Cargo', icon: 'fa-plane', count: '10+ cargo flights' },
+    { id: 'car', name: 'Car / Van Cargo', icon: 'fa-car', count: '30+ nearby' },
+    { id: 'truck', name: 'Truck Cargo', icon: 'fa-truck', count: '20+ nearby' },
+
+    { id: 'bike', name: 'Bike Parcel', icon: 'fa-motorcycle', count: '45+ nearby' },
+    { id: 'ship', name: 'Ship Cargo', icon: 'fa-ship', count: '8+ vessels' }
   ];
 
   // Category specific vehicle options
@@ -253,7 +251,7 @@ export default function HomeTab() {
     }).toString();
 
     if (selectedCategory === 'rides') {
-      const mode = (['bike', 'auto', 'car', 'bus', 'train', 'flight', 'helicopter', 'ship', 'truck', 'tractor'].includes(selectedVehicle) ? selectedVehicle : 'bike') as any;
+      const mode = (['bike', 'auto', 'car', 'bus', 'train', 'flight', 'helicopter', 'ship'].includes(selectedVehicle) ? selectedVehicle : 'bike') as any;
       setActiveRideMode(mode);
       setActiveTab('ride');
       const targetUrl = `/home/ride/${mode}?${query}`;
@@ -375,8 +373,12 @@ export default function HomeTab() {
                   <div className="hero-vehicle-dropdown-menu" onClick={(e) => e.stopPropagation()}>
                     <div className="hero-vdp-header">
                       <div>
-                        <h4 className="hero-vdp-title">Ride Selection</h4>
-                        <span className="hero-vdp-subtitle">Choose travel party &amp; preferred vehicle</span>
+                        <h4 className="hero-vdp-title">
+                          {selectedCategory === 'carrier' ? 'Cargo & Logistics Selection' : selectedCategory === 'rental' ? 'Rental Fleet Selection' : 'Ride Selection'}
+                        </h4>
+                        <span className="hero-vdp-subtitle">
+                          {selectedCategory === 'carrier' ? 'Choose freight party & cargo vehicle' : 'Choose travel party & preferred vehicle'}
+                        </span>
                       </div>
                       <button
                         type="button"
@@ -386,8 +388,6 @@ export default function HomeTab() {
                         <i className="fa-solid fa-xmark"></i>
                       </button>
                     </div>
-
-
 
                     {/* Scrollable Vehicle Cards List */}
                     <div className="hero-vehicle-dropdown-list">
@@ -400,6 +400,10 @@ export default function HomeTab() {
                             onClick={() => {
                               setSelectedVehicle(veh.id);
                               setShowVehicleDropdown(false);
+                              if (selectedCategory === 'carrier') {
+                                setActiveTab('carrier');
+                                router.push(`/home/carrier?vehicle=${veh.id}`, { scroll: false });
+                              }
                             }}
                           >
                             <div className="hero-vdp-card-left">

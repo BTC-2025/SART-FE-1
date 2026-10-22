@@ -148,8 +148,12 @@ function RentalBookingModal({ isOpen, onClose }: RentalBookingModalProps) {
         searchParamsObj = new URLSearchParams(window.location.search);
       }
 
-      const subService = searchParamsObj.get('subService');
-      const origin = searchParamsObj.get('origin');
+      const subService = searchParamsObj.get('subService') || searchParamsObj.get('vehicle');
+      const origin = searchParamsObj.get('origin') || searchParamsObj.get('source');
+      const searchDate = searchParamsObj.get('date');
+
+      if (origin) setPickup(origin);
+      if (searchDate) setPickupDate(searchDate);
 
       if (subService || path.includes('-rental') || path.startsWith('/home/rental/')) {
         let masterId = '';
@@ -185,8 +189,6 @@ function RentalBookingModal({ isOpen, onClose }: RentalBookingModalProps) {
             } else if (foundMaster.list.length > 0) {
               setSelectedVehicleId(foundMaster.list[0].id);
             }
-
-            if (origin) setPickup(origin);
 
             if (typeof window !== 'undefined' && path === '/home/rental' && subService) {
               try {

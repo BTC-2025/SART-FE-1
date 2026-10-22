@@ -64,6 +64,38 @@ export default function DriversBookingModal({ isOpen, onClose }: DriversBookingM
     }
   }, [selectedVehicleType]);
 
+  // Sync vehicle, locations, and date from URL search parameters
+  useEffect(() => {
+    if (typeof window !== 'undefined' && isOpen) {
+      const sp = new URLSearchParams(window.location.search);
+      const v = sp.get('vehicle')?.toLowerCase();
+      const s = sp.get('source') || sp.get('origin');
+      const d = sp.get('destination');
+      const dt = sp.get('date');
+
+      if (v) {
+        const matchingCategory = DRIVER_VEHICLE_OPTIONS.find(opt => opt.id.toLowerCase() === v || opt.name.toLowerCase().includes(v));
+        if (matchingCategory) {
+          setSelectedVehicleType(matchingCategory.id);
+        }
+      }
+      if (s) {
+        setPickupLocation(s);
+      }
+      if (d) {
+        setDropLocation(d);
+      }
+      if (dt) {
+        setTripDate(dt);
+      }
+
+      // If user came with both vehicle and pickup location specified from home search, jump directly to driver list
+      if (s && v) {
+        setBookingStage('drivers_list');
+      }
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleClose = () => {
@@ -252,8 +284,8 @@ export default function DriversBookingModal({ isOpen, onClose }: DriversBookingM
                 maxWidth: '420px',
                 borderRight: '1px solid #e2e8f0',
                 backgroundColor: '#ffffff',
-                overflowY: 'auto',
-                padding: '36px 32px',
+
+
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',

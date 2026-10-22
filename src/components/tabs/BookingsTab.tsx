@@ -44,6 +44,15 @@ export default function BookingsTab() {
   const [overviewTab, setOverviewTab] = useState<'upcoming' | 'past' | 'cancelled'>('upcoming');
   const [selectedGlobalBooking, setSelectedGlobalBooking] = useState<Booking | null>(null);
   const [showMoreDestinations, setShowMoreDestinations] = useState(false);
+  const [showAllBookings, setShowAllBookings] = useState(false);
+
+  const filteredOverviewBookings = MOCK_BOOKINGS.filter(b => {
+    if (overviewTab === 'upcoming') return b.isActive && !b.isCancelled;
+    if (overviewTab === 'past') return !b.isActive && !b.isCancelled;
+    if (overviewTab === 'cancelled') return b.isCancelled;
+    return false;
+  });
+  const displayedOverviewBookings = showAllBookings ? filteredOverviewBookings : filteredOverviewBookings.slice(0, 6);
 
   const { activeTab: globalActiveTab, setActiveTab: setGlobalActiveTab } = useSartStore();
 
@@ -430,34 +439,39 @@ export default function BookingsTab() {
 
           {/* MY BOOKINGS OVERVIEW */}
           <div style={{ maxWidth: '1400px', margin: '0 auto 40px auto', background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 10px rgba(0,0,0,0.03)' }}>
-            <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', marginBottom: '24px' }}>
+              <div style={{ display: 'flex' }}>
+                <button
+                  onClick={() => { setOverviewTab('upcoming'); setShowAllBookings(false); }}
+                  style={{ background: 'none', border: 'none', borderBottom: overviewTab === 'upcoming' ? '2px solid #6366f1' : '2px solid transparent', padding: '12px 24px', cursor: 'pointer', fontWeight: 'bold', color: overviewTab === 'upcoming' ? '#0f172a' : '#64748b' }}
+                >
+                  Upcoming
+                </button>
+                <button
+                  onClick={() => { setOverviewTab('past'); setShowAllBookings(false); }}
+                  style={{ background: 'none', border: 'none', borderBottom: overviewTab === 'past' ? '2px solid #6366f1' : '2px solid transparent', padding: '12px 24px', cursor: 'pointer', fontWeight: 'bold', color: overviewTab === 'past' ? '#0f172a' : '#64748b' }}
+                >
+                  Past Bookings
+                </button>
+                <button
+                  onClick={() => { setOverviewTab('cancelled'); setShowAllBookings(false); }}
+                  style={{ background: 'none', border: 'none', borderBottom: overviewTab === 'cancelled' ? '2px solid #6366f1' : '2px solid transparent', padding: '12px 24px', cursor: 'pointer', fontWeight: 'bold', color: overviewTab === 'cancelled' ? '#0f172a' : '#64748b' }}
+                >
+                  Cancellations
+                </button>
+              </div>
+
               <button
-                onClick={() => setOverviewTab('upcoming')}
-                style={{ background: 'none', border: 'none', borderBottom: overviewTab === 'upcoming' ? '2px solid #6366f1' : '2px solid transparent', padding: '12px 24px', cursor: 'pointer', fontWeight: 'bold', color: overviewTab === 'upcoming' ? '#0f172a' : '#64748b' }}
+                onClick={() => setShowAllBookings(!showAllBookings)}
+                style={{ padding: '8px 20px', background: 'transparent', border: '1px solid #0ea5e9', color: '#0ea5e9', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px', display: 'inline-flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s ease' }}
               >
-                Upcoming
-              </button>
-              <button
-                onClick={() => setOverviewTab('past')}
-                style={{ background: 'none', border: 'none', borderBottom: overviewTab === 'past' ? '2px solid #6366f1' : '2px solid transparent', padding: '12px 24px', cursor: 'pointer', fontWeight: 'bold', color: overviewTab === 'past' ? '#0f172a' : '#64748b' }}
-              >
-                Past Bookings
-              </button>
-              <button
-                onClick={() => setOverviewTab('cancelled')}
-                style={{ background: 'none', border: 'none', borderBottom: overviewTab === 'cancelled' ? '2px solid #6366f1' : '2px solid transparent', padding: '12px 24px', cursor: 'pointer', fontWeight: 'bold', color: overviewTab === 'cancelled' ? '#0f172a' : '#64748b' }}
-              >
-                Cancellations
+                <span>{showAllBookings ? 'Show Less' : 'View All'}</span>
+                <i className={`fa-solid ${showAllBookings ? 'fa-chevron-up' : 'fa-chevron-down'}`} style={{ fontSize: '11px' }}></i>
               </button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-              {MOCK_BOOKINGS.filter(b => {
-                if (overviewTab === 'upcoming') return b.isActive && !b.isCancelled;
-                if (overviewTab === 'past') return !b.isActive && !b.isCancelled;
-                if (overviewTab === 'cancelled') return b.isCancelled;
-                return false;
-              }).map((booking, idx) => (
+              {displayedOverviewBookings.map((booking, idx) => (
                 <div key={idx} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

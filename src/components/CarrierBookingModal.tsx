@@ -140,6 +140,45 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
   const fromRef = React.useRef<HTMLDivElement>(null);
   const toRef = React.useRef<HTMLDivElement>(null);
 
+  // Sync selected vehicle & mode if navigated from URL
+  useEffect(() => {
+    if (typeof window !== 'undefined' && isOpen) {
+      const sp = new URLSearchParams(window.location.search);
+      const v = sp.get('vehicle')?.toLowerCase();
+      if (v === 'train') {
+        setActiveCategory('RAIL');
+        setSelectedVehicle('c-covered-wagon');
+        setShipmentMode('Railways');
+      } else if (v === 'flight') {
+        setActiveCategory('AIR');
+        setSelectedVehicle('c-narrow');
+        setShipmentMode('International');
+      } else if (v === 'car') {
+        setActiveCategory('ROAD');
+        setSelectedVehicle('c-ace');
+        setShipmentMode('Domestic');
+      } else if (v === 'truck') {
+        setActiveCategory('ROAD');
+        setSelectedVehicle('c-eicher-14');
+        setShipmentMode('Cargo');
+      } else if (v === 'bike') {
+        setActiveCategory('ROAD');
+        setSelectedVehicle('c-bike');
+        setShipmentMode('Quick');
+      } else if (v === 'ship') {
+        setActiveCategory('SEA');
+        setSelectedVehicle('c-general');
+        setShipmentMode('Cargo');
+      }
+      const s = sp.get('source');
+      const d = sp.get('destination');
+      const dt = sp.get('date');
+      if (s) setPickup(s);
+      if (d) setDropoff(d);
+      if (dt) setDate(dt);
+    }
+  }, [isOpen]);
+
   const MONTH_NAMES = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
@@ -2111,23 +2150,80 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
                     </div>
                   </div>
 
-                  {/* Selected Vehicle Summary Card */}
-                  {selectedVehicleObj && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: '#ffffff', border: '2px solid #000', borderRadius: '16px', padding: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-                      <div style={{ width: '56px', height: '56px', borderRadius: '12px', background: selectedVehicleObj.color + '15', color: selectedVehicleObj.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
-                        <i className={`fa-solid ${selectedVehicleObj.icon}`}></i>
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '11px', fontWeight: '800', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Selected Carrier</div>
-                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800', color: '#111827' }}>{selectedVehicleObj.name}</h3>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '20px', fontWeight: '800', color: '#111827' }}>
-                          {(pickup.length > 1 && dropoff.length > 1 && cargoWeight !== '') ? `₹${Math.max(selectedVehicleObj.price, Math.round(selectedVehicleObj.price * (estimatedDistance / 20))).toLocaleString('en-IN')}` : '--'}
-                        </div>
-                      </div>
+                  {/* Matching and Related Vehicles for Selected Mode & Weight */}
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: '800', color: '#111827' }}>
+                        <i className="fa-solid fa-truck-ramp-box" style={{ color: '#0ea5e9', marginRight: '6px' }}></i>
+                        {mode === 'ROAD' ? 'Road Cargo Vehicles' : mode === 'AIR' ? 'Air Cargo Carriers' : mode === 'SEA' ? 'Marine Cargo Ships' : 'Rail Freight Wagons'}
+                      </span>
+                      {cargoWeight.trim() === '' && (
+                        <span style={{ fontSize: '11px', color: '#f59e0b', fontWeight: '700', background: '#fffbeb', padding: '2px 8px', borderRadius: '6px', border: '1px solid #fde68a' }}>
+                          <i className="fa-solid fa-weight-scale" style={{ marginRight: '4px' }}></i> Enter weight above to view matching vehicles & fares
+                        </span>
+                      )}
                     </div>
-                  )}
+
+                    {/* Vehicles Grid / List */}
+                    {cargoWeight.trim() === '' ? (
+                      <div style={{ background: '#f8fafc', border: '1.5px dashed #cbd5e1', borderRadius: '14px', padding: '16px', textAlign: 'center', color: '#64748b' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px', color: '#0ea5e9', fontSize: '16px' }}>
+                          <i className="fa-solid fa-scale-balanced"></i>
+                        </div>
+                        <div style={{ fontSize: '13px', fontWeight: 800, color: '#334155' }}>Enter Cargo Weight Above</div>
+                        <div style={{ fontSize: '11.5px', marginTop: '2px' }}>Enter the shipment weight in kg or tons above to show all matching {mode.toLowerCase()} cargo vehicles and live rates.</div>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '10px' }}>
+                        {(mode === 'ROAD' ? ROAD_CARRIERS[0].vehicles : mode === 'AIR' ? AIR_CARRIERS[0].vehicles : mode === 'SEA' ? SEA_CARRIERS[0].vehicles : RAIL_CARRIERS[0].vehicles).map((cv) => {
+                          const isSelected = selectedVehicle === cv.id;
+                          const cvCapacityTon = (cv as any).capacityTon;
+                          const userWeightKg = (parseFloat(cargoWeight) || 0) * (cargoUnit === 'ton' ? 1000 : 1);
+                          const userWeightTon = userWeightKg / 1000;
+                          const isOvercapacity = cvCapacityTon ? userWeightTon > cvCapacityTon * 1.05 : false;
+                          const dynamicFare = Math.max(cv.price, Math.round(cv.price * (estimatedDistance / 20)));
+
+                          return (
+                            <div
+                              key={cv.id}
+                              onClick={() => {
+                                setSelectedVehicle(cv.id);
+                              }}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                padding: '10px 12px',
+                                borderRadius: '12px',
+                                border: isSelected ? '2px solid #0284c7' : '1px solid #e2e8f0',
+                                background: isSelected ? '#f0f9ff' : '#ffffff',
+                                cursor: 'pointer',
+                                transition: 'all 0.15s ease',
+                                opacity: isOvercapacity ? 0.6 : 1
+                              }}
+                            >
+                              <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: cv.color + '15', color: cv.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>
+                                <i className={`fa-solid ${cv.icon}`}></i>
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {cv.name}
+                                </div>
+                                <div style={{ fontSize: '11px', color: isOvercapacity ? '#ef4444' : '#64748b', fontWeight: 600 }}>
+                                  {cvCapacityTon ? `Cap: ${cvCapacityTon} Ton` : 'Freight'}{isOvercapacity ? ' • Overweight' : ''}
+                                </div>
+                              </div>
+                              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                                <div style={{ fontSize: '13px', fontWeight: 900, color: '#0284c7' }}>
+                                  ₹{dynamicFare.toLocaleString('en-IN')}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
 
                   {/* 3. Sender & Receiver Contact Details */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
