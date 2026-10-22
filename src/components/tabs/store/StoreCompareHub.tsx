@@ -11,52 +11,68 @@ interface StoreCompareHubProps {
 }
 
 export default function StoreCompareHub({ showToast, userLocationCity = 'Chennai', setActiveHubTab }: StoreCompareHubProps) {
-  const [selectedCompareVehicleType, setSelectedCompareVehicleType] = useState<string>('Car');
+  // Default to 'All' so all vehicles show initially, or choose specific vehicle type to filter
+  const [selectedCompareVehicleType, setSelectedCompareVehicleType] = useState<string>('All');
   const [compareSelectedVehicles, setCompareSelectedVehicles] = useState<(ComparisonVehicle | null)[]>([
-    COMPARISON_VEHICLES.find((v) => v.category === 'Car') || COMPARISON_VEHICLES[12],
-    COMPARISON_VEHICLES.filter((v) => v.category === 'Car')[1] || COMPARISON_VEHICLES[13],
+    COMPARISON_VEHICLES[13] || COMPARISON_VEHICLES[0], // Hyundai Creta 2024
+    COMPARISON_VEHICLES[15] || COMPARISON_VEHICLES[1], // Kia Seltos Facelift
     null,
     null
   ]);
   const [compareActiveCategory, setCompareActiveCategory] = useState<string>('All');
   const [compareVehicleSearchQuery, setCompareVehicleSearchQuery] = useState<string>('');
   const [comparePickerSlot, setComparePickerSlot] = useState<number | null>(null);
-  const [comparePopularTab, setComparePopularTab] = useState<'All' | 'Scooters' | 'Electric' | 'Bikes' | 'Cars' | 'Commercial'>('All');
+  const [comparePopularTab, setComparePopularTab] = useState<'All' | 'Cars' | 'Bikes' | 'Scooters' | 'Electric' | 'Auto' | 'Commercial'>('All');
 
-          const filledVehicles = compareSelectedVehicles.filter((v): v is ComparisonVehicle => v !== null);
+  const filledVehicles = compareSelectedVehicles.filter((v): v is ComparisonVehicle => v !== null);
 
-          // Filter vehicles for the selection modal
-          const modalAvailableVehicles = COMPARISON_VEHICLES.filter((v) => {
-            const matchesCat = compareActiveCategory === 'All' || v.category === compareActiveCategory;
-            const matchesSearch = !compareVehicleSearchQuery.trim() ||
-              v.name.toLowerCase().includes(compareVehicleSearchQuery.toLowerCase()) ||
-              v.brand.toLowerCase().includes(compareVehicleSearchQuery.toLowerCase());
-            return matchesCat && matchesSearch;
-          });
+  // Filter vehicles for the selection modal
+  const modalAvailableVehicles = COMPARISON_VEHICLES.filter((v) => {
+    const matchesCat = compareActiveCategory === 'All' || v.category === compareActiveCategory;
+    const matchesSearch = !compareVehicleSearchQuery.trim() ||
+      v.name.toLowerCase().includes(compareVehicleSearchQuery.toLowerCase()) ||
+      v.brand.toLowerCase().includes(compareVehicleSearchQuery.toLowerCase());
+    return matchesCat && matchesSearch;
+  });
 
-          // Popular comparison pairs based on screenshot
-          const popularPairs = [
-            {
-              cat: 'Scooters',
-              vA: COMPARISON_VEHICLES.find(v => v.id === 'comp-ntorq') || COMPARISON_VEHICLES[0],
-              vB: COMPARISON_VEHICLES.find(v => v.id === 'comp-rayzr') || COMPARISON_VEHICLES[1]
-            },
-            {
-              cat: 'Electric',
-              vA: COMPARISON_VEHICLES.find(v => v.id === 'comp-olas1x') || COMPARISON_VEHICLES[2],
-              vB: COMPARISON_VEHICLES.find(v => v.id === 'comp-qc1') || COMPARISON_VEHICLES[3]
-            },
-            {
-              cat: 'Bikes',
-              vA: COMPARISON_VEHICLES.find(v => v.id === 'comp-rr300') || COMPARISON_VEHICLES[9],
-              vB: COMPARISON_VEHICLES.find(v => v.id === 'comp-r15') || COMPARISON_VEHICLES[8]
-            },
-            {
-              cat: 'Cars',
-              vA: COMPARISON_VEHICLES.find(v => v.id === 'comp-creta') || COMPARISON_VEHICLES[13],
-              vB: COMPARISON_VEHICLES.find(v => v.id === 'comp-seltos') || COMPARISON_VEHICLES[15]
-            }
-          ].filter(pair => comparePopularTab === 'All' || pair.cat === comparePopularTab || (comparePopularTab === 'Scooters' && pair.cat === 'Scooters'));
+  // Popular comparison pairs across ALL vehicle types in SART
+  const popularPairs = [
+    {
+      cat: 'Cars',
+      vA: COMPARISON_VEHICLES.find(v => v.id === 'comp-creta') || COMPARISON_VEHICLES[13],
+      vB: COMPARISON_VEHICLES.find(v => v.id === 'comp-seltos') || COMPARISON_VEHICLES[15]
+    },
+    {
+      cat: 'Cars',
+      vA: COMPARISON_VEHICLES.find(v => v.id === 'comp-nexon') || COMPARISON_VEHICLES[12],
+      vB: COMPARISON_VEHICLES.find(v => v.id === 'comp-thar') || COMPARISON_VEHICLES[14]
+    },
+    {
+      cat: 'Bikes',
+      vA: COMPARISON_VEHICLES.find(v => v.id === 'comp-r15') || COMPARISON_VEHICLES[8],
+      vB: COMPARISON_VEHICLES.find(v => v.id === 'comp-rr300') || COMPARISON_VEHICLES[9]
+    },
+    {
+      cat: 'Scooters',
+      vA: COMPARISON_VEHICLES.find(v => v.id === 'comp-activa') || COMPARISON_VEHICLES[4],
+      vB: COMPARISON_VEHICLES.find(v => v.id === 'comp-jupiter') || COMPARISON_VEHICLES[5]
+    },
+    {
+      cat: 'Electric',
+      vA: COMPARISON_VEHICLES.find(v => v.id === 'comp-curvv') || COMPARISON_VEHICLES[16],
+      vB: COMPARISON_VEHICLES.find(v => v.id === 'comp-olas1x') || COMPARISON_VEHICLES[2]
+    },
+    {
+      cat: 'Commercial',
+      vA: COMPARISON_VEHICLES.find(v => v.id === 'comp-signa') || COMPARISON_VEHICLES[17],
+      vB: COMPARISON_VEHICLES.find(v => v.id === 'comp-ashok') || COMPARISON_VEHICLES[18]
+    },
+    {
+      cat: 'Auto',
+      vA: COMPARISON_VEHICLES.find(v => v.id === 'comp-bajaj-re') || COMPARISON_VEHICLES[19],
+      vB: COMPARISON_VEHICLES.find(v => v.id === 'comp-mahindra-treo') || COMPARISON_VEHICLES[21]
+    }
+  ].filter(pair => comparePopularTab === 'All' || pair.cat === comparePopularTab);
 
           return (
             <section className="hub-showcase-view animate-pop carbike-compare-wrapper">
@@ -78,6 +94,9 @@ export default function StoreCompareHub({ showToast, userLocationCity = 'Chennai
                       if (setActiveHubTab) {
                         setActiveHubTab('finance_insurance');
                       }
+                      if (typeof window !== 'undefined') {
+                        window.history.pushState({ storeTab: 'finance_insurance' }, '', '/store/CompareVehicles/EMI&Loan');
+                      }
                       showToast('Opened EMI & Loan Calculator');
                     }}
                     title="Calculate Vehicle EMI & Loan Options"
@@ -94,13 +113,13 @@ export default function StoreCompareHub({ showToast, userLocationCity = 'Chennai
                   </span>
                   <div className="type-buttons-scroll">
                     {[
+                      { id: 'All', label: 'All Vehicles', icon: 'fa-globe' },
                       { id: 'Car', label: 'Cars & SUVs', icon: 'fa-car-side' },
-                      { id: 'Scooter', label: 'Scooters', icon: 'fa-motorcycle' },
                       { id: 'Bike', label: 'Bikes & Motorcycles', icon: 'fa-motorcycle' },
+                      { id: 'Scooter', label: 'Scooters', icon: 'fa-motorcycle' },
                       { id: 'EV', label: 'Electric (EV)', icon: 'fa-bolt' },
                       { id: 'Commercial', label: 'Trucks & Lorries', icon: 'fa-truck' },
-                      { id: 'Auto', label: 'Auto Rickshaws', icon: 'fa-taxi' },
-                      { id: 'All', label: 'All Vehicles', icon: 'fa-globe' }
+                      { id: 'Auto', label: 'Auto Rickshaws', icon: 'fa-taxi' }
                     ].map((vt) => (
                       <button
                         key={vt.id}
@@ -113,7 +132,7 @@ export default function StoreCompareHub({ showToast, userLocationCity = 'Chennai
                           // Load 2 matching defaults for this class
                           const matching = vt.id === 'All'
                             ? COMPARISON_VEHICLES
-                            : COMPARISON_VEHICLES.filter(v => v.category === vt.id || (vt.id === 'Auto' && v.category === 'Scooter'));
+                            : COMPARISON_VEHICLES.filter(v => v.category === vt.id);
 
                           if (matching.length >= 2) {
                             setCompareSelectedVehicles([matching[0], matching[1], null, null]);
@@ -218,7 +237,7 @@ export default function StoreCompareHub({ showToast, userLocationCity = 'Chennai
                 <div className="section-head-line">
                   <h3>Popular {selectedCompareVehicleType === 'All' ? 'Vehicle' : selectedCompareVehicleType} Comparisons</h3>
                   <div className="cb-cat-pills">
-                    {(['All', 'Scooters', 'Electric', 'Bikes', 'Cars'] as const).map((tab) => (
+                    {(['All', 'Cars', 'Bikes', 'Scooters', 'Electric', 'Auto', 'Commercial'] as const).map((tab) => (
                       <button
                         key={tab}
                         type="button"
@@ -330,11 +349,13 @@ export default function StoreCompareHub({ showToast, userLocationCity = 'Chennai
                           <th className="th-feature-metric">Features &amp; Metrics</th>
                           {filledVehicles.map((v, idx) => (
                             <th key={`${v.id}-${idx}`} className="th-veh-col">
-                              <div className="th-veh-head">
-                                <img src={v.image} alt={v.name} />
-                                <span className="th-brand">{v.brand}</span>
-                                <strong>{v.name}</strong>
-                                <span className="th-price">{v.price}</span>
+                              <div className="th-veh-card">
+                                <div className="th-img-box">
+                                  <img src={v.image} alt={v.name} />
+                                </div>
+                                <span className="th-brand-tag">{v.brand}</span>
+                                <h4 className="th-model-name">{v.name}</h4>
+                                <span className="th-price-pill">{v.price}</span>
                               </div>
                             </th>
                           ))}
@@ -441,7 +462,7 @@ export default function StoreCompareHub({ showToast, userLocationCity = 'Chennai
 
                     {/* Filter categories */}
                     <div className="picker-category-tabs">
-                      {['All', 'Scooter', 'Bike', 'Car', 'EV', 'Commercial'].map((cat) => (
+                      {['All', 'Car', 'Bike', 'Scooter', 'EV', 'Auto', 'Commercial'].map((cat) => (
                         <button
                           key={cat}
                           type="button"

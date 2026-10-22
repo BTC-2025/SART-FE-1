@@ -10,8 +10,8 @@ interface StoreFinanceHubProps {
 }
 
 export default function StoreFinanceHub({ showToast, userLocationCity, setActiveHubTab }: StoreFinanceHubProps) {
-  const [emiVehicleCategory, setEmiVehicleCategory] = useState<string>('Car');
-  const [emiCarBrand, setEmiCarBrand] = useState<string>('Tata');
+  const [emiVehicleCategory, setEmiVehicleCategory] = useState<string>('All');
+  const [emiCarBrand, setEmiCarBrand] = useState<string>('Tata Motors');
   const [emiCarModel, setEmiCarModel] = useState<string>('car-sierra');
   const [emiCarVariant, setEmiCarVariant] = useState<string>('sierra-smart-plus');
   const [emiOnRoadPrice, setEmiOnRoadPrice] = useState<number>(1311000);
@@ -58,7 +58,7 @@ export default function StoreFinanceHub({ showToast, userLocationCity, setActive
             <section className="hub-showcase-view cardekho-emi-hub-view animate-pop">
               {/* Top Breadcrumb */}
               <div className="cd-emi-breadcrumb">
-                <span>{emiVehicleCategory.toUpperCase()} FINANCE</span>
+                <span>{emiVehicleCategory === 'All' ? 'ALL VEHICLES' : emiVehicleCategory.toUpperCase()} FINANCE</span>
                 <span className="bc-sep">/</span>
                 <span>{activeModel.brand.toUpperCase()}</span>
                 <span className="bc-sep">/</span>
@@ -72,6 +72,7 @@ export default function StoreFinanceHub({ showToast, userLocationCity, setActive
                 </span>
                 <div className="cat-ribbon-scroll">
                   {[
+                    { id: 'All', label: 'All Vehicles', icon: 'fa-globe' },
                     { id: 'Car', label: 'Cars & SUVs', icon: 'fa-car-side' },
                     { id: 'Scooter', label: 'Scooters', icon: 'fa-motorcycle' },
                     { id: 'Bike', label: 'Bikes & Motorcycles', icon: 'fa-motorcycle' },
@@ -80,8 +81,7 @@ export default function StoreFinanceHub({ showToast, userLocationCity, setActive
                     { id: 'Commercial', label: 'Trucks & Lorries', icon: 'fa-truck' },
                     { id: 'Bus', label: 'Buses & Coaches', icon: 'fa-bus' },
                     { id: 'Auto', label: 'Auto Rickshaws', icon: 'fa-taxi' },
-                    { id: 'Tractor', label: 'Farm Tractors', icon: 'fa-tractor' },
-                    { id: 'All', label: 'All Vehicles', icon: 'fa-globe' }
+                    { id: 'Tractor', label: 'Farm Tractors', icon: 'fa-tractor' }
                   ].map((cat) => (
                     <button
                       key={cat.id}
@@ -112,99 +112,74 @@ export default function StoreFinanceHub({ showToast, userLocationCity, setActive
                 </div>
               </div>
 
-              {/* TOP VEHICLE HERO CARD (DYNAMIC TO SELECTED MODEL & VARIANT) */}
-              <div className="cd-vehicle-hero-card">
-                <div className="cd-hero-left">
-                  <img
-                    src={activeModel.image}
-                    alt={activeModel.name}
-                    className="cd-hero-car-img"
-                  />
-                  <span className="hero-cat-tag">
-                    <i className="fa-solid fa-tag"></i> {activeModel.category}
+              {/* STEP 1.5: QUICK VEHICLE CHIP PICKER (BROWSE & CHOOSE ANY VEHICLE) */}
+              <div className="cd-quick-vehicles-strip">
+                <div className="strip-header-row">
+                  <span className="strip-title">
+                    <i className="fa-solid fa-car-burst"></i> Quick Pick: Choose Any Vehicle ({modelsInCategory.length} Available)
+                  </span>
+                  <span className="strip-count-badge">
+                    Selected: <strong>{activeModel.name}</strong> ({activeModel.category})
                   </span>
                 </div>
-                <div className="cd-hero-info">
-                  <div className="cd-hero-title-row">
-                    <div>
-                      <h2>{activeModel.name} EMI Calculator</h2>
-                      <span className="active-variant-chip">
-                        <i className="fa-solid fa-code-branch"></i> Variant: <strong>{activeVariant.name}</strong>
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      className="btn-wish-heart"
-                      title="Bookmark Vehicle"
-                      onClick={() => showToast(`Saved ${activeModel.name} to favorites`)}
-                    >
-                      <i className="fa-regular fa-heart"></i>
-                    </button>
-                  </div>
-                  <p className="cd-hero-desc">
-                    <strong>{activeModel.name} ({activeVariant.name})</strong> monthly EMI starts at{' '}
-                    <strong className="text-orange">₹{monthlyEmiVal.toLocaleString('en-IN')}</strong> per month for a tenure
-                    of {emiLoanTenureYears * 12} months @ {emiInterestRate}% for a total loan amount of{' '}
-                    <strong>₹{totalLoanAmt.toLocaleString('en-IN')}</strong> in {userLocationCity}.
-                    Calculated on verified on-road pricing with comprehensive insurance &amp; RTO charges.
-                  </p>
-                  <div className="cd-hero-rating-row">
-                    <span className="rating-star-tag">{activeModel.rating} <i className="fa-solid fa-star"></i></span>
-                    <span className="review-count-txt">{activeModel.reviewCount} Verified Owner Reviews</span>
-                    <span className="hero-spec-pill"><i className="fa-solid fa-gas-pump"></i> {activeVariant.fuel}</span>
-                    <span className="hero-spec-pill"><i className="fa-solid fa-gauge"></i> {activeVariant.mileage}</span>
-                  </div>
-                  <div className="cd-hero-price-row">
-                    <div>
-                      <span className="hero-price-label">Ex-Showroom: ₹{activeVariant.exShowroom.toLocaleString('en-IN')}</span>
-                      <strong className="cd-hero-price">On-Road: ₹{activeVariant.onRoadPrice.toLocaleString('en-IN')}</strong>
-                    </div>
-                    <span className="cd-emi-starts">EMI starts @ ₹{monthlyEmiVal.toLocaleString('en-IN')}/mo</span>
-                  </div>
-                  <div className="hero-cta-buttons-row">
-                    <button
-                      type="button"
-                      className="btn-cd-orange-cta"
-                      onClick={() => showToast(`Fast-track loan approval request submitted for ${activeModel.name}!`)}
-                    >
-                      <i className="fa-solid fa-file-invoice-dollar"></i> Apply Instant Loan (Pre-Approved)
-                    </button>
-                    <button
-                      type="button"
-                      className="btn-cd-secondary-cta"
-                      onClick={() => {
-                        showToast(`Free test drive booking confirmed for ${activeModel.name} in ${userLocationCity}!`);
-                      }}
-                    >
-                      <i className="fa-solid fa-car-side"></i> Book Free Test Drive
-                    </button>
-                  </div>
+                <div className="cd-quick-vehicles-scroll">
+                  {modelsInCategory.map((veh) => {
+                    const isSelected = veh.id === activeModel.id;
+                    return (
+                      <button
+                        key={veh.id}
+                        type="button"
+                        className={`cd-quick-veh-card ${isSelected ? 'active' : ''}`}
+                        onClick={() => {
+                          setEmiCarBrand(veh.brand);
+                          setEmiCarModel(veh.id);
+                          if (veh.variants.length > 0) {
+                            setEmiCarVariant(veh.variants[0].id);
+                            setEmiOnRoadPrice(veh.variants[0].onRoadPrice);
+                            setEmiDownPayment(Math.round(veh.variants[0].onRoadPrice * 0.1));
+                          }
+                          showToast(`Selected ${veh.name} - EMI & Loan terms updated`);
+                        }}
+                      >
+                        <div className="quick-veh-img-wrap">
+                          <img src={veh.image} alt={veh.name} />
+                          <span className="quick-veh-cat-tag">{veh.category}</span>
+                        </div>
+                        <div className="quick-veh-meta">
+                          <span className="quick-veh-name">{veh.name}</span>
+                          <span className="quick-veh-price">{veh.priceRange}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* 2-COLUMN MAIN CONTENT (LEFT CALCULATOR FORM + RIGHT SIDEBAR) */}
+              {/* 2-COLUMN MAIN CONTENT (LEFT: SELECTOR & SLIDERS, RIGHT: EMI CALCULATOR & LOAN SUMMARY) */}
               <div className="cd-emi-layout-grid">
-                {/* LEFT COLUMN: CALCULATOR, ALTERNATIVES, USED CARS, REVIEWS */}
+                {/* LEFT COLUMN: VEHICLE CUSTOMIZER (BRAND, MODEL, VARIANT & SLIDERS) */}
                 <div className="cd-emi-main-col">
-                  {/* 1. CALCULATE YOUR LOAN EMI FORM CARD */}
+                  {/* VEHICLE CONFIGURATION & LOAN CONTROLS CARD */}
                   <div className="cd-calculator-card">
                     <div className="calc-card-head-row">
-                      <h3 className="cd-card-heading" style={{ margin: 0 }}>
-                        <i className="fa-solid fa-sliders"></i> Customize Your Vehicle &amp; Loan Details
-                      </h3>
+                      <div>
+                        <h3 className="cd-card-heading" style={{ margin: 0 }}>
+                          <i className="fa-solid fa-sliders"></i> 1. Choose Vehicle, Company &amp; Model
+                        </h3>
+                        <p className="calc-sub-text" style={{ margin: '4px 0 0' }}>
+                          Select brand, model &amp; variant to instantly compute on-road price and loan terms:
+                        </p>
+                      </div>
                       <span className="city-pill-tag">
                         <i className="fa-solid fa-location-dot"></i> {userLocationCity}
                       </span>
                     </div>
-                    <p className="calc-sub-text">
-                      Step 2: Choose your brand, model, and specific variant to instantly compute on-road price, down payment, and monthly installment:
-                    </p>
 
                     {/* 3 INTERACTIVE DROPDOWNS: BRAND -> MODEL -> VARIANT */}
                     <div className="cd-dropdowns-row">
                       {/* 1. BRAND SELECTOR */}
                       <div className="cd-dropdown-wrap">
-                        <label className="dropdown-label"><i className="fa-solid fa-building"></i> Select Brand:</label>
+                        <label className="dropdown-label"><i className="fa-solid fa-building"></i> Select Company / Brand:</label>
                         <select
                           value={emiCarBrand}
                           onChange={(e) => {
@@ -238,16 +213,25 @@ export default function StoreFinanceHub({ showToast, userLocationCity, setActive
                             const newModelId = e.target.value;
                             setEmiCarModel(newModelId);
                             const selectedM = VEHICLE_EMI_CATALOG.find((m) => m.id === newModelId);
-                            if (selectedM && selectedM.variants.length > 0) {
-                              setEmiCarVariant(selectedM.variants[0].id);
-                              setEmiOnRoadPrice(selectedM.variants[0].onRoadPrice);
-                              setEmiDownPayment(Math.round(selectedM.variants[0].onRoadPrice * 0.1));
+                            if (selectedM) {
+                              setEmiCarBrand(selectedM.brand);
+                              if (selectedM.variants.length > 0) {
+                                setEmiCarVariant(selectedM.variants[0].id);
+                                setEmiOnRoadPrice(selectedM.variants[0].onRoadPrice);
+                                setEmiDownPayment(Math.round(selectedM.variants[0].onRoadPrice * 0.1));
+                              }
                             }
                           }}
                         >
-                          {modelsForBrand.map((m) => (
-                            <option key={m.id} value={m.id}>{m.name}</option>
-                          ))}
+                          {modelsForBrand.length > 0 ? (
+                            modelsForBrand.map((m) => (
+                              <option key={m.id} value={m.id}>{m.name} ({m.category})</option>
+                            ))
+                          ) : (
+                            modelsInCategory.map((m) => (
+                              <option key={m.id} value={m.id}>{m.name} ({m.category})</option>
+                            ))
+                          )}
                         </select>
                         <i className="fa-solid fa-chevron-down dd-arrow"></i>
                       </div>
@@ -277,30 +261,59 @@ export default function StoreFinanceHub({ showToast, userLocationCity, setActive
                       </div>
                     </div>
 
-                    {/* On-Road Price in City & Variant Quick Specs */}
-                    <div className="cd-price-line">
-                      <div className="price-details-cell">
-                        <span className="price-lbl">On-Road Price in {userLocationCity}</span>
-                        <small className="price-sub-note">Includes Road Tax, Insurance &amp; Fastag</small>
+                    {/* ACTIVE VEHICLE MINI-PREVIEW BAR */}
+                    <div className="cd-active-veh-preview-bar">
+                      <img src={activeModel.image} alt={activeModel.name} className="veh-preview-thumb" />
+                      <div className="veh-preview-info">
+                        <div className="veh-preview-title">
+                          <strong>{activeModel.name}</strong>
+                          <span className="veh-preview-badge">{activeModel.category}</span>
+                          <span className="veh-preview-var">{activeVariant.name}</span>
+                        </div>
+                        <div className="veh-preview-specs">
+                          <span><i className="fa-solid fa-gas-pump"></i> {activeVariant.fuel}</span>
+                          <span><i className="fa-solid fa-gauge"></i> {activeVariant.mileage}</span>
+                          <span><i className="fa-solid fa-star text-amber"></i> {activeModel.rating} ({activeModel.reviewCount} Reviews)</span>
+                        </div>
                       </div>
-                      <div className="price-values-box">
-                        <span className="ex-price-small">Ex-Showroom: ₹{activeVariant.exShowroom.toLocaleString('en-IN')}</span>
-                        <strong className="price-val">₹{emiOnRoadPrice.toLocaleString('en-IN')}</strong>
+                      <div className="veh-preview-price-box">
+                        <span className="preview-price-sub">On-Road {userLocationCity}</span>
+                        <strong className="preview-price-main">₹{emiOnRoadPrice.toLocaleString('en-IN')}</strong>
                       </div>
                     </div>
 
-                    {/* Down Payment Slider */}
-                    <div className="cd-slider-block">
+                    {/* Down Payment Slider & Manual Input */}
+                    <div className="cd-slider-block" style={{ marginTop: '16px' }}>
                       <div className="slider-label-line">
-                        <span>Down Payment Amount</span>
-                        <strong>₹{emiDownPayment.toLocaleString('en-IN')} ({Math.round((emiDownPayment / emiOnRoadPrice) * 100)}%)</strong>
+                        <span className="slider-title-text">
+                          <i className="fa-solid fa-wallet text-orange"></i> Down Payment Amount
+                        </span>
+                        <div className="slider-manual-input-wrap">
+                          <span className="input-rupee-symbol">₹</span>
+                          <input
+                            type="number"
+                            className="slider-manual-input-box"
+                            min={Math.round(emiOnRoadPrice * 0.05)}
+                            max={Math.round(emiOnRoadPrice * 0.9)}
+                            step={1000}
+                            value={emiDownPayment}
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              setEmiDownPayment(val);
+                            }}
+                            title="Enter manual down payment amount in Rupees"
+                          />
+                          <span className="input-pct-badge">
+                            {Math.round((emiDownPayment / emiOnRoadPrice) * 100)}%
+                          </span>
+                        </div>
                       </div>
                       <input
                         type="range"
                         min={Math.round(emiOnRoadPrice * 0.05)}
                         max={Math.round(emiOnRoadPrice * 0.8)}
                         step={5000}
-                        value={emiDownPayment}
+                        value={Math.min(emiDownPayment, Math.round(emiOnRoadPrice * 0.8))}
                         onChange={(e) => setEmiDownPayment(Number(e.target.value))}
                         className="cd-range-slider"
                       />
@@ -310,18 +323,35 @@ export default function StoreFinanceHub({ showToast, userLocationCity, setActive
                       </div>
                     </div>
 
-                    {/* Bank Interest Rate Slider */}
+                    {/* Bank Interest Rate Slider & Manual Input */}
                     <div className="cd-slider-block">
                       <div className="slider-label-line">
-                        <span>Annual Bank Interest Rate</span>
-                        <strong>{emiInterestRate}% p.a.</strong>
+                        <span className="slider-title-text">
+                          <i className="fa-solid fa-percent text-blue"></i> Annual Bank Interest Rate
+                        </span>
+                        <div className="slider-manual-input-wrap">
+                          <input
+                            type="number"
+                            className="slider-manual-input-box"
+                            min={5.0}
+                            max={24.0}
+                            step={0.1}
+                            value={emiInterestRate}
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              setEmiInterestRate(val);
+                            }}
+                            title="Enter manual annual interest rate percentage"
+                          />
+                          <span className="input-pct-badge">% p.a.</span>
+                        </div>
                       </div>
                       <input
                         type="range"
                         min={7.5}
                         max={16.0}
                         step={0.1}
-                        value={emiInterestRate}
+                        value={Math.max(7.5, Math.min(16.0, emiInterestRate))}
                         onChange={(e) => setEmiInterestRate(Number(e.target.value))}
                         className="cd-range-slider"
                       />
@@ -347,56 +377,6 @@ export default function StoreFinanceHub({ showToast, userLocationCity, setActive
                           </button>
                         ))}
                       </div>
-                    </div>
-
-                    {/* Financial Metrics Split Display */}
-                    <div className="cd-calc-summary-split">
-                      <div className="summary-left">
-                        <div className="sum-item">
-                          <span>Total Loan Amount Financed</span>
-                          <strong className="text-blue">₹{totalLoanAmt.toLocaleString('en-IN')}</strong>
-                        </div>
-                        <div className="sum-item">
-                          <span>Total Interest Payable</span>
-                          <strong className="text-amber">₹{totalInterestPayable.toLocaleString('en-IN')}</strong>
-                        </div>
-                        <div className="sum-item">
-                          <span>Total Amount Payable (Principal + Interest)</span>
-                          <strong className="text-slate">₹{totalPayableAmt.toLocaleString('en-IN')}</strong>
-                        </div>
-                      </div>
-
-                      <div className="summary-right">
-                        <div className="emi-big-display">
-                          <div className="emi-label-sub">
-                            <span>Monthly EMI</span>
-                            <small>per month</small>
-                          </div>
-                          <h2 className="emi-amount-val">
-                            ₹{monthlyEmiVal.toLocaleString('en-IN')}
-                          </h2>
-                        </div>
-                        <span className="calc-interest-hint">
-                          Calculated for {activeVariant.name}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="calc-action-buttons-grid">
-                      <button
-                        type="button"
-                        className="btn-cd-orange-block"
-                        onClick={() => showToast(`Comparing 14 bank loan schemes for ${activeModel.name} in ${userLocationCity}...`)}
-                      >
-                        <i className="fa-solid fa-building-columns"></i> Get Best EMI Offers from 14 Partner Banks
-                      </button>
-                      <button
-                        type="button"
-                        className="btn-cd-insurance-block"
-                        onClick={() => showToast(`Instant 0-Dep insurance quote for ${activeModel.name} generated: ₹${Math.round(activeVariant.onRoadPrice * 0.032).toLocaleString('en-IN')}/year`)}
-                      >
-                        <i className="fa-solid fa-shield-halved"></i> Compare 0-Depreciation Insurance Plans
-                      </button>
                     </div>
                   </div>
 
@@ -534,9 +514,80 @@ export default function StoreFinanceHub({ showToast, userLocationCity, setActive
                   </div>
                 </div>
 
-                {/* RIGHT SIDEBAR COLUMN */}
+                {/* RIGHT SIDEBAR COLUMN: DEDICATED LIVE EMI & LOAN BREAKDOWN CALCULATOR */}
                 <div className="cd-emi-sidebar-col">
-                  {/* 1. RUNNING COST OF YOUR VEHICLE */}
+                  {/* 1. PRIMARY LIVE EMI & LOAN BREAKDOWN CARD */}
+                  <div className="cd-sidebar-widget cd-right-emi-card">
+                    <div className="right-emi-header">
+                      <span className="right-emi-badge">
+                        <i className="fa-solid fa-calculator"></i> Live EMI Calculator
+                      </span>
+                      <small className="right-emi-sub">Tenure: {emiLoanTenureYears} Years @ {emiInterestRate}%</small>
+                    </div>
+
+                    {/* BIG MONTHLY INSTALLMENT DISPLAY */}
+                    <div className="right-emi-display-box">
+                      <span className="right-emi-lbl">Estimated Monthly EMI</span>
+                      <div className="right-emi-val-row">
+                        <h2 className="right-emi-amount">₹{monthlyEmiVal.toLocaleString('en-IN')}</h2>
+                        <span className="right-emi-per-mo">/ month</span>
+                      </div>
+                      <span className="right-emi-model-tag">
+                        For {activeModel.name} - {activeVariant.name}
+                      </span>
+                    </div>
+
+                    {/* LOAN STATS BREAKDOWN LIST */}
+                    <div className="right-loan-breakdown-list">
+                      <div className="right-loan-stat-row">
+                        <span><i className="fa-solid fa-receipt"></i> On-Road Price:</span>
+                        <strong>₹{emiOnRoadPrice.toLocaleString('en-IN')}</strong>
+                      </div>
+                      <div className="right-loan-stat-row">
+                        <span><i className="fa-solid fa-wallet"></i> Down Payment ({Math.round((emiDownPayment / emiOnRoadPrice) * 100)}%):</span>
+                        <strong className="text-orange">₹{emiDownPayment.toLocaleString('en-IN')}</strong>
+                      </div>
+                      <div className="right-loan-stat-row">
+                        <span><i className="fa-solid fa-hand-holding-dollar"></i> Net Loan Financed:</span>
+                        <strong className="text-blue">₹{totalLoanAmt.toLocaleString('en-IN')}</strong>
+                      </div>
+                      <div className="right-loan-stat-row">
+                        <span><i className="fa-solid fa-chart-line"></i> Total Interest ({emiLoanTenureYears} yrs):</span>
+                        <strong className="text-amber">₹{totalInterestPayable.toLocaleString('en-IN')}</strong>
+                      </div>
+                      <div className="right-loan-stat-row total-highlight">
+                        <span><i className="fa-solid fa-calculator"></i> Total Payable Amount:</span>
+                        <strong className="text-slate">₹{totalPayableAmt.toLocaleString('en-IN')}</strong>
+                      </div>
+                    </div>
+
+                    {/* INSTANT LOAN ACTION BUTTONS */}
+                    <div className="right-loan-actions">
+                      <button
+                        type="button"
+                        className="btn-right-apply-loan"
+                        onClick={() => showToast(`Fast-track instant loan application submitted for ${activeModel.name}!`)}
+                      >
+                        <i className="fa-solid fa-file-invoice-dollar"></i> Apply Instant Loan (Pre-Approved)
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-right-bank-offers"
+                        onClick={() => showToast(`Comparing 14 partner bank loan schemes in ${userLocationCity}...`)}
+                      >
+                        <i className="fa-solid fa-building-columns"></i> Get 14 Bank Offers
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-right-test-drive"
+                        onClick={() => showToast(`Free test drive booking confirmed for ${activeModel.name} in ${userLocationCity}!`)}
+                      >
+                        <i className="fa-solid fa-car-side"></i> Book Free Test Drive
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 2. RUNNING COST OF YOUR VEHICLE */}
                   <div className="cd-sidebar-widget">
                     <h4 className="sidebar-widget-title">Estimated Running Cost</h4>
                     <div className="km-driven-block">
