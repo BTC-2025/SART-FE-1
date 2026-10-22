@@ -48,7 +48,7 @@ export default function FlightPassengerDetailsModal({
   arrTime,
   arrAirportCode,
   fare,
-  dateOfJourney = '15 Oct, 2026',
+  dateOfJourney,
   passenger,
   contact,
   onPassengerChange,
@@ -57,6 +57,12 @@ export default function FlightPassengerDetailsModal({
   onClose,
   isConfirmed = false
 }: FlightPassengerDetailsModalProps) {
+  const displayDate = React.useMemo(() => {
+    if (dateOfJourney) return dateOfJourney;
+    const today = new Date();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${String(today.getDate()).padStart(2, '0')} ${months[today.getMonth()]}, ${today.getFullYear()}`;
+  }, [dateOfJourney]);
   return (
     <div style={{
       position: 'fixed',
@@ -94,7 +100,7 @@ export default function FlightPassengerDetailsModal({
               {isConfirmed ? 'Flight E-Ticket Confirmed!' : `Book Flight: ${airline}`}
             </h3>
             <span style={{ fontSize: '13px', color: '#e0f2fe' }}>
-              {flightNo} • {depAirportCode} → {arrAirportCode} • {dateOfJourney}
+              {flightNo} • {depAirportCode} → {arrAirportCode} • {displayDate}
             </span>
           </div>
           <button

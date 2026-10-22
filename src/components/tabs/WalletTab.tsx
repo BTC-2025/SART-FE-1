@@ -34,10 +34,15 @@ export default function WalletTab() {
       } catch(e) {}
     } else {
       // Default transactions if no save state
+      const now = new Date();
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const d1 = new Date(now); d1.setDate(d1.getDate() - 1);
+      const d2 = new Date(now); d2.setDate(d2.getDate() - 3);
+      const d3 = new Date(now); d3.setDate(d3.getDate() - 7);
       setTransactions([
-        { id: 'tx-001', title: 'Airport Taxi Booking', amount: 800.00, date: 'Sept 25, 2026, 10:00 AM', isCredit: false, category: 'Ride' },
-        { id: 'tx-002', title: 'Tire Air Replacement Kit', amount: 3500.00, date: 'Sept 20, 2026, 03:30 PM', isCredit: false, category: 'Store' },
-        { id: 'tx-003', title: 'Visa Top-up Loaded', amount: 10000.00, date: 'Sept 15, 2026, 09:15 AM', isCredit: true, category: 'Deposit' }
+        { id: 'tx-001', title: 'Airport Taxi Booking', amount: 800.00, date: `${months[d1.getMonth()]} ${d1.getDate()}, ${d1.getFullYear()}, 10:00 AM`, isCredit: false, category: 'Ride' },
+        { id: 'tx-002', title: 'Tire Air Replacement Kit', amount: 3500.00, date: `${months[d2.getMonth()]} ${d2.getDate()}, ${d2.getFullYear()}, 03:30 PM`, isCredit: false, category: 'Store' },
+        { id: 'tx-003', title: 'Visa Top-up Loaded', amount: 10000.00, date: `${months[d3.getMonth()]} ${d3.getDate()}, ${d3.getFullYear()}, 09:15 AM`, isCredit: true, category: 'Deposit' }
       ]);
     }
     setMounted(true);

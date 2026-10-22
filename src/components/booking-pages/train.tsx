@@ -23,7 +23,10 @@ export default function TrainBooking({ selectedVehicleType, handleBackToFleet }:
   const [toStation, setToStation] = useState('');
   const [showFromSuggestions, setShowFromSuggestions] = useState(false);
   const [showToSuggestions, setShowToSuggestions] = useState(false);
-  const [routeDate, setRouteDate] = useState('2026-10-05');
+  const [routeDate, setRouteDate] = useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  });
   const [showResults, setShowResults] = useState(false);
   const [expandedTrainIndex, setExpandedTrainIndex] = useState<number | null>(null);
   const [expandedTrainTab, setExpandedTrainTab] = useState<string>('details');

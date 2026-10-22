@@ -43,6 +43,16 @@ export interface Booking {
   stops?: { name: string; time: string; status: 'past' | 'current' | 'future' }[];
 }
 
+// Helper to format live dates relative to today
+const getRelativeDateStr = (offsetDays: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  const daysShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const yr = String(d.getFullYear()).slice(-2);
+  return `${daysShort[d.getDay()]}, ${String(d.getDate()).padStart(2, '0')} ${monthsShort[d.getMonth()]} ${yr}`;
+};
+
 export const MOCK_BOOKINGS: Booking[] = [
   // --- PAST BOOKINGS (isActive: false, isCancelled: false) ---
   {
@@ -54,7 +64,7 @@ export const MOCK_BOOKINGS: Booking[] = [
     source: 'Nellore',
     sourceCode: 'NLR',
     sourceTime: '19:00',
-    sourceDate: 'Sun, 15 Mar 26',
+    sourceDate: getRelativeDateStr(-10),
     sourcePlatform: 'PF2',
     destination: 'Secunderabad Jn',
     destinationCode: 'SC',
@@ -124,12 +134,12 @@ export const MOCK_BOOKINGS: Booking[] = [
     source: 'SMVT Bengaluru',
     sourceCode: 'SMVB',
     sourceTime: '08:15',
-    sourceDate: 'Mon, 05 Oct 26',
+    sourceDate: getRelativeDateStr(1),
     sourcePlatform: 'PF 1',
     destination: 'Visakhapatnam',
     destinationCode: 'VSKP',
     destinationTime: '22:30',
-    destinationDate: 'Mon, 05 Oct 26',
+    destinationDate: getRelativeDateStr(1),
     destinationPlatform: 'PF 4',
     duration: '14h 15m',
     bookingId: '998877661122',
@@ -139,7 +149,7 @@ export const MOCK_BOOKINGS: Booking[] = [
     lastName: 'Kumar',
     email: 'anil.k@example.com',
     mobile: '+91-9988112233',
-    bookingDate: 'Thu, 01 Oct 26',
+    bookingDate: getRelativeDateStr(-2),
     reportingTime: '07:45',
     address: 'Whitefield, Bangalore, KA',
     seatStatus: 'Confirmed (3A/B4/22)',
@@ -163,11 +173,11 @@ export const MOCK_BOOKINGS: Booking[] = [
     source: 'Bangalore',
     sourceCode: 'BLR',
     sourceTime: '10:00',
-    sourceDate: 'Mon, 05 Oct 26',
+    sourceDate: getRelativeDateStr(2),
     destination: 'Hyderabad',
     destinationCode: 'HYD',
     destinationTime: '11:15',
-    destinationDate: 'Mon, 05 Oct 26',
+    destinationDate: getRelativeDateStr(2),
     duration: '1h 15m',
     bookingId: 'FLT55667788',
     pnr: 'AIE88Y',
@@ -176,7 +186,7 @@ export const MOCK_BOOKINGS: Booking[] = [
     lastName: 'Reddy',
     email: 'sneha.r@example.com',
     mobile: '+91-7788990011',
-    bookingDate: 'Wed, 30 Sep 26',
+    bookingDate: getRelativeDateStr(-3),
     reportingTime: '08:00',
     address: 'Koramangala, Bangalore, KA',
     seatStatus: 'Premium Economy (12A)',
@@ -194,11 +204,11 @@ export const MOCK_BOOKINGS: Booking[] = [
     source: 'Hyderabad',
     sourceCode: 'HYD',
     sourceTime: '22:00',
-    sourceDate: 'Mon, 16 Nov 26',
+    sourceDate: getRelativeDateStr(3),
     destination: 'Bangalore',
     destinationCode: 'BLR',
     destinationTime: '06:30',
-    destinationDate: 'Tue, 17 Nov 26',
+    destinationDate: getRelativeDateStr(4),
     duration: '8h 30m',
     bookingId: 'BS33459981',
     pnr: 'BUS6Q8X91',
@@ -207,7 +217,7 @@ export const MOCK_BOOKINGS: Booking[] = [
     lastName: 'Patel',
     email: 'amit.p@example.com',
     mobile: '+91-9988776655',
-    bookingDate: 'Wed, 11 Nov 26',
+    bookingDate: getRelativeDateStr(-1),
     reportingTime: '21:45',
     address: 'HSR Layout Sector 2, Bangalore, KA',
     seatStatus: 'Confirmed (Seat 7A, 7B)',
@@ -233,11 +243,11 @@ export const MOCK_BOOKINGS: Booking[] = [
     source: 'Rental Hub East',
     sourceCode: 'RHE',
     sourceTime: '10:00',
-    sourceDate: 'Tue, 17 Nov 26',
+    sourceDate: getRelativeDateStr(5),
     destination: 'Rental Hub East',
     destinationCode: 'RHE',
     destinationTime: '10:00',
-    destinationDate: 'Wed, 18 Nov 26',
+    destinationDate: getRelativeDateStr(6),
     duration: '24h',
     bookingId: 'BK987654321',
     passengerName: 'Sanjay Gupta',
@@ -245,7 +255,7 @@ export const MOCK_BOOKINGS: Booking[] = [
     lastName: 'Gupta',
     email: 's.gupta@example.com',
     mobile: '+91-8877665544',
-    bookingDate: 'Sun, 15 Nov 26',
+    bookingDate: getRelativeDateStr(-2),
     reportingTime: '09:45',
     address: 'Indiranagar 1st Stage, Bangalore',
     seatStatus: 'Booked',

@@ -60,18 +60,37 @@ function RentalBookingModal({ isOpen, onClose }: RentalBookingModalProps) {
   const [showDropoffList, setShowDropoffList] = useState(false);
 
   // Pick-up Date & Time
-  const [pickupDate, setPickupDate] = useState('Sat, 17 Oct');
+  const [pickupDate, setPickupDate] = useState(() => {
+    const today = new Date();
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${days[today.getDay()]}, ${today.getDate()} ${months[today.getMonth()]}`;
+  });
   const [pickupTime, setPickupTime] = useState('10:00 AM');
   const [showPickupCalendar, setShowPickupCalendar] = useState(false);
-  const [pickupCalMonth, setPickupCalMonth] = useState(9);
-  const [pickupCalYear, setPickupCalYear] = useState(2026);
+  const [pickupCalMonth, setPickupCalMonth] = useState(() => new Date().getMonth());
+  const [pickupCalYear, setPickupCalYear] = useState(() => new Date().getFullYear());
 
   // Drop-off Date & Time
-  const [dropoffDate, setDropoffDate] = useState('Sun, 18 Oct');
+  const [dropoffDate, setDropoffDate] = useState(() => {
+    const tom = new Date();
+    tom.setDate(tom.getDate() + 1);
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${days[tom.getDay()]}, ${tom.getDate()} ${months[tom.getMonth()]}`;
+  });
   const [dropoffTime, setDropoffTime] = useState('10:00 AM');
   const [showDropoffCalendar, setShowDropoffCalendar] = useState(false);
-  const [dropoffCalMonth, setDropoffCalMonth] = useState(9);
-  const [dropoffCalYear, setDropoffCalYear] = useState(2026);
+  const [dropoffCalMonth, setDropoffCalMonth] = useState(() => {
+    const tom = new Date();
+    tom.setDate(tom.getDate() + 1);
+    return tom.getMonth();
+  });
+  const [dropoffCalYear, setDropoffCalYear] = useState(() => {
+    const tom = new Date();
+    tom.setDate(tom.getDate() + 1);
+    return tom.getFullYear();
+  });
 
   // Vehicle Selection Dropdown
   const [selectedRentalVehicleId, setSelectedRentalVehicleId] = useState('r-swift');
@@ -94,9 +113,16 @@ function RentalBookingModal({ isOpen, onClose }: RentalBookingModalProps) {
   const [rentalType, setRentalType] = useState('Daily');
   const [durationPlan, setDurationPlan] = useState<'1day' | '3days' | '1week' | '2weeks' | '1month' | 'custom'>('1day');
   const [customDays, setCustomDays] = useState(1);
-  const [startDate, setStartDate] = useState('2026-10-17');
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  });
   const [startTime, setStartTime] = useState('10:00');
-  const [returnDate, setReturnDate] = useState('2026-10-18');
+  const [returnDate, setReturnDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  });
   const [returnTime, setReturnTime] = useState('10:00');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);

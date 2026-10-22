@@ -42,9 +42,17 @@ export default function ParkingBookingModal({ isOpen, onClose }: ParkingBookingM
   // Duration / Booking Details State
   const [selectedDuration, setSelectedDuration] = useState('1hr');
   const [checkInTime, setCheckInTime] = useState('10:42 AM');
-  const [checkInDate, setCheckInDate] = useState('16 Oct 2026');
+  const [checkInDate, setCheckInDate] = useState(() => {
+    const today = new Date();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
+  });
   const [checkOutTime, setCheckOutTime] = useState('12:53 AM');
-  const [checkOutDate, setCheckOutDate] = useState('16 Oct 2026');
+  const [checkOutDate, setCheckOutDate] = useState(() => {
+    const today = new Date();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
+  });
 
   // Checkout / Leaving Time Tracker
   const [exceededMinutes, setExceededMinutes] = useState(20);
