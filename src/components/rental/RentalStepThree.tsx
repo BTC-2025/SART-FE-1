@@ -464,11 +464,11 @@ export default function RentalStepThree({
 
       {/* Right Column: Vehicle Diagnostics, Working Condition & 100px x 200px Mini Map */}
       <div style={{ width: '380px', minWidth: '380px', background: '#f8fafc', display: 'flex', flexDirection: 'column', overflowY: 'auto', padding: '20px', gap: '16px' }}>
-        
+
         {/* Map & Live Hub Location Banner */}
         <div style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '14px', display: 'flex', gap: '14px', alignItems: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
           {/* Map box: EXACT width 100px, height 200px */}
-          <div style={{ width: '100px', minWidth: '100px', height: '200px', borderRadius: '12px', overflow: 'hidden', position: 'relative', border: '1.5px solid #cbd5e1', boxShadow: '0 2px 6px rgba(0,0,0,0.08)' }}>
+          <div style={{ width: '300px', minWidth: '300px', height: '200px', borderRadius: '12px', overflow: 'hidden', position: 'relative', border: '1.5px solid #cbd5e1', boxShadow: '0 2px 6px rgba(0,0,0,0.08)' }}>
             <LiveTrackerMap
               key="rental-map"
               vehicleIconClass={activeVehicle?.icon || 'fa-car'}
@@ -482,22 +482,7 @@ export default function RentalStepThree({
             </div>
           </div>
 
-          {/* Quick Hub Telemetry Summary next to 100px map */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#ecfdf5', color: '#059669', padding: '3px 8px', borderRadius: '8px', fontSize: '11px', fontWeight: 800, width: 'fit-content' }}>
-              <i className="fa-solid fa-satellite-dish"></i> GPS Tracking Live
-            </div>
-            <div style={{ fontSize: '14px', fontWeight: 900, color: '#0f172a' }}>
-              {pickup || 'Truro Hub Station'}
-            </div>
-            <div style={{ fontSize: '11.5px', color: '#64748b' }}>
-              Vehicle distance from you: <strong style={{ color: '#0284c7' }}>{activeVehicle?.distance || '1.2 km'}</strong>
-            </div>
-            <div style={{ fontSize: '11px', color: '#475569', background: '#f1f5f9', padding: '6px 8px', borderRadius: '8px', lineHeight: 1.3 }}>
-              <i className="fa-solid fa-circle-check" style={{ color: '#16a34a', marginRight: '4px' }}></i>
-              Parked at designated bay. Key handed over with original ID.
-            </div>
-          </div>
+
         </div>
 
         {/* Working Condition & Health Diagnostics */}
