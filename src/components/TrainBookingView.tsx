@@ -187,9 +187,11 @@ export default function TrainBookingView() {
       const dt = sp.get('date');
       if (dt) return dt;
     }
-    return '14 Oct, 2026';
+    const today = new Date();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${String(today.getDate()).padStart(2, '0')} ${months[today.getMonth()]}, ${today.getFullYear()}`;
   });
-  const [selectedDay, setSelectedDay] = useState('14');
+  const [selectedDay, setSelectedDay] = useState(() => String(new Date().getDate()).padStart(2, '0'));
 
   const handleSwapStations = () => {
     const temp = source;
@@ -219,8 +221,8 @@ export default function TrainBookingView() {
 
   // Calendar Picker & Dropdown Refs
   const [showCalendarPicker, setShowCalendarPicker] = useState(false);
-  const [calMonth, setCalMonth] = useState(9); // 0-indexed: 9 = October
-  const [calYear, setCalYear] = useState(2026);
+  const [calMonth, setCalMonth] = useState(() => new Date().getMonth());
+  const [calYear, setCalYear] = useState(() => new Date().getFullYear());
   const calendarRef = useRef<HTMLDivElement>(null);
   const sourceRef = useRef<HTMLDivElement>(null);
   const destRef = useRef<HTMLDivElement>(null);
@@ -418,24 +420,29 @@ export default function TrainBookingView() {
     setOpenAccordions(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Calendar dates list in October
-  const dateList = [
-    { num: '14', day: 'Wed', pip: 'green' },
-    { num: '15', day: 'Thu', pip: 'green' },
-    { num: '16', day: 'Fri', pip: 'orange' },
-    { num: '17', day: 'Sat', pip: 'orange' },
-    { num: '18', day: 'Sun', pip: 'green' },
-    { num: '19', day: 'Mon', badge: '19', badgeColor: 'red' },
-    { num: '20', day: 'Tue', badge: '20', badgeColor: 'brown' },
-    { num: '21', day: 'Wed', pip: 'green' },
-    { num: '22', day: 'Thu', pip: 'green' },
-    { num: '23', day: 'Fri', pip: 'green' },
-    { num: '24', day: 'Sat', pip: 'green' },
-    { num: '25', day: 'Sun', pip: 'green' },
-    { num: '26', day: 'Mon', pip: 'green' },
-    { num: '27', day: 'Tue', pip: 'green' },
-    { num: '28', day: 'Wed', pip: 'green' },
-  ];
+  // Calendar dates list dynamically starting from today
+  const dateList = React.useMemo(() => {
+    const list = [];
+    const today = new Date();
+    const daysShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    for (let i = 0; i < 15; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() + i);
+      const dayNum = String(d.getDate()).padStart(2, '0');
+      const dayName = daysShort[d.getDay()];
+      const monthStr = monthsShort[d.getMonth()];
+      const year = d.getFullYear();
+      list.push({
+        num: dayNum,
+        day: dayName,
+        month: monthStr,
+        year: year,
+        pip: i % 2 === 0 ? 'green' : 'orange'
+      });
+    }
+    return list;
+  }, []);
 
   // Dynamic station lists available for current corridor
   const corridorTrains = React.useMemo(() => {
@@ -922,13 +929,16 @@ export default function TrainBookingView() {
             <div className="tb-quick-date-pills">
               <button
                 type="button"
-                className={`tb-date-pill ${dateOfJourney === '15 Oct, 2026' ? 'active' : ''}`}
+                className="tb-date-pill"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setCalMonth(9);
-                  setCalYear(2026);
-                  setDateOfJourney('15 Oct, 2026');
-                  setSelectedDay('15');
+                  const tom = new Date();
+                  tom.setDate(tom.getDate() + 1);
+                  setCalMonth(tom.getMonth());
+                  setCalYear(tom.getFullYear());
+                  const formatted = `${String(tom.getDate()).padStart(2, '0')} ${MONTH_SHORT[tom.getMonth()]}, ${tom.getFullYear()}`;
+                  setDateOfJourney(formatted);
+                  setSelectedDay(String(tom.getDate()).padStart(2, '0'));
                   setShowCalendarPicker(false);
                 }}
               >
@@ -936,13 +946,16 @@ export default function TrainBookingView() {
               </button>
               <button
                 type="button"
-                className={`tb-date-pill ${dateOfJourney === '16 Oct, 2026' ? 'active' : ''}`}
+                className="tb-date-pill"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setCalMonth(9);
-                  setCalYear(2026);
-                  setDateOfJourney('16 Oct, 2026');
-                  setSelectedDay('16');
+                  const da = new Date();
+                  da.setDate(da.getDate() + 2);
+                  setCalMonth(da.getMonth());
+                  setCalYear(da.getFullYear());
+                  const formatted = `${String(da.getDate()).padStart(2, '0')} ${MONTH_SHORT[da.getMonth()]}, ${da.getFullYear()}`;
+                  setDateOfJourney(formatted);
+                  setSelectedDay(String(da.getDate()).padStart(2, '0'));
                   setShowCalendarPicker(false);
                 }}
               >
@@ -1034,20 +1047,23 @@ export default function TrainBookingView() {
                     type="button"
                     className="tb-cal-quick-action"
                     onClick={() => {
-                      setCalMonth(9);
-                      setCalYear(2026);
-                      handleSelectDate(14, 9, 2026);
+                      const now = new Date();
+                      setCalMonth(now.getMonth());
+                      setCalYear(now.getFullYear());
+                      handleSelectDate(now.getDate(), now.getMonth(), now.getFullYear());
                     }}
                   >
-                    Today (14 Oct)
+                    Today ({new Date().getDate()} {MONTH_SHORT[new Date().getMonth()]})
                   </button>
                   <button
                     type="button"
                     className="tb-cal-quick-action"
                     onClick={() => {
-                      setCalMonth(9);
-                      setCalYear(2026);
-                      handleSelectDate(15, 9, 2026);
+                      const tom = new Date();
+                      tom.setDate(tom.getDate() + 1);
+                      setCalMonth(tom.getMonth());
+                      setCalYear(tom.getFullYear());
+                      handleSelectDate(tom.getDate(), tom.getMonth(), tom.getFullYear());
                     }}
                   >
                     Tomorrow
@@ -1056,9 +1072,11 @@ export default function TrainBookingView() {
                     type="button"
                     className="tb-cal-quick-action"
                     onClick={() => {
-                      setCalMonth(9);
-                      setCalYear(2026);
-                      handleSelectDate(16, 9, 2026);
+                      const da = new Date();
+                      da.setDate(da.getDate() + 2);
+                      setCalMonth(da.getMonth());
+                      setCalYear(da.getFullYear());
+                      handleSelectDate(da.getDate(), da.getMonth(), da.getFullYear());
                     }}
                   >
                     Day After
@@ -1607,15 +1625,15 @@ export default function TrainBookingView() {
           <main className="tb-results-area">
             {/* Calendar Dates Strip */}
             <div className="tb-date-strip-container">
-              <span className="tb-month-label">OCT</span>
+              <span className="tb-month-label">{dateList[0]?.month?.toUpperCase() || 'LIVE'}</span>
               <div className="tb-dates-scroll">
                 {dateList.map((item) => (
                   <div
-                    key={item.num}
+                    key={`${item.num}-${item.month}`}
                     className={`tb-date-card ${selectedDay === item.num ? 'active' : ''}`}
                     onClick={() => {
                       setSelectedDay(item.num);
-                      setDateOfJourney(`${item.num} Oct, 2026`);
+                      setDateOfJourney(`${item.num} ${item.month}, ${item.year}`);
                     }}
                   >
                     {item.badge ? (

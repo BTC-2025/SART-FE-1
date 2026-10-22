@@ -1197,7 +1197,7 @@
   border: 1px solid #cbd5e1;
   z-index: 99999;
   padding: 10px 0;
-  max-height: 300px;
+  max-height: 180px;
   overflow-y: auto;
   animation: fbFadeInDown 0.18s ease;
 }
@@ -2495,13 +2495,7 @@
 }
 
 .book-service-header h2 {
-  font-size: 28px;
-  font-weight: 800;
-  color: #111827;
-  margin: 0 0 12px 0;
-  position: relative;
-  display: inline-block;
-  padding-bottom: 10px;
+  font-size: 24px;
 }
 
 .book-service-header h2::after {
@@ -2512,8 +2506,9 @@
   transform: translateX(-50%);
   width: 70px;
   height: 4px;
-  background: linear-gradient(90deg, #f59e0b 0%, #f59e0b 50%, #3b82f6 50%, #3b82f6 100%);
+
   border-radius: 4px;
+
 }
 
 .book-service-header p {

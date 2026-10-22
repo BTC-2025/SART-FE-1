@@ -22,25 +22,35 @@ interface HelicopterBookingViewProps {
 export default function HelicopterBookingView({
   source,
   destination,
-  dateOfJourney = '15 Oct, 2026'
+  dateOfJourney
 }: HelicopterBookingViewProps) {
+  const effectiveDate = useMemo(() => {
+    if (dateOfJourney) return dateOfJourney;
+    const now = new Date();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${String(now.getDate()).padStart(2, '0')} ${months[now.getMonth()]}, ${now.getFullYear()}`;
+  }, [dateOfJourney]);
   // Generate helicopter charter options for route
   const rawHelicopters = useMemo(() => {
     return getHelicoptersForRoute(source, destination);
   }, [source, destination]);
 
   // Selected date carousel tab
-  const [selectedDateIdx, setSelectedDateIdx] = useState(1);
-  const dateFares = [
-    { label: 'Wed, Oct 14', fare: 26500 },
-    { label: 'Thu, Oct 15', fare: 22800 },
-    { label: 'Fri, Oct 16', fare: 24900 },
-    { label: 'Sat, Oct 17', fare: 31500 },
-    { label: 'Sun, Oct 18', fare: 28500 },
-    { label: 'Mon, Oct 19', fare: 22800 },
-    { label: 'Tue, Oct 20', fare: 23500 },
-    { label: 'Wed, Oct 21', fare: 24900 }
-  ];
+  const [selectedDateIdx, setSelectedDateIdx] = useState(0);
+  const dateFares = useMemo(() => {
+    const faresList = [22800, 24900, 31500, 28500, 22800, 23500, 24900, 26500];
+    const today = new Date();
+    const daysShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return Array.from({ length: 8 }).map((_, i) => {
+      const d = new Date(today);
+      d.setDate(d.getDate() + i);
+      return {
+        label: `${daysShort[d.getDay()]}, ${monthsShort[d.getMonth()]} ${d.getDate()}`,
+        fare: faresList[i % faresList.length]
+      };
+    });
+  }, []);
 
   // Sorting
   const [sortBy, setSortBy] = useState<'cheapest' | 'direct' | 'speed' | 'departure'>('cheapest');

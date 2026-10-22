@@ -487,7 +487,11 @@ export default function RentalStepOne({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setDropoffDate('Sun, 18 Oct');
+                          const tom = new Date();
+                          tom.setDate(tom.getDate() + 1);
+                          const daysArr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                          const monthsArr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                          setDropoffDate(`${daysArr[tom.getDay()]}, ${tom.getDate()} ${monthsArr[tom.getMonth()]}`);
                           setDropoffTime('10:00 AM');
                           setCustomDays(1);
                           setDurationPlan('1day');
@@ -500,25 +504,31 @@ export default function RentalStepOne({
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
                       {[
-                        { label: '1 Day', days: 1, text: 'Sun, 18 Oct' },
-                        { label: '1 Week', days: 7, text: 'Sat, 24 Oct' },
-                        { label: '1 Month', days: 30, text: 'Mon, 16 Nov' }
-                      ].map(preset => (
+                        { label: '1 Day', days: 1 },
+                        { label: '1 Week', days: 7 },
+                        { label: '1 Month', days: 30 }
+                      ].map(preset => {
+                        const target = new Date();
+                        target.setDate(target.getDate() + preset.days);
+                        const daysArr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                        const monthsArr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                        const presetText = `${daysArr[target.getDay()]}, ${target.getDate()} ${monthsArr[target.getMonth()]}`;
+                        return (
                         <button
                           key={preset.label}
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setDropoffDate(preset.text);
+                            setDropoffDate(presetText);
                             setCustomDays(preset.days);
                             setDurationPlan(preset.days === 1 ? '1day' : preset.days === 7 ? '1week' : '1month');
                           }}
                           style={{
                             padding: '5px 8px',
                             borderRadius: '6px',
-                            border: dropoffDate === preset.text ? '1.5px solid #dc2626' : '1px solid #cbd5e1',
-                            background: dropoffDate === preset.text ? '#fef2f2' : '#f8fafc',
-                            color: dropoffDate === preset.text ? '#b91c1c' : '#334155',
+                            border: dropoffDate === presetText ? '1.5px solid #dc2626' : '1px solid #cbd5e1',
+                            background: dropoffDate === presetText ? '#fef2f2' : '#f8fafc',
+                            color: dropoffDate === presetText ? '#b91c1c' : '#334155',
                             fontSize: '11px',
                             fontWeight: 800,
                             cursor: 'pointer',
@@ -527,7 +537,8 @@ export default function RentalStepOne({
                         >
                           {preset.label}
                         </button>
-                      ))}
+                      );
+                    })}
                     </div>
                   </div>
 

@@ -22,25 +22,35 @@ interface FlightBookingViewProps {
 export default function FlightBookingView({
   source,
   destination,
-  dateOfJourney = '15 Oct, 2026'
+  dateOfJourney
 }: FlightBookingViewProps) {
+  const effectiveDate = useMemo(() => {
+    if (dateOfJourney) return dateOfJourney;
+    const now = new Date();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${String(now.getDate()).padStart(2, '0')} ${months[now.getMonth()]}, ${now.getFullYear()}`;
+  }, [dateOfJourney]);
   // Master list generated for the currently searched corridor
   const rawFlights = useMemo(() => {
     return getFlightsForRoute(source, destination);
   }, [source, destination]);
 
   // Selected date carousel tab
-  const [selectedDateIdx, setSelectedDateIdx] = useState(1);
-  const dateFares = [
-    { label: 'Wed, Oct 14', fare: 10644 },
-    { label: 'Thu, Oct 15', fare: 7721 },
-    { label: 'Fri, Oct 16', fare: 8703 },
-    { label: 'Sat, Oct 17', fare: 9882 },
-    { label: 'Sun, Oct 18', fare: 8495 },
-    { label: 'Mon, Oct 19', fare: 6667 },
-    { label: 'Tue, Oct 20', fare: 6667 },
-    { label: 'Wed, Oct 21', fare: 7120 }
-  ];
+  const [selectedDateIdx, setSelectedDateIdx] = useState(0);
+  const dateFares = useMemo(() => {
+    const faresList = [7721, 8703, 9882, 8495, 6667, 7120, 10644, 8250];
+    const today = new Date();
+    const daysShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return Array.from({ length: 8 }).map((_, i) => {
+      const d = new Date(today);
+      d.setDate(d.getDate() + i);
+      return {
+        label: `${daysShort[d.getDay()]}, ${monthsShort[d.getMonth()]} ${d.getDate()}`,
+        fare: faresList[i % faresList.length]
+      };
+    });
+  }, []);
 
   // Sorting
   const [sortBy, setSortBy] = useState<'cheapest' | 'nonstop' | 'prefer' | 'departure'>('cheapest');

@@ -30,22 +30,25 @@ export interface BusItem {
   droppingPoints: { name: string; time: string }[];
 }
 
-export const CALENDAR_DATES = [
-  { day: '14', weekday: 'Wed', badgeType: 'green-dash' },
-  { day: '15', weekday: 'Thu', badgeType: 'green-dash' },
-  { day: '16', weekday: 'Fri', badgeType: 'orange-dash' },
-  { day: '17', weekday: 'Sat', badgeType: 'orange-dash' },
-  { day: '18', weekday: 'Sun', badgeType: 'green-dash' },
-  { day: '19', weekday: 'Mon', badgeType: 'red-circle', badgeText: '19' },
-  { day: '20', weekday: 'Tue', badgeType: 'brown-circle', badgeText: '20' },
-  { day: '21', weekday: 'Wed', badgeType: 'green-dash' },
-  { day: '22', weekday: 'Thu', badgeType: 'green-dash' },
-  { day: '23', weekday: 'Fri', badgeType: 'green-dash' },
-  { day: '24', weekday: 'Sat', badgeType: 'green-dash' },
-  { day: '25', weekday: 'Sun', badgeType: 'green-dash' },
-  { day: '26', weekday: 'Mon', badgeType: 'green-dash' },
-  { day: '27', weekday: 'Tue', badgeType: 'green-dash' }
-];
+export const CALENDAR_DATES = (() => {
+  const dates = [];
+  const today = new Date();
+  const weekdaysShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() + i);
+    dates.push({
+      day: String(d.getDate()).padStart(2, '0'),
+      weekday: weekdaysShort[d.getDay()],
+      month: monthsShort[d.getMonth()],
+      year: d.getFullYear(),
+      badgeType: i === 5 ? 'red-circle' : i === 6 ? 'brown-circle' : i % 2 === 0 ? 'green-dash' : 'orange-dash',
+      badgeText: i === 5 ? String(d.getDate()) : i === 6 ? String(d.getDate()) : undefined
+    });
+  }
+  return dates;
+})();
 
 export interface GovtRtcCardItem {
   code: string;
@@ -1191,7 +1194,7 @@ export function generateBusesForRoute(sourcePlace: string = 'Chennai', destPlace
 export default function BusBookingView({
   source = 'Chennai (CMBT / Koyambedu)',
   destination = 'Vellore (Katpadi)',
-  dateOfJourney = '14 Oct, 2026',
+  dateOfJourney,
   onDateChange
 }: {
   source?: string;
@@ -1201,6 +1204,12 @@ export default function BusBookingView({
 }) {
   const router = useRouter();
   const { setActiveTab } = useSartStore();
+  const effectiveDateOfJourney = useMemo(() => {
+    if (dateOfJourney) return dateOfJourney;
+    const now = new Date();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${String(now.getDate()).padStart(2, '0')} ${months[now.getMonth()]}, ${now.getFullYear()}`;
+  }, [dateOfJourney]);
   const [buses, setBuses] = useState<BusItem[]>(() => generateBusesForRoute(source, destination));
 
   // Dynamically update buses when source or destination changes
@@ -2077,7 +2086,7 @@ export default function BusBookingView({
           {/* 1. Horizontal Date Calendar Strip (Exact Image 2 Reference) */}
           <div className="bb-calendar-strip-container">
             <div className="bb-cal-month-col">
-              <span className="bb-cal-month-title">OCT</span>
+              <span className="bb-cal-month-title">{CALENDAR_DATES[0]?.month?.toUpperCase() || 'LIVE'}</span>
             </div>
             <div className="bb-cal-dates-track">
               {CALENDAR_DATES.map((cd) => {
@@ -2089,7 +2098,7 @@ export default function BusBookingView({
                     className={`bb-cal-date-card ${isSelected ? 'active' : ''}`}
                     onClick={() => {
                       setSelectedCalendarDate(`${cd.day} ${cd.weekday}`);
-                      onDateChange?.(`${cd.day} Oct, 2026`);
+                      onDateChange?.(`${cd.day} ${cd.month}, ${cd.year}`);
                     }}
                   >
                     <div className="bb-cal-badge-wrap">

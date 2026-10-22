@@ -87,7 +87,12 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
   const [pickup, setPickup] = useState('');
   const [dropoff, setDropoff] = useState('');
   const [senderPhone, setSenderPhone] = useState('');
-  const [date, setDate] = useState('Thu, 15 Oct');
+  const [date, setDate] = useState(() => {
+    const today = new Date();
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${days[today.getDay()]}, ${today.getDate()} ${months[today.getMonth()]}`;
+  });
   const [time, setTime] = useState('');
   const [scheduleType, setScheduleType] = useState('Now');
   const [bookingRole, setBookingRole] = useState<'Sender' | 'Receiver'>('Sender');
@@ -132,8 +137,8 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
   const [showDropoffList, setShowDropoffList] = useState(false);
   const [showCarrierDropdown, setShowCarrierDropdown] = useState(false);
   const [showCalendarPicker, setShowCalendarPicker] = useState(false);
-  const [calMonth, setCalMonth] = useState(9); // October
-  const [calYear, setCalYear] = useState(2026);
+  const [calMonth, setCalMonth] = useState(() => new Date().getMonth());
+  const [calYear, setCalYear] = useState(() => new Date().getFullYear());
 
   const carrierBoxRef = React.useRef<HTMLDivElement>(null);
   const calendarRef = React.useRef<HTMLDivElement>(null);
@@ -937,24 +942,27 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
                             className="hero-cal-quick-action"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setCalMonth(9);
-                              setCalYear(2026);
-                              handleSelectDate(15, 9, 2026);
+                              const now = new Date();
+                              setCalMonth(now.getMonth());
+                              setCalYear(now.getFullYear());
+                              handleSelectDate(now.getDate(), now.getMonth(), now.getFullYear());
                             }}
                           >
-                            Today (15 Oct)
+                            Today ({new Date().getDate()} {MONTH_SHORT[new Date().getMonth()]})
                           </button>
                           <button
                             type="button"
                             className="hero-cal-quick-action"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setCalMonth(9);
-                              setCalYear(2026);
-                              handleSelectDate(16, 9, 2026);
+                              const tom = new Date();
+                              tom.setDate(tom.getDate() + 1);
+                              setCalMonth(tom.getMonth());
+                              setCalYear(tom.getFullYear());
+                              handleSelectDate(tom.getDate(), tom.getMonth(), tom.getFullYear());
                             }}
                           >
-                            Tomorrow (16 Oct)
+                            Tomorrow ({(() => { const t = new Date(); t.setDate(t.getDate() + 1); return `${t.getDate()} ${MONTH_SHORT[t.getMonth()]}`; })()})
                           </button>
                         </div>
                       </div>

@@ -30,7 +30,10 @@ export default function DriversBookingModal({ isOpen, onClose }: DriversBookingM
   const [dropLocation, setDropLocation] = useState('');
   const [requiredHours, setRequiredHours] = useState('Select hours');
   const [foodProvided, setFoodProvided] = useState<'Yes' | 'No'>('Yes');
-  const [tripDate, setTripDate] = useState('2026-10-17');
+  const [tripDate, setTripDate] = useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  });
   const [tripTime, setTripTime] = useState('10:00');
 
   // 4-Digit OTP Verification Workflow

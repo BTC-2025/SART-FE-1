@@ -78,6 +78,47 @@ export default function RentalStepThree({
   const [otpSent, setOtpSent] = React.useState(false);
   const [otpError, setOtpError] = React.useState('');
 
+  const [currentLocation, setCurrentLocation] = React.useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [locationError, setLocationError] = React.useState('');
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || !navigator.geolocation) {
+      setLocationError('GPS is not supported by this browser.');
+      return;
+    }
+
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        setCurrentLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+        setLocationError('');
+      },
+      (error) => {
+        setLocationError(
+          error.code === 1
+            ? 'Allow location access in your browser.'
+            : 'Unable to get GPS location. Try again.'
+        );
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 2000,
+        timeout: 15000,
+      }
+    );
+
+    return () => {
+      if (typeof window !== 'undefined' && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
+  }, []);
+
   const chosenDays = durationPlan === '1day' ? 1
     : durationPlan === '3days' ? 3
       : durationPlan === '1week' ? 7
@@ -131,13 +172,46 @@ export default function RentalStepThree({
         {!isProcessing && !isConfirmed ? (
           <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div style={{ background: '#f9fafb', borderRadius: '16px', padding: '18px', border: '1px solid #e5e7eb', marginBottom: '16px' }}>
-              <div style={{ position: 'relative', width: '100%', height: '140px', borderRadius: '10px', overflow: 'hidden', marginBottom: '14px' }}>
-                <img
-                  src={activeVehicle?.image || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&q=80'}
-                  alt={activeVehicle?.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
+
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '8px',
+                  width: '100%',
+                  marginBottom: '14px',
+                }}
+              >
+                {[
+                  activeVehicle?.image ||
+                  'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&q=80',
+                  'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&q=80',
+                  'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&q=80',
+                ].map((image, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      position: 'relative',
+                      flex: 1,
+                      minWidth: 0,
+                      height: '140px',
+                      borderRadius: '10px',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <img
+                      src={image}
+                      alt={`${activeVehicle?.name || 'Vehicle'} ${index + 1}`}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        display: 'block',
+                      }}
+                    />
+                  </div>
+                ))}
               </div>
+
 
               <div style={{ fontSize: '18px', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>{activeVehicle?.name}</div>
               <div style={{ fontSize: '12.5px', color: '#6b7280', marginBottom: '14px' }}>
@@ -465,25 +539,118 @@ export default function RentalStepThree({
       {/* Right Column: Vehicle Diagnostics, Working Condition & 100px x 200px Mini Map */}
       <div style={{ width: '380px', minWidth: '380px', background: '#f8fafc', display: 'flex', flexDirection: 'column', overflowY: 'auto', padding: '20px', gap: '16px' }}>
 
-        {/* Map & Live Hub Location Banner */}
-        <div style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '14px', display: 'flex', gap: '14px', alignItems: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-          {/* Map box: EXACT width 100px, height 200px */}
-          <div style={{ width: '300px', minWidth: '300px', height: '200px', borderRadius: '12px', overflow: 'hidden', position: 'relative', border: '1.5px solid #cbd5e1', boxShadow: '0 2px 6px rgba(0,0,0,0.08)' }}>
-            <LiveTrackerMap
-              key="rental-map"
-              vehicleIconClass={activeVehicle?.icon || 'fa-car'}
-              pickup={pickup || 'Truro'}
-              dropoff=""
-              isSearching={false}
+
+        {/* Google Map & Live Hub Location Banner */}
+        <div
+          style={{
+            background: '#ffffff',
+            borderRadius: '16px',
+            border: '1px solid #e2e8f0',
+            padding: '14px',
+            display: 'flex',
+            gap: '14px',
+            alignItems: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+          }}
+        >
+          {/* Google Map */}
+          <div
+            style={{
+              width: '300px',
+              minWidth: '300px',
+              height: '200px',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              position: 'relative',
+              border: '1.5px solid #cbd5e1',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+            }}
+          >
+            <iframe
+              key={
+                currentLocation
+                  ? `${currentLocation.lat},${currentLocation.lng}`
+                  : 'waiting-for-gps'
+              }
+              title="Current Live GPS Location"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              loading="lazy"
+              allowFullScreen
+              src={`https://maps.google.com/maps?q=${currentLocation
+                ? `${currentLocation.lat},${currentLocation.lng}`
+                : encodeURIComponent(pickup || 'Truro')
+                }&z=17&output=embed`}
             />
-            <div style={{ position: 'absolute', bottom: '6px', left: '4px', right: '4px', zIndex: 1000, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(4px)', color: '#ffffff', padding: '3px 4px', borderRadius: '6px', fontSize: '9px', fontWeight: 800, textAlign: 'center' }}>
-              <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', marginRight: '4px' }}></span>
-              Live GPS
+
+            {/* Open Google Maps */}
+            <a
+              href={
+                currentLocation
+                  ? `https://www.google.com/maps/search/?api=1&query=${currentLocation.lat},${currentLocation.lng}`
+                  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pickup || 'Truro')}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                position: 'absolute',
+                top: '8px',
+                right: '8px',
+                zIndex: 1000,
+                background: '#ffffff',
+                color: '#2563eb',
+                padding: '7px 9px',
+                borderRadius: '7px',
+                fontSize: '10px',
+                fontWeight: 700,
+                textDecoration: 'none',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+              }}
+            >
+              Google Maps ↗
+            </a>
+
+            {/* GPS Status */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '6px',
+                left: '4px',
+                right: '4px',
+                zIndex: 1000,
+                background: 'rgba(15,23,42,0.88)',
+                color: '#ffffff',
+                padding: '5px',
+                borderRadius: '6px',
+                fontSize: '10px',
+                fontWeight: 800,
+                textAlign: 'center',
+                pointerEvents: 'none',
+              }}
+            >
+              <span
+                style={{
+                  display: 'inline-block',
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: currentLocation ? '#10b981' : '#f59e0b',
+                  marginRight: '5px',
+                }}
+              />
+              {currentLocation
+                ? 'GPS CONNECTED'
+                : locationError || 'Getting your location...'}
             </div>
           </div>
 
+          {/* Location Details */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 
+          </div>
         </div>
+
 
         {/* Working Condition & Health Diagnostics */}
         <div style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>

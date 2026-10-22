@@ -31,8 +31,8 @@ export default function WhyChooseUs() {
       background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
       borderRadius: '24px',
       padding: '40px',
-      color: '#fff',
-      boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
+      color: 'black',
+      boxShadow: 'white'
     }}>
       <div style={{ textAlign: 'center', marginBottom: '36px' }}>
         <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 12px 0', letterSpacing: '0.5px' }}>Our Promise</h2>
@@ -55,14 +55,14 @@ export default function WhyChooseUs() {
             transition: 'transform 0.3s, background 0.3s',
             cursor: 'default'
           }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-4px)';
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
-          }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+            }}
           >
             <div style={{
               width: '48px',
@@ -81,9 +81,10 @@ export default function WhyChooseUs() {
           </div>
         ))}
       </div>
-      
+
       {/* Mobile responsive styles can be added here or in globals.css if needed */}
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @media (max-width: 1024px) {
           .why-choose-us-grid { grid-template-columns: repeat(2, 1fr) !important; }
         }

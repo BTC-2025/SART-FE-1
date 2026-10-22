@@ -8,8 +8,6 @@ import Showcase from '@/components/Showcase';
 import MapEngine from '@/components/MapEngine';
 import NewsFeed from '@/components/NewsFeed';
 import TravelBlogs from '@/components/TravelBlogs';
-import TopRoutes from '@/components/TopRoutes';
-import WhyChooseUs from '@/components/WhyChooseUs';
 import { POPULAR_CITIES } from '@/components/trainData';
 import './HomeTab.css';
 
@@ -66,8 +64,18 @@ export default function HomeTab() {
   const [tripType, setTripType] = useState<'one_way' | 'round_trip'>('round_trip');
   const [fromCity, setFromCity] = useState('');
   const [toCity, setToCity] = useState('');
-  const [departDate, setDepartDate] = useState('Thu, 15 Oct');
-  const [returnDate, setReturnDate] = useState('Thu, 15 Oct');
+  const [departDate, setDepartDate] = useState(() => {
+    const today = new Date();
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${days[today.getDay()]}, ${today.getDate()} ${months[today.getMonth()]}`;
+  });
+  const [returnDate, setReturnDate] = useState(() => {
+    const today = new Date();
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${days[today.getDay()]}, ${today.getDate()} ${months[today.getMonth()]}`;
+  });
   const [adultsCount, setAdultsCount] = useState(1);
   const [childrenCount, setChildrenCount] = useState(0);
   const [infantsCount, setInfantsCount] = useState(0);
@@ -81,10 +89,10 @@ export default function HomeTab() {
   const [showTravellerDropdown, setShowTravellerDropdown] = useState(false);
   const [showCalendarPicker, setShowCalendarPicker] = useState(false);
   const [showReturnCalendarPicker, setShowReturnCalendarPicker] = useState(false);
-  const [calMonth, setCalMonth] = useState(9); // 0-indexed: 9 = October
-  const [calYear, setCalYear] = useState(2026);
-  const [returnCalMonth, setReturnCalMonth] = useState(9);
-  const [returnCalYear, setReturnCalYear] = useState(2026);
+  const [calMonth, setCalMonth] = useState(() => new Date().getMonth());
+  const [calYear, setCalYear] = useState(() => new Date().getFullYear());
+  const [returnCalMonth, setReturnCalMonth] = useState(() => new Date().getMonth());
+  const [returnCalYear, setReturnCalYear] = useState(() => new Date().getFullYear());
 
   // Contact details for inquiry / group travel
   const [email, setEmail] = useState('');
@@ -654,24 +662,27 @@ export default function HomeTab() {
                         className="hero-cal-quick-action"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setCalMonth(9);
-                          setCalYear(2026);
-                          handleSelectDate(17, 9, 2026);
+                          const now = new Date();
+                          setCalMonth(now.getMonth());
+                          setCalYear(now.getFullYear());
+                          handleSelectDate(now.getDate(), now.getMonth(), now.getFullYear());
                         }}
                       >
-                        Today (17 Oct)
+                        Today ({new Date().getDate()} {MONTH_SHORT[new Date().getMonth()]})
                       </button>
                       <button
                         type="button"
                         className="hero-cal-quick-action"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setCalMonth(9);
-                          setCalYear(2026);
-                          handleSelectDate(18, 9, 2026);
+                          const tom = new Date();
+                          tom.setDate(tom.getDate() + 1);
+                          setCalMonth(tom.getMonth());
+                          setCalYear(tom.getFullYear());
+                          handleSelectDate(tom.getDate(), tom.getMonth(), tom.getFullYear());
                         }}
                       >
-                        Tomorrow (18 Oct)
+                        Tomorrow ({(() => { const t = new Date(); t.setDate(t.getDate() + 1); return `${t.getDate()} ${MONTH_SHORT[t.getMonth()]}`; })()})
                       </button>
                     </div>
                   </div>
@@ -684,9 +695,10 @@ export default function HomeTab() {
                   type="button"
                   className="hero-h-quick-date-btn"
                   onClick={() => {
-                    setCalMonth(9);
-                    setCalYear(2026);
-                    handleSelectDate(17, 9, 2026);
+                    const now = new Date();
+                    setCalMonth(now.getMonth());
+                    setCalYear(now.getFullYear());
+                    handleSelectDate(now.getDate(), now.getMonth(), now.getFullYear());
                   }}
                 >
                   Today
@@ -695,9 +707,11 @@ export default function HomeTab() {
                   type="button"
                   className="hero-h-quick-date-btn"
                   onClick={() => {
-                    setCalMonth(9);
-                    setCalYear(2026);
-                    handleSelectDate(18, 9, 2026);
+                    const tom = new Date();
+                    tom.setDate(tom.getDate() + 1);
+                    setCalMonth(tom.getMonth());
+                    setCalYear(tom.getFullYear());
+                    handleSelectDate(tom.getDate(), tom.getMonth(), tom.getFullYear());
                   }}
                 >
                   Tomorrow
@@ -750,19 +764,7 @@ export default function HomeTab() {
         </div>
       </div>
 
-      {/* Quick Services Strip replacing the old image click areas */}
-      {/* <div style={{ textAlign: 'center', padding: '3px 20px 0' }}>
-        <h2 style={{ fontSize: '28px', fontWeight: 800, color: '#1e293b', margin: 0, letterSpacing: '1px' }}>Book a Service</h2>
-        <div style={{ width: '60px', height: '4px', background: '#f59e0b', margin: '12px auto 0', borderRadius: '2px' }}></div>
-      </div>
-      <div className="quick-services-strip">
-        <div className="service-card" onClick={() => setActiveTab('ride')}><i className="fa-solid fa-car-side"></i> <span>Rides</span></div>
-        <div className="service-card" onClick={() => setActiveTab('carrier')}><i className="fa-solid fa-truck-fast"></i> <span>Carrier</span></div>
-        <div className="service-card" onClick={() => setActiveTab('rental')}><i className="fa-solid fa-key"></i> <span>Rental</span></div>
-        <div className="service-card" onClick={() => setActiveTab('community')}><i className="fa-solid fa-users"></i> <span>Community</span></div>
-        <div className="service-card" onClick={() => setActiveTab('parking')}><i className="fa-solid fa-square-parking"></i> <span>Parking</span></div>
-        <div className="service-card" onClick={() => setActiveTab('drivers')}><i className="fa-solid fa-user-tie"></i> <span>Drivers</span></div>
-      </div> */}
+
       <div className="home-content-wrapper">
         {/* Quick Services Section */}
         <section className="book-service-section">
@@ -861,11 +863,7 @@ export default function HomeTab() {
 
         <Showcase />
 
-        <WhyChooseUs />
-
         <TravelBlogs />
-
-        <TopRoutes />
 
         <div style={{ display: 'grid', gridTemplateColumns: '7fr 5fr', gap: '24px', paddingBottom: '60px' }}>
           <MapEngine />
