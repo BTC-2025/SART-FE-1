@@ -382,7 +382,7 @@
 /* Vehicle dropdown menu popup matching user's screenshot */
 .hero-vehicle-dropdown-menu {
   position: absolute;
-  bottom: calc(100% + 12px);
+  top: calc(100% + 12px);
   left: 0;
   width: 320px;
   background: #ffffff;
@@ -398,9 +398,10 @@
 /* Calendar popup styling */
 .hero-calendar-popup {
   position: absolute;
-  bottom: calc(100% + 12px);
+  top: calc(100% + 12px);
   left: 0;
   width: 280px;
+
   background: #ffffff !important;
   background-color: #ffffff !important;
   opacity: 1 !important;
@@ -2463,7 +2464,6 @@
 .home-content-wrapper {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 24px;
   width: 100%;
 }
 
@@ -2472,7 +2472,6 @@
 ========================================= */
 .book-service-section {
   width: 100%;
-  padding: 24px 0 40px;
   background: transparent;
   margin-top: 0;
 }
@@ -2482,7 +2481,7 @@
   margin: 0 auto;
   background: rgba(255, 255, 255, 0.75);
   border-radius: 24px;
-  padding: 28px 24px 32px;
+  padding: 4px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(12px);
@@ -2520,22 +2519,24 @@
 .book-service-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 14px;
+  gap: 10px;
   padding: 0;
   width: 100%;
   margin: 0 auto;
 }
 
 .book-card {
+  height: 250px;
+  width: 190px;
   background: #ffffff;
   border-radius: 16px;
-  padding: 16px 12px 14px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  padding: 10px 10px 10px;
+  box-shadow: 0 8px 20px rgba(67, 63, 63, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  position: relative;
+
   border: 1px solid rgba(0, 0, 0, 0.04);
   min-width: 0;
 }

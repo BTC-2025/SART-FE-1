@@ -203,6 +203,10 @@ let googleRoadmapLayer = null;
 
 function initMap() {
   try {
+    const mapContainer = document.getElementById('explore-map');
+    if (!mapContainer) {
+      return;
+    }
     // Set up Leaflet map with Google Maps Roadmap Tiles
     leafletMap = L.map('explore-map', {
       zoomControl: false,
@@ -539,15 +543,19 @@ function executeGenericBooking(type, title, details, cost, metadata = {}) {
   saveState();
   
   // Set Map active booking text
-  document.getElementById('map-active-booking-title').innerText = title;
-  document.getElementById('map-active-booking-desc').innerText = `Scheduled trip active. Coordinates loading...`;
-  document.getElementById('map-active-booking-card').style.display = 'block';
+  const bookingTitleEl = document.getElementById('map-active-booking-title');
+  if (bookingTitleEl) bookingTitleEl.innerText = title;
+  const bookingDescEl = document.getElementById('map-active-booking-desc');
+  if (bookingDescEl) bookingDescEl.innerText = `Scheduled trip active. Coordinates loading...`;
+  const bookingCardEl = document.getElementById('map-active-booking-card');
+  if (bookingCardEl) bookingCardEl.style.display = 'block';
   
   let mapIconClass = 'fa-car-side';
   if (type === 'sea') mapIconClass = 'fa-ship';
   else if (type === 'air') mapIconClass = 'fa-plane';
   else if (type === 'train') mapIconClass = 'fa-train';
-  document.getElementById('map-active-booking-icon').className = `fa-solid ${mapIconClass}`;
+  const bookingIconEl = document.getElementById('map-active-booking-icon');
+  if (bookingIconEl) bookingIconEl.className = `fa-solid ${mapIconClass}`;
 
   const activeModal = document.querySelector('.modal-overlay.open');
   if (activeModal) closeModal(activeModal.id);
@@ -1339,15 +1347,19 @@ function bootstrapLegacyApp() {
   const activeB = appState.bookings.find(b => b.status === 'Active');
   if (activeB) {
     appState.activeBookingId = activeB.id;
-    document.getElementById('map-active-booking-title').innerText = activeB.title;
-    document.getElementById('map-active-booking-desc').innerText = `Active trip tracking...`;
-    document.getElementById('map-active-booking-card').style.display = 'block';
+    const titleEl = document.getElementById('map-active-booking-title');
+    if (titleEl) titleEl.innerText = activeB.title;
+    const descEl = document.getElementById('map-active-booking-desc');
+    if (descEl) descEl.innerText = `Active trip tracking...`;
+    const cardEl = document.getElementById('map-active-booking-card');
+    if (cardEl) cardEl.style.display = 'block';
     
     let mapIconClass = 'fa-car-side';
     if (activeB.type === 'sea') mapIconClass = 'fa-ship';
     else if (activeB.type === 'air') mapIconClass = 'fa-plane';
     else if (activeB.type === 'train') mapIconClass = 'fa-train';
-    document.getElementById('map-active-booking-icon').className = `fa-solid ${mapIconClass}`;
+    const iconEl = document.getElementById('map-active-booking-icon');
+    if (iconEl) iconEl.className = `fa-solid ${mapIconClass}`;
     
     setTimeout(() => {
       animateActiveBookingRoute(activeB.title, activeB.type);

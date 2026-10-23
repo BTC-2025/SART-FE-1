@@ -776,85 +776,115 @@ export default function HomeTab() {
             <div className="book-service-grid">
               {/* 1. Road Rides */}
               <div className="book-card" onClick={() => handleServiceClick('ride')}>
-                <div className="book-badge badge-green"><i className="fa-solid fa-clock"></i> NEAR YOU IN 2 MINS</div>
-                <h3 className="book-title">Rides</h3>
-                <p className="book-desc">Instant taxi, premium sedans & daily auto commutes.</p>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Rides</h3>
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '4px 0 10px 0' }}>
+                  <img
+                    src="/images/rides_fleet_showcase.png"
+                    alt="Rides Fleet"
+                    style={{ width: '100%', height: 'auto', maxHeight: '110px', objectFit: 'contain', borderRadius: '8px' }}
+                  />
+                </div>
+                <p className="book-desc">
+                  Book bikes, autos, cars, buses, trains, flights, and ships for local or long-distance travel.
+                </p>
+                {/* <p className="book-desc">Book taxis, autos, bikes, cars, buses, trains, flights, ships, and helicopters for local or long-distance travel. Choose your ride, check prices, and travel with ease.</p> */}
                 <div className="book-footer">
-                  <div className="book-meta">
-                    <span className="meta-label">Fares starting at</span>
-                    <span className="meta-val">₹49 / km <span className="meta-action">Book Ride <i className="fa-solid fa-chevron-right"></i></span></span>
-                  </div>
-                  <div className="book-icon icon-green"><i className="fa-solid fa-car-side"></i></div>
+
                 </div>
               </div>
 
               {/* 2. Cargo & Logistics */}
               <div className="book-card" onClick={() => handleServiceClick('carrier')}>
-                <div className="book-badge badge-orange"><i className="fa-solid fa-bolt"></i> INSTANT DELIVERY</div>
-                <h3 className="book-title">Cargo & Logistics</h3>
-                <p className="book-desc">Freight trucks, intra-city courier vans & rapid parcel drops.</p>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Carrier</h3>
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '4px 0 10px 0' }}>
+                  <img
+                    src="/images/carrier_service.png"
+                    alt="Carrier Logistics"
+                    style={{ width: '100%', height: 'auto', maxHeight: '110px', objectFit: 'contain', borderRadius: '8px' }}
+                  />
+                </div>
+                <p className="book-desc">
+                  Send parcels and goods by bike, truck, train, ship, or air with easy booking and live tracking.
+                </p>
+                {/* <p className="book-desc">Send parcels, goods, and heavy loads using bikes, mini trucks, lorries, trains, ships, or air cargo. Compare prices, book a carrier, and track your delivery in real time.</p> */}
                 <div className="book-footer">
-                  <div className="book-meta">
-                    <span className="meta-label">Payload Up to</span>
-                    <span className="meta-val">2.5 Tonnes <span className="meta-action">Ship Parcel <i className="fa-solid fa-chevron-right"></i></span></span>
-                  </div>
-                  <div className="book-icon icon-orange"><i className="fa-solid fa-truck-fast"></i></div>
+
                 </div>
               </div>
 
               {/* 3. Vehicle Rental */}
               <div className="book-card" onClick={() => handleServiceClick('rental')}>
-                <div className="book-badge badge-teal"><i className="fa-solid fa-leaf"></i> SELF-DRIVE & EV</div>
-                <h3 className="book-title">Vehicle Rental</h3>
-                <p className="book-desc">Zero-deposit luxury sedans, SUVs & flexible daily fleet.</p>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Vehicle Rental</h3>
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '4px 0 10px 0' }}>
+                  <img
+                    src="/images/vehicle_rental_fleet.png"
+                    alt="Vehicle Rental"
+                    style={{ width: '100%', height: '110px', maxHeight: '110px', objectFit: 'contain', borderRadius: '8px' }}
+                  />
+                </div>
+                <p className="book-desc">
+                  Rent bikes, cars, SUVs, and commercial vehicles by the hour or day.
+                </p>
+                {/* <p className="book-desc">Rent bikes, scooters, cars, SUVs, and commercial vehicles for a few hours, a day, or longer. Choose a vehicle that fits your needs and budget.</p> */}
                 <div className="book-footer">
-                  <div className="book-meta">
-                    <span className="meta-label">Zero Deposit</span>
-                    <span className="meta-val">₹1,999 / day <span className="meta-action">Rent Car <i className="fa-solid fa-chevron-right"></i></span></span>
-                  </div>
-                  <div className="book-icon icon-teal"><i className="fa-solid fa-key"></i></div>
+
                 </div>
               </div>
 
               {/* 4. Drivers Hire */}
               <div className="book-card" onClick={() => handleServiceClick('drivers')}>
-                <div className="book-badge badge-indigo"><i className="fa-solid fa-user-shield"></i> VERIFIED CHAUFFEURS</div>
-                <h3 className="book-title">Drivers Hire</h3>
-                <p className="book-desc">Acting drivers for your own car. Hourly, round-trip or outstation.</p>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Drivers Hire</h3>
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '4px 0 10px 0' }}>
+                  <img
+                    src="/images/drivers_service.png"
+                    alt="Drivers Hire"
+                    style={{ width: '100%', height: 'auto', maxHeight: '110px', objectFit: 'contain', borderRadius: '8px' }}
+                  />
+                </div>
+                <p className="book-desc">
+                  Hire verified drivers for your own vehicle, local trips, or outstation travel.
+                </p>
+                {/* <p className="book-desc">Hire a professional driver for your own car, bike, or other vehicle. Book a driver for local trips, outstation travel, or a full day.</p> */}
                 <div className="book-footer">
-                  <div className="book-meta">
-                    <span className="meta-label">Certified Pros</span>
-                    <span className="meta-val">₹99 / hr <span className="meta-action">Hire Chauffeur <i className="fa-solid fa-chevron-right"></i></span></span>
-                  </div>
-                  <div className="book-icon icon-indigo"><i className="fa-solid fa-user-tie"></i></div>
+
                 </div>
               </div>
 
               {/* 5. Parking Slots */}
               <div className="book-card" onClick={() => handleServiceClick('parking')}>
-                <div className="book-badge badge-blue"><i className="fa-solid fa-square-parking"></i> LIVE VACANCY</div>
-                <h3 className="book-title">Parking Slots</h3>
-                <p className="book-desc">Real-time automated parking, valet access & EV charger reservation.</p>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Parking Slots</h3>
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '4px 0 10px 0' }}>
+                  <img
+                    src="/images/parking_service.jpg"
+                    alt="Parking Slots"
+                    style={{ width: '100%', height: 'auto', maxHeight: '110px', objectFit: 'contain', borderRadius: '8px' }}
+                  />
+                </div>
+                <p className="book-desc">
+                  Find and book available parking for bikes, cars, buses, and trucks.
+                </p>
+                {/* <p className="book-desc">Find and book parking spaces for bikes, cars, buses, and trucks near your destination. Check availability, view prices, and park with peace of mind.</p> */}
                 <div className="book-footer">
-                  <div className="book-meta">
-                    <span className="meta-label">Availability</span>
-                    <span className="meta-val">142 Slots nearby <span className="meta-action">Reserve Slot <i className="fa-solid fa-chevron-right"></i></span></span>
-                  </div>
-                  <div className="book-icon icon-blue"><i className="fa-solid fa-p"></i></div>
+
                 </div>
               </div>
 
               {/* 6. Communities */}
               <div className="book-card" onClick={() => handleServiceClick('community')}>
-                <div className="book-badge badge-pink"><i className="fa-solid fa-users"></i> 10K+ MEMBERS</div>
-                <h3 className="book-title">Communities</h3>
-                <p className="book-desc">Driver association, safety guild, welfare union & civic forums.</p>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Communities</h3>
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '4px 0 10px 0' }}>
+                  <img
+                    src="/images/community_service.jpg"
+                    alt="Communities"
+                    style={{ width: '100%', height: 'auto', maxHeight: '110px', objectFit: 'contain', borderRadius: '8px' }}
+                  />
+                </div>
+                <p className="book-desc">
+                  Connect with drivers, vehicle owners, fleet operators, and transport unions.
+                </p>
+                {/* <p className="book-desc">Connect with drivers, vehicle owners, fleet operators, transport unions, and travellers. Share information, find transport support, and stay connected with your community.</p> */}
                 <div className="book-footer">
-                  <div className="book-meta">
-                    <span className="meta-label">Active Chapters</span>
-                    <span className="meta-val">Chennai Central <span className="meta-action">Join Hub <i className="fa-solid fa-chevron-right"></i></span></span>
-                  </div>
-                  <div className="book-icon icon-pink"><i className="fa-solid fa-users"></i></div>
+
                 </div>
               </div>
             </div>

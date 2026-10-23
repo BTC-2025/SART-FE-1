@@ -206,7 +206,7 @@ export default function Navbar() {
               <a className="dropdown-item" style={{ padding: '12px 24px', textAlign: 'left', fontSize: '14px', fontWeight: 500, color: '#000000', display: 'flex', alignItems: 'center', gap: '12px' }} onClick={() => console.log('Add account')}>
                 <i className="fa-solid fa-user-plus" style={{ fontSize: '18px', color: '#4b5563' }}></i> Add another account
               </a>
-              <a className="dropdown-item" style={{ padding: '12px 24px', textAlign: 'left', fontSize: '14px', fontWeight: 500, color: '#000000', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => { setActiveTab('community'); setIsProfileOpen(false); }}>
+              <a className="dropdown-item" style={{ padding: '12px 24px', textAlign: 'left', fontSize: '14px', fontWeight: 500, color: '#000000', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => { setActiveTab('support'); router.push('/home/support', { scroll: false }); setIsProfileOpen(false); }}>
                 <i className="fa-solid fa-headset" style={{ fontSize: '18px', color: '#4b5563' }}></i> Help & Support
               </a>
               <a className="dropdown-item" style={{ padding: '12px 24px', textAlign: 'left', fontSize: '14px', fontWeight: 500, color: '#000000', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => { setActiveTab('profile'); router.push('/profile', { scroll: false }); setIsProfileOpen(false); }}>
