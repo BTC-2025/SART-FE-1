@@ -174,144 +174,97 @@ const WHY_BOOK_ITEMS = [
 
 const HOTELS_DATA: HotelCard[] = [
 
+
+
   {
     id: 1,
-    name: "Economy Hatchback",
-    location: "Chennai to Pondicherry",
-    rating: "4.6",
+    name: "Bike",
+    location: "Chennai City & Nearby Routes",
+    rating: "4.8",
     reviews: "2k+ Travelers",
-    price: "₹2,499",
-    duration: "3 Hours",
-    category: "City & Outstation Cab",
-    badge: "Budget Friendly",
-    capacity: "4 Passengers",
+    price: "₹99",
+    duration: "Local Trip",
+    category: "Bike & Scooter Rides",
+    badge: "Quick & Affordable",
+    capacity: "1 Passenger",
     description:
-      "Affordable air-conditioned hatchback for city rides, airport transfers, and short trips.",
-    transport: "Private Cab",
+      "Beat traffic with a quick and affordable bike ride for office commutes, shopping, and short city trips.",
+    transport: "Two-Wheeler Ride",
     image:
-      "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80",
   },
   {
     id: 2,
-    name: "Premium Sedan",
-    location: "Hyderabad to Vijayawada",
+    name: "Car",
+    location: "Chennai to Pondicherry",
     rating: "4.8",
     reviews: "3k+ Travelers",
-    price: "₹3,999",
-    duration: "5 Hours",
-    category: "Comfort Travel",
+    price: "₹2,499",
+    duration: "Approx. 3 Hours",
+    category: "City & Outstation Cab",
     badge: "Most Popular",
     capacity: "4 Passengers",
     description:
-      "Comfortable sedan with spacious seating, air conditioning, and a professional driver.",
-    transport: "Private Sedan",
+      "Travel comfortably in an air-conditioned car for city rides, airport transfers, family trips, and outstation journeys.",
+    transport: "Private Car",
     image:
-      "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80",
   },
   {
     id: 3,
-    name: "SUV Family Ride",
-    location: "Bengaluru to Mysuru",
-    rating: "4.8",
-    reviews: "2.5k+ Travelers",
-    price: "₹4,999",
-    duration: "3.5 Hours",
-    category: "Family Travel",
-    badge: "Family Favorite",
-    capacity: "6–7 Passengers",
+    name: "Auto",
+    location: "Chennai City",
+    rating: "4.6",
+    reviews: "1.5k+ Travelers",
+    price: "₹199",
+    duration: "Local Trip",
+    category: "Local Auto Service",
+    badge: "Budget Friendly",
+    capacity: "3 Passengers",
     description:
-      "Spacious SUV suitable for families, luggage, weekend trips, and long-distance journeys.",
-    transport: "Private SUV",
+      "Book a convenient auto for daily commutes, nearby shopping, railway station transfers, and short-distance travel.",
+    transport: "Auto Rickshaw",
     image:
-      "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=800&q=80"
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCSsmoe6rtaNGw-IirYBw8PyyweuNHuqmCPbTF_Qbpfw&s=10",
   },
   {
     id: 4,
-    name: "Luxury Premium Car",
-    location: "Mumbai City & Outstation",
-    rating: "4.9",
-    reviews: "1.5k+ Travelers",
-    price: "₹7,999",
-    duration: "8 Hours",
-    category: "Luxury Travel",
-    badge: "Premium Choice",
-    capacity: "3–4 Passengers",
+    name: "Bus",
+    location: "Chennai to Bengaluru",
+    rating: "4.7",
+    reviews: "5k+ Travelers",
+    price: "₹699",
+    duration: "Approx. 6 Hours",
+    category: "Bus & Intercity Travel",
+    badge: "Popular Route",
+    capacity: "30–50 Passengers",
     description:
-      "Travel in a premium vehicle for business meetings, special occasions, and executive transfers.",
-    transport: "Luxury Chauffeur Car",
+      "Book intercity bus journeys with route information, departure times, seat selection, and passenger booking details.",
+    transport: "Passenger Bus",
     image:
-      "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=800&q=80",
   },
   {
     id: 5,
-    name: "Tempo Traveller",
-    location: "Delhi to Agra",
-    rating: "4.7",
-    reviews: "1.8k+ Travelers",
-    price: "₹8,499",
-    duration: "4 Hours",
-    category: "Group Travel",
-    badge: "Group Special",
-    capacity: "9–17 Passengers",
-    description:
-      "Ideal for group outings, family functions, sightseeing, and multi-day road trips.",
-    transport: "Private Tempo Traveller",
-    image:
-      "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=800&q=80"
-  },
-  {
-    id: 6,
-    name: "Mini Bus Rental",
-    location: "Hyderabad to Tirupati",
-    rating: "4.7",
-    reviews: "1.2k+ Travelers",
-    price: "₹12,999",
-    duration: "10 Hours",
-    category: "Group & Pilgrimage",
-    badge: "Group Travel Deal",
-    capacity: "18–25 Passengers",
-    description:
-      "Convenient group transport for pilgrimages, corporate trips, weddings, and tours.",
-    transport: "Private Mini Bus",
-    image:
-      "https://images.unsplash.com/photo-1464219789935-c2d9d9aba644?auto=format&fit=crop&w=800&q=80"
-  },
-  {
-    id: 7,
-    name: "Motorbike Rental",
-    location: "Manali & Nearby Routes",
+    name: "Goods Transport Truck",
+    location: "Chennai & Across Tamil Nadu",
     rating: "4.8",
-    reviews: "2k+ Travelers",
-    price: "₹999",
-    duration: "Per Day",
-    category: "Bike Adventure",
-    badge: "Adventure Pick",
-    capacity: "1–2 Riders",
+    reviews: "1.8k+ Shipments",
+    price: "Get a Quote",
+    duration: "Based on Distance",
+    category: "Cargo & Goods Transport",
+    badge: "Verified Carrier",
+    capacity: "1–10+ Tons",
     description:
-      "Explore scenic mountain roads and local destinations on a rented motorcycle.",
-    transport: "Self-Drive Bike",
+      "Transport business goods, furniture, construction materials, and commercial loads with suitable trucks and delivery options.",
+    transport: "Commercial Truck",
     image:
-      "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=800&q=80",
   },
-  {
-    id: 8,
-    name: "Electric Auto Rickshaw",
-    location: "Chennai City",
-    rating: "4.5",
-    reviews: "900+ Travelers",
-    price: "₹199",
-    duration: "Local Trip",
-    category: "Eco-Friendly Travel",
-    badge: "Green Mobility",
-    capacity: "3 Passengers",
-    description:
-      "Affordable short-distance travel for local shopping, station transfers, and daily commutes.",
-    transport: "Electric Auto",
-    image:
-      "https://images.unsplash.com/photo-1573348722427-f1d6819fdf98?auto=format&fit=crop&w=800&q=80"
-  }
-
 ];
+
+
+
 
 interface PopularRoute {
   id: number;
@@ -329,7 +282,7 @@ interface PopularRoute {
 interface OperatorItem {
   id: number;
   name: string;
-  category: 'Buses' | 'Cars' | 'Trucks & Carriers' | 'Fleet Owners';
+  category: '';
   operator: string;
   type: string;
   rating: string;
@@ -468,84 +421,359 @@ const POPULAR_ROUTES_DATA: PopularRoute[] = [
   }
 ];
 
-const OPERATOR_LISTINGS_DATA: OperatorItem[] = [
+interface ListingCardItem {
+  id: number;
+  name: string;
+  category: string;
+  provider: string;
+  type: string;
+  rating: string;
+  price: string;
+  priceLabel?: string;
+  highlights: string;
+  features: string[];
+  statusBadge: string;
+  statusBadgeColor?: string;
+  image: string;
+  btnText: string;
+}
+
+const RIDES_TRAVEL_DATA: ListingCardItem[] = [
   {
     id: 1,
-    name: 'InterCity Volvo Multi-Axle B11R',
-    category: 'Buses',
-    operator: 'Orange & SRS Certified Fleets',
-    type: 'AC Sleeper 2+1 (Live GPS)',
-    rating: '4.8 (4.2k ratings)',
-    price: '₹799 / seat',
-    highlights: 'CCTV monitored, personal USB charging, fresh linen & emergency SOS.',
-    features: ['Wi-Fi Onboard', 'Emergency SOS', 'Verified Crew', 'GPS Tracker'],
-    fleetStatus: 'Government Verified Operator',
-    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=700&q=80'
+    name: 'Bike',
+    category: 'Bikes',
+    provider: 'Rapido & City Moto Express',
+    type: 'Bike & Scooter Rides • 1 Rider',
+    rating: '4.8 (8.5k rides)',
+    price: '₹49',
+    priceLabel: 'Starting fare',
+    highlights: 'Instant pickup, helmet provided, fastest navigation through peak traffic.',
+    features: ['Quick Pickup', 'Verified Rider', 'Helmet Provided', 'Live GPS'],
+    statusBadge: 'Fastest in Traffic',
+    statusBadgeColor: '#0284c7',
+    image: 'https://www.bike4rent.in/images/bikes/dreamneo.png',
+    btnText: 'Book Ride'
   },
   {
     id: 2,
-    name: 'Toyota Innova Crysta / HyCross',
-    category: 'Cars',
-    operator: 'SART Premier Chauffeur Network',
-    type: '6-7 Seater Premium MPV',
-    rating: '4.9 (5.8k ratings)',
-    price: '₹14 / km',
-    highlights: 'Uniformed background-checked drivers, sanitized cabin & zero hidden toll fees.',
-    features: ['Luggage Carrier', 'Chauffeur Driven', 'Toll Included Options', 'Air Bag Safety'],
-    fleetStatus: 'Platinum Fleet Owner',
-    image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=700&q=80'
+    name: 'Auto',
+    category: 'Autos',
+    provider: 'SART City Auto Guild',
+    type: 'Auto Rickshaw • Up to 3 Passengers',
+    rating: '4.7 (12k rides)',
+    price: '₹69',
+    priceLabel: 'Metered base fare',
+    highlights: 'Pocket-friendly door-to-door transit, zero meter tampering guarantee.',
+    features: ['Metered Fare', 'Doorstep Pickup', 'Cash & UPI', 'No Bargaining'],
+    statusBadge: 'Everyday Saver',
+    statusBadgeColor: '#16a34a',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCSsmoe6rtaNGw-IirYBw8PyyweuNHuqmCPbTF_Qbpfw&s=10',
+    btnText: 'Book Ride'
   },
   {
     id: 3,
-    name: 'BharatBenz Heavy Transport 2823R',
-    category: 'Trucks & Carriers',
-    operator: 'TransIndia Logistics Alliance',
-    type: '16–28 Ton All-India Permit',
-    rating: '4.7 (1.9k loads)',
-    price: '₹4,500 / trip base',
-    highlights: 'Full-truckload (FTL) goods carrier with real-time telematics and digital e-Way bill sync.',
-    features: ['Container Locked', 'e-Way Bill Sync', 'Consignment Insurance', '24x7 Escort GPS'],
-    fleetStatus: 'National Permit Verified',
-    image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=700&q=80'
+    name: 'Car',
+    category: 'Hatchbacks',
+    provider: 'Prime City Cabs',
+    type: 'Economy Hatchback • 4 Passengers',
+    rating: '4.7 (9.2k rides)',
+    price: '₹149',
+    priceLabel: 'Base estimate',
+    highlights: 'Compact AC cars ideal for comfortable everyday commute and grocery runs.',
+    features: ['Air Conditioned', 'Clean Cabins', 'Affordable Fares', 'Luggage Boot'],
+    statusBadge: 'Best Value',
+    statusBadgeColor: '#059669',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9b-n5UYFeSTe4PixETRDd7BN1AETESozz8Y1CrbKD-w&s',
+    btnText: 'Book Ride'
+  },
+
+
+  {
+    id: 6,
+    name: 'Bus',
+    category: 'Buses',
+    provider: 'State Express & SRS Fleets',
+    type: 'Intercity Bus • AC Sleeper / Semi-Sleeper',
+    rating: '4.8 (14.2k ratings)',
+    price: '₹599',
+    priceLabel: 'Per seat',
+    highlights: 'Scheduled departures, live tracking, charging ports, blankets, and verified rest stops.',
+    features: ['Live Tracking', 'Charging Ports', 'Water & Blankets', 'Reclining Berths'],
+    statusBadge: 'Verified Operator',
+    statusBadgeColor: '#16a34a',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxyqCeZUjWUGC5aHtAbH1KC30rkgau3WuLt4eBNlATVQ&s=10',
+    btnText: 'View Details'
+  },
+  {
+    id: 7,
+    name: 'Train',
+    category: 'Trains',
+    provider: 'Indian Railways Partner Services',
+    type: 'Train Travel • 1A, 2A, 3A, CC & SL',
+    rating: '4.7 (42k bookings)',
+    price: '₹385',
+    priceLabel: 'Starting ticket',
+    highlights: 'Official IRCTC partner integration, verified seat availability, PNR updates, and food delivery.',
+    features: ['Instant PNR Status', 'Seat Availability', 'Tatkal Support', 'Free Cancellation'],
+    statusBadge: 'Nationwide Connect',
+    statusBadgeColor: '#9333ea',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCA5JFVd3eULL1V32-6A4dOfqzHgAHqyS2gorrXtuX5g&s=10',
+    btnText: 'View Details'
+  },
+  {
+    id: 8,
+    name: 'Flight',
+    category: 'Flights',
+    provider: 'Domestic & Global Air Alliances',
+    type: 'Flight Travel • Economy & Business',
+    rating: '4.9 (18k flyers)',
+    price: '₹2,899',
+    priceLabel: 'Starting airfare',
+    highlights: 'Zero convenience fees on select cards, instant web check-in support, and baggage assurance.',
+    features: ['Zero Gateway Fee', 'Web Check-in', 'Baggage Assurance', 'Meal Pre-order'],
+    statusBadge: 'Fastest Transit',
+    statusBadgeColor: '#e11d48',
+    image: 'https://www.livemint.com/lm-img/img/2024/04/19/original/Air_India_A350-900_1713508027779.jpg',
+    btnText: 'View Details'
+  },
+
+  {
+    id: 10,
+    name: 'Helicopter',
+    category: 'Helicopters',
+    provider: 'SkyAero Charter Logistics',
+    type: 'Helicopter Travel • Pilgrimage & Charters',
+    rating: '4.9 (1.4k passengers)',
+    price: '₹3,499',
+    priceLabel: 'Starting seat',
+    highlights: 'Fast-track heli-shuttle services for pilgrimage hubs, aerial city views, and corporate charters.',
+    features: ['Priority Helipad', 'Experienced Pilots', 'Panoramic Windows', 'Express Check-in'],
+    statusBadge: 'Premium Air',
+    statusBadgeColor: '#d97706',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrfhFNBLKjDgSsfyNJ2lA43dkHBMm1_rTuw5MUtqeGQg&s=10',
+    btnText: 'View Details'
+  }
+
+];
+
+const CARGO_CARRIER_DATA: ListingCardItem[] = [
+
+
+  {
+    id: 1,
+    name: "Heavy Goods Truck",
+    category: "Heavy Trucks",
+    provider: "National Cargo Logistics",
+    type: "Heavy Truck • 10–25 Ton Payload",
+    rating: "",
+    price: "",
+    priceLabel: "Starting fare",
+    highlights:
+      "Transport heavy goods, industrial materials, machinery, and bulk commercial shipments between cities and states.",
+    features: [
+      "Bulk Goods Transport",
+      "GPS Tracking",
+      "Verified Driver",
+      "Intercity Delivery",
+    ],
+    statusBadge: "Heavy Freight",
+    statusBadgeColor: "#ea580c",
+    image:
+      "https://5.imimg.com/data5/SELLER/Default/2025/11/563084588/DL/CC/TZ/229475018/transport-services-500x500.jpeg",
+    btnText: "Book Carrier",
+  },
+  {
+    id: 2,
+    name: "Goods Train Transport",
+    category: "Rail Freight",
+    provider: "SART Rail Cargo Services",
+    type: "Freight Train • Bulk Goods & Containers",
+    rating: "",
+    price: "",
+    priceLabel: "Based on route and load",
+    highlights:
+      "Move bulk goods, agricultural products, raw materials, and commercial cargo over long distances by rail.",
+    features: [
+      "Bulk Freight",
+      "Rail Route Options",
+      "Shipment Tracking",
+      "Cargo Documentation",
+    ],
+    statusBadge: "Rail Logistics",
+    statusBadgeColor: "#0284c7",
+    image:
+      "https://images.hindustantimes.com/rf/image_size_960x540/HT/p2/2020/09/08/Pictures/workers-load-sacks-onto-trucks_ff2adfb4-f18b-11ea-b62b-e96b83076abc.jpg",
+    btnText: "Book Rail Cargo",
+  },
+  {
+    id: 3,
+    name: "Bike Parcel Delivery",
+    category: "Bike Courier",
+    provider: "QuickDrop Parcel Network",
+    type: "Delivery Bike • Small Parcels & Documents",
+    rating: "",
+    price: "",
+    priceLabel: "Starting fare",
+    highlights:
+      "Send documents, small parcels, medicines, and lightweight packages quickly across your city.",
+    features: [
+      "Small Parcel Delivery",
+      "Pickup at Your Door",
+      "Live Tracking",
+      "Delivery Confirmation",
+    ],
+    statusBadge: "Express Delivery",
+    statusBadgeColor: "#16a34a",
+    image:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXDUMFmFz_bwe1aFrO52xFw63OczJjQESMKaiYvuztURTP12L2P7GmPr0&s=10",
+    btnText: "Send a Parcel",
   },
   {
     id: 4,
-    name: 'Tata Ace Gold & Intra V30 Mini',
-    category: 'Trucks & Carriers',
-    operator: 'QuickHaul City Logistics',
-    type: '1–2 Ton Local Freight',
-    rating: '4.8 (3.1k deliveries)',
-    price: '₹650 base + ₹25/km',
-    highlights: 'City intra-hub transfers, house relocation, commercial goods and warehouse deliveries.',
-    features: ['Loading Assistance', 'Instant Dispatch', 'Real-Time Map Share', 'Digital Invoicing'],
-    fleetStatus: 'Verified Urban Fleet',
-    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=700&q=80'
+    name: "Air Cargo Delivery",
+    category: "Air Freight",
+    provider: "SART Air Cargo Network",
+    type: "Air Freight • Express & Commercial Cargo",
+    rating: "",
+    price: "",
+    priceLabel: "Based on weight and route",
+    highlights:
+      "Ship urgent parcels, business consignments, and commercial goods between cities and international destinations by air.",
+    features: [
+      "Express Air Freight",
+      "Shipment Documentation",
+      "Tracking Updates",
+      "International Cargo Options",
+    ],
+    statusBadge: "Express Air Cargo",
+    statusBadgeColor: "#7c3aed",
+    image:
+      "https://www.ttspl.in/wp-content/uploads/2024/08/Website-Banner_1000X562_24Aug2024-1-1080x675.jpg",
+    btnText: "Book Air Cargo",
   },
   {
     id: 5,
-    name: 'Mahindra Scorpio-N 4x4 Enterprise',
-    category: 'Cars',
-    operator: 'SafeDrive Commercial Motors',
-    type: 'Rugged Outstation SUV',
-    rating: '4.9 (2.4k ratings)',
-    price: '₹16 / km',
-    highlights: 'Built for hill stations, rough terrains, national highway journeys and family holidays.',
-    features: ['Hill Descent Control', 'Speed Governors', 'Child Seat Support', 'Clean Interiors'],
-    fleetStatus: 'Verified Fleet Owner',
-    image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=700&q=80'
+    name: "Mini Truck Delivery",
+    category: "Mini Trucks",
+    provider: "QuickHaul City Logistics",
+    type: "Mini Truck • 0.75–1.5 Ton Payload",
+    rating: "",
+    price: "",
+    priceLabel: "Base + ₹25/km",
+    highlights:
+      "Move furniture, household goods, shop inventory, and small commercial loads through city streets.",
+    features: [
+      "House Shifting",
+      "Loading Helper Option",
+      "Live GPS Tracking",
+      "Local Delivery",
+    ],
+    statusBadge: "Urban Workhorse",
+    statusBadgeColor: "#16a34a",
+    image:
+      "https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=800&q=80",
+    btnText: "Book Mini Truck",
+  },
+
+];
+
+const DRIVERS_PARKING_DATA: ListingCardItem[] = [
+  {
+    id: 1,
+    name: 'Hourly Driver',
+    category: 'Hire a Driver',
+    provider: 'Verified Chauffeur Network',
+    type: 'Driver Hire • Local City Journeys',
+    rating: '4.9 (3.8k trips)',
+    price: '₹99 / hr',
+    priceLabel: 'Starting rate',
+    highlights: 'Background checked and verified driver for your personal car, hatchback, or sedan.',
+    features: ['Police Verified', 'Manual & Automatic', 'Uniformed Driver', 'Zero Deposit'],
+    statusBadge: 'Verified Driver',
+    statusBadgeColor: '#16a34a',
+    image: '/images/hourly_driver_showcase.png',
+    btnText: 'Hire Driver'
+  },
+  {
+    id: 2,
+    name: 'Full-Day Driver',
+    category: 'Full-Day Drivers',
+    provider: 'Elite Driver Services',
+    type: 'Driver Hire • 8-12 Hours Package',
+    rating: '4.9 (2.1k trips)',
+    price: '₹799 / day',
+    priceLabel: 'Full day pack',
+    highlights: 'Full-day acting driver for shopping errands, office visits, or family hospital rounds.',
+    features: ['8 to 12 Hours Duty', 'Punctuality Guarantee', 'Route Expert', 'No Surge Pricing'],
+    statusBadge: 'Top Rated Pro',
+    statusBadgeColor: '#0284c7',
+    image: '/images/fullday_driver_showcase.jpg',
+    btnText: 'Hire Driver'
+  },
+  {
+    id: 3,
+    name: 'Airport Driver',
+    category: 'Airport Drivers',
+    provider: 'FlightConnect Drivers',
+    type: 'Driver Hire • Airport Terminal Drop/Pick',
+    rating: '4.8 (4.6k trips)',
+    price: '₹449',
+    priceLabel: 'Single trip pack',
+    highlights: 'Prompt driver at your doorstep to drive your own car to or from the airport terminal.',
+    features: ['Flight Tracking', 'Luggage Handling', 'Midnight Pickup', 'Zero Wait Charges'],
+    statusBadge: 'Airport Specialist',
+    statusBadgeColor: '#7c3aed',
+    image: '/images/airport_driver_showcase.jpg',
+    btnText: 'Hire Driver'
+  },
+  {
+    id: 4,
+    name: 'Car Parking',
+    category: 'Car Parking',
+    provider: 'SmartPark Transit Hub',
+    type: 'Parking Space • Cars & SUVs',
+    rating: '4.8 (6.2k bookings)',
+    price: '₹30 / hr',
+    priceLabel: '₹180 / day',
+    highlights: 'Multilevel covered parking with 24x7 CCTV, automated boom barrier, and EV charging.',
+    features: ['24x7 CCTV Surveillance', 'EV Fast Charging', 'Covered Basement', 'App Entry QR'],
+    statusBadge: 'Smart Parking',
+    statusBadgeColor: '#059669',
+    image: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=700&q=80',
+    btnText: 'Book Parking'
+  },
+  {
+    id: 5,
+    name: 'Bike Parking',
+    category: 'Bike Parking',
+    provider: 'UrbanRide Transit Stations',
+    type: 'Parking Space • Bikes & Scooters',
+    rating: '4.7 (8.9k bookings)',
+    price: '₹10 / hr',
+    priceLabel: '₹50 / day',
+    highlights: 'Dedicated secure two-wheeler bay next to metro and bus terminals for daily commuters.',
+    features: ['Helmet Lockers', 'Shaded Sheds', 'Security Guard', 'Fast QR Checkout'],
+    statusBadge: 'Commuter Hub',
+    statusBadgeColor: '#0284c7',
+    image: '/images/bike_parking_showcase.jpg',
+    btnText: 'Book Parking'
   },
   {
     id: 6,
-    name: 'Force Urbania Executive Cruiser',
-    category: 'Fleet Owners',
-    operator: 'Apex Hospitality & Charter Bus',
-    type: '12-17 Luxury Recliner Coach',
-    rating: '4.9 (1.1k trips)',
-    price: '₹34 / km',
-    highlights: 'Luxury corporate charter, wedding fleets, airport group transfers with entertainment console.',
-    features: ['Captain Recliners', 'Ambient Lighting', 'Big Luggage Boot', 'Public Address System'],
-    fleetStatus: 'Certified Charter Fleet',
-    image: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=700&q=80'
+    name: 'Truck Parking',
+    category: 'Truck Parking',
+    provider: 'Highway Rest & Logistics Plaza',
+    type: 'Parking Space • Commercial Trucks & Lorries',
+    rating: '4.8 (1.5k bookings)',
+    price: '₹120 / day',
+    priceLabel: 'Secure yard fee',
+    highlights: 'Spacious all-weather parking yard with driver rest areas, security patrol, and mechanics.',
+    features: ['Heavy Vehicle Bays', 'Driver Dormitory', 'Onsite Mechanic', 'High Mast Lights'],
+    statusBadge: 'Logistics Plaza',
+    statusBadgeColor: '#ea580c',
+    image: '/images/truck_parking_showcase.jpg',
+    btnText: 'Book Parking'
   }
 ];
 
@@ -762,19 +990,31 @@ const TRUST_PILLARS_DATA: TrustPillar[] = [
 ];
 
 export default function Showcase() {
-  const [activeOfferTab, setActiveOfferTab] = useState<'All' | 'Flights' | 'Hotels' | 'Bank Offers' | 'Trains'>('All');
-  const [isOffersGridExpanded, setIsOffersGridExpanded] = useState(false);
   const [isHotelsGridExpanded, setIsHotelsGridExpanded] = useState(false);
   const [isRoutesExpanded, setIsRoutesExpanded] = useState(false);
-  const [isOperatorsExpanded, setIsOperatorsExpanded] = useState(false);
-  const [operatorCategory, setOperatorCategory] = useState<'All' | 'Buses' | 'Cars' | 'Trucks & Carriers' | 'Fleet Owners'>('All');
-  const [expandedFaqIndex, setExpandedFaqIndex] = useState<number | null>(0);
 
-  const offersTrackRef = useRef<HTMLDivElement>(null);
-  const whyTrackRef = useRef<HTMLDivElement>(null);
+  // 1. Rides Listings
+  const [isRidesExpanded, setIsRidesExpanded] = useState(false);
+  const [ridesCategory, setRidesCategory] = useState('All');
+  const ridesTrackRef = useRef<HTMLDivElement>(null);
+
+  // 2. Carrier Listings
+  const [isCarrierExpanded, setIsCarrierExpanded] = useState(false);
+  const [carrierCategory, setCarrierCategory] = useState('All');
+  const carrierTrackRef = useRef<HTMLDivElement>(null);
+
+  // 3. Drivers & Parking Listings
+  const [isDriversParkingExpanded, setIsDriversParkingExpanded] = useState(false);
+  const [driversParkingCategory, setDriversParkingCategory] = useState('All');
+  const driversParkingTrackRef = useRef<HTMLDivElement>(null);
+
+  // 4. Vehicle Rental Listings
+  const [isRentalsExpanded, setIsRentalsExpanded] = useState(false);
+  const [rentalsCategory, setRentalsCategory] = useState('All');
+  const rentalsTrackRef = useRef<HTMLDivElement>(null);
+
   const hotelsTrackRef = useRef<HTMLDivElement>(null);
   const routesTrackRef = useRef<HTMLDivElement>(null);
-  const operatorsTrackRef = useRef<HTMLDivElement>(null);
 
   const scrollContainer = (ref: React.RefObject<HTMLDivElement | null>, distance: number) => {
     if (ref.current) {
@@ -782,126 +1022,38 @@ export default function Showcase() {
     }
   };
 
-  const filteredOffers = activeOfferTab === 'All'
-    ? OFFERS_DATA
-    : OFFERS_DATA.filter(o => o.category === activeOfferTab);
+  // Filter logic
+  const filteredRides = ridesCategory === 'All'
+    ? RIDES_TRAVEL_DATA
+    : RIDES_TRAVEL_DATA.filter(item => {
+      if (ridesCategory === 'Cars') return item.category === 'Sedans' || item.category === 'Hatchbacks' || item.category === 'SUVs';
+      return item.category === ridesCategory;
+    });
 
-  const filteredOperators = operatorCategory === 'All'
-    ? OPERATOR_LISTINGS_DATA
-    : OPERATOR_LISTINGS_DATA.filter(op => op.category === operatorCategory);
+  const filteredCarriers = carrierCategory === 'All'
+    ? CARGO_CARRIER_DATA
+    : CARGO_CARRIER_DATA.filter(item => item.category === carrierCategory);
+
+  const filteredDriversParking = driversParkingCategory === 'All'
+    ? DRIVERS_PARKING_DATA
+    : DRIVERS_PARKING_DATA.filter(item => {
+      if (driversParkingCategory === 'Drivers') return item.category === 'Hire a Driver' || item.category === 'Full-Day Drivers' || item.category === 'Airport Drivers';
+      if (driversParkingCategory === 'Parking') return item.category === 'Car Parking' || item.category === 'Bike Parking' || item.category === 'Truck Parking';
+      return true;
+    });
+
+  const filteredRentals = rentalsCategory === 'All'
+    ? HOTELS_DATA
+    : HOTELS_DATA.filter(item => {
+      if (rentalsCategory === 'Cabs & Sedans') return item.name.toLowerCase().includes('hatchback') || item.name.toLowerCase().includes('sedan') || item.name.toLowerCase().includes('car');
+      if (rentalsCategory === 'SUVs & Vans') return item.name.toLowerCase().includes('suv') || item.name.toLowerCase().includes('tempo') || item.name.toLowerCase().includes('bus');
+      if (rentalsCategory === 'Bikes & Autos') return item.name.toLowerCase().includes('bike') || item.name.toLowerCase().includes('auto');
+      return true;
+    });
 
   return (
     <div className="showcase-container">
 
-      {/* 1. OFFERS FOR YOU SECTION */}
-      <section className="showcase-section">
-        <div className="showcase-section-header">
-          <div className="showcase-header-left">
-            <h2 className="showcase-title">Offers For You</h2>
-          </div>
-          <div className="showcase-header-right">
-
-            <button
-              type="button"
-              className="showcase-view-all-link"
-              onClick={() => setIsOffersGridExpanded(prev => !prev)}
-            >
-              {isOffersGridExpanded ? 'View Less' : 'View All'} <i className={`fa-solid ${isOffersGridExpanded ? 'fa-chevron-up' : 'fa-chevron-right'}`}></i>
-            </button>
-          </div>
-        </div>
-
-        {/* Carousel with Left/Right Buttons */}
-        <div className="showcase-slider-relative">
-          {!isOffersGridExpanded && (
-            <button
-              type="button"
-              className="showcase-arrow-btn left"
-              onClick={() => scrollContainer(offersTrackRef, -330)}
-              aria-label="Scroll Offers Left"
-            >
-              <i className="fa-solid fa-chevron-left"></i>
-            </button>
-          )}
-
-          <div
-            className={`showcase-cards-track ${isOffersGridExpanded ? 'grid-expanded' : ''}`}
-            ref={offersTrackRef}
-          >
-            {filteredOffers.map(offer => (
-              <div
-                key={offer.id}
-                className="showcase-offer-card"
-                style={{ backgroundImage: `url(${offer.image})` }}
-              >
-                {/* Full Card Background Backdrop Gradient Overlay */}
-                <div className="showcase-card-overlay"></div>
-
-                <div className="showcase-card-inner">
-                  <div className="showcase-card-top-tags">
-                    <div className="showcase-offer-badge" style={{ backgroundColor: offer.badgeBg }}>
-                      {offer.tag}
-                    </div>
-                    {offer.bank && (
-                      <div className="showcase-bank-pill">
-                        <span className="showcase-bank-text">{offer.bank}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="showcase-card-bottom-info">
-                    <h3 className="showcase-offer-heading">{offer.title}</h3>
-                    <p className="showcase-offer-sub">{offer.subtitle}</p>
-                    {offer.code && (
-                      <div className="showcase-code-chip">
-                        <span>Code:</span> <strong>{offer.code}</strong>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {!isOffersGridExpanded && (
-            <button
-              type="button"
-              className="showcase-arrow-btn right"
-              onClick={() => scrollContainer(offersTrackRef, 330)}
-              aria-label="Scroll Offers Right"
-            >
-              <i className="fa-solid fa-chevron-right"></i>
-            </button>
-          )}
-        </div>
-      </section>
-
-      {/* 2. WHY BOOK WITH US SECTION */}
-      <section className="showcase-section why-book-section">
-        <div className="showcase-section-header">
-          <h2 className="showcase-title">Why Book With Us?</h2>
-        </div>
-
-        <div className="showcase-slider-relative">
-
-
-          <div className="showcase-why-track" ref={whyTrackRef}>
-            {WHY_BOOK_ITEMS.map(item => (
-              <div key={item.id} className="showcase-why-card">
-                <div className="showcase-why-icon-box" style={{ backgroundColor: item.bg, color: item.color }}>
-                  <i className={item.icon}></i>
-                </div>
-                <div className="showcase-why-text">
-                  <h4 className="showcase-why-title">{item.title}</h4>
-                  <p className="showcase-why-desc">{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-
-        </div>
-      </section>
 
       {/* 3. TOP HOTELS & DESTINATIONS SECTION */}
       <section className="showcase-section hotels-section">
@@ -991,14 +1143,7 @@ export default function Showcase() {
             <h2 className="showcase-title">Popular Routes</h2>
             <span className="showcase-subtitle-tag" style={{ color: '#0284c7' }}>Frequently Booked Routes & Destinations</span>
           </div>
-          <button
-            type="button"
-            className="showcase-view-all-link"
-            onClick={() => setIsRoutesExpanded(prev => !prev)}
-            style={{ background: '#f0f9ff', borderColor: '#bae6fd', color: '#0284c7' }}
-          >
-            {isRoutesExpanded ? 'View Less' : 'Explore All Routes'} <i className={`fa-solid ${isRoutesExpanded ? 'fa-chevron-up' : 'fa-chevron-right'}`}></i>
-          </button>
+
         </div>
 
         <div className="showcase-slider-relative">
@@ -1064,21 +1209,21 @@ export default function Showcase() {
         </div>
       </section>
 
-      {/* 5. VEHICLE / OPERATOR LISTINGS - Available buses, cars, trucks and verified fleet owners */}
+      {/* 5.1 RIDES LISTINGS */}
       <section className="showcase-section operator-listings-section">
         <div className="showcase-section-header">
           <div className="showcase-header-left">
-            <h2 className="showcase-title">Vehicle & Operator Listings</h2>
-            <span className="showcase-subtitle-tag" style={{ color: '#16a34a' }}>Buses, Cars, Trucks & Verified Fleet Owners</span>
+            <h2 className="showcase-title">Rides Listings</h2>
+            <span className="showcase-subtitle-tag" style={{ color: '#0284c7' }}>Rides & Commute</span>
           </div>
           <div className="showcase-header-right">
             <div className="showcase-category-pills">
-              {(['All', 'Buses', 'Cars', 'Trucks & Carriers', 'Fleet Owners'] as const).map(tab => (
+              {([''] as const).map(tab => (
                 <button
                   key={tab}
                   type="button"
-                  className={`showcase-pill-btn ${operatorCategory === tab ? 'active' : ''}`}
-                  onClick={() => setOperatorCategory(tab)}
+                  className={`showcase-pill-btn ${ridesCategory === tab ? 'active' : ''}`}
+                  onClick={() => setRidesCategory(tab)}
                 >
                   {tab}
                 </button>
@@ -1087,36 +1232,36 @@ export default function Showcase() {
             <button
               type="button"
               className="showcase-view-all-link"
-              onClick={() => setIsOperatorsExpanded(prev => !prev)}
-              style={{ background: '#f0fdf4', borderColor: '#bbf7d0', color: '#16a34a' }}
+              onClick={() => setIsRidesExpanded(prev => !prev)}
+              style={{ background: '#f0f9ff', borderColor: '#bae6fd', color: '#0284c7' }}
             >
-              {isOperatorsExpanded ? 'View Less' : 'View All Fleets'} <i className={`fa-solid ${isOperatorsExpanded ? 'fa-chevron-up' : 'fa-chevron-right'}`}></i>
+              {isRidesExpanded ? 'View Less' : 'View All Rides'} <i className={`fa-solid ${isRidesExpanded ? 'fa-chevron-up' : 'fa-chevron-right'}`}></i>
             </button>
           </div>
         </div>
 
         <div className="showcase-slider-relative">
-          {!isOperatorsExpanded && (
+          {!isRidesExpanded && (
             <button
               type="button"
               className="showcase-arrow-btn left"
-              onClick={() => scrollContainer(operatorsTrackRef, -320)}
-              aria-label="Scroll Operators Left"
+              onClick={() => scrollContainer(ridesTrackRef, -320)}
+              aria-label="Scroll Rides Left"
             >
               <i className="fa-solid fa-chevron-left"></i>
             </button>
           )}
 
           <div
-            className={`showcase-operators-track ${isOperatorsExpanded ? 'grid-expanded' : ''}`}
-            ref={operatorsTrackRef}
+            className={`showcase-operators-track ${isRidesExpanded ? 'grid-expanded' : ''}`}
+            ref={ridesTrackRef}
           >
-            {filteredOperators.map(item => (
-              <div key={item.id} className="showcase-operator-card">
+            {filteredRides.map(item => (
+              <div key={`ride-${item.id}`} className="showcase-operator-card">
                 <div className="showcase-operator-img-wrap">
                   <img src={item.image} alt={item.name} />
                   <span className="showcase-operator-verified">
-                    <i className="fa-solid fa-circle-check"></i> {item.fleetStatus}
+                    <i className="fa-solid fa-circle-check"></i> {item.statusBadge}
                   </span>
                   <span className="showcase-operator-type">{item.type}</span>
                 </div>
@@ -1127,9 +1272,11 @@ export default function Showcase() {
                       <i className="fa-solid fa-star"></i> {item.rating}
                     </div>
                   </div>
-                  <div className="showcase-operator-provider">
-                    <i className="fa-solid fa-building"></i> Operated by <strong>{item.operator}</strong>
-                  </div>
+
+                  {/* <div className="showcase-operator-provider">
+                    <i className="fa-solid fa-building"></i> Operated by <strong>{item.provider}</strong>
+                  </div> */}
+
                   <p className="showcase-operator-highlights">{item.highlights}</p>
                   <div className="showcase-operator-features">
                     {item.features.map((feat, i) => (
@@ -1140,11 +1287,11 @@ export default function Showcase() {
                   </div>
                   <div className="showcase-operator-footer">
                     <div>
-                      <div className="operator-price-label">Starting at</div>
-                      <div className="operator-price-val">{item.price}</div>
+                      {/* <div className="operator-price-label">Starting at</div> */}
+                      {/* <div className="operator-price-val">{item.price}</div> */}
                     </div>
                     <button type="button" className="showcase-operator-hire-btn">
-                      Book Now
+                      {item.btnText || 'Book Now'}
                     </button>
                   </div>
                 </div>
@@ -1152,12 +1299,333 @@ export default function Showcase() {
             ))}
           </div>
 
-          {!isOperatorsExpanded && (
+          {!isRidesExpanded && (
             <button
               type="button"
               className="showcase-arrow-btn right"
-              onClick={() => scrollContainer(operatorsTrackRef, 320)}
-              aria-label="Scroll Operators Right"
+              onClick={() => scrollContainer(ridesTrackRef, 320)}
+              aria-label="Scroll Rides Right"
+            >
+              <i className="fa-solid fa-chevron-right"></i>
+            </button>
+          )}
+        </div>
+      </section>
+
+      {/* 5.2 CARRIER LISTINGS */}
+      <section className="showcase-section operator-listings-section">
+        <div className="showcase-section-header">
+          <div className="showcase-header-left">
+            <h2 className="showcase-title">Carrier Listings</h2>
+            <span className="showcase-subtitle-tag" style={{ color: '#ea580c' }}>Cargo & Logistics</span>
+          </div>
+          <div className="showcase-header-right">
+            <div className="showcase-category-pills">
+              {([''] as const).map(tab => (
+                <button
+                  key={tab}
+                  type="button"
+                  className={`showcase-pill-btn ${carrierCategory === tab ? 'active' : ''}`}
+                  onClick={() => setCarrierCategory(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              className="showcase-view-all-link"
+              onClick={() => setIsCarrierExpanded(prev => !prev)}
+              style={{ background: '#fff7ed', borderColor: '#fed7aa', color: '#ea580c' }}
+            >
+              {isCarrierExpanded ? 'View Less' : 'View All Carriers'} <i className={`fa-solid ${isCarrierExpanded ? 'fa-chevron-up' : 'fa-chevron-right'}`}></i>
+            </button>
+          </div>
+        </div>
+
+        <div className="showcase-slider-relative">
+          {!isCarrierExpanded && (
+            <button
+              type="button"
+              className="showcase-arrow-btn left"
+              onClick={() => scrollContainer(carrierTrackRef, -320)}
+              aria-label="Scroll Carrier Left"
+            >
+              <i className="fa-solid fa-chevron-left"></i>
+            </button>
+          )}
+
+          <div
+            className={`showcase-operators-track ${isCarrierExpanded ? 'grid-expanded' : ''}`}
+            ref={carrierTrackRef}
+          >
+            {filteredCarriers.map(item => (
+              <div key={`carrier-${item.id}`} className="showcase-operator-card">
+                <div className="showcase-operator-img-wrap">
+                  <img src={item.image} alt={item.name} />
+                  <span className="showcase-operator-verified">
+                    <i className="fa-solid fa-circle-check"></i> {item.statusBadge}
+                  </span>
+                  <span className="showcase-operator-type">{item.type}</span>
+                </div>
+                <div className="showcase-operator-body">
+                  <div className="showcase-operator-header">
+                    <h3 className="showcase-operator-name">{item.name}</h3>
+                    <div className="showcase-operator-rating">
+                      <i className="fa-solid fa-star"></i> {item.rating}
+                    </div>
+                  </div>
+
+                  {/* <div className="showcase-operator-provider">
+                    <i className="fa-solid fa-truck-moving"></i> Operated by <strong>{item.provider}</strong>
+                  </div> */}
+
+                  <p className="showcase-operator-highlights">{item.highlights}</p>
+                  <div className="showcase-operator-features">
+                    {item.features.map((feat, i) => (
+                      <span key={i} className="operator-feature-chip">
+                        <i className="fa-solid fa-check"></i> {feat}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="showcase-operator-footer">
+                    <div>
+                      {/* <div className="operator-price-label">Starting at</div>
+                      <div className="operator-price-val">{item.price}</div> */}
+                    </div>
+                    <button type="button" className="showcase-operator-hire-btn" style={{ background: '#ea580c' }}>
+                      {item.btnText || 'Book Carrier'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {!isCarrierExpanded && (
+            <button
+              type="button"
+              className="showcase-arrow-btn right"
+              onClick={() => scrollContainer(carrierTrackRef, 320)}
+              aria-label="Scroll Carrier Right"
+            >
+              <i className="fa-solid fa-chevron-right"></i>
+            </button>
+          )}
+        </div>
+      </section>
+
+      {/* 5.3 DRIVERS & PARKING LISTINGS */}
+      <section className="showcase-section operator-listings-section">
+        <div className="showcase-section-header">
+          <div className="showcase-header-left">
+            <h2 className="showcase-title">Drivers & Parking Listings</h2>
+            <span className="showcase-subtitle-tag" style={{ color: '#16a34a' }}>Chauffeurs & Parking Hubs</span>
+          </div>
+          <div className="showcase-header-right">
+            <div className="showcase-category-pills">
+              {(['All'] as const).map(tab => (
+                <button
+                  key={tab}
+                  type="button"
+                  className={`showcase-pill-btn ${driversParkingCategory === tab ? 'active' : ''}`}
+                  onClick={() => setDriversParkingCategory(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              className="showcase-view-all-link"
+              onClick={() => setIsDriversParkingExpanded(prev => !prev)}
+              style={{ background: '#f0fdf4', borderColor: '#bbf7d0', color: '#16a34a' }}
+            >
+              {isDriversParkingExpanded ? 'View Less' : 'View All Drivers & Parking'} <i className={`fa-solid ${isDriversParkingExpanded ? 'fa-chevron-up' : 'fa-chevron-right'}`}></i>
+            </button>
+          </div>
+        </div>
+
+        <div className="showcase-slider-relative">
+          {!isDriversParkingExpanded && (
+            <button
+              type="button"
+              className="showcase-arrow-btn left"
+              onClick={() => scrollContainer(driversParkingTrackRef, -320)}
+              aria-label="Scroll Drivers Left"
+            >
+              <i className="fa-solid fa-chevron-left"></i>
+            </button>
+          )}
+
+          <div
+            className={`showcase-operators-track ${isDriversParkingExpanded ? 'grid-expanded' : ''}`}
+            ref={driversParkingTrackRef}
+          >
+            {filteredDriversParking.map(item => (
+              <div key={`dp-${item.id}`} className="showcase-operator-card">
+                <div className="showcase-operator-img-wrap">
+                  <img src={item.image} alt={item.name} />
+                  <span className="showcase-operator-verified">
+                    <i className="fa-solid fa-circle-check"></i> {item.statusBadge}
+                  </span>
+                  <span className="showcase-operator-type">{item.type}</span>
+                </div>
+                <div className="showcase-operator-body">
+                  <div className="showcase-operator-header">
+                    <h3 className="showcase-operator-name">{item.name}</h3>
+                    <div className="showcase-operator-rating">
+                      <i className="fa-solid fa-star"></i> {item.rating}
+                    </div>
+                  </div>
+
+                  <div className="showcase-operator-provider">
+                    <i className="fa-solid fa-id-card"></i> Service: <strong>{item.provider}</strong>
+                  </div>
+
+                  <p className="showcase-operator-highlights">{item.highlights}</p>
+                  <div className="showcase-operator-features">
+                    {item.features.map((feat, i) => (
+                      <span key={i} className="operator-feature-chip">
+                        <i className="fa-solid fa-check"></i> {feat}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="showcase-operator-footer">
+                    <div>
+                      {/* <div className="operator-price-label">Starting at</div>
+                      <div className="operator-price-val">{item.price}</div> */}
+                    </div>
+                    <button type="button" className="showcase-operator-hire-btn" style={{ background: '#16a34a' }}>
+                      {item.btnText || 'Book Now'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {!isDriversParkingExpanded && (
+            <button
+              type="button"
+              className="showcase-arrow-btn right"
+              onClick={() => scrollContainer(driversParkingTrackRef, 320)}
+              aria-label="Scroll Drivers Right"
+            >
+              <i className="fa-solid fa-chevron-right"></i>
+            </button>
+          )}
+        </div>
+      </section>
+
+      {/* 5.4 VEHICLE RENTAL LISTINGS */}
+      <section className="showcase-section operator-listings-section">
+        <div className="showcase-section-header">
+          <div className="showcase-header-left">
+            <h2 className="showcase-title">Vehicle Rental Listings</h2>
+            <span className="showcase-subtitle-tag" style={{ color: '#7c3aed' }}>Self-Drive & Outstation Fleets</span>
+          </div>
+          <div className="showcase-header-right">
+            <div className="showcase-category-pills">
+              {(['All'] as const).map(tab => (
+                <button
+                  key={tab}
+                  type="button"
+                  className={`showcase-pill-btn ${rentalsCategory === tab ? 'active' : ''}`}
+                  onClick={() => setRentalsCategory(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              className="showcase-view-all-link"
+              onClick={() => setIsRentalsExpanded(prev => !prev)}
+              style={{ background: '#f5f3ff', borderColor: '#ddd6fe', color: '#7c3aed' }}
+            >
+              {isRentalsExpanded ? 'View Less' : 'View All Rentals'} <i className={`fa-solid ${isRentalsExpanded ? 'fa-chevron-up' : 'fa-chevron-right'}`}></i>
+            </button>
+          </div>
+        </div>
+
+        <div className="showcase-slider-relative">
+          {!isRentalsExpanded && (
+            <button
+              type="button"
+              className="showcase-arrow-btn left"
+              onClick={() => scrollContainer(rentalsTrackRef, -320)}
+              aria-label="Scroll Rentals Left"
+            >
+              <i className="fa-solid fa-chevron-left"></i>
+            </button>
+          )}
+
+          <div
+            className={`showcase-operators-track ${isRentalsExpanded ? 'grid-expanded' : ''}`}
+            ref={rentalsTrackRef}
+          >
+            {filteredRentals.map(rental => (
+              <div key={`rental-${rental.id}`} className="showcase-operator-card">
+                <div className="showcase-operator-img-wrap">
+                  <img src={rental.image} alt={rental.name} />
+                  <span className="showcase-operator-verified">
+                    <i className="fa-solid fa-circle-check"></i> {rental.badge || 'Verified Rental'}
+                  </span>
+                  <span className="showcase-operator-type">{rental.category || rental.transport || 'Self-Drive / Cab'}</span>
+                </div>
+                <div className="showcase-operator-body">
+                  <div className="showcase-operator-header">
+                    <h3 className="showcase-operator-name">{rental.name}</h3>
+                    <div className="showcase-operator-rating">
+                      <i className="fa-solid fa-star"></i> {rental.rating}
+                    </div>
+                  </div>
+
+                  <div className="showcase-operator-provider">
+                    <i className="fa-solid fa-location-dot"></i> {rental.location}
+                  </div>
+
+                  <p className="showcase-operator-highlights">{rental.description || `${rental.capacity || '4 Passengers'} • ${rental.duration || 'Per Day'}`}</p>
+
+                  <div className="showcase-operator-features">
+                    {rental.capacity && (
+                      <span className="operator-feature-chip">
+                        <i className="fa-solid fa-users"></i> {rental.capacity}
+                      </span>
+                    )}
+                    {rental.duration && (
+                      <span className="operator-feature-chip">
+                        <i className="fa-regular fa-clock"></i> {rental.duration}
+                      </span>
+                    )}
+                    {rental.transport && (
+                      <span className="operator-feature-chip">
+                        <i className="fa-solid fa-car"></i> {rental.transport}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="showcase-operator-footer">
+                    <div>
+                      {/* <div className="operator-price-label">Starting at</div>
+                      <div className="operator-price-val">{rental.price}</div> */}
+                    </div>
+                    <button type="button" className="showcase-operator-hire-btn" style={{ background: '#7c3aed' }}>
+                      Rent Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {!isRentalsExpanded && (
+            <button
+              type="button"
+              className="showcase-arrow-btn right"
+              onClick={() => scrollContainer(rentalsTrackRef, 320)}
+              aria-label="Scroll Rentals Right"
             >
               <i className="fa-solid fa-chevron-right"></i>
             </button>
@@ -1213,145 +1681,15 @@ export default function Showcase() {
         </div>
       </section>
 
-      {/* 7. BOOKING MANAGEMENT - My Bookings, ticket details and cancellations */}
-      <section className="showcase-section booking-mgmt-section">
-        <div className="showcase-section-header">
-          <div className="showcase-header-left">
-            <h2 className="showcase-title">Booking Management</h2>
-            <span className="showcase-subtitle-tag" style={{ color: '#7c3aed' }}>Manage Trips, Ticket Details & Instant Refunds</span>
-          </div>
-        </div>
 
-        <div className="showcase-mgmt-container">
-          <div className="showcase-mgmt-hero-box">
-            <div className="showcase-mgmt-hero-text">
-              <span className="mgmt-badge"><i className="fa-solid fa-shield-halved"></i> 100% Self-Service Portal</span>
-              <h3>Manage All Your Trips In One Place</h3>
-              <p>Download e-tickets, check live seat charts, track coach positions, modify journey dates, or process full instant refunds with zero friction.</p>
-              <div className="mgmt-hero-stats">
-                <div className="mgmt-stat">
-                  <strong>2 mins</strong>
-                  <span>Instant Cancellation</span>
-                </div>
-                <div className="mgmt-stat">
-                  <strong>100%</strong>
-                  <span>Auto-Refunds</span>
-                </div>
-                <div className="mgmt-stat">
-                  <strong>SMS / WA</strong>
-                  <span>Paperless Tickets</span>
-                </div>
-              </div>
-            </div>
-            <div className="showcase-mgmt-hero-img">
-              <img
-                src="https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&w=700&q=80"
-                alt="Manage Bookings with SART"
-              />
-            </div>
-          </div>
 
-          <div className="showcase-mgmt-features-grid">
-            {BOOKING_MGMT_CARDS.map(card => (
-              <div key={card.id} className="showcase-mgmt-card">
-                <div className="mgmt-card-img-wrap">
-                  <img src={card.image} alt={card.title} />
-                  <div className="mgmt-card-icon" style={{ background: card.accent }}>
-                    <i className={card.icon}></i>
-                  </div>
-                </div>
-                <div className="mgmt-card-body">
-                  <h4>{card.title}</h4>
-                  <p>{card.description}</p>
-                  <ul className="mgmt-card-bullets">
-                    {card.features.map((f, i) => (
-                      <li key={i}><i className="fa-solid fa-circle-check" style={{ color: card.accent }}></i> {f}</li>
-                    ))}
-                  </ul>
-                  <button type="button" className="mgmt-card-action-btn" style={{ borderColor: card.accent, color: card.accent }}>
-                    {card.actionText} <i className="fa-solid fa-arrow-right"></i>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* 8. CUSTOMER SUPPORT - Help centre, FAQs and contact support */}
-      <section className="showcase-section customer-support-section">
-        <div className="showcase-section-header">
-          <div className="showcase-header-left">
-            <h2 className="showcase-title">Customer Support & Help Centre</h2>
-            <span className="showcase-subtitle-tag" style={{ color: '#0ea5e9' }}>24x7 Assistance, Emergency Helpline & FAQs</span>
-          </div>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: '#16a34a' }}>
-            <i className="fa-solid fa-circle" style={{ fontSize: '9px', marginRight: '6px' }}></i> Help Agents Active
-          </span>
-        </div>
-
-        <div className="showcase-support-grid">
-          {/* Quick Contact Channels */}
-          <div className="support-channels-col">
-            {SUPPORT_CHANNELS_DATA.map(ch => (
-              <div key={ch.id} className="support-channel-card">
-                <div className="support-channel-icon" style={{ background: ch.iconBg, color: ch.iconColor }}>
-                  <i className={ch.icon}></i>
-                </div>
-                <div className="support-channel-info">
-                  <div className="channel-title-row">
-                    <h4>{ch.title}</h4>
-                    <span className="channel-avail">{ch.available}</span>
-                  </div>
-                  <p>{ch.desc}</p>
-                  <span className="channel-contact-val">{ch.contact}</span>
-                </div>
-                <button type="button" className="channel-btn" style={{ background: ch.iconColor }}>
-                  {ch.action}
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Interactive FAQs Accordion */}
-          <div className="support-faqs-col">
-            <div className="support-faqs-box">
-              <div className="faqs-header">
-                <i className="fa-solid fa-circle-question" style={{ color: '#0284c7', fontSize: '18px' }}></i>
-                <h3>Frequently Asked Questions</h3>
-              </div>
-              <div className="faqs-list">
-                {SUPPORT_FAQS_DATA.map((faq, index) => {
-                  const isOpen = expandedFaqIndex === index;
-                  return (
-                    <div key={faq.id} className={`faq-item ${isOpen ? 'active' : ''}`}>
-                      <button
-                        type="button"
-                        className="faq-question-btn"
-                        onClick={() => setExpandedFaqIndex(isOpen ? null : index)}
-                      >
-                        <span>{faq.q}</span>
-                        <i className={`fa-solid ${isOpen ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
-                      </button>
-                      {isOpen && (
-                        <div className="faq-answer">
-                          <p>{faq.a}</p>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* 9. TRUST INDICATORS - Verified providers, secure payments and transparent pricing */}
       <section className="showcase-section trust-indicators-section">
         <div className="showcase-section-header">
           <div className="showcase-header-left">
-            <h2 className="showcase-title">Why 10M+ Travelers Trust SART</h2>
+            <h2 className="showcase-title">Why 10K+ Travelers Trust SART</h2>
             <span className="showcase-subtitle-tag" style={{ color: '#059669' }}>Verified Providers • 256-Bit Secure Payments • 100% Transparent</span>
           </div>
         </div>
@@ -1378,24 +1716,8 @@ export default function Showcase() {
           ))}
         </div>
 
-        {/* Security & Partner Verification Banner */}
-        <div className="showcase-security-banner">
-          <div className="sec-banner-left">
-            <div className="sec-shield-icon">
-              <i className="fa-solid fa-lock"></i>
-            </div>
-            <div>
-              <h4>Government Licensed & PCI-DSS Level 1 Certified</h4>
-              <p>All credit cards, UPI transactions, IRCTC ticket bookings and rental agreements are protected with bank-grade encryption.</p>
-            </div>
-          </div>
-          <div className="sec-badges-row">
-            <span className="sec-badge"><i className="fa-solid fa-shield-halved"></i> PCI-DSS</span>
-            <span className="sec-badge"><i className="fa-solid fa-building-columns"></i> RBI Approved UPI</span>
-            <span className="sec-badge"><i className="fa-solid fa-award"></i> ISO 27001</span>
-            <span className="sec-badge"><i className="fa-solid fa-id-card"></i> 100% KYC Verified</span>
-          </div>
-        </div>
+
+
       </section>
 
     </div>

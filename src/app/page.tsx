@@ -60,7 +60,7 @@ export default function Home() {
       // Handle plural vs singular mismatches
       if (tab === 'rides') tab = 'ride';
 
-      if (['ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking'].includes(tab)) {
+      if (['ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking', 'support'].includes(tab)) {
         setActiveTab(tab as any);
         if (tab === 'ride') {
           const mode = getRideModeFromPath(pathname);

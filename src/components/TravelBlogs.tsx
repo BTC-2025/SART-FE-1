@@ -41,57 +41,7 @@ export default function TravelBlogs() {
 
   return (
     <div style={{ marginBottom: '40px', width: '100%', position: 'relative' }}>
-      <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#111827', marginBottom: '24px' }}>Travel Blogs</h2>
-      
-      <div style={{ position: 'relative' }}>
-        {/* Left Arrow */}
-        {canScrollLeft && (
-          <button 
-            onClick={scrollLeft}
-            style={{ position: 'absolute', left: '-20px', top: '40%', transform: 'translateY(-50%)', zIndex: 10, width: '40px', height: '40px', borderRadius: '50%', background: '#fff', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#111827' }}
-          >
-            <i className="fa-solid fa-chevron-left"></i>
-          </button>
-        )}
 
-        <div 
-          ref={scrollRef}
-          onScroll={checkScroll}
-          style={{ display: 'flex', gap: '20px', overflowX: 'auto', paddingBottom: '16px', scrollbarWidth: 'none', scrollSnapType: 'x mandatory' }}
-          className="no-scrollbar"
-        >
-          {blogs.map(blog => (
-            <div key={blog.id} style={{ minWidth: 'calc(25% - 15px)', maxWidth: 'calc(25% - 15px)', flexShrink: 0, display: 'flex', flexDirection: 'column', cursor: 'pointer', transition: 'transform 0.2s', borderRadius: '16px', scrollSnapAlign: 'start' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
-              <div style={{ height: '160px', width: '100%', borderRadius: '16px 16px 0 0', overflow: 'hidden', position: 'relative' }}>
-                <img src={blog.img} alt={blog.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
-              <div style={{ background: '#fef3c7', padding: '16px', borderRadius: '0 0 16px 16px', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#111827', margin: '0 0 8px 0', lineHeight: '1.4' }}>{blog.title}</h3>
-                <p style={{ fontSize: '12px', color: '#4b5563', margin: 0 }}>{blog.desc}</p>
-              </div>
-              <div style={{ textAlign: 'center', marginTop: '12px', fontSize: '14px', fontWeight: 600, color: '#111827' }}>
-                {blog.badge}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Right Arrow */}
-        {canScrollRight && (
-          <button 
-            onClick={scrollRight}
-            style={{ position: 'absolute', right: '-20px', top: '40%', transform: 'translateY(-50%)', zIndex: 10, width: '40px', height: '40px', borderRadius: '50%', background: '#fff', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#111827' }}
-          >
-            <i className="fa-solid fa-chevron-right"></i>
-          </button>
-        )}
-      </div>
-      
-      <style dangerouslySetInnerHTML={{__html: `
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-      `}} />
     </div>
   );
 }
