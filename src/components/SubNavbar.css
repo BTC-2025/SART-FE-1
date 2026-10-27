@@ -1,0 +1,150 @@
+/* SubNavbar.css - Horizontal SubNavbar directly below the Top Navbar */
+
+.subnavbar-container {
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  height: 44px;
+  position: sticky;
+  top: 70px;
+  z-index: 90;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.2s ease;
+}
+
+body:not(.light-theme) .subnavbar-container {
+  background: rgba(15, 23, 42, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.subnavbar-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.subnavbar-links::-webkit-scrollbar {
+  display: none;
+}
+
+.subnav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  user-select: none;
+}
+
+body:not(.light-theme) .subnav-item {
+  color: #94a3b8;
+}
+
+.subnav-item:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+body:not(.light-theme) .subnav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+}
+
+.subnav-item.active {
+  background: #fff7ed;
+  color: #ea580c;
+  border-color: #fed7aa;
+  font-weight: 700;
+}
+
+body:not(.light-theme) .subnav-item.active {
+  background: rgba(234, 88, 12, 0.15);
+  color: #fb923c;
+  border-color: rgba(234, 88, 12, 0.35);
+}
+
+.subnav-item-icon {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+}
+
+.subnavbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.subnav-action-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #334155;
+  transition: all 0.2s ease;
+}
+
+body:not(.light-theme) .subnav-action-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+}
+
+.subnav-action-pill:hover {
+  border-color: #ea580c;
+  color: #ea580c;
+  background: #fff7ed;
+}
+
+.subnav-action-pill.vendor-pill {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #b45309;
+}
+
+.subnav-action-pill.vendor-pill:hover {
+  background: #fef3c7;
+}
+
+@media (max-width: 768px) {
+  .subnavbar-container {
+    padding: 0 14px;
+    height: 40px;
+    top: 60px;
+  }
+
+  .subnavbar-actions {
+    display: none;
+  }
+
+  .subnav-item {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+}

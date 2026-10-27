@@ -38,20 +38,7 @@ import StoreSosHub from './store/StoreSosHub';
 
 // Re-export types & products for other tabs (e.g. FavoritesTab)
 export type { EquipmentOption, VehicleType, StoreHubTab, MainCategory, StoreProduct, NearbyStore };
-export {
-  VEHICLE_SPECIFIC_CATEGORIES,
-  VEHICLE_TYPES,
-  BRANDS_BY_VEHICLE,
-  MODELS_BY_BRAND,
-  YEARS_LIST,
-  NEARBY_STORES,
-  NEW_LAUNCH_PRODUCTS,
-  TRENDING_PRODUCTS,
-  TOP_SELLING_PRODUCTS,
-  CATALOG_ITEMS,
-  ALL_STORE_PRODUCTS,
-  formatPrice
-};
+export { VEHICLE_SPECIFIC_CATEGORIES, VEHICLE_TYPES, BRANDS_BY_VEHICLE, MODELS_BY_BRAND, YEARS_LIST, NEARBY_STORES, NEW_LAUNCH_PRODUCTS, TRENDING_PRODUCTS, TOP_SELLING_PRODUCTS, CATALOG_ITEMS, ALL_STORE_PRODUCTS, formatPrice };
 
 interface SavedGarageVehicle {
   id: string;
@@ -92,26 +79,8 @@ export default function StoreTab() {
   const [accPointCityFilter, setAccPointCityFilter] = useState<string>('Chennai');
 
   const [savedVehicles, setSavedVehicles] = useState<SavedGarageVehicle[]>([
-    {
-      id: 'v-1',
-      type: 'Car',
-      brand: 'Maruti Suzuki',
-      model: 'Swift',
-      year: '2023',
-      fuel: 'Petrol',
-      nickname: 'Daily Swift',
-      regNumber: 'TN 09 BX 2023',
-    },
-    {
-      id: 'v-2',
-      type: 'Bike',
-      brand: 'Royal Enfield',
-      model: 'Classic 350',
-      year: '2022',
-      fuel: 'Petrol',
-      nickname: 'Bullet 350',
-      regNumber: 'TN 07 AB 3500',
-    },
+    { id: 'v-1', type: 'Car', brand: 'Maruti Suzuki', model: 'Swift', year: '2023', fuel: 'Petrol', nickname: 'Daily Swift', regNumber: 'TN 09 BX 2023' },
+    { id: 'v-2', type: 'Bike', brand: 'Royal Enfield', model: 'Classic 350', year: '2022', fuel: 'Petrol', nickname: 'Bullet 350', regNumber: 'TN 07 AB 3500' },
   ]);
   const [activeVehicleId, setActiveVehicleId] = useState<string>('v-1');
 
@@ -125,23 +94,38 @@ export default function StoreTab() {
   const [newVehicleNickname, setNewVehicleNickname] = useState<string>('');
   const [newVehicleReg, setNewVehicleReg] = useState<string>('');
 
-  // Store fulfillment & Nearby Store Modal
+  // Store fulfillment, nearby stores, filters & modals
   const [fulfillmentMode, setFulfillmentMode] = useState<'delivery' | 'nearby'>('delivery');
   const [showStoreLocatorModal, setShowStoreLocatorModal] = useState<boolean>(false);
   const [nearbyStoreFilter, setNearbyStoreFilter] = useState<'all' | 'store' | 'mechanic' | 'service_center' | 'modification'>('all');
   const [preferredStore, setPreferredStore] = useState<NearbyStore>(NEARBY_STORES[0]);
-
-  // Search & Category Filters
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<MainCategory>('All');
-
-  // Equipment add-on selection for services
   const [selectedEquipment, setSelectedEquipment] = useState<Record<string, string[]>>({});
   const [customVehicleNote, setCustomVehicleNote] = useState<Record<string, string>>({});
   const [selectedProductModal, setSelectedProductModal] = useState<StoreProduct | null>(null);
 
   // Active SART Automotive Hub Tab
   const [activeHubTab, setActiveHubTab] = useState<StoreHubTab>('buy_sell');
+
+  // Slug mapping for URL synchronization
+  const TAB_TO_SLUG: Record<StoreHubTab, string> = {
+    buy_sell: 'Buy&Sell',
+    spare_parts: 'SpareParts',
+    mechanic_service: 'MechanicService',
+    emergency_sos: 'RoadSideAssist',
+    compare_vehicles: 'CompareVehicles',
+    ev_fuel_stations: 'EV&Fuel',
+    finance_insurance: 'CompareVehicles/EMI&Loan'
+  };
+
+  const handleSelectHubTab = (tabId: StoreHubTab, showToastMsg: boolean = true) => {
+    setActiveHubTab(tabId);
+    const slug = TAB_TO_SLUG[tabId] || tabId;
+    if (typeof window !== 'undefined') {
+      window.history.pushState({ storeTab: tabId }, '', `/store/${slug}`);
+    }
+  };
 
   // Location & Top Search
   const [userLocationCity, setUserLocationCity] = useState<string>('Chennai');
@@ -156,6 +140,35 @@ export default function StoreTab() {
 
   useEffect(() => {
     setMounted(true);
+
+    const resolveTab = (path: string): StoreHubTab | null => {
+      const s = decodeURIComponent(path.toLowerCase());
+      if (s.includes('emi') || s.includes('loan') || s.includes('finance') || s.includes('insurance')) return 'finance_insurance';
+      if (s.includes('compare')) return 'compare_vehicles';
+      if (s.includes('buy') || s.includes('sell')) return 'buy_sell';
+      if (s.includes('spare') || s.includes('accessori')) return 'spare_parts';
+      if (s.includes('mechanic') || s.includes('service')) return 'mechanic_service';
+      if (s.includes('sos') || s.includes('roadside') || s.includes('emergency')) return 'emergency_sos';
+      if (s.includes('ev') || s.includes('fuel')) return 'ev_fuel_stations';
+      return null;
+    };
+
+    if (typeof window !== 'undefined') {
+      const p = window.location.pathname;
+      if (p.startsWith('/store/')) {
+        const found = resolveTab(p.replace('/store/', ''));
+        if (found) setActiveHubTab(found);
+      }
+      const handlePop = () => {
+        const cur = window.location.pathname;
+        if (cur.startsWith('/store/')) {
+          const f = resolveTab(cur.replace('/store/', ''));
+          if (f) setActiveHubTab(f);
+        } else if (cur === '/store') setActiveHubTab('buy_sell');
+      };
+      window.addEventListener('popstate', handlePop);
+      return () => window.removeEventListener('popstate', handlePop);
+    }
   }, []);
 
   const showToast = (msg: string) => {
@@ -355,7 +368,7 @@ export default function StoreTab() {
                   type="button"
                   className={`super-hub-tab-btn ${activeHubTab === tab.id ? 'active' : ''}`}
                   onClick={() => {
-                    setActiveHubTab(tab.id as StoreHubTab);
+                    handleSelectHubTab(tab.id as StoreHubTab);
                     showToast(`Opened ${tab.label}`);
                   }}
                   title={tab.label}

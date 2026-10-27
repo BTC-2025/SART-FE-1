@@ -100,6 +100,7 @@ export default function Navbar() {
         >
           <span>Tracks</span>
         </div>
+
       </nav>
 
       {isSearchExpanded && (
@@ -196,10 +197,10 @@ export default function Navbar() {
                 <i className="fa-solid fa-user-gear"></i> Manage your account
               </button>
 
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
+              {/* <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
                 <button onClick={() => { document.body.classList.add('light-theme'); localStorage.setItem('sart-theme', 'light'); }} style={{ background: '#f3f4f6', border: 'none', color: '#000000', padding: '8px 16px', borderRadius: '12px', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}><i className="fa-solid fa-sun"></i> Light</button>
                 <button onClick={() => { document.body.classList.remove('light-theme'); localStorage.setItem('sart-theme', 'dark'); }} style={{ background: '#f3f4f6', border: 'none', color: '#000000', padding: '8px 16px', borderRadius: '12px', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}><i className="fa-solid fa-moon"></i> Dark</button>
-              </div>
+              </div> */}
 
               <div style={{ borderTop: '1px solid #e5e7eb', margin: '0 -24px 10px' }}></div>
 

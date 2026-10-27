@@ -103,6 +103,7 @@
   .boodmo-dropdown-row {
     grid-template-columns: repeat(3, 1fr);
   }
+
   .boodmo-btn-col {
     grid-column: span 3;
   }
@@ -112,6 +113,7 @@
   .boodmo-dropdown-row {
     grid-template-columns: 1fr;
   }
+
   .boodmo-btn-col {
     grid-column: span 1;
   }
@@ -636,8 +638,8 @@
   overflow: hidden;
   background-color: #0b1120;
   background-image: radial-gradient(at 100% 0%, rgba(239, 68, 68, 0.25) 0px, transparent 50%),
-                    radial-gradient(at 0% 100%, rgba(37, 99, 235, 0.2) 0px, transparent 50%),
-                    url('https://images.unsplash.com/photo-1578844251758-2f71da64c96f?auto=format&fit=crop&w=1800&q=80');
+    radial-gradient(at 0% 100%, rgba(37, 99, 235, 0.2) 0px, transparent 50%),
+    url('https://images.unsplash.com/photo-1578844251758-2f71da64c96f?auto=format&fit=crop&w=1800&q=80');
   background-size: cover;
   background-position: center;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
@@ -1349,7 +1351,3 @@
   color: #ffffff;
   border-color: #0284c7;
 }
-
-
-
-

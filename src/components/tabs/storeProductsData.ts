@@ -23,6 +23,7 @@ export type MainCategory =
   | 'Mechanic Service'
   | 'Vehicle Modification'
   | 'Wash & Care'
+  | 'Water Wash & Detailing'
   | 'Emergency';
 
 export const VEHICLE_SPECIFIC_CATEGORIES: Record<string, string[]> = {
@@ -1232,6 +1233,103 @@ const CATALOG_ITEMS: StoreProduct[] = [
       { name: 'Battery Replacement Exchange', price: 3800 },
     ],
   },
+  {
+    id: 'srv-16',
+    name: '360° Automated Foam Wash, Underchassis Jet & Wax Polish',
+    price: 499,
+    originalPrice: 899,
+    rating: 4.95,
+    reviewsCount: 1840,
+    icon: 'fa-shower',
+    image: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?auto=format&fit=crop&w=600&q=80',
+    vehicle: 'Car',
+    category: 'Water Wash & Detailing',
+    section: 'Nearby Water Wash & Detailing Services',
+    badge: 'AUTOMATED BAY',
+    badgeType: 'bestseller',
+    desc: 'High-pressure underbody chassis wash with mud blast, dual-stage active snow foam, wheel rim de-ironing, interior vacuuming and dashboard dressing.',
+    duration: '45 Mins',
+    warranty: '100% Scratch-Free Clean',
+    isService: true,
+    includes: ['Automated high-pressure underchassis wash', 'Thick active snow foam soak', 'Microfiber hand mitt scrub', 'Alloy wheel & tyre brake dust flush', 'Interior cabin vacuum & glass streak-free wipe'],
+    equipmentOptions: [
+      { name: 'Carnauba Liquid Gloss Spray Wax', price: 250 },
+      { name: 'AC Vent Ozone Steam Sanitization', price: 350 },
+      { name: 'Engine Bay Eco-Steam Degrease', price: 300 },
+    ],
+  },
+  {
+    id: 'srv-17',
+    name: 'Two-Wheeler Premium Snow Foam Wash & Motul Chain Lube',
+    price: 249,
+    originalPrice: 450,
+    rating: 4.92,
+    reviewsCount: 1420,
+    icon: 'fa-motorcycle',
+    image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=600&q=80',
+    vehicle: 'Bike',
+    category: 'Water Wash & Detailing',
+    section: 'Nearby Water Wash & Detailing Services',
+    badge: 'SUPER FOAM',
+    badgeType: 'sale',
+    desc: 'pH-neutral active snow foam wash, degreasing of drive chain & sprocket, pressure mud rinse from swingarm, blow dry and Motul C2 chain lubrication.',
+    duration: '30 Mins',
+    warranty: 'Smooth Drive Guaranteed',
+    isService: true,
+    includes: ['pH-Neutral active foam bath', 'Drive chain degreaser bath', 'Motul chain lube application', 'Alloy wheel & brake caliper wash', 'Silencer & chrome buffing'],
+    equipmentOptions: [
+      { name: 'Ceramic Spray Armor Top Coat', price: 180 },
+      { name: 'Helmet Visor Anti-Fog & Liner Sanitize', price: 120 },
+    ],
+  },
+  {
+    id: 'srv-18',
+    name: 'Heavy Commercial Truck & Bus Ramp Wash & Mud Blast',
+    price: 1299,
+    originalPrice: 2200,
+    rating: 4.88,
+    reviewsCount: 680,
+    icon: 'fa-truck-moving',
+    image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80',
+    vehicle: 'Lorry',
+    category: 'Water Wash & Detailing',
+    section: 'Nearby Water Wash & Detailing Services',
+    badge: '250-BAR JET',
+    badgeType: 'new',
+    desc: 'Dedicated commercial ramp wash with 250-bar industrial cold/hot water pressure. Multi-axle leaf spring mud blast, diesel tank wash and driver cabin rinse.',
+    duration: '1.5 Hrs',
+    warranty: 'Fleet Clean Certified',
+    isService: true,
+    includes: ['Ramp elevated underchassis mud blast', 'Heavy diesel detergent degreaser', 'Multi-leaf springs & axle wash', 'Windshield & mirror de-grease'],
+    equipmentOptions: [
+      { name: 'Driver Cabin Full Chemical Vacuum', price: 400 },
+      { name: 'Container Interior Disinfection Wash', price: 600 },
+    ],
+  },
+  {
+    id: 'srv-19',
+    name: 'Auto 3-Wheeler High-Pressure Water Jet Wash & Seat Polish',
+    price: 199,
+    originalPrice: 350,
+    rating: 4.89,
+    reviewsCount: 890,
+    icon: 'fa-gas-pump',
+    image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=600&q=80',
+    vehicle: 'Auto',
+    category: 'Water Wash & Detailing',
+    section: 'Nearby Water Wash & Detailing Services',
+    badge: 'FAST 20-MINS',
+    badgeType: 'sale',
+    desc: 'Quick 20-minute turnaround water wash with high-pressure chassis mud jet, passenger rexine seat scrub, tyre rim shine and vinyl canopy cleaning.',
+    duration: '20 Mins',
+    warranty: 'Instant Shine',
+    isService: true,
+    includes: ['High pressure wheel & underbody blast', 'Rexine seat scrubbing & wipe', 'Canopy hood surface wash', 'Dashboard & meter console wipe'],
+    equipmentOptions: [
+      { name: 'Rexine Seat Leatherette Conditioner', price: 90 },
+      { name: 'Tyre High-Gloss Dressing', price: 60 },
+    ],
+  },
 ];
 
 export const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`;
@@ -1249,4 +1347,4 @@ export const ALL_STORE_PRODUCTS: StoreProduct[] = [
   ...TOP_SELLING_PRODUCTS,
   ...CATALOG_ITEMS,
 ];
-
+

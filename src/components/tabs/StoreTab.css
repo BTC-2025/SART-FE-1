@@ -2472,6 +2472,8 @@
   pointer-events: none;
 }
 
+
+
 @media (max-width: 900px) {
   .store-top-actions-right {
     width: 100%;

@@ -245,16 +245,12 @@ export default function DriversBookingModal({ isOpen, onClose }: DriversBookingM
                   <i className="fa-solid fa-circle-check"></i> Verified Professionals
                 </span>
               </div>
-              <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#64748b' }}>
-                Book licensed drivers across
-              </p>
+
             </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#059669', fontWeight: 800, background: '#f0fdf4', padding: '6px 14px', borderRadius: '10px', border: '1px solid #bbf7d0' }}>
-              <i className="fa-solid fa-shield-check"></i> 4-Digit OTP Start Code Protected
-            </div>
+
             <button
               onClick={handleClose}
               style={{
@@ -300,9 +296,7 @@ export default function DriversBookingModal({ isOpen, onClose }: DriversBookingM
               </div>
 
               <div>
-                <span style={{ fontSize: '12px', fontWeight: 800, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  On-Demand Driver Hire
-                </span>
+
                 <h3 style={{ margin: '8px 0 10px 0', fontSize: '24px', fontWeight: 900, color: '#0f172a', lineHeight: 1.3 }}>
                   Hire Verified Drivers &amp; Certified Pilots
                 </h3>

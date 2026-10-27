@@ -91,10 +91,25 @@
   text-transform: uppercase;
 }
 
-.badge-popular { background: #3b82f6; color: #ffffff; }
-.badge-upcoming { background: #8b5cf6; color: #ffffff; }
-.badge-ev { background: #10b981; color: #ffffff; }
-.badge-used { background: #f59e0b; color: #ffffff; }
+.badge-popular {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+.badge-upcoming {
+  background: #8b5cf6;
+  color: #ffffff;
+}
+
+.badge-ev {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.badge-used {
+  background: #f59e0b;
+  color: #ffffff;
+}
 
 .veh-certified-badge {
   position: absolute;
@@ -2085,6 +2100,7 @@
     padding: 12px;
     gap: 8px;
   }
+
   .ad-banner-side-visual {
     display: none;
   }
@@ -2812,15 +2828,41 @@
   color: #2563eb;
 }
 
-.subitem-icon.icon-car { color: #3b82f6; }
-.subitem-icon.icon-bike { color: #f97316; }
-.subitem-icon.icon-truck { color: #0284c7; }
-.subitem-icon.icon-bus { color: #059669; }
-.subitem-icon.icon-van { color: #8b5cf6; }
-.subitem-icon.icon-tractor { color: #ea580c; }
-.subitem-icon.icon-auto { color: #d97706; }
-.subitem-icon.icon-ev { color: #10b981; }
-.subitem-icon.icon-city { color: #ef4444; }
+.subitem-icon.icon-car {
+  color: #3b82f6;
+}
+
+.subitem-icon.icon-bike {
+  color: #f97316;
+}
+
+.subitem-icon.icon-truck {
+  color: #0284c7;
+}
+
+.subitem-icon.icon-bus {
+  color: #059669;
+}
+
+.subitem-icon.icon-van {
+  color: #8b5cf6;
+}
+
+.subitem-icon.icon-tractor {
+  color: #ea580c;
+}
+
+.subitem-icon.icon-auto {
+  color: #d97706;
+}
+
+.subitem-icon.icon-ev {
+  color: #10b981;
+}
+
+.subitem-icon.icon-city {
+  color: #ef4444;
+}
 
 @media (max-width: 768px) {
   .sart-dropdown-flyout {
@@ -3657,13 +3699,40 @@
   color: #475569;
 }
 
-.cb360-tag-pill.petrol { background: #fee2e2; color: #b91c1c; }
-.cb360-tag-pill.diesel { background: #fef3c7; color: #b45309; }
-.cb360-tag-pill.electric { background: #dcfce7; color: #15803d; }
-.cb360-tag-pill.luxury { background: #f3e8ff; color: #7e22ce; }
-.cb360-tag-pill.upcoming { background: #ffedd5; color: #c2410c; }
-.cb360-tag-pill.trending { background: #ffe4e6; color: #e11d48; }
-.cb360-tag-pill.used { background: #e0f2fe; color: #0369a1; }
+.cb360-tag-pill.petrol {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.cb360-tag-pill.diesel {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.cb360-tag-pill.electric {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.cb360-tag-pill.luxury {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+.cb360-tag-pill.upcoming {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.cb360-tag-pill.trending {
+  background: #ffe4e6;
+  color: #e11d48;
+}
+
+.cb360-tag-pill.used {
+  background: #e0f2fe;
+  color: #0369a1;
+}
 
 .cb360-rating-block {
   display: flex;

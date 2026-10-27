@@ -1,0 +1,507 @@
+/* SART Universal Platform Footer Styles - Compact & Fully Responsive */
+.sart-universal-footer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 20;
+  margin-top: 32px;
+  background-color: #091322;
+  color: #cbd5e1;
+  font-family: inherit;
+}
+
+/* 1. Features Ribbon (Compact White banner on top) */
+.sart-footer-features-ribbon {
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 14px 28px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sart-footer-features-container {
+  max-width: 1380px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.sart-feature-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-right: 20px;
+  border-right: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.sart-logo-wordmark {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  font-style: italic;
+  line-height: 1;
+  background: linear-gradient(135deg, #10b981 0%, #059669 45%, #f97316 55%, #ea580c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  user-select: none;
+}
+
+.sart-logo-wordmark.large {
+  font-size: 32px;
+  margin-bottom: 4px;
+}
+
+.sart-tagline {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #059669;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+.sart-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 170px;
+}
+
+.sart-feature-icon-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.sart-feature-icon-badge.green {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.sart-feature-icon-badge.teal {
+  background: #f0fdfa;
+  color: #0d9488;
+}
+
+.sart-feature-icon-badge.cyan {
+  background: #ecfeff;
+  color: #0891b2;
+}
+
+.sart-feature-icon-badge.emerald {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.sart-feature-text h4 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 2px 0;
+}
+
+.sart-feature-text p {
+  font-size: 11.5px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* 2. Main Footer Body (Reduced padding and height) */
+.sart-footer-main {
+  background: #091322;
+  padding: 36px 28px 0 28px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sart-footer-container {
+  max-width: 1380px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2.3fr 1.1fr 1.3fr 1.4fr 1.5fr;
+  gap: 32px;
+  padding-bottom: 30px;
+}
+
+.sart-footer-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.sart-footer-brand-col {
+  padding-right: 16px;
+}
+
+.sart-brand-tagline {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.35;
+  margin: 10px 0 8px 0;
+}
+
+.sart-brand-description {
+  font-size: 12.5px;
+  color: #94a3b8;
+  line-height: 1.55;
+  margin: 0 0 16px 0;
+  max-width: 320px;
+}
+
+.sart-social-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sart-social-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #1e293b;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13.5px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sart-social-btn:hover {
+  background: #2563eb;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.sart-col-heading {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 14px 0;
+  letter-spacing: 0.2px;
+}
+
+.sart-col-list,
+.sart-services-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sart-col-list button,
+.sart-services-list button {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  color: #94a3b8;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.18s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+  line-height: 1.25;
+}
+
+.sart-col-list button:hover,
+.sart-services-list button:hover {
+  color: #38bdf8;
+  text-decoration: none;
+}
+
+.sart-service-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
+.sart-service-icon.green { color: #22c55e; }
+.sart-service-icon.orange { color: #f97316; }
+.sart-service-icon.blue { color: #3b82f6; }
+.sart-service-icon.purple { color: #a855f7; }
+.sart-service-icon.teal { color: #06b6d4; }
+.sart-service-icon.amber { color: #f59e0b; }
+.sart-service-icon.red { color: #ef4444; }
+
+.sart-app-desc,
+.sart-newsletter-desc {
+  font-size: 12.5px;
+  color: #94a3b8;
+  line-height: 1.45;
+  margin: 0 0 14px 0;
+}
+
+.sart-store-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sart-store-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #000000;
+  border: 1px solid #334155;
+  border-radius: 7px;
+  padding: 7px 14px;
+  text-decoration: none;
+  color: #ffffff;
+  transition: all 0.2s ease;
+  max-width: 165px;
+}
+
+.sart-store-button:hover {
+  background: #1e293b;
+  border-color: #64748b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.sart-store-icon {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sart-store-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.sart-store-sub {
+  font-size: 8.5px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #94a3b8;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.sart-store-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+/* Newsletter Input */
+.sart-newsletter-form {
+  width: 100%;
+}
+
+.sart-newsletter-input-box {
+  display: flex;
+  align-items: center;
+  background: #111e30;
+  border: 1px solid #334155;
+  border-radius: 7px;
+  overflow: hidden;
+  padding: 2px 2px 2px 12px;
+  transition: border-color 0.2s ease;
+}
+
+.sart-newsletter-input-box:focus-within {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.sart-newsletter-input-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 13px;
+  padding: 7px 0;
+  font-family: inherit;
+}
+
+.sart-newsletter-input-box input::placeholder {
+  color: #64748b;
+}
+
+.sart-newsletter-submit-btn {
+  background: #059669;
+  border: none;
+  width: 36px;
+  height: 34px;
+  border-radius: 5px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.sart-newsletter-submit-btn:hover {
+  background: #10b981;
+}
+
+.sart-newsletter-success {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #34d399;
+  font-weight: 500;
+}
+
+/* 3. Bottom Legal & Copyright Bar (Compact) */
+.sart-footer-bottom-bar {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px 0 20px 0;
+}
+
+.sart-footer-bottom-container {
+  max-width: 1380px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.sart-copyright {
+  font-size: 12.5px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.sart-legal-links {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.sart-legal-links button {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12.5px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.18s ease;
+  font-family: inherit;
+}
+
+.sart-legal-links button:hover {
+  color: #ffffff;
+}
+
+.sart-legal-separator {
+  color: #334155;
+  font-size: 11px;
+}
+
+.sart-scroll-top-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sart-scroll-top-btn:hover {
+  background: #059669;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* Responsive adjustments across screens (Laptops, Desktops, Tablets, Mobile) */
+@media (max-width: 1280px) {
+  .sart-footer-container {
+    grid-template-columns: 2fr 1fr 1.2fr 1.3fr 1.5fr;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .sart-footer-container {
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 28px;
+  }
+  .sart-footer-brand-col {
+    grid-column: span 3;
+    padding-right: 0;
+  }
+  .sart-footer-features-container {
+    justify-content: flex-start;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sart-footer-features-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .sart-feature-brand {
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 12px;
+    margin-bottom: 8px;
+    width: 100%;
+  }
+  .sart-footer-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .sart-footer-brand-col {
+    grid-column: span 2;
+  }
+  .sart-newsletter-col {
+    grid-column: span 2;
+  }
+  .sart-footer-bottom-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sart-footer-container {
+    grid-template-columns: 1fr;
+  }
+  .sart-footer-brand-col,
+  .sart-newsletter-col {
+    grid-column: span 1;
+  }
+}

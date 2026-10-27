@@ -7,6 +7,7 @@ import SeaBooking from '../booking-pages/sea';
 import AirBooking from '../booking-pages/air';
 import TrainBooking from '../booking-pages/train';
 import { FLEET_CATEGORIES, FLEET_ITEMS, MOCK_BOOKINGS, Booking } from '../../data/mockBookings';
+import { bookingsApiClient, governmentTransitApi, BackendBooking } from '../../services/bookingsApi';
 
 export default function BookingsTab() {
   const pathname = usePathname();
@@ -46,7 +47,68 @@ export default function BookingsTab() {
   const [showMoreDestinations, setShowMoreDestinations] = useState(false);
   const [showAllBookings, setShowAllBookings] = useState(false);
 
-  const filteredOverviewBookings = MOCK_BOOKINGS.filter(b => {
+  // Live state connected to Backend API
+  const [backendBookingsList, setBackendBookingsList] = useState<Booking[]>([]);
+  const [isLoadingBookings, setIsLoadingBookings] = useState(false);
+
+  // Fetch live bookings from backend on component mount
+  useEffect(() => {
+    async function loadBackendBookings() {
+      setIsLoadingBookings(true);
+      try {
+        const raw = await bookingsApiClient.getBookings();
+        if (raw && raw.length > 0) {
+          const mapped: Booking[] = raw.map(b => {
+            let extra: any = {};
+            try {
+              if (b.extraData) extra = JSON.parse(b.extraData);
+            } catch (e) { }
+
+            return {
+              id: b.id,
+              title: b.title,
+              number: extra.number || b.subType?.toUpperCase() || 'SART-RES',
+              type: b.type,
+              image: b.type === 'train' ? 'https://img.icons8.com/fluency/96/train.png' :
+                b.type === 'flight' ? 'https://img.icons8.com/fluency/96/airplane-take-off.png' :
+                  b.type === 'bus' ? 'https://img.icons8.com/fluency/96/bus.png' :
+                    'https://img.icons8.com/fluency/96/car.png',
+              source: b.pickupLoc || extra.source || 'Bengaluru',
+              sourceCode: extra.sourceCode || (b.pickupLoc ? b.pickupLoc.slice(0, 3).toUpperCase() : 'BLR'),
+              sourceTime: extra.sourceTime || '10:00',
+              sourceDate: new Date(b.dateTime).toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short' }),
+              destination: b.dropLoc || extra.destination || 'Hyderabad',
+              destinationCode: extra.destinationCode || (b.dropLoc ? b.dropLoc.slice(0, 3).toUpperCase() : 'HYD'),
+              destinationTime: extra.destinationTime || '18:00',
+              destinationDate: new Date(b.dateTime).toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short' }),
+              duration: extra.duration || '4h 30m',
+              bookingId: extra.bookingId || b.id,
+              pnr: extra.pnr || extra.bookingId || b.id,
+              passengerName: extra.passengerName || 'sai',
+              seatStatus: extra.seatStatus || (b.status === 'Active' ? 'Confirmed' : b.status),
+              statusBadge: extra.statusBadge || (b.status === 'Active' ? 'CNF' : b.status === 'Completed' ? 'CMP' : 'CAN'),
+              statusText: extra.statusText || (b.status === 'Active' ? 'Booking Confirmed • Running On Time' : b.details || 'Completed'),
+              isActive: b.status === 'Active',
+              isCancelled: b.status === 'Cancelled',
+              stops: extra.stops || []
+            };
+          });
+          setBackendBookingsList(mapped);
+        } else {
+          setBackendBookingsList(MOCK_BOOKINGS);
+        }
+      } catch (err) {
+        setBackendBookingsList(MOCK_BOOKINGS);
+      } finally {
+        setIsLoadingBookings(false);
+      }
+    }
+    loadBackendBookings();
+  }, []);
+
+  const allBookingsSource = backendBookingsList.length > 0 ? backendBookingsList : MOCK_BOOKINGS;
+
+  const filteredOverviewBookings = allBookingsSource.filter(b => {
     if (overviewTab === 'upcoming') return b.isActive && !b.isCancelled;
     if (overviewTab === 'past') return !b.isActive && !b.isCancelled;
     if (overviewTab === 'cancelled') return b.isCancelled;
@@ -55,8 +117,6 @@ export default function BookingsTab() {
   const displayedOverviewBookings = showAllBookings ? filteredOverviewBookings : filteredOverviewBookings.slice(0, 6);
 
   const { activeTab: globalActiveTab, setActiveTab: setGlobalActiveTab } = useSartStore();
-
-  // URL parsing is now handled efficiently in the initial useState logic above!
 
   const router = useRouter();
 
@@ -79,49 +139,126 @@ export default function BookingsTab() {
     return '';
   };
 
-  const handlePnrSearch = () => {
+  const handlePnrSearch = async () => {
     setSearchError(null);
     if (!pnrInput.trim()) {
       setSearchError('Please enter a valid tracking number');
       return;
     }
-    const input = pnrInput.trim().toLowerCase();
+    const input = pnrInput.trim().toUpperCase();
 
-    // Check mock bookings first
-    let found = MOCK_BOOKINGS.find(b => b.pnr?.toLowerCase() === input || b.bookingId?.toLowerCase() === input);
+    // 1. First check Government & Public Transit API adapter
+    if (trackingType === 'Train — PNR') {
+      const govtTrain = await governmentTransitApi.getTrainPnrStatus(input);
+      if (govtTrain && govtTrain.success) {
+        setTrackedBooking({
+          id: `govt-trn-${govtTrain.pnr}`,
+          title: govtTrain.trainName,
+          number: govtTrain.trainNumber,
+          type: 'train',
+          image: 'https://img.icons8.com/fluency/96/train.png',
+          source: govtTrain.source,
+          sourceCode: 'NLR',
+          sourceTime: govtTrain.departureTime,
+          sourceDate: govtTrain.journeyDate,
+          destination: govtTrain.destination,
+          destinationCode: 'SC',
+          destinationTime: govtTrain.arrivalTime,
+          destinationDate: govtTrain.journeyDate,
+          duration: '10h 45m',
+          bookingId: govtTrain.pnr,
+          pnr: govtTrain.pnr,
+          passengerName: govtTrain.passengers[0]?.name || 'Passenger',
+          seatStatus: govtTrain.currentStatus,
+          statusBadge: 'CNF',
+          statusText: `IRCTC Govt Verified: ${govtTrain.liveStatus.status}`,
+          isActive: true,
+          isCancelled: false,
+          stops: [
+            { name: govtTrain.source, time: govtTrain.departureTime, status: 'past' },
+            { name: govtTrain.liveStatus.currentStation, time: '20:30', status: 'current' },
+            { name: govtTrain.liveStatus.nextStation, time: govtTrain.liveStatus.expectedArrival, status: 'future' },
+            { name: govtTrain.destination, time: govtTrain.arrivalTime, status: 'future' }
+          ]
+        });
+        return;
+      }
+    } else if (trackingType === 'Airline — Flight Number') {
+      const govtFlight = await governmentTransitApi.getFlightStatus(input);
+      if (govtFlight && govtFlight.success) {
+        setTrackedBooking({
+          id: `govt-flt-${govtFlight.flightNumber}`,
+          title: `${govtFlight.airline} (${govtFlight.flightNumber})`,
+          number: govtFlight.flightNumber,
+          type: 'aeroplane',
+          image: 'https://img.icons8.com/fluency/96/airplane-take-off.png',
+          source: govtFlight.origin,
+          sourceCode: 'BLR',
+          sourceTime: govtFlight.scheduledDeparture,
+          sourceDate: 'Today',
+          destination: govtFlight.destination,
+          destinationCode: 'HYD',
+          destinationTime: govtFlight.scheduledArrival,
+          destinationDate: 'Today',
+          duration: '1h 15m',
+          bookingId: govtFlight.flightNumber,
+          pnr: govtFlight.flightNumber,
+          passengerName: 'DGCA Verified Passenger',
+          seatStatus: 'Premium Economy (12A)',
+          statusBadge: 'CNF',
+          statusText: `DGCA Aviation Status: En Route (${govtFlight.altitudeFeet} ft)`,
+          isActive: true,
+          isCancelled: false
+        });
+        return;
+      }
+    } else if (trackingType === 'Bus — Ticket Number') {
+      const govtBus = await governmentTransitApi.getBusTicketStatus(input);
+      if (govtBus && govtBus.success) {
+        setTrackedBooking({
+          id: `govt-bus-${govtBus.ticketNumber}`,
+          title: govtBus.operator,
+          number: govtBus.ticketNumber,
+          type: 'bus',
+          image: 'https://img.icons8.com/fluency/96/bus.png',
+          source: govtBus.sourceCity,
+          sourceCode: 'HYD',
+          sourceTime: govtBus.departureTime,
+          sourceDate: 'Today',
+          destination: govtBus.destinationCity,
+          destinationCode: 'BLR',
+          destinationTime: govtBus.arrivalTime,
+          destinationDate: 'Tomorrow',
+          duration: '8h 30m',
+          bookingId: govtBus.ticketNumber,
+          pnr: govtBus.ticketNumber,
+          passengerName: 'National Bus Passenger',
+          seatStatus: `Confirmed (${govtBus.seatNumbers.join(', ')})`,
+          statusBadge: 'CNF',
+          statusText: `SRTC Verified: Vehicle near ${govtBus.liveVehicleGps.lastLocation}`,
+          isActive: true,
+          isCancelled: false
+        });
+        return;
+      }
+    }
 
-    // Check global local storage
+    // 2. Check in backend list & local storage
+    const lowerInput = input.toLowerCase();
+    let found = allBookingsSource.find(b => b.pnr?.toLowerCase() === lowerInput || b.bookingId?.toLowerCase() === lowerInput);
+
     if (!found && typeof window !== 'undefined') {
       const globalStr = localStorage.getItem('sart_global_bookings');
       if (globalStr) {
         const globals = JSON.parse(globalStr);
-        found = globals.find((b: any) => b.pnr?.toLowerCase() === input || b.bookingId?.toLowerCase() === input);
+        found = globals.find((b: any) => b.pnr?.toLowerCase() === lowerInput || b.bookingId?.toLowerCase() === lowerInput);
       }
     }
 
     if (found) {
-      const type = found.type?.toLowerCase() || '';
-      const title = found.title.toUpperCase();
-
-      if (trackingType === 'Train — PNR' && type !== 'train' && !title.includes('EXPRESS') && !title.includes('TRAIN')) {
-        setSearchError('Not a valid Train PNR. Please select the correct service.');
-        return;
-      }
-      if (trackingType === 'Airline — Flight Number' && type !== 'aeroplane' && !title.includes('AIR') && !title.includes('FLIGHT') && !title.includes('INDIGO')) {
-        setSearchError('Not a valid Flight Number. Please select the correct service.');
-        return;
-      }
-      if (trackingType === 'Bus — Ticket Number' && type !== 'bus' && !title.includes('BUS')) {
-        setSearchError('Not a valid Bus Ticket Number. Please select the correct service.');
-        return;
-      }
-      if (trackingType === 'Ship / Cruise Ship — IMO Number' && type !== 'ship' && !title.includes('CRUISE') && !title.includes('SHIP')) {
-        setSearchError('Not a valid Ship IMO Number. Please select the correct service.');
-        return;
-      }
       setTrackedBooking(found);
     } else {
-      setSearchError('No booking found for this tracking number');
+      setSearchError('No booking found for this tracking number. Ensure valid ID is provided.');
     }
   };
 

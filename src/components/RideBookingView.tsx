@@ -14,6 +14,20 @@ import {
   SingleSourceRouteState,
   RideBookedInfo
 } from './rideData';
+import CaptainBusinessPortalModal from './CaptainBusinessPortalModal';
+import { ridesApiClient, CaptainItem, FuelFareResponse } from '../services/ridesApi';
+import dynamic from 'next/dynamic';
+import { io, Socket } from 'socket.io-client';
+
+
+const InteractiveRideMap = dynamic(() => import('./InteractiveRideMap'), {
+  ssr: false,
+  loading: () => (
+    <div style={{ height: '360px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f1f5f9', color: '#64748b' }}>
+      <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '8px' }}></i> Loading Live Map...
+    </div>
+  )
+});
 
 export type { RideCategoryMode, RouteStop, LatLng, VehicleConfig, SingleSourceRouteState, RideBookedInfo };
 export { VEHICLE_CONFIGS, KNOWN_LOCATIONS, formatDurationHuman };
@@ -35,26 +49,13 @@ export default function RideBookingView({
   onDestinationChange,
   onBackToHome
 }: RideBookingViewProps) {
-  // Synchronize pickup and dropoff across bike, auto, and car pages via props and shared storage
-  const [pickup, setPickup] = useState(() => {
-    if (sourceLocation.trim()) return sourceLocation.trim();
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('sart_ride_pickup') || '';
-    }
-    return '';
-  });
-
-  const [dropoff, setDropoff] = useState(() => {
-    if (destinationLocation.trim()) return destinationLocation.trim();
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('sart_ride_dropoff') || '';
-    }
-    return '';
-  });
+  // Remove any default stored values so user enters location cleanly
+  const [pickup, setPickup] = useState(sourceLocation.trim());
+  const [dropoff, setDropoff] = useState(destinationLocation.trim());
 
   // When sourceLocation prop changes, update pickup
   useEffect(() => {
-    if (sourceLocation.trim() && sourceLocation.trim() !== pickup.trim()) {
+    if (sourceLocation.trim() !== pickup.trim()) {
       setPickup(sourceLocation.trim());
       setPickupCoords(null);
     }
@@ -62,42 +63,17 @@ export default function RideBookingView({
 
   // When destinationLocation prop changes, update dropoff
   useEffect(() => {
-    if (destinationLocation.trim() && destinationLocation.trim() !== dropoff.trim()) {
+    if (destinationLocation.trim() !== dropoff.trim()) {
       setDropoff(destinationLocation.trim());
       setDropCoords(null);
     }
   }, [destinationLocation]);
 
-  const [stops, setStops] = useState<RouteStop[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('sart_ride_stops');
-        if (saved) return JSON.parse(saved);
-      } catch (e) { }
-    }
-    return [];
-  });
+  const [stops, setStops] = useState<RouteStop[]>([]);
 
   // Coordinates
-  const [pickupCoords, setPickupCoords] = useState<LatLng | null>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('sart_ride_pickup_coords');
-        if (saved) return JSON.parse(saved);
-      } catch (e) { }
-    }
-    return null;
-  });
-
-  const [dropCoords, setDropCoords] = useState<LatLng | null>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('sart_ride_drop_coords');
-        if (saved) return JSON.parse(saved);
-      } catch (e) { }
-    }
-    return null;
-  });
+  const [pickupCoords, setPickupCoords] = useState<LatLng | null>(null);
+  const [dropCoords, setDropCoords] = useState<LatLng | null>(null);
 
   // Single Source of Truth Route State
   const [routeState, setRouteState] = useState<SingleSourceRouteState>({
@@ -133,15 +109,117 @@ export default function RideBookingView({
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [rideBookedModal, setRideBookedModal] = useState<any | null>(null);
 
-  // Map Picker Modal state
-  const [pickerTarget, setPickerTarget] = useState<'pickup' | 'drop' | 'new-stop' | string | null>(null);
-  const [pickerCoords, setPickerCoords] = useState<LatLng>({ lat: 13.0827, lng: 80.2755 });
-  const [pickerAddress, setPickerAddress] = useState<string>('Select location');
-  const [isGeocodingPicker, setIsGeocodingPicker] = useState(false);
+  // Live Captain Tracker & Chat Communication State (matches user screenshot)
+  const [captainStatus, setCaptainStatus] = useState<'searching' | 'accepted' | 'arriving' | 'arrived'>('searching');
+  const [captainProgress, setCaptainProgress] = useState(0); // 0 to 100% on road
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [chatMessages, setChatMessages] = useState<Array<{ sender: 'user' | 'captain'; text: string; time: string }>>([]);
+  const [chatInputText, setChatInputText] = useState('');
+  const [pickupInstruction, setPickupInstruction] = useState('');
+  const [callActive, setCallActive] = useState(false);
+
+  // Captain Business Portal Modal state
+  const [showCaptainPortal, setShowCaptainPortal] = useState(false);
+
+  // Booking for Self or Others
+  const [bookingFor, setBookingFor] = useState<'myself' | 'others'>('myself');
+  const [otherRiderName, setOtherRiderName] = useState('');
+  const [otherRiderPhone, setOtherRiderPhone] = useState('');
+
+  // Interactive Direct Map Selection Mode: 'pickup' | 'drop' | 'idle'
+  const [mapSelectionMode, setMapSelectionMode] = useState<'pickup' | 'drop' | 'idle'>('idle');
+  const [routeGeometry, setRouteGeometry] = useState<[number, number][]>([]);
 
   // Auto-search suggestions for input fields
   const [pickupSuggestions, setPickupSuggestions] = useState<string[]>([]);
   const [dropSuggestions, setDropSuggestions] = useState<string[]>([]);
+
+  // Backend Live Drivers from SART Backend API
+  const [backendDrivers, setBackendDrivers] = useState<CaptainItem[]>([]);
+  // Dynamic vehicle configurations fetched from backend
+  const [backendVehicleConfigs, setBackendVehicleConfigs] = useState<VehicleConfig[] | null>(null);
+  // Dynamic location fuel pricing and consumption
+  const [backendFuelData, setBackendFuelData] = useState<FuelFareResponse | null>(null);
+
+  // Live Socket.io connection for instant ride acceptance & AI chat
+  const [socketRef, setSocketRef] = useState<Socket | null>(null);
+
+  useEffect(() => {
+    let s: Socket;
+    try {
+      s = io('http://localhost:5000', {
+        transports: ['websocket', 'polling']
+      });
+      setSocketRef(s);
+
+      s.on('connect', () => {
+        console.log('[User Socket] Connected to SART backend:', s.id);
+      });
+
+      // Real-time notification when Captain accepts ride!
+      s.on('booking_status_changed', (data: any) => {
+        console.log('[User Socket] Booking status changed event received:', data);
+        if (data.status === 'Accepted') {
+          const cap = data.captain || {};
+          setCaptainStatus('accepted');
+          setRideBookedModal((prev: any) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              captain: cap.name || 'Sai (Star Captain)',
+              plate: cap.vehiclePlate || 'TN 09 EQ 4421',
+              phone: cap.phone || '+91 98765 43210',
+              eta: cap.eta || '3 mins away',
+              distanceToCaptain: cap.distanceToCaptain || '0.8 km from you',
+              isAcceptedByCaptain: true
+            };
+          });
+        } else if (data.status === 'In-Trip') {
+          setCaptainStatus('arrived');
+          setRideBookedModal((prev: any) => prev ? { ...prev, eta: 'In-Trip (En Route)' } : prev);
+        } else if (data.status === 'Completed') {
+          setRideBookedModal((prev: any) => prev ? { ...prev, eta: 'Trip Completed' } : prev);
+        }
+      });
+
+      // Real-time chat messages from captain (or AI assistant)
+      s.on('chat_message_received', (msg: any) => {
+        setChatMessages((prev) => {
+          // Avoid duplicate local user messages
+          if (msg.sender === 'user' && prev.some(m => m.text === msg.text && m.time === msg.time)) {
+            return prev;
+          }
+          return [...prev, msg];
+        });
+      });
+    } catch (e) {
+      console.warn('[User Socket] Connection fallback:', e);
+    }
+
+    return () => {
+      if (s) s.disconnect();
+    };
+  }, []);
+
+
+  useEffect(() => {
+    const fetchBackendData = async () => {
+      if (['bike', 'auto', 'car'].includes(mode)) {
+        // Fetch live nearby drivers centered on user's exact pickup location (e.g. Chennai 13.0827, 80.2755)
+        const targetLat = pickupCoords?.lat || 13.0827;
+        const targetLng = pickupCoords?.lng || 80.2755;
+        const drivers = await ridesApiClient.getNearbyCaptains(mode as 'bike' | 'auto' | 'car', targetLat, targetLng);
+        setBackendDrivers(drivers);
+
+        // Fetch vehicle types and fares dynamically from backend
+        const dynamicVehicles = await ridesApiClient.getVehicles(mode as 'bike' | 'auto' | 'car');
+        if (dynamicVehicles && Array.isArray(dynamicVehicles) && dynamicVehicles.length > 0) {
+          setBackendVehicleConfigs(dynamicVehicles);
+        }
+      }
+    };
+    fetchBackendData();
+  }, [mode, pickupCoords?.lat, pickupCoords?.lng]);
 
   // Save to localStorage
   useEffect(() => {
@@ -212,73 +290,81 @@ export default function RideBookingView({
     return [];
   };
 
-  // Debounced geocoding on typing for Pickup
-  useEffect(() => {
-    const text = pickup.trim();
-    if (!text || pickupCoords) return;
-
-    const timer = setTimeout(async () => {
-      const results = await searchAddress(text);
-      if (results.length > 0) {
-        setPickupCoords(results[0].coords);
-      }
-    }, 600);
-
-    return () => clearTimeout(timer);
-  }, [pickup, pickupCoords]);
-
-  // Debounced geocoding on typing for Dropoff
-  useEffect(() => {
-    const text = dropoff.trim();
-    if (!text || dropCoords) return;
-
-    const timer = setTimeout(async () => {
-      const results = await searchAddress(text);
-      if (results.length > 0) {
-        setDropCoords(results[0].coords);
-      }
-    }, 600);
-
-    return () => clearTimeout(timer);
-  }, [dropoff, dropCoords]);
-
-  // Calculate Real Road Navigation Distance & Duration without requiring Google API Keys
-  useEffect(() => {
-    if (!pickupCoords || !dropCoords) {
-      setRouteState({
-        origin: null,
-        destination: null,
-        stops: [],
-        distanceKm: null,
-        durationMin: null,
-        durationText: ''
-      });
-      return;
-    }
+  // Perform road routing search when user clicks Search Route or types
+  const handleCalculateRoute = async () => {
+    let pCoords = pickupCoords;
+    let dCoords = dropCoords;
 
     setIsRouteCalculating(true);
     setRouteError(null);
 
+    // Resolve pickup if not yet geocoded
+    if (!pCoords && pickup.trim()) {
+      const pRes = await searchAddress(pickup.trim());
+      if (pRes.length > 0) {
+        pCoords = pRes[0].coords;
+        setPickupCoords(pCoords);
+      }
+    }
+
+    // Resolve dropoff if not yet geocoded
+    if (!dCoords && dropoff.trim()) {
+      const dRes = await searchAddress(dropoff.trim());
+      if (dRes.length > 0) {
+        dCoords = dRes[0].coords;
+        setDropCoords(dCoords);
+      }
+    }
+
+    if (!pCoords || !dCoords) {
+      setIsRouteCalculating(false);
+      setRouteError('Please enter both pickup and dropping locations to calculate route.');
+      return;
+    }
+
     const points = [
-      `${pickupCoords.lng},${pickupCoords.lat}`,
+      `${pCoords.lng},${pCoords.lat}`,
       ...stops.filter(s => s.lng !== undefined && s.lat !== undefined).map(s => `${s.lng},${s.lat}`),
-      `${dropCoords.lng},${dropCoords.lat}`
+      `${dCoords.lng},${dCoords.lat}`
     ].join(';');
 
+    // Use vehicle-specific road routing profile
     fetch(`https://router.project-osrm.org/route/v1/driving/${points}?overview=full&geometries=geojson`)
       .then(res => res.json())
-      .then(data => {
+      .then(async data => {
         setIsRouteCalculating(false);
         if (data.routes && data.routes[0]) {
           const route = data.routes[0];
           const distKm = Math.round((route.distance / 1000) * 10) / 10;
-          const durSeconds = Math.round(route.duration);
-          const durMin = Math.round(durSeconds / 60);
-          const durText = formatDurationHuman(durSeconds);
+
+          // Realistic travel duration based on user specification:
+          // - Bike: 3 to 4 minutes per kilometer (avg 3.5 min/km)
+          // - Auto Rickshaw: 2 to 3 minutes per kilometer (avg 2.5 min/km)
+          // - Car: 2 to 4 minutes per kilometer (avg 3.0 min/km)
+          const minPerKm = mode === 'bike' ? 3.5 : mode === 'auto' ? 2.5 : 3.0;
+          const calculatedSecs = Math.max(60, Math.round(distKm * minPerKm * 60));
+          const durMin = Math.round(calculatedSecs / 60);
+          const durText = formatDurationHuman(calculatedSecs);
+
+          if (route.geometry && route.geometry.coordinates) {
+            const flipped: [number, number][] = route.geometry.coordinates.map((c: [number, number]) => [c[1], c[0]]);
+            setRouteGeometry(flipped);
+          }
+
+          // Fetch dynamic location-based daily fuel price & fare calculation
+          const detectedCity = pickup.split(',')[0].trim() || 'Chennai';
+          try {
+            const fuelRes = await ridesApiClient.calculateFuelFare(mode as 'bike' | 'auto' | 'car', distKm, detectedCity);
+            if (fuelRes) {
+              setBackendFuelData(fuelRes);
+            }
+          } catch (err) {
+            console.warn('Could not fetch dynamic fuel calculation:', err);
+          }
 
           setRouteState({
-            origin: pickupCoords,
-            destination: dropCoords,
+            origin: pCoords,
+            destination: dCoords,
             stops,
             distanceKm: distKm,
             durationMin: durMin,
@@ -293,7 +379,14 @@ export default function RideBookingView({
         console.error('Routing error:', err);
         setRouteError('Failed to calculate road route.');
       });
-  }, [pickupCoords, dropCoords, stops]);
+  };
+
+  // Auto trigger route calculation when coordinates update
+  useEffect(() => {
+    if (pickupCoords && dropCoords) {
+      handleCalculateRoute();
+    }
+  }, [pickupCoords, dropCoords, stops, mode]);
 
   // "Use my current location" handler for pickup
   const handleUseCurrentLocation = () => {
@@ -320,68 +413,33 @@ export default function RideBookingView({
     );
   };
 
-  // Open "Pick on map" modal
+  // Open "Pick on map"
   const handleOpenMapPicker = (target: 'pickup' | 'drop' | 'new-stop' | string) => {
-    let initialCoords: LatLng = { lat: 13.0827, lng: 80.2755 }; // Chennai default
-    if (target === 'pickup' && pickupCoords) initialCoords = pickupCoords;
-    else if (target === 'drop' && dropCoords) initialCoords = dropCoords;
-    else if (typeof target === 'string' && target.startsWith('stop-')) {
-      const existing = stops.find(s => s.id === target);
-      if (existing?.lat && existing?.lng) initialCoords = { lat: existing.lat, lng: existing.lng };
+    if (target === 'drop') {
+      setMapSelectionMode('drop');
+    } else {
+      setMapSelectionMode('pickup');
     }
-
-    setPickerTarget(target);
-    setPickerCoords(initialCoords);
-    setPickerAddress('Locating address...');
-    setIsGeocodingPicker(true);
-    reverseGeocode(initialCoords.lat, initialCoords.lng).then(addr => {
-      setPickerAddress(addr);
-      setIsGeocodingPicker(false);
-    });
   };
 
-  // Map Picker Canvas Pan/Drag handler
-  const handlePickerMapCanvasClick = async (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const xRatio = (e.clientX - rect.left) / rect.width;
-    const yRatio = (e.clientY - rect.top) / rect.height;
 
-    // Relative offset from current picker center
-    const latSpan = 0.04;
-    const lngSpan = 0.04;
-    const newLat = +(pickerCoords.lat + (0.5 - yRatio) * latSpan).toFixed(5);
-    const newLng = +(pickerCoords.lng + (xRatio - 0.5) * lngSpan).toFixed(5);
+  // Direct Map Click Handler: Only triggered on explicit mouse click on the map
+  const handleDirectMapLocationSelect = async (type: 'pickup' | 'drop', lat: number, lng: number) => {
+    const coords = { lat: +lat.toFixed(5), lng: +lng.toFixed(5) };
+    const addr = await reverseGeocode(coords.lat, coords.lng);
 
-    setPickerCoords({ lat: newLat, lng: newLng });
-    setIsGeocodingPicker(true);
-    const addr = await reverseGeocode(newLat, newLng);
-    setPickerAddress(addr);
-    setIsGeocodingPicker(false);
-  };
-
-  // Confirm selection in Map Picker Modal
-  const handleConfirmPickerLocation = () => {
-    if (!pickerTarget) return;
-
-    if (pickerTarget === 'pickup') {
-      setPickup(pickerAddress);
-      setPickupCoords(pickerCoords);
-      if (onSourceChange) onSourceChange(pickerAddress);
-    } else if (pickerTarget === 'drop') {
-      setDropoff(pickerAddress);
-      setDropCoords(pickerCoords);
-      if (onDestinationChange) onDestinationChange(pickerAddress);
-    } else if (pickerTarget === 'new-stop') {
-      setNewStopName(pickerAddress);
-      setNewStopCoords(pickerCoords);
-    } else if (pickerTarget.startsWith('stop-')) {
-      const stopId = pickerTarget;
-      setStops(prev =>
-        prev.map(s => (s.id === stopId ? { ...s, name: pickerAddress, lat: pickerCoords.lat, lng: pickerCoords.lng } : s))
-      );
+    if (type === 'pickup') {
+      setPickup(addr);
+      setPickupCoords(coords);
+      if (onSourceChange) onSourceChange(addr);
+      // Auto toggle to 'drop' mode so next click easily selects the Red dropping pin!
+      setMapSelectionMode('drop');
+    } else {
+      setDropoff(addr);
+      setDropCoords(coords);
+      if (onDestinationChange) onDestinationChange(addr);
+      setMapSelectionMode('idle');
     }
-
-    setPickerTarget(null);
   };
 
   // Calculate vehicle fare using the exact formula:
@@ -402,7 +460,7 @@ export default function RideBookingView({
 
   // Dynamic Vehicle Cards
   const vehicles = React.useMemo(() => {
-    const list = VEHICLE_CONFIGS[mode] || VEHICLE_CONFIGS.bike;
+    const list = backendVehicleConfigs || VEHICLE_CONFIGS[mode] || VEHICLE_CONFIGS.bike;
     return list.map(cfg => {
       const fare = calculateVehicleFare(cfg);
       return {
@@ -413,7 +471,7 @@ export default function RideBookingView({
         hasDistance: routeState.distanceKm !== null
       };
     });
-  }, [mode, calculateVehicleFare, routeState.distanceKm, routeState.durationText]);
+  }, [mode, backendVehicleConfigs, calculateVehicleFare, routeState.distanceKm, routeState.durationText]);
 
   const currentVehicleData = vehicles.find(v => v.id === selectedVehicle) || vehicles[0];
 
@@ -454,19 +512,157 @@ export default function RideBookingView({
             <i className="fa-solid fa-arrow-left"></i>
           </button>
           <div>
-            <div className="rb-mode-title-row">
-              <span className="rb-mode-badge">
-                {mode === 'bike' ? '🛵 Instant Two-Wheeler Booking' : mode === 'auto' ? '🛺 Auto Rickshaw Booking' : '🚗 Cab & Car Booking'}
-              </span>
-              <span className="rb-status-pill">
-                <i className="fa-solid fa-circle-dot"></i> Live Google Road Navigation
-              </span>
-            </div>
+
             <h2 className="rb-main-heading">
-              {mode === 'bike' ? 'Bike & Scooty Booking' : mode === 'auto' ? 'Auto Rickshaw Booking' : 'Cab & Taxi Booking'}
+              {mode === 'bike' ? 'Bike & Scooty Booking' : mode === 'auto' ? 'Auto Booking' : 'Cab & Taxi Booking'}
             </h2>
           </div>
         </div>
+
+        {/* 🏍️🚗🛺 Safety & Captain Badge at the end of header - Click to open Captain Business Portal */}
+        <button
+          type="button"
+          className="rb-header-vehicle-image-wrapper"
+          onClick={() => {
+            const bizUrl = `http://localhost:3007/Business/Home?category=${mode}`;
+            window.open(bizUrl, '_blank') || (window.location.href = bizUrl);
+          }}
+          title="Click to enter Captain Business Portal"
+        >
+          <div className="rb-header-captain-column">
+            {/* Header image: Auto Driver for Auto, Seatbelt for Car, Helmet for Bike */}
+            <img
+              src={
+                mode === 'auto'
+                  ? '/images/auto_driver_captain.png'
+                  : mode === 'car'
+                    ? '/images/seatbelt_safety.png'
+                    : '/images/helmet_safety.jpg'
+              }
+              alt={mode === 'auto' ? 'Auto Captain' : mode === 'car' ? 'Seatbelt' : 'Helmet'}
+              className="rb-header-safety-hero-img"
+            />
+            {/* Captain Badge below the image */}
+            <span className="rb-captain-badge-pill">
+              <i className="fa-solid fa-briefcase"></i> Captain
+            </span>
+          </div>
+        </button>
+      </div>
+
+      {/* Booking For Option: Myself or Others */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '12px',
+        background: '#ffffff',
+        border: '1px solid #e2e8f0',
+        borderRadius: '14px',
+        padding: '12px 18px',
+        marginBottom: '16px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <i className="fa-solid fa-user-tag" style={{ color: '#ea580c', fontSize: '15px' }}></i>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>Who is taking this ride?</span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button
+            type="button"
+            onClick={() => setBookingFor('myself')}
+            style={{
+              padding: '6px 16px',
+              borderRadius: '20px',
+              border: bookingFor === 'myself' ? '2px solid #ea580c' : '1px solid #cbd5e1',
+              background: bookingFor === 'myself' ? '#fff7ed' : '#ffffff',
+              color: bookingFor === 'myself' ? '#c2410c' : '#475569',
+              fontWeight: 700,
+              fontSize: '13px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <i className="fa-solid fa-user"></i>
+            <span>For Myself</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setBookingFor('others')}
+            style={{
+              padding: '6px 16px',
+              borderRadius: '20px',
+              border: bookingFor === 'others' ? '2px solid #ea580c' : '1px solid #cbd5e1',
+              background: bookingFor === 'others' ? '#fff7ed' : '#ffffff',
+              color: bookingFor === 'others' ? '#c2410c' : '#475569',
+              fontWeight: 700,
+              fontSize: '13px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <i className="fa-solid fa-users"></i>
+            <span>For Someone Else (Others)</span>
+          </button>
+        </div>
+
+        {bookingFor === 'others' && (
+          <div style={{
+            width: '100%',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: '10px',
+            marginTop: '8px',
+            paddingTop: '10px',
+            borderTop: '1px dashed #e2e8f0'
+          }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '11.5px', color: '#64748b', fontWeight: 600, marginBottom: '4px' }}>
+                Rider's Full Name
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Suresh Kumar"
+                value={otherRiderName}
+                onChange={(e) => setOtherRiderName(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '13px',
+                  outline: 'none'
+                }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '11.5px', color: '#64748b', fontWeight: 600, marginBottom: '4px' }}>
+                Rider's Mobile Number (for driver & ride OTP)
+              </label>
+              <input
+                type="tel"
+                placeholder="+91 98765 XXXXX"
+                value={otherRiderPhone}
+                onChange={(e) => setOtherRiderPhone(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '13px',
+                  outline: 'none'
+                }}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Top Section: Left Side Pickup, Right Side Dropping, with Stops appearing below Pickup */}
@@ -486,13 +682,20 @@ export default function RideBookingView({
                   >
                     <i className="fa-solid fa-crosshairs"></i> Use current location
                   </button>
+
                   <button
                     type="button"
-                    className="rb-input-map-pin-btn"
-                    onClick={() => handleOpenMapPicker('pickup')}
-                    title="Pick pickup on map"
+                    className={`rb-input-map-pin-btn ${mapSelectionMode === 'pickup' ? 'active-pin-mode' : ''}`}
+                    onClick={() => setMapSelectionMode(prev => prev === 'pickup' ? 'idle' : 'pickup')}
+                    style={{
+                      background: mapSelectionMode === 'pickup' ? '#16a34a' : '#ffffff',
+                      color: mapSelectionMode === 'pickup' ? '#ffffff' : '#16a34a',
+                      borderColor: '#16a34a',
+                      fontWeight: 700
+                    }}
+                    title="Click here, then click anywhere on map below to set pickup location"
                   >
-                    <i className="fa-solid fa-map-location-dot"></i> Pick on map
+                    <i className="fa-solid fa-location-dot"></i> {mapSelectionMode === 'pickup' ? 'Click Map Below' : 'Select on Map'}
                   </button>
                 </div>
               </div>
@@ -637,18 +840,24 @@ export default function RideBookingView({
             )}
           </div>
 
-          {/* Right Column: Dropping point */}
+          {/* Right Column: Dropping point + Search Route Button */}
           <div className="rb-input-side-column">
             <div className="rb-input-box">
               <div className="rb-box-label red">
                 <span>Dropping Point</span>
                 <button
                   type="button"
-                  className="rb-input-map-pin-btn"
-                  onClick={() => handleOpenMapPicker('drop')}
-                  title="Pick drop on map"
+                  className={`rb-input-map-pin-btn ${mapSelectionMode === 'drop' ? 'active-pin-mode' : ''}`}
+                  onClick={() => setMapSelectionMode(prev => prev === 'drop' ? 'idle' : 'drop')}
+                  style={{
+                    background: mapSelectionMode === 'drop' ? '#dc2626' : '#ffffff',
+                    color: mapSelectionMode === 'drop' ? '#ffffff' : '#dc2626',
+                    borderColor: '#dc2626',
+                    fontWeight: 700
+                  }}
+                  title="Click here, then click anywhere on map below to set dropping point"
                 >
-                  <i className="fa-solid fa-map-location-dot"></i> Pick on map
+                  <i className="fa-solid fa-location-dot"></i> {mapSelectionMode === 'drop' ? 'Click Map Below' : 'Select on Map (Red Pin)'}
                 </button>
               </div>
               <div className="rb-box-field-row">
@@ -663,13 +872,79 @@ export default function RideBookingView({
                     setDropCoords(null);
                     if (onDestinationChange) onDestinationChange(val);
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleCalculateRoute();
+                    }
+                  }}
                   placeholder="Enter dropping location"
                 />
               </div>
             </div>
 
-            {/* Helper notice */}
+            {/* Prominent Action Button: Search Route & Show Directions for this Vehicle */}
+            <div className="rb-search-route-trigger-row" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <button
+                type="button"
+                className="rb-search-route-btn"
+                onClick={handleCalculateRoute}
+                disabled={isRouteCalculating}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '10px',
+                  padding: '11px 18px',
+                  fontSize: '14px',
+                  fontWeight: 800,
+                  cursor: isRouteCalculating ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 4px 12px rgba(234, 88, 12, 0.28)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <i className={`fa-solid ${isRouteCalculating ? 'fa-spinner fa-spin' : 'fa-magnifying-glass-location'}`}></i>
+                <span>{isRouteCalculating ? 'Calculating Vehicle Route...' : `Search Route for ${mode === 'bike' ? 'Bike' : mode === 'auto' ? 'Auto' : 'Car'}`}</span>
+              </button>
 
+              {(pickup || dropoff) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPickup('');
+                    setDropoff('');
+                    setPickupCoords(null);
+                    setDropCoords(null);
+                    setStops([]);
+                    setRouteState({
+                      origin: null,
+                      destination: null,
+                      stops: [],
+                      distanceKm: null,
+                      durationMin: null,
+                      durationText: ''
+                    });
+                  }}
+                  style={{
+                    background: '#f1f5f9',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    padding: '11px 14px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#64748b',
+                    cursor: 'pointer'
+                  }}
+                  title="Clear Locations"
+                >
+                  <i className="fa-solid fa-rotate-left"></i>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -680,8 +955,8 @@ export default function RideBookingView({
           {/* Map Top Bar */}
           <div className="rb-map-top-bar">
             <div className="rb-map-header-left">
-              <i className="fa-solid fa-map-location-dot" style={{ color: '#ea580c' }}></i>
-              <span>Google Maps Live Road Navigation</span>
+              <i className={mode === 'bike' ? 'fa-solid fa-motorcycle' : mode === 'auto' ? 'fa-solid fa-taxi' : 'fa-solid fa-car'} style={{ color: '#ea580c' }}></i>
+              <span>{mode.toUpperCase()} Live Road Navigation</span>
               {isRouteCalculating && <span className="rb-calculating-spinner"><i className="fa-solid fa-spinner fa-spin"></i> Calculating Route...</span>}
               {!isRouteCalculating && routeState.distanceKm !== null && (
                 <span className="rb-live-dist-pill" style={{
@@ -714,15 +989,100 @@ export default function RideBookingView({
             </a>
           </div>
 
-          {/* Interactive Map Canvas Container (Full width, 280px height with clean Google Maps Road View) */}
-          <div className="rb-interactive-map-canvas" style={{ width: '100%', height: '280px' }}>
-            <iframe
-              title="Google Maps Live Navigation"
-              className="rb-map-iframe-google"
-              src={getGoogleMapsEmbedUrl()}
-              loading="lazy"
-              allowFullScreen
+          {/* Interactive Map Canvas Container: Interactive Leaflet Map with Click selection, Green Pickup Pin, Red Dropping Pin, Route Polyline and Live Nearby Captains */}
+          <div className="rb-interactive-map-canvas" style={{ width: '100%', height: '360px', position: 'relative' }}>
+            <InteractiveRideMap
+              mode={mode as 'bike' | 'auto' | 'car'}
+              pickupCoords={pickupCoords}
+              dropCoords={dropCoords}
+              pickupAddress={pickup}
+              dropAddress={dropoff}
+              selectionMode={mapSelectionMode}
+              onSelectLocation={handleDirectMapLocationSelect}
+              nearbyCaptains={backendDrivers}
+              routeGeometry={routeGeometry}
             />
+
+            {/* Live Captain Moving Overlay on the Road Map when Ride is Booked / Arriving (matches Screenshot 1) */}
+            {rideBookedModal && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '16px',
+                  left: '16px',
+                  background: '#ffffff',
+                  borderRadius: '24px',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.18)',
+                  padding: '8px 14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  zIndex: 20,
+                  fontSize: '12.5px',
+                  fontWeight: 800,
+                  color: '#0f172a'
+                }}
+              >
+                <div style={{ width: '9px', height: '9px', borderRadius: '50%', background: '#16a34a', boxShadow: '0 0 0 4px rgba(22, 163, 74, 0.25)' }}></div>
+                <span>Your Pick Up</span>
+                <span style={{ color: '#64748b', fontWeight: 600, maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {pickup || 'Current Spot'}
+                </span>
+                <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px', color: '#94a3b8' }}></i>
+              </div>
+            )}
+
+            {rideBookedModal && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: `${Math.max(20, Math.min(65, 20 + captainProgress * 0.45))}%`,
+                  left: `${Math.max(25, Math.min(60, 25 + captainProgress * 0.35))}%`,
+                  zIndex: 25,
+                  transform: 'translate(-50%, -50%)',
+                  transition: 'all 1s ease',
+                  pointerEvents: 'none'
+                }}
+              >
+                <div style={{
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center'
+                }}>
+                  <div style={{
+                    background: '#0f172a',
+                    color: '#ffffff',
+                    fontSize: '10px',
+                    fontWeight: 800,
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
+                    marginBottom: '4px'
+                  }}>
+                    {rideBookedModal.captain?.split(' ')[0]} • {captainStatus === 'arriving' ? `${Math.max(1, 3 - Math.floor(captainProgress / 35))} min` : 'Arrived'}
+                  </div>
+                  <img
+                    src={
+                      mode === 'bike'
+                        ? '/images/white_bike.png'
+                        : mode === 'auto'
+                          ? '/images/auto_green_yellow.png'
+                          : '/images/cab_economy.png'
+                    }
+                    alt="Captain Vehicle"
+                    style={{
+                      width: '42px',
+                      height: '42px',
+                      objectFit: 'contain',
+                      filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.35))',
+                      transform: 'rotate(-25deg)'
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Error Message if Directions fails */}
@@ -788,26 +1148,83 @@ export default function RideBookingView({
 
         {/* SHOW DISTANCE BELOW THE VEHICLES: SUMMARY BAR */}
         {routeState.distanceKm !== null ? (
-          <div className="rb-distance-summary-bar">
-            <div className="rb-dist-sum-item">
-              <i className="fa-solid fa-route"></i>
-              <span>Distance: <strong>{routeState.distanceKm} km</strong></span>
+          <>
+            <div className="rb-distance-summary-bar">
+              <div className="rb-dist-sum-item">
+                <i className="fa-solid fa-route"></i>
+                <span>Distance: <strong>{routeState.distanceKm} km</strong></span>
+              </div>
+              <div className="rb-dist-sum-divider">•</div>
+              <div className="rb-dist-sum-item">
+                <i className="fa-solid fa-clock"></i>
+                <span>Time: <strong>{routeState.durationText}</strong></span>
+              </div>
+              {stops.length > 0 && (
+                <>
+                  <div className="rb-dist-sum-divider">•</div>
+                  <div className="rb-dist-sum-item">
+                    <i className="fa-solid fa-location-dot"></i>
+                    <span>Stops: <strong>{stops.length} included</strong></span>
+                  </div>
+                </>
+              )}
             </div>
-            <div className="rb-dist-sum-divider">•</div>
-            <div className="rb-dist-sum-item">
-              <i className="fa-solid fa-clock"></i>
-              <span>Time: <strong>{routeState.durationText}</strong></span>
-            </div>
-            {stops.length > 0 && (
-              <>
-                <div className="rb-dist-sum-divider">•</div>
-                <div className="rb-dist-sum-item">
-                  <i className="fa-solid fa-location-dot"></i>
-                  <span>Stops: <strong>{stops.length} included</strong></span>
+
+            {/* ⛽ Dynamic Fuel & Mileage Metrics based on Distance and Location Daily Rate */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              padding: '12px 18px',
+              marginTop: '12px',
+              fontSize: '13px',
+              color: '#334155',
+              flexWrap: 'wrap',
+              gap: '12px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <i className="fa-solid fa-gas-pump" style={{ color: '#ea580c', fontSize: '18px' }}></i>
+                <div>
+                  <div style={{ fontWeight: 800, color: '#0f172a' }}>
+                    Fuel Economy: {mode === 'bike' ? '45 km/L (Petrol)' : mode === 'auto' ? '28 km/kg (CNG)' : '18 km/L (Petrol)'}
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#64748b' }}>
+                    Rate in {backendFuelData?.city || (pickup ? pickup.split(',')[0].trim() : 'Location')}: ₹{backendFuelData?.fuelSpecs?.fuelPricePerUnit ? backendFuelData.fuelSpecs.fuelPricePerUnit.toFixed(2) : (mode === 'auto' ? '99.50' : '107.76')} per {mode === 'auto' ? 'kg' : 'Liter'}
+                  </div>
                 </div>
-              </>
-            )}
-          </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                <div style={{ fontSize: '12.5px' }}>
+                  Estimated Consumption: <strong style={{ color: '#0f172a' }}>{backendFuelData?.fuelSpecs?.fuelConsumed || `${(routeState.distanceKm / (mode === 'bike' ? 45 : mode === 'auto' ? 28 : 18)).toFixed(2)} ${mode === 'auto' ? 'kgs' : 'Liters'}`}</strong>
+                </div>
+                <div style={{
+                  background: '#dcfce7',
+                  color: '#15803d',
+                  padding: '4px 10px',
+                  borderRadius: '8px',
+                  fontWeight: 800,
+                  fontSize: '13px'
+                }}>
+                  Fuel Cost: {backendFuelData?.fuelSpecs?.fuelCostEstimate || `₹${((routeState.distanceKm / (mode === 'bike' ? 45 : mode === 'auto' ? 28 : 18)) * (mode === 'auto' ? 99.50 : 107.76)).toFixed(1)}`}
+                </div>
+                <div style={{
+                  fontSize: '11.5px',
+                  color: '#475569',
+                  background: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  padding: '3px 8px'
+                }}>
+                  ⏱️ Speed: {mode === 'bike' ? '3 to 4 mins' : mode === 'auto' ? '2 to 3 mins' : '2 to 4 mins'} per km
+                </div>
+              </div>
+            </div>
+          </>
         ) : (
           <div className="rb-distance-summary-bar empty">
             <i className="fa-solid fa-info-circle"></i>
@@ -831,81 +1248,6 @@ export default function RideBookingView({
           Continue Booking & View Itinerary (₹ {currentVehicleData.fare})
         </button>
       </div>
-
-      {/* ================= PICK ON MAP MODAL ================= */}
-      {pickerTarget && (
-        <div className="rb-picker-modal-overlay" onClick={() => setPickerTarget(null)}>
-          <div className="rb-picker-modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="rb-picker-modal-header">
-              <div className="rb-picker-title">
-                <i className="fa-solid fa-map-pin"></i>
-                <span>
-                  Pin {pickerTarget === 'pickup' ? 'Pickup Location' : pickerTarget === 'drop' ? 'Dropping Location' : 'Stopping Point'}
-                </span>
-              </div>
-              <button
-                type="button"
-                className="rb-picker-close-btn"
-                onClick={() => setPickerTarget(null)}
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="rb-picker-map-wrapper" onClick={handlePickerMapCanvasClick}>
-              {/* Clean Google Maps Canvas for Picking Location */}
-              <iframe
-                title="Google Maps Location Picker"
-                className="rb-picker-map-canvas"
-                src={`https://maps.google.com/maps?q=${pickerCoords.lat},${pickerCoords.lng}&z=15&output=embed`}
-                style={{ border: 0, pointerEvents: 'none' }}
-              />
-              {/* Fixed Center Pin Overlay */}
-              <div className="rb-picker-centre-pin">
-                <div className="rb-picker-pin-head">
-                  <div className="rb-picker-pin-inner"></div>
-                </div>
-                <div className="rb-picker-pin-point"></div>
-              </div>
-              <div className="rb-picker-canvas-hint">
-                Click anywhere on map to reposition pin
-              </div>
-            </div>
-
-            <div className="rb-picker-footer">
-              <div className="rb-picker-address-box">
-                <div className="rb-picker-address-title">Selected Address:</div>
-                <div className="rb-picker-address-text">
-                  {isGeocodingPicker ? (
-                    <span><i className="fa-solid fa-spinner fa-spin"></i> Resolving address...</span>
-                  ) : (
-                    pickerAddress
-                  )}
-                </div>
-                <div className="rb-picker-coords-text">
-                  Coordinates: {pickerCoords.lat.toFixed(5)}, {pickerCoords.lng.toFixed(5)}
-                </div>
-              </div>
-              <div className="rb-picker-btn-row">
-                <button
-                  type="button"
-                  className="rb-picker-cancel-btn"
-                  onClick={() => setPickerTarget(null)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="rb-picker-confirm-btn"
-                  onClick={handleConfirmPickerLocation}
-                >
-                  Confirm Location
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ================= ITINERARY MODAL POPUP ================= */}
       {showConfirmModal && (
@@ -988,16 +1330,153 @@ export default function RideBookingView({
               <button
                 type="button"
                 className="rb-modal-confirm-btn"
-                onClick={() => {
+                onClick={async () => {
                   setShowConfirmModal(false);
+                  const selectedDriver = backendDrivers.length > 0 ? backendDrivers[0] : null;
+                  const captainName = selectedDriver ? `${selectedDriver.driverName} (${selectedDriver.vehicleModel || 'SART Partner'})` : 'Karthik Raja (Super Captain)';
+                  const plateNum = selectedDriver ? selectedDriver.plateNumber : (mode === 'bike' ? 'TN 09 BX 4281' : mode === 'auto' ? 'TN 05 AT 9821' : 'TN 01 CB 7741');
+                  const otpCode = `${Math.floor(1000 + Math.random() * 9000)}`;
+
+                  const riderDisplay = bookingFor === 'others' && otherRiderName.trim()
+                    ? `${otherRiderName.trim()} (${otherRiderPhone || 'Rider'})`
+                    : 'Myself';
+
+                  // Trigger backend booking API
+                  let createdBookingId = null;
+                  try {
+                    const createRes = await fetch('http://localhost:5000/api/bookings', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        title: `${mode.toUpperCase()} Ride Booking`,
+                        type: 'ride',
+                        subType: mode,
+                        cost: currentVehicleData.fare,
+                        pickupLoc: pickup || 'Live GPS User Spot',
+                        dropLoc: dropoff || 'MG Road, Bengaluru',
+                        details: `Captain: ${captainName} • OTP: ${otpCode} • Booked for: ${riderDisplay}`,
+                        extraData: {
+                          captain: captainName,
+                          plate: plateNum,
+                          otp: otpCode,
+                          stops,
+                          bookingFor,
+                          riderName: otherRiderName,
+                          riderPhone: otherRiderPhone,
+                          vehicleType: mode,
+                          pickupDist: '1.2 km',
+                          pickupTime: '4 mins',
+                          userLat: pickupCoords?.lat || 13.0827,
+                          userLng: pickupCoords?.lng || 80.2755,
+                          dropLat: dropCoords?.lat || 13.0600,
+                          dropLng: dropCoords?.lng || 80.2200
+                        }
+                      })
+
+                    });
+                    if (createRes.ok) {
+                      const resData = await createRes.json();
+                      if (resData.data && resData.data.id) {
+                        createdBookingId = resData.data.id;
+                      }
+                    }
+                  } catch (e) {
+                    console.log('Backend sync offline/fallback');
+                  }
+
+                  // Join socket room for this booking and broadcast to business captains
+                  if (socketRef && createdBookingId) {
+                    socketRef.emit('join_booking', createdBookingId);
+                    socketRef.emit('new_booking_created', {
+                      id: createdBookingId,
+                      category: mode.charAt(0).toUpperCase() + mode.slice(1),
+                      fare: currentVehicleData.fare,
+                      pickupLoc: pickup || 'Pickup Point',
+                      dropLoc: dropoff || 'Drop Point',
+                      userLat: pickupCoords?.lat || 13.0827,
+                      userLng: pickupCoords?.lng || 80.2755,
+                      otp: otpCode
+                    });
+                  }
+
+                  // Initially waiting for captain response
+                  setCaptainStatus('searching');
+                  setCaptainProgress(0);
+
                   setRideBookedModal({
+                    id: createdBookingId,
                     type: currentVehicleData.title,
-                    captain: 'Karthik Raja (Super Captain)',
-                    plate: mode === 'bike' ? 'TN 09 BX 4281' : mode === 'auto' ? 'TN 05 AT 9821' : 'TN 01 CB 7741',
-                    otp: `${Math.floor(1000 + Math.random() * 9000)}`,
+                    captain: 'Connecting with nearby Captain...',
+                    plate: 'Waiting for acceptance...',
+                    otp: otpCode,
                     fare: currentVehicleData.fare,
-                    eta: '3 mins'
+                    eta: 'Radar active...',
+                    distanceToCaptain: 'Notifying captains nearby...',
+                    isAcceptedByCaptain: false
                   });
+
+                  // Poll backend every 2 seconds to check if captain accepted this booking
+                  let pollCount = 0;
+                  const pollInterval = setInterval(async () => {
+                    pollCount++;
+                    if (createdBookingId) {
+                      try {
+                        const checkRes = await fetch(`http://localhost:5000/api/bookings/${createdBookingId}`);
+                        if (checkRes.ok) {
+                          const checkData = await checkRes.json();
+                          const b = checkData.data;
+                          if (b && (b.status === 'Accepted' || b.status === 'In-Trip')) {
+                            let parsed: any = {};
+                            try {
+                              parsed = typeof b.extraData === 'string' ? JSON.parse(b.extraData) : (b.extraData || {});
+                            } catch (e) { }
+
+                            setCaptainStatus(b.status === 'In-Trip' ? 'arrived' : 'accepted');
+                            setRideBookedModal((prev: any) => ({
+                              ...prev,
+                              captain: parsed.captainName || 'Sai (Star Captain)',
+                              plate: parsed.vehiclePlate || 'TN 09 EQ 4421',
+                              phone: parsed.captainPhone || '+91 98765 43210',
+                              eta: parsed.pickupTime || '3 mins away',
+                              distanceToCaptain: parsed.pickupDist ? `${parsed.pickupDist} from you` : '0.8 km from you',
+                              isAcceptedByCaptain: true
+                            }));
+                            clearInterval(pollInterval);
+                            return;
+                          }
+                        }
+                      } catch (err) { }
+                    }
+
+                    // Fallback only after 45 seconds if no captain accepted manually
+                    if (pollCount >= 22) {
+                      clearInterval(pollInterval);
+                      setCaptainStatus('arriving');
+                      setRideBookedModal((prev: any) => ({
+                        ...prev,
+                        captain: captainName,
+                        plate: plateNum,
+                        eta: '3 mins',
+                        distanceToCaptain: '1.2 km from you',
+                        isAcceptedByCaptain: true
+                      }));
+                    }
+                  }, 2000);
+
+
+                  // Progressively move captain on road towards user over 15 seconds
+                  let prog = 0;
+                  const intv = setInterval(() => {
+                    prog += 12;
+                    if (prog >= 100) {
+                      prog = 100;
+                      setCaptainProgress(100);
+                      setCaptainStatus('arrived');
+                      clearInterval(intv);
+                    } else {
+                      setCaptainProgress(prog);
+                    }
+                  }, 1200);
                 }}
               >
                 Confirm & Request Captain
@@ -1007,57 +1486,428 @@ export default function RideBookingView({
         </div>
       )}
 
-      {/* Ride Booked Success Modal */}
+      {/* 🌟 Realistic Live Captain Tracking & Communication Modal (Matching User's Screenshots Exactly) */}
       {rideBookedModal && (
-        <div className="rb-modal-overlay">
-          <div className="rb-modal-card success">
-            <div className="rb-modal-header success">
-              <div>
-                <h3 className="rb-modal-title">Ride Confirmed!</h3>
-                <span className="rb-modal-sub">Captain is arriving in {rideBookedModal.eta}</span>
+        <div className="rb-captain-tracking-backdrop" style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          top: 0,
+          background: 'rgba(15, 23, 42, 0.45)',
+          zIndex: 9999,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          backdropFilter: 'blur(3px)'
+        }}>
+          {/* Bottom Sheet Card */}
+          <div style={{
+            background: '#ffffff',
+            borderTopLeftRadius: '24px',
+            borderTopRightRadius: '24px',
+            width: '100%',
+            maxWidth: '540px',
+            maxHeight: '92vh',
+            overflowY: 'auto',
+            boxShadow: '0 -10px 40px rgba(0,0,0,0.22)',
+            padding: '16px 20px 24px 20px',
+            position: 'relative',
+            animation: 'rbSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}>
+            {/* Grab Handle */}
+            <div style={{
+              width: '40px',
+              height: '4px',
+              background: '#cbd5e1',
+              borderRadius: '2px',
+              margin: '0 auto 14px auto'
+            }}></div>
+
+            {/* OTP Header Section (matches user screenshot: "Start your order with PIN:XXXX") */}
+            <div style={{
+              textAlign: 'center',
+              borderBottom: '1px solid #f1f5f9',
+              paddingBottom: '14px',
+              marginBottom: '16px'
+            }}>
+              <span style={{ fontSize: '15px', color: '#0f172a', fontWeight: 800 }}>
+                Start your order with PIN: <strong style={{ color: '#0f172a', letterSpacing: '1px', fontSize: '18px' }}>{rideBookedModal.otp}</strong>
+              </span>
+              <div style={{ fontSize: '12px', color: '#16a34a', fontWeight: 700, marginTop: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                <span className="pulse-dot"></span>
+                <span>Captain is arriving • Live on road</span>
               </div>
+            </div>
+
+            {/* Captain Profile Card & Call Button (matches user screenshot 1) */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: '16px',
+              padding: '12px 16px',
+              marginBottom: '14px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{
+                  width: '52px',
+                  height: '52px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#ffffff',
+                  fontSize: '24px',
+                  boxShadow: '0 4px 10px rgba(234, 88, 12, 0.3)'
+                }}>
+                  <i className="fa-solid fa-user"></i>
+                </div>
+                <div>
+                  <div style={{ fontSize: '15px', fontWeight: 900, color: '#0f172a' }}>
+                    {rideBookedModal.captain}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: '#64748b', marginTop: '2px' }}>
+                    <span style={{ fontWeight: 800, color: '#0f172a' }}>4.8</span>
+                    <i className="fa-solid fa-star" style={{ color: '#eab308', fontSize: '11px' }}></i>
+                    <span>• {rideBookedModal.type} ({rideBookedModal.plate})</span>
+                  </div>
+                  {/* Distance from Captain to User */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 800, color: '#16a34a', marginTop: '3px' }}>
+                    <i className="fa-solid fa-route"></i>
+                    <span>{rideBookedModal.distanceToCaptain || '0.8 km from you'} ({rideBookedModal.eta || '3 mins'})</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call Driver Button (Black circle with yellow phone icon matching Screenshot 1) */}
               <button
                 type="button"
-                className="rb-modal-close-btn"
-                onClick={() => setRideBookedModal(null)}
+                onClick={() => setCallActive(prev => !prev)}
+                title="Call Captain"
+                style={{
+                  width: '46px',
+                  height: '46px',
+                  borderRadius: '50%',
+                  background: '#000000',
+                  border: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+                  transition: 'transform 0.15s ease'
+                }}
               >
-                <i className="fa-solid fa-xmark"></i>
+                <i className="fa-solid fa-phone" style={{ color: '#facc15', fontSize: '18px' }}></i>
               </button>
             </div>
-            <div className="rb-modal-content">
-              <div className="rb-success-summary-box">
-                <div className="rb-success-row">
-                  <span>Vehicle:</span>
-                  <strong>{rideBookedModal.type}</strong>
+
+            {/* Calling Active Bar */}
+            {callActive && (
+              <div style={{
+                background: '#ecfdf5',
+                border: '1px solid #a7f3d0',
+                borderRadius: '12px',
+                padding: '10px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '14px',
+                fontSize: '13px',
+                color: '#065f46'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <i className="fa-solid fa-phone-volume fa-shake" style={{ color: '#10b981' }}></i>
+                  <span>Calling {rideBookedModal.captain}... (Connecting via secure line)</span>
                 </div>
-                <div className="rb-success-row">
-                  <span>Captain:</span>
-                  <strong>{rideBookedModal.captain}</strong>
-                </div>
-                <div className="rb-success-row">
-                  <span>Number Plate:</span>
-                  <strong>{rideBookedModal.plate}</strong>
-                </div>
-                <div className="rb-success-row otp">
-                  <span>Start Ride OTP:</span>
-                  <strong className="rb-otp-code">{rideBookedModal.otp}</strong>
-                </div>
-                <div className="rb-success-row total">
-                  <span>Total Fare:</span>
-                  <strong className="rb-total-fare">₹ {rideBookedModal.fare}</strong>
-                </div>
+                <button
+                  onClick={() => setCallActive(false)}
+                  style={{ background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}
+                >
+                  End Call
+                </button>
               </div>
+            )}
+
+            {/* Pickup Instructions Input Row (matches Screenshot 1) */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              background: '#f1f5f9',
+              borderRadius: '24px',
+              padding: '8px 16px',
+              marginBottom: '16px'
+            }}>
+              <i className="fa-regular fa-file-lines" style={{ color: '#64748b', fontSize: '15px' }}></i>
+              <input
+                type="text"
+                value={pickupInstruction}
+                onChange={(e) => setPickupInstruction(e.target.value)}
+                placeholder="Any pickup instructions ?"
+                style={{
+                  border: 'none',
+                  background: 'transparent',
+                  outline: 'none',
+                  fontSize: '13px',
+                  color: '#0f172a',
+                  width: '100%'
+                }}
+              />
               <button
                 type="button"
-                className="rb-modal-confirm-btn full"
-                onClick={() => setRideBookedModal(null)}
+                onClick={() => setShowChatModal(true)}
+                title="Chat with Captain"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#ea580c',
+                  fontSize: '16px',
+                  cursor: 'pointer',
+                  padding: '2px'
+                }}
               >
-                Done
+                <i className="fa-solid fa-comment-dots"></i>
+              </button>
+            </div>
+
+            {/* Card Details: Pickup & Drop matching Screenshot 2 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
+              {/* Pickup details box */}
+              <div style={{
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                padding: '12px 14px'
+              }}>
+                <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Pickup details</div>
+                <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
+                  {pickup || 'Current GPS Spot'}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px', fontSize: '12px', color: '#4f46e5', fontWeight: 700 }}>
+                  <span style={{ cursor: 'pointer' }}><i className="fa-solid fa-pen"></i> Edit location</span>
+                  <span style={{ cursor: 'pointer' }}><i className="fa-regular fa-heart"></i> Add as Favorite</span>
+                </div>
+              </div>
+
+              {/* Drop details box */}
+              <div style={{
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                padding: '12px 14px'
+              }}>
+                <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Drop details</div>
+                <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
+                  {dropoff || 'Selected Destination'}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px', fontSize: '12px', color: '#4f46e5', fontWeight: 700 }}>
+                  <span style={{ cursor: 'pointer' }}><i className="fa-solid fa-pen"></i> Edit location</span>
+                  <span style={{ cursor: 'pointer' }}><i className="fa-regular fa-heart"></i> Add as Favorite</span>
+                </div>
+              </div>
+
+              {/* Payment Box (matches Screenshot 2: Ride Fare ₹48 ₹39, QR Pay) */}
+              <div style={{
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                padding: '12px 14px'
+              }}>
+                <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Payment</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>Ride Fare</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '13px' }}>
+                      ₹{Math.round(rideBookedModal.fare * 1.25)}
+                    </span>
+                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#0f172a' }}>
+                      ₹{rideBookedModal.fare}
+                    </span>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', fontSize: '12.5px', color: '#0f172a', fontWeight: 700 }}>
+                  <i className="fa-solid fa-qrcode" style={{ color: '#0284c7' }}></i>
+                  <span>QR Pay / UPI on arrival</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Cancel & Done Bottom Actions (matches Screenshot 2 Cancel button) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={() => setRideBookedModal(null)}
+                style={{
+                  flex: 1,
+                  background: '#ffffff',
+                  border: '1.5px solid #f87171',
+                  borderRadius: '24px',
+                  padding: '12px 20px',
+                  color: '#dc2626',
+                  fontWeight: 800,
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                Cancel Ride
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowChatModal(true)}
+                style={{
+                  flex: 1,
+                  background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+                  border: 'none',
+                  borderRadius: '24px',
+                  padding: '12px 20px',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 12px rgba(234, 88, 12, 0.3)'
+                }}
+              >
+                <i className="fa-solid fa-comments"></i>
+                <span>Chat Captain</span>
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* 💬 Live Communication Chat Modal with Captain */}
+      {showChatModal && rideBookedModal && (
+        <div className="rb-modal-overlay" style={{ zIndex: 100000 }} onClick={() => setShowChatModal(false)}>
+          <div
+            className="rb-modal-card"
+            style={{ maxWidth: '440px', height: '520px', display: 'flex', flexDirection: 'column', padding: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Chat Header */}
+            <div style={{
+              padding: '14px 18px',
+              background: '#0f172a',
+              color: '#ffffff',
+              borderTopLeftRadius: '16px',
+              borderTopRightRadius: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#ea580c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <i className="fa-solid fa-user-shield"></i>
+                </div>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 800 }}>{rideBookedModal.captain}</div>
+                  <div style={{ fontSize: '11px', color: '#4ade80' }}>Online • Driving towards you</div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowChatModal(false)}
+                style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '18px', cursor: 'pointer' }}
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            {/* Chat Body */}
+            <div style={{ flex: 1, padding: '16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', background: '#f8fafc' }}>
+              <div style={{ alignSelf: 'flex-start', background: '#e2e8f0', color: '#0f172a', padding: '8px 12px', borderRadius: '12px', fontSize: '13px', maxWidth: '80%' }}>
+                Hello! I have accepted your {mode} ride request. I am on the road and arriving in ~3 mins.
+                <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', textAlign: 'right' }}>Just now</div>
+              </div>
+
+              {chatMessages.map((msg, i) => (
+                <div
+                  key={i}
+                  style={{
+                    alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                    background: msg.sender === 'user' ? '#ea580c' : '#e2e8f0',
+                    color: msg.sender === 'user' ? '#ffffff' : '#0f172a',
+                    padding: '8px 12px',
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    maxWidth: '80%'
+                  }}
+                >
+                  {msg.text}
+                  <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '2px', textAlign: 'right' }}>{msg.time}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Chat Footer Input */}
+            <div style={{ padding: '12px 14px', background: '#ffffff', borderTop: '1px solid #e2e8f0', display: 'flex', gap: '8px' }}>
+              <input
+                type="text"
+                value={chatInputText}
+                onChange={(e) => setChatInputText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && chatInputText.trim()) {
+                    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const msgPayload = {
+                      bookingId: rideBookedModal.id,
+                      sender: 'user' as const,
+                      text: chatInputText.trim(),
+                      time
+                    };
+                    setChatMessages(prev => [...prev, msgPayload]);
+                    if (socketRef && rideBookedModal.id) {
+                      socketRef.emit('send_chat_message', msgPayload);
+                    }
+                    setChatInputText('');
+                  }
+                }}
+                placeholder="Type a message to captain or ask AI assistant..."
+                style={{ flex: 1, border: '1px solid #cbd5e1', borderRadius: '20px', padding: '8px 14px', outline: 'none', fontSize: '13px' }}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (!chatInputText.trim()) return;
+                  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                  const msgPayload = {
+                    bookingId: rideBookedModal.id,
+                    sender: 'user' as const,
+                    text: chatInputText.trim(),
+                    time
+                  };
+                  setChatMessages(prev => [...prev, msgPayload]);
+                  if (socketRef && rideBookedModal.id) {
+                    socketRef.emit('send_chat_message', msgPayload);
+                  }
+                  setChatInputText('');
+                }}
+                style={{ background: '#ea580c', color: '#ffffff', border: 'none', borderRadius: '50%', width: '38px', height: '38px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <i className="fa-solid fa-paper-plane"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      {/* Captain Business Portal Modal (Registration & OTP Authentication) */}
+      <CaptainBusinessPortalModal
+        isOpen={showCaptainPortal}
+        onClose={() => setShowCaptainPortal(false)}
+        category={mode}
+      />
     </div>
   );
 }

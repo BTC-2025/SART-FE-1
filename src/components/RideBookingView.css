@@ -25,8 +25,77 @@
   border-radius: 12px;
   padding: 12px 18px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 12px;
+}
+
+.rb-header-vehicle-image-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-height: 60px;
+  height: auto;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rb-header-vehicle-image-wrapper:hover {
+  background: #fff7ed;
+  transform: translateY(-1px);
+}
+
+.rb-header-bike-img {
+  height: 56px;
+  max-width: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.12));
+  transition: transform 0.2s ease;
+}
+
+.rb-header-vehicle-image-wrapper:hover .rb-header-bike-img {
+  transform: scale(1.06);
+}
+
+.rb-header-captain-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.rb-header-safety-hero-img {
+  width: 58px;
+  height: 52px;
+  object-fit: contain;
+  border-radius: 8px;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.12));
+  transition: transform 0.2s ease;
+}
+
+.rb-header-vehicle-image-wrapper:hover .rb-header-safety-hero-img {
+  transform: scale(1.08);
+}
+
+.rb-captain-badge-pill {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #ea580c;
+  background: #ffedd5;
+  border: 1px solid #fed7aa;
+  padding: 3px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(234, 88, 12, 0.1);
 }
 
 .rb-header-left {

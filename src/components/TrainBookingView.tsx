@@ -5,6 +5,9 @@ import { usePathname, useRouter } from 'next/navigation';
 import './TrainBookingView.css';
 import BusBookingView from './BusBookingView';
 import RideBookingView from './RideBookingView';
+import BikeBookingView from './BikeBookingView';
+import AutoBookingView from './AutoBookingView';
+import CarBookingView from './CarBookingView';
 import FlightBookingView from './FlightBookingView';
 import HelicopterBookingView from './helicopter/HelicopterBookingView';
 import TrainPassengerDetailsModal, { TrainPassenger } from './TrainPassengerDetails';
@@ -30,12 +33,12 @@ export type RideMode = 'bike' | 'auto' | 'car' | 'bus' | 'train' | 'flight' | 'h
 export function getRideModeFromPath(urlPath?: string, fallbackMode?: RideMode): RideMode {
   if (typeof window !== 'undefined') {
     const sp = new URLSearchParams(window.location.search);
-    const m = sp.get('mode')?.toLowerCase();
+    const m = (sp.get('mode') || sp.get('vehicle'))?.toLowerCase();
     if (m === 'helicopter' || m === 'heli' || m === 'chopper') return 'helicopter';
     if (m === 'flight' || m === 'filght') return 'flight';
     if (m === 'bus') return 'bus';
     if (m === 'train') return 'train';
-    if (m === 'car') return 'car';
+    if (m === 'car' || m === 'cab') return 'car';
     if (m === 'auto') return 'auto';
     if (m === 'bike' || m === 'bick') return 'bike';
   }
@@ -44,13 +47,15 @@ export function getRideModeFromPath(urlPath?: string, fallbackMode?: RideMode): 
     ? window.location.pathname
     : (urlPath || '');
   const lower = p.toLowerCase();
-  if (lower.includes('/helicopter') || lower.includes('/heli') || lower.includes('/chopper')) return 'helicopter';
-  if (lower.includes('/bus')) return 'bus';
-  if (lower.includes('/flight') || lower.includes('/filght')) return 'flight';
-  if (lower.includes('/car')) return 'car';
-  if (lower.includes('/bike') || lower.includes('/bick')) return 'bike';
-  if (lower.includes('/auto')) return 'auto';
-  if (lower.includes('/train')) return 'train';
+
+  // Test exact segments or path ends to avoid false positive matching (e.g. carrier contains car)
+  if (/(?:^|\/)helicopter(?:\/|$|\?)/.test(lower) || /(?:^|\/)heli(?:\/|$|\?)/.test(lower) || /(?:^|\/)chopper(?:\/|$|\?)/.test(lower)) return 'helicopter';
+  if (/(?:^|\/)bus(?:\/|$|\?)/.test(lower)) return 'bus';
+  if (/(?:^|\/)flight(?:\/|$|\?)/.test(lower) || /(?:^|\/)filght(?:\/|$|\?)/.test(lower)) return 'flight';
+  if (/(?:^|\/)car(?:\/|$|\?)/.test(lower) || /(?:^|\/)cab(?:\/|$|\?)/.test(lower)) return 'car';
+  if (/(?:^|\/)auto(?:\/|$|\?)/.test(lower)) return 'auto';
+  if (/(?:^|\/)bike(?:\/|$|\?)/.test(lower) || /(?:^|\/)bick(?:\/|$|\?)/.test(lower)) return 'bike';
+  if (/(?:^|\/)train(?:\/|$|\?)/.test(lower)) return 'train';
 
   if (fallbackMode) return fallbackMode;
   if (typeof window !== 'undefined') {
@@ -148,11 +153,9 @@ export default function TrainBookingView() {
   const [rideBookedModal, setRideBookedModal] = useState<any | null>(null);
 
   // Bike specific stops & vehicles state
-  const [bikePickup, setBikePickup] = useState('41EB, Thiruvallam, Tamil Nadu 632515, India');
-  const [bikeDestination, setBikeDestination] = useState('Central Square, Anna Salai, Chennai, Tamil Nadu 600002');
-  const [bikeStops, setBikeStops] = useState<BikeStopItem[]>([
-    { id: 'stop-1', name: '41EB, Thiruvallam, Tamil Nadu 632515', purpose: 'Quick halt & parcel drop' }
-  ]);
+  const [bikePickup, setBikePickup] = useState('');
+  const [bikeDestination, setBikeDestination] = useState('');
+  const [bikeStops, setBikeStops] = useState<BikeStopItem[]>([]);
   const [newStopName, setNewStopName] = useState('');
   const [newStopPurpose, setNewStopPurpose] = useState('');
   const [showAddStopForm, setShowAddStopForm] = useState(false);
@@ -1846,18 +1849,13 @@ export default function TrainBookingView() {
         </div>
       ) : null}
 
-      {/* ---------------- Bike / Auto / Car Unified On-Demand Ride View ---------------- */}
-      {(activeMode === 'bike' || activeMode === 'auto' || activeMode === 'car') ? (
-        <RideBookingView
-          mode={activeMode as 'bike' | 'auto' | 'car'}
+      {/* ---------------- Bike / Scooty Dedicated On-Demand Ride View ---------------- */}
+      {activeMode === 'bike' && (
+        <BikeBookingView
           sourceLocation={formatStationName(source)}
           destinationLocation={formatStationName(destination)}
-          onSourceChange={(newSource) => {
-            setSource(newSource);
-          }}
-          onDestinationChange={(newDest) => {
-            setDestination(newDest);
-          }}
+          onSourceChange={(newSource) => setSource(newSource)}
+          onDestinationChange={(newDest) => setDestination(newDest)}
           onBackToHome={() => {
             setActiveTab('home');
             if (typeof window !== 'undefined') {
@@ -1866,7 +1864,41 @@ export default function TrainBookingView() {
             router.push('/home');
           }}
         />
-      ) : null}
+      )}
+
+      {/* ---------------- Auto Rickshaw Dedicated On-Demand Ride View ---------------- */}
+      {activeMode === 'auto' && (
+        <AutoBookingView
+          sourceLocation={formatStationName(source)}
+          destinationLocation={formatStationName(destination)}
+          onSourceChange={(newSource) => setSource(newSource)}
+          onDestinationChange={(newDest) => setDestination(newDest)}
+          onBackToHome={() => {
+            setActiveTab('home');
+            if (typeof window !== 'undefined') {
+              window.history.pushState(null, '', '/home');
+            }
+            router.push('/home');
+          }}
+        />
+      )}
+
+      {/* ---------------- Cab / Car Dedicated On-Demand Ride View ---------------- */}
+      {activeMode === 'car' && (
+        <CarBookingView
+          sourceLocation={formatStationName(source)}
+          destinationLocation={formatStationName(destination)}
+          onSourceChange={(newSource) => setSource(newSource)}
+          onDestinationChange={(newDest) => setDestination(newDest)}
+          onBackToHome={() => {
+            setActiveTab('home');
+            if (typeof window !== 'undefined') {
+              window.history.pushState(null, '', '/home');
+            }
+            router.push('/home');
+          }}
+        />
+      )}
       {/* ---------------- Flight Booking View ---------------- */}
       {activeMode === 'flight' && (
         <FlightBookingView

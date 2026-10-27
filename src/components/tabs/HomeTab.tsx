@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSartStore } from '@/store/useSartStore';
-import SubNavbar from '@/components/SubNavbar';
 import Showcase from '@/components/Showcase';
 import MapEngine from '@/components/MapEngine';
 import NewsFeed from '@/components/NewsFeed';
@@ -280,6 +279,15 @@ export default function HomeTab() {
   };
 
   const handleServiceClick = (tab: string) => {
+    if (tab === 'ride' || tab === 'rides') {
+      setActiveRideMode('bike');
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sart_active_ride_mode', 'bike');
+      }
+      setActiveTab('ride');
+      router.push('/home/ride/bike', { scroll: false });
+      return;
+    }
     setActiveTab(tab as any);
     router.push(`/home/${tab}`, { scroll: false });
   };
@@ -289,10 +297,6 @@ export default function HomeTab() {
 
       {/* 🖼️ New Panorama Hero Section */}
       <div className="new-hero-container">
-        {/* SubNavbar Overlay */}
-        <div className="hero-subnav-overlay">
-          <SubNavbar />
-        </div>
 
         {/* 🌟 Two Distinct Floating Cards (Category Tabs Card & Search Card) at bottom of Header */}
         <div className="hero-booking-cards-stack">
@@ -774,118 +778,82 @@ export default function HomeTab() {
           </div>
           <div className="book-service-inner-card">
             <div className="book-service-grid">
-              {/* 1. Road Rides */}
+              {/* 1. Road Rides (Enters Bike Ride Page by default) */}
               <div className="book-card" onClick={() => handleServiceClick('ride')}>
-                <h3 className="book-title" style={{ textAlign: 'center' }}>Rides</h3>
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '4px 0 10px 0' }}>
+                <div className="book-img-wrapper">
                   <img
                     src="/images/rides_fleet_showcase.png"
                     alt="Rides Fleet"
-                    style={{ width: '100%', height: 'auto', maxHeight: '110px', objectFit: 'contain', borderRadius: '8px' }}
+                    className="book-card-img"
                   />
                 </div>
-                <p className="book-desc">
-                  Book bikes, autos, cars, buses, trains, flights, and ships for local or long-distance travel.
-                </p>
-                {/* <p className="book-desc">Book taxis, autos, bikes, cars, buses, trains, flights, ships, and helicopters for local or long-distance travel. Choose your ride, check prices, and travel with ease.</p> */}
-                <div className="book-footer">
-
-                </div>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Rides</h3>
+                <div className="book-footer"></div>
               </div>
 
               {/* 2. Cargo & Logistics */}
               <div className="book-card" onClick={() => handleServiceClick('carrier')}>
-                <h3 className="book-title" style={{ textAlign: 'center' }}>Carrier</h3>
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '4px 0 10px 0' }}>
+                <div className="book-img-wrapper">
                   <img
                     src="/images/carrier_service.png"
                     alt="Carrier Logistics"
-                    style={{ width: '100%', height: 'auto', maxHeight: '110px', objectFit: 'contain', borderRadius: '8px' }}
+                    className="book-card-img"
                   />
                 </div>
-                <p className="book-desc">
-                  Send parcels and goods by bike, truck, train, ship, or air with easy booking and live tracking.
-                </p>
-                {/* <p className="book-desc">Send parcels, goods, and heavy loads using bikes, mini trucks, lorries, trains, ships, or air cargo. Compare prices, book a carrier, and track your delivery in real time.</p> */}
-                <div className="book-footer">
-
-                </div>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Carrier</h3>
+                <div className="book-footer"></div>
               </div>
 
               {/* 3. Vehicle Rental */}
               <div className="book-card" onClick={() => handleServiceClick('rental')}>
-                <h3 className="book-title" style={{ textAlign: 'center' }}>Vehicle Rental</h3>
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '4px 0 10px 0' }}>
+                <div className="book-img-wrapper">
                   <img
                     src="/images/vehicle_rental_fleet.png"
                     alt="Vehicle Rental"
-                    style={{ width: '100%', height: '110px', maxHeight: '110px', objectFit: 'contain', borderRadius: '8px' }}
+                    className="book-card-img"
                   />
                 </div>
-                <p className="book-desc">
-                  Rent bikes, cars, SUVs, and commercial vehicles by the hour or day.
-                </p>
-                {/* <p className="book-desc">Rent bikes, scooters, cars, SUVs, and commercial vehicles for a few hours, a day, or longer. Choose a vehicle that fits your needs and budget.</p> */}
-                <div className="book-footer">
-
-                </div>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Vehicle Rental</h3>
+                <div className="book-footer"></div>
               </div>
 
               {/* 4. Drivers Hire */}
               <div className="book-card" onClick={() => handleServiceClick('drivers')}>
-                <h3 className="book-title" style={{ textAlign: 'center' }}>Drivers Hire</h3>
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '4px 0 10px 0' }}>
+                <div className="book-img-wrapper">
                   <img
                     src="/images/drivers_service.png"
                     alt="Drivers Hire"
-                    style={{ width: '100%', height: 'auto', maxHeight: '110px', objectFit: 'contain', borderRadius: '8px' }}
+                    className="book-card-img"
                   />
                 </div>
-                <p className="book-desc">
-                  Hire verified drivers for your own vehicle, local trips, or outstation travel.
-                </p>
-                {/* <p className="book-desc">Hire a professional driver for your own car, bike, or other vehicle. Book a driver for local trips, outstation travel, or a full day.</p> */}
-                <div className="book-footer">
-
-                </div>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Drivers Hire</h3>
+                <div className="book-footer"></div>
               </div>
 
               {/* 5. Parking Slots */}
               <div className="book-card" onClick={() => handleServiceClick('parking')}>
-                <h3 className="book-title" style={{ textAlign: 'center' }}>Parking Slots</h3>
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '4px 0 10px 0' }}>
+                <div className="book-img-wrapper">
                   <img
                     src="/images/parking_service.jpg"
                     alt="Parking Slots"
-                    style={{ width: '100%', height: 'auto', maxHeight: '110px', objectFit: 'contain', borderRadius: '8px' }}
+                    className="book-card-img"
                   />
                 </div>
-                <p className="book-desc">
-                  Find and book available parking for bikes, cars, buses, and trucks.
-                </p>
-                {/* <p className="book-desc">Find and book parking spaces for bikes, cars, buses, and trucks near your destination. Check availability, view prices, and park with peace of mind.</p> */}
-                <div className="book-footer">
-
-                </div>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Parking Slots</h3>
+                <div className="book-footer"></div>
               </div>
 
               {/* 6. Communities */}
               <div className="book-card" onClick={() => handleServiceClick('community')}>
-                <h3 className="book-title" style={{ textAlign: 'center' }}>Communities</h3>
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '4px 0 10px 0' }}>
+                <div className="book-img-wrapper">
                   <img
                     src="/images/community_service.jpg"
                     alt="Communities"
-                    style={{ width: '100%', height: 'auto', maxHeight: '110px', objectFit: 'contain', borderRadius: '8px' }}
+                    className="book-card-img"
                   />
                 </div>
-                <p className="book-desc">
-                  Connect with drivers, vehicle owners, fleet operators, and transport unions.
-                </p>
-                {/* <p className="book-desc">Connect with drivers, vehicle owners, fleet operators, transport unions, and travellers. Share information, find transport support, and stay connected with your community.</p> */}
-                <div className="book-footer">
-
-                </div>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Communities</h3>
+                <div className="book-footer"></div>
               </div>
             </div>
           </div>

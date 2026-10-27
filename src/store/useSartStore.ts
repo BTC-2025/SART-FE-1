@@ -111,7 +111,7 @@ export const useSartStore = create<SartStore>()(
         set((state) => ({
           cart: state.cart.filter((i) => i.id !== itemId),
         })),
-        
+
       updateCartQuantity: (itemId, quantity) =>
         set((state) => ({
           cart: state.cart.map((i) =>
@@ -132,17 +132,17 @@ export const useSartStore = create<SartStore>()(
         }),
 
       setLocation: (loc) => set({ location: loc }),
-      
+
       setActiveBookingId: (id) => set({ activeBookingId: id }),
 
       setActiveTab: (tab) => {
         set({ activeTab: tab });
-        
+
         if (typeof window !== 'undefined') {
           // Cosmetic URL update logic
           let newUrl = '/';
           const topLevelTabs = ['store', 'booking', 'wallet', 'profile'];
-          
+
           if (topLevelTabs.includes(tab)) {
             newUrl = `/${tab}`;
           } else if (tab === 'ride') {
@@ -157,7 +157,7 @@ export const useSartStore = create<SartStore>()(
             // It's a sub-page of home (like carrier, rental, etc.)
             newUrl = `/home/${tab}`;
           }
-          
+
           if (window.location.pathname !== newUrl) {
             window.history.pushState({ tab }, '', newUrl);
           }

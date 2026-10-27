@@ -171,7 +171,7 @@ export default function StoreSparesHub({
   }, [combinedCatalog, appliedVehicleSearch, selectedCategoryId, selectedSubItem, budgetFilter, customTagFilter, search, activeDetailedCategories]);
 
   return (
-    <section className="boodmo-parts-view animate-pop">
+    <section className="">
       {/* 1. BOODMO VEHICLE FITMENT SELECTOR BAR: Type, Brand, Model, Year, Fuel (Default Empty Option) */}
       <div className="boodmo-fitment-selector-card">
         <div className="fitment-header-row">

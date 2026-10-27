@@ -779,39 +779,38 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
 
   return (
     <div style={{ display: 'flex', zIndex: 1000, background: '#ffffff', minHeight: '100%', width: '100%' }} onClick={handleClose}>
-      <div className="modal-sheet centered-modal" style={{ maxWidth: '1440px', width: '98%', height: '92vh', display: 'flex', flexDirection: 'column', backgroundColor: '#ffffff', borderRadius: '24px', overflow: 'hidden', transition: 'max-width 0.3s ease' }} onClick={e => e.stopPropagation()}>
+      <div className="modal-sheet centered-modal" style={{ maxWidth: '1440px', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#ffffff', borderRadius: '24px', overflow: 'hidden', transition: 'max-width 0.3s ease' }} onClick={e => e.stopPropagation()}>
 
         {/* Dummy div to absorb the globals.css >div:first-child { display: none } rule */}
         <div style={{ display: 'none' }}></div>
 
         {step === 1 && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', background: '#ffffff', borderBottom: '1px solid #e5e7eb' }}>
-            <div style={{ fontSize: '20px', fontWeight: '800', color: '#111827', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <i className="fa-solid fa-truck-fast" style={{ color: '#0ea5e9' }}></i> Cargo & Carrier Booking
-            </div>
-            <button
-              type="button"
-              onClick={handleClose}
-              style={{ background: 'transparent', border: 'none', fontSize: '20px', color: '#64748b', cursor: 'pointer', padding: '4px 8px' }}
-            >
-              <i className="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-        )}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '4px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
 
-        {step === 1 && (
-          <div style={{ flex: 1, overflowY: 'auto', padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-
-            {/* 🚚 Unified Carrier Search Card (Matching User Image 2) */}
+            {/* 🚚 Carrier Header & Search Unified Card */}
             <div style={{
               background: '#ffffff',
-              borderRadius: '16px',
+              borderRadius: '8px',
               border: '1px solid #e2e8f0',
-              boxShadow: '0 8px 30px rgba(15, 23, 42, 0.08)',
-              padding: '12px 14px',
+              boxShadow: '0 2px 10px rgba(15, 23, 42, 0.05)',
+              padding: '4px',
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              gap: '4px'
             }}>
+              {/* Carrier Title & Icon Row */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '4px 6px',
+                fontSize: '18px',
+                fontWeight: '800',
+                color: '#0f172a'
+              }}>
+                <i className="fa-solid fa-truck-fast" style={{ color: '#0ea5e9', fontSize: '20px' }}></i>
+                <span>Carrier</span>
+              </div>
               {/* Form Inputs Row */}
               <div style={{
                 display: 'flex',
@@ -1261,191 +1260,21 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
             </div>
 
 
-            {/* ================= 1 ROW WITH 6 COLUMNS: OUR LOGISTICS SERVICES ================= */}
-            <div style={{
-              background: '#ffffff',
-              borderRadius: '20px',
-              border: '1px solid #e2e8f0',
-              padding: '20px 24px',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '14px'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 900, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <i className="fa-solid fa-truck-ramp-box" style={{ color: '#4f46e5' }}></i> Our Logistics Services
-                  </h3>
-                  <span style={{ fontSize: '12.5px', color: '#64748b' }}>
-                    Click any service below to automatically configure instant express delivery or freight mode:
-                  </span>
-                </div>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#4f46e5', background: '#eef2ff', padding: '4px 12px', borderRadius: '8px' }}>
-                  6 Service Modes Available
-                </span>
-              </div>
 
-              {/* 6 Columns in 1 Single Horizontal Row */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(6, minmax(0, 1fr))',
-                gap: '12px'
-              }}>
-                {LOGISTICS_SERVICES.map((srv) => {
-                  const isSelected = selectedService === srv.name;
-                  return (
-                    <div
-                      key={srv.id}
-                      onClick={() => {
-                        setSelectedService(srv.name);
-                        const targetVeh = ALL_CARRIERS.find(c => c.id === srv.defaultVehicle);
-                        if (targetVeh) {
-                          setSelectedVehicle(targetVeh.id);
-                        }
-                        // Adjust shipmentMode based on service
-                        if (srv.id === 'international-shipping') {
-                          setShipmentMode('International');
-                          setPackageWeight('5');
-                          setWeightUnit('ton');
-                        } else if (srv.id === 'airmax') {
-                          setShipmentMode('Cargo');
-                          setPackageWeight('2.5');
-                          setWeightUnit('ton');
-                        } else if (srv.id === 'express-parcel') {
-                          setShipmentMode('Domestic');
-                          setPackageWeight('5');
-                          setWeightUnit('kg');
-                        } else if (srv.id === 'express-premium') {
-                          setShipmentMode('Domestic');
-                          setPackageWeight('1.5');
-                          setWeightUnit('ton');
-                        } else {
-                          setShipmentMode('Domestic');
-                          setPackageWeight('7');
-                          setWeightUnit('ton');
-                        }
-                        handleCalculateRates();
-                      }}
-                      style={{
-                        padding: '14px 12px',
-                        borderRadius: '16px',
-                        border: isSelected ? '2px solid #4f46e5' : '1px solid #e2e8f0',
-                        background: isSelected ? 'linear-gradient(180deg, #f8faff 0%, #eef2ff 100%)' : '#ffffff',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        minHeight: '175px',
-                        boxShadow: isSelected ? '0 8px 20px rgba(79, 70, 229, 0.15)' : '0 2px 6px rgba(0,0,0,0.02)',
-                        transform: isSelected ? 'translateY(-2px)' : 'none'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isSelected) {
-                          e.currentTarget.style.borderColor = '#cbd5e1';
-                          e.currentTarget.style.transform = 'translateY(-2px)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isSelected) {
-                          e.currentTarget.style.borderColor = '#e2e8f0';
-                          e.currentTarget.style.transform = 'none';
-                        }
-                      }}
-                    >
-                      {/* Top Header with Icon and Badge */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                        <div style={{
-                          width: '36px',
-                          height: '36px',
-                          borderRadius: '10px',
-                          background: isSelected ? '#4f46e5' : '#f1f5f9',
-                          color: isSelected ? '#ffffff' : '#4f46e5',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '16px'
-                        }}>
-                          <i className={`fa-solid ${srv.icon}`}></i>
-                        </div>
-                        <span style={{
-                          fontSize: '9.5px',
-                          fontWeight: 800,
-                          padding: '3px 6px',
-                          borderRadius: '6px',
-                          background: isSelected ? '#4f46e5' : '#f1f5f9',
-                          color: isSelected ? '#ffffff' : '#64748b',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          {srv.badge}
-                        </span>
-                      </div>
-
-                      {/* Service Title */}
-                      <div style={{ marginBottom: '6px' }}>
-                        <h4 style={{ margin: 0, fontSize: '13.5px', fontWeight: 800, color: '#1e293b', lineHeight: 1.25 }}>
-                          {srv.name}
-                        </h4>
-                      </div>
-
-                      {/* Description */}
-                      <p style={{ margin: 0, fontSize: '11px', color: '#64748b', lineHeight: 1.35, flex: 1 }}>
-                        {srv.description}
-                      </p>
-
-                      {/* Interactive Action Button (Express Delivery in less time) */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedService(srv.name);
-                          const targetVeh = ALL_CARRIERS.find(c => c.id === srv.defaultVehicle);
-                          if (targetVeh) {
-                            setSelectedVehicle(targetVeh.id);
-                          }
-                          handleCalculateRates();
-                        }}
-                        style={{
-                          marginTop: '10px',
-                          width: '100%',
-                          padding: '6px 4px',
-                          borderRadius: '8px',
-                          border: 'none',
-                          background: isSelected ? '#4f46e5' : '#f8fafc',
-                          color: isSelected ? '#ffffff' : '#475569',
-                          fontSize: '11px',
-                          fontWeight: 800,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '4px',
-                          transition: 'background 0.2s'
-                        }}
-                      >
-                        <span>{isSelected ? 'Selected' : 'Select'}</span>
-                        <i className="fa-solid fa-bolt" style={{ fontSize: '9px', color: isSelected ? '#fde047' : '#94a3b8' }}></i>
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
 
             {/* ================= SHIPPING & FREIGHT RATE CALCULATOR (FULL WIDTH) ================= */}
             <div style={{
               background: '#ffffff',
-              borderRadius: '20px',
+              borderRadius: '8px',
               border: '1px solid #e2e8f0',
-              padding: '24px',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+              padding: '6px 8px',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '20px'
+              gap: '6px'
             }}>
               {/* Mode Selector Tabs (Domestic, International, Cargo, Quick) */}
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                 <button
                   type="button"
                   onClick={() => {

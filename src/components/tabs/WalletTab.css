@@ -8,8 +8,7 @@
   display: grid;
   grid-template-columns: 1fr 340px;
   gap: 30px;
-  height: calc(100vh - 70px);
-  overflow: hidden;
+  min-height: calc(100vh - 120px);
 }
 .wallet-dashboard-col {
   display: flex;

@@ -23,6 +23,9 @@ import CommunityModal from '@/components/CommunityModal';
 import MechanicModal from '@/components/MechanicModal';
 import ParkingBookingModal from '@/components/ParkingBookingModal';
 import CartModal from '@/components/CartModal';
+import Footer from '@/components/Footer';
+
+import SubNavbar from '@/components/SubNavbar';
 
 export default function Home() {
   const { activeTab, setActiveTab, setActiveRideMode } = useSartStore();
@@ -60,12 +63,16 @@ export default function Home() {
       // Handle plural vs singular mismatches
       if (tab === 'rides') tab = 'ride';
 
+      if (tab === 'ride') {
+        if (parts[3] && parts[3].toLowerCase() === 'manageyouraccount') {
+          setActiveTab('profile');
+          return;
+        }
+        const mode = getRideModeFromPath(pathname);
+        setActiveRideMode(mode);
+      }
       if (['ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking', 'support'].includes(tab)) {
         setActiveTab(tab as any);
-        if (tab === 'ride') {
-          const mode = getRideModeFromPath(pathname);
-          setActiveRideMode(mode);
-        }
       }
     } else if (pathname.startsWith('/booking/')) {
       setActiveTab('booking');
@@ -81,6 +88,7 @@ export default function Home() {
   return (
     <div className="web-app-layout">
       <Navbar />
+      <SubNavbar />
 
       <main className="web-main-content">
         <HomeTab />
@@ -106,6 +114,9 @@ export default function Home() {
 
         {/* Legacy Universal Modals */}
         <UniversalModals />
+
+        {/* Global Bottom Footer visible across all pages and tabs */}
+        <Footer />
       </main>
 
       <Script src="/app.js" strategy="lazyOnload" />

@@ -381,7 +381,7 @@ const POPULAR_ROUTES_DATA: PopularRoute[] = [
     startingFare: '₹599',
     tag: 'FAST CONNECT',
     type: 'Multi-Axle Scania',
-    image: 'https://images.unsplash.com/photo-1623062335439-d34ba0a09e1d?auto=format&fit=crop&w=700&q=80'
+    image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=700&q=80'
   },
   {
     id: 4,
