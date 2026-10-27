@@ -142,8 +142,13 @@ export const useSartStore = create<SartStore>()(
           // Cosmetic URL update logic
           let newUrl = '/';
           const topLevelTabs = ['store', 'booking', 'wallet', 'profile'];
-
-          if (topLevelTabs.includes(tab)) {
+          if (tab === 'store') {
+            if (window.location.pathname.startsWith('/store/') && window.location.pathname !== '/store') {
+              newUrl = window.location.pathname;
+            } else {
+              newUrl = '/store';
+            }
+          } else if (topLevelTabs.includes(tab)) {
             newUrl = `/${tab}`;
           } else if (tab === 'ride') {
             // Keep specific ride mode if already on /home/ride/xxx, otherwise respect user's activeRideMode or bike
