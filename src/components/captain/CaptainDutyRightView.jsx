@@ -140,6 +140,15 @@ export default function CaptainDutyRightView({
       });
 
       // When a user books a ride in SART-FE-1, instantly receive the order if ON DUTY!
+            // When another captain claims the ride, dismiss incoming card instantly
+      const handleRideClaimed = (claimData) => {
+        const claimedId = claimData?.rideId || claimData?.bookingId;
+        if (!claimedId) return;
+        setIncomingOrders((prev) => prev.filter((ord) => ord.id !== claimedId));
+      };
+      s.on('RIDE_CLAIMED', handleRideClaimed);
+      s.on('RIDE_TAKEN', handleRideClaimed);
+
       s.on('new_incoming_ride', (newOrder) => {
         console.log('[Business Socket] Instant ride order received:', newOrder);
         if (!isOnDuty) return;

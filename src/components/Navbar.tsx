@@ -8,6 +8,8 @@ import { useSartStore } from '../store/useSartStore';
 export default function Navbar() {
   const { wallet, activeTab, setActiveTab, wishlist, cart } = useSartStore();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isBittoolOpen, setIsBittoolOpen] = useState(false);
+  const bittoolRef = useRef<HTMLDivElement>(null);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentLocation, setCurrentLocation] = useState('Chennai');
@@ -51,6 +53,9 @@ export default function Navbar() {
     const handleClickOutside = (event: MouseEvent) => {
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setIsProfileOpen(false);
+      }
+      if (bittoolRef.current && !bittoolRef.current.contains(event.target as Node)) {
+        setIsBittoolOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -187,6 +192,105 @@ export default function Navbar() {
 
 
 
+
+        <div ref={bittoolRef} style={{ position: 'relative' }}>
+          {/* Bit-tool Sliders Button beside Alex Carter */}
+          <button
+            type="button"
+            className={`nav-bittool-btn ${isBittoolOpen ? 'active' : ''}`}
+            onClick={() => setIsBittoolOpen(!isBittoolOpen)}
+            title="Captain and Vehicle Mode Switcher"
+          >
+            <i className="fa-solid fa-sliders"></i>
+          </button>
+
+          {/* Vertical Dropdown Strip with Captain Vehicle Icons & Business tools */}
+          {isBittoolOpen && (
+            <div className="captain-bittool-dropdown">
+              <div className="bittool-dropdown-header">
+                <span>CAPTAIN DISPATCH</span>
+              </div>
+
+              {/* 1. Bike Captain (Helmet Icon) -> Route: /ride/captain/bike */}
+              <button
+                type="button"
+                className="bittool-vehicle-item bike"
+                onClick={() => {
+                  setIsBittoolOpen(false);
+                  router.push('/ride/captain/bike');
+                }}
+                title="Bike Captain (Helmet)"
+              >
+                <div className="vehicle-icon-pill yellow">
+                  <i className="fa-solid fa-helmet-safety"></i>
+                </div>
+                <div className="vehicle-info-text">
+                  <strong>Bike Captain</strong>
+                  <span>/ride/captain/bike</span>
+                </div>
+              </button>
+
+              {/* 2. Auto Captain (Auto Rickshaw Icon) -> Route: /ride/captain/auto */}
+              <button
+                type="button"
+                className="bittool-vehicle-item auto"
+                onClick={() => {
+                  setIsBittoolOpen(false);
+                  router.push('/ride/captain/auto');
+                }}
+                title="Auto Captain (Auto Rickshaw)"
+              >
+                <div className="vehicle-icon-pill green">
+                  <i className="fa-solid fa-taxi"></i>
+                </div>
+                <div className="vehicle-info-text">
+                  <strong>Auto Captain</strong>
+                  <span>/ride/captain/auto</span>
+                </div>
+              </button>
+
+              {/* 3. Cab Captain (Car Seat Icon) -> Route: /ride/captain/car */}
+              <button
+                type="button"
+                className="bittool-vehicle-item car"
+                onClick={() => {
+                  setIsBittoolOpen(false);
+                  router.push('/ride/captain/car');
+                }}
+                title="Cab Captain (Car Seat)"
+              >
+                <div className="vehicle-icon-pill blue">
+                  <i className="fa-solid fa-chair"></i>
+                </div>
+                <div className="vehicle-info-text">
+                  <strong>Cab Captain</strong>
+                  <span>/ride/captain/car</span>
+                </div>
+              </button>
+
+              <div className="bittool-dropdown-divider"></div>
+
+              {/* Business Portal Quick Launch */}
+              <button
+                type="button"
+                className="bittool-vehicle-item business"
+                onClick={() => {
+                  setIsBittoolOpen(false);
+                  window.open('http://localhost:3007', '_blank');
+                }}
+                title="SART Business Portal"
+              >
+                <div className="vehicle-icon-pill brand">
+                  <span style={{ fontFamily: 'serif', fontWeight: 800 }}>B</span>
+                </div>
+                <div className="vehicle-info-text">
+                  <strong>SART Business Portal</strong>
+                  <span>Fleet & Rental Partner</span>
+                </div>
+              </button>
+            </div>
+          )}
+        </div>
 
         <div ref={profileRef}>
           <div className="profile-nav-btn" onClick={() => setIsProfileOpen(!isProfileOpen)} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '8px' }}>

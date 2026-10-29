@@ -823,7 +823,7 @@ export default function HomeTab() {
               <div className="book-card" onClick={() => handleServiceClick('drivers')}>
                 <div className="book-img-wrapper">
                   <img
-                    src="/images/drivers_service.png"
+                    src="/images/Driver.jpg"
                     alt="Drivers Hire"
                     className="book-card-img"
                   />
@@ -849,7 +849,7 @@ export default function HomeTab() {
               <div className="book-card" onClick={() => handleServiceClick('community')}>
                 <div className="book-img-wrapper">
                   <img
-                    src="/images/community_service.jpg"
+                    src="/images/community.jpg"
                     alt="Communities"
                     className="book-card-img"
                   />
