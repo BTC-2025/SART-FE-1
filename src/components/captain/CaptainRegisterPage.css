@@ -10,7 +10,7 @@
 }
 
 .c-auth-nav {
-  height: 68px;
+  height: 56px;
   background: #ffffff;
   border-bottom: 1px solid #e2e8f0;
   display: flex;
@@ -38,12 +38,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 36px 20px;
+  padding: 16px 20px 24px;
 }
 
 .c-auth-card {
   width: 100%;
-  max-width: 640px;
+  max-width: 520px;
   background: #ffffff;
   border-radius: 24px;
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
@@ -64,14 +64,14 @@
 }
 
 .c-auth-step-box {
-  padding: 32px;
+  padding: 22px 26px;
 }
 
 .c-auth-header-row {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .c-auth-icon-circle {
@@ -126,7 +126,7 @@
 .c-auth-form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
 }
 
 .c-auth-label {
