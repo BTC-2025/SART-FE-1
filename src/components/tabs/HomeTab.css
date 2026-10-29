@@ -2000,7 +2000,7 @@
 /* Quick Services Strip */
 /* .quick-services-strip {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 16px;
   padding: 32px 0 16px 0;
 } */
@@ -2492,7 +2492,7 @@
 .book-service-inner-card {
   max-width: 100%;
   margin: 0 auto;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(230, 255, 255, 0.65) 100%);
+  background: linear-gradient(135deg, rgba(113, 213, 203, 0.92) 0%, rgba(112, 194, 194, 0.65) 100%);
   border-radius: 28px;
   padding: 18px 18px 22px;
   box-shadow: 0 16px 45px rgba(21, 127, 138, 0.08), 0 2px 10px rgba(0, 0, 0, 0.03);
@@ -2531,8 +2531,8 @@
 
 .book-service-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 10px;
   padding: 4px 2px;
   width: 100%;
   margin: 0 auto;
@@ -2593,12 +2593,28 @@
   white-space: nowrap;
 }
 
+.book-card {
+  height: 180px;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  overflow: hidden;
+}
+
 .book-title {
-  font-size: 16px;
+  font-size: clamp(12px, 0.95vw, 15px);
   font-weight: 800;
   color: #111827;
   margin: 0 0 6px 0;
   line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 4px;
 }
 
 .book-desc {
@@ -2730,22 +2746,59 @@
   color: #e11d48;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .book-service-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .book-card {
+    height: 170px;
+  }
+  .book-img-wrapper {
+    height: 122px;
+  }
+  .book-title {
+    font-size: 12.5px;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 950px) {
+  .book-service-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .book-card {
+    height: 180px;
+  }
+  .book-img-wrapper {
+    height: 135px;
+  }
+  .book-title {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 640px) {
   .book-service-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
     padding: 0;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 420px) {
   .book-service-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .book-card {
+    height: 160px;
+  }
+  .book-img-wrapper {
+    height: 115px;
+  }
+  .book-title {
+    font-size: 12px;
   }
 }
 

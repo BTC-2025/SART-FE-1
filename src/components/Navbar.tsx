@@ -26,6 +26,19 @@ export default function Navbar() {
     { title: 'Train Vande Bharat Book', kw: ['train', 'express', 'metro', 'railway', 'vande', 'rajdhani'], modal: 'modal-train', icon: 'fa-train', color: '#c864ff' }
   ];
 
+  const [captainProfile, setCaptainProfile] = useState<{ name?: string; email?: string; phone?: string } | null>(null);
+
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('sart_captain_session');
+        if (stored) {
+          setCaptainProfile(JSON.parse(stored));
+        }
+      }
+    } catch (e) { }
+  }, []);
+
   useEffect(() => {
     const handleLocationUpdate = (e: any) => {
       setCurrentLocation(e.detail);
@@ -43,6 +56,7 @@ export default function Navbar() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
 
   return (
     <header className="web-navbar">
@@ -175,23 +189,35 @@ export default function Navbar() {
 
 
         <div ref={profileRef}>
-          <div className="profile-nav-btn" onClick={() => setIsProfileOpen(!isProfileOpen)} style={{ position: 'relative' }}>
-            <i className="fa-solid fa-circle-user"></i>
-            <span>Alex Carter</span>
-            <i className="fa-solid fa-chevron-down" style={{ fontSize: '9px' }}></i>
+          <div className="profile-nav-btn" onClick={() => setIsProfileOpen(!isProfileOpen)} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <i className="fa-solid fa-circle-user" style={{ color: '#2563eb' }}></i>
+            <span style={{ color: '#2563eb', fontWeight: 700 }}>Alex Carter</span>
+            <i className="fa-solid fa-chevron-down" style={{ fontSize: '9px', color: '#2563eb' }}></i>
           </div>
 
           {isProfileOpen && (
             <div className="profile-dropdown-menu show" style={{ width: '320px', height: '470px', padding: '14px', borderRadius: '28px', textAlign: 'center', background: '#ffffff', border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', color: '#000000' }}>
               <div style={{ position: 'relative', width: '80px', height: '80px', margin: '0 auto 12px' }}>
-                <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#0b57d0', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', fontWeight: 500 }}>V</div>
+                <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#2563eb', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', fontWeight: 500 }}>
+                  A
+                </div>
                 <label style={{ position: 'absolute', bottom: 0, right: 0, background: 'white', color: 'black', width: '26px', height: '26px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', cursor: 'pointer' }}>
                   <i className="fa-solid fa-camera"></i>
                   <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => { if (e.target.files && e.target.files[0]) alert('Selected file: ' + e.target.files[0].name) }} />
                 </label>
               </div>
-              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#000000' }}>vinothkumar</h3>
-              <p style={{ margin: '4px 0 16px', fontSize: '14px', color: '#4b5563' }}>gmvinoth@bnxmail.com</p>
+              <div style={{ display: 'inline-block', background: '#eff6ff', color: '#1d4ed8', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '12px', marginBottom: '8px', border: '1px solid #bfdbfe' }}>
+                CUSTOMER / USER
+              </div>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#2563eb' }}>
+                Alex Carter
+              </h3>
+              <p style={{ margin: '4px 0 16px', fontSize: '14px', color: '#4b5563' }}>
+                alex.carter@sart.com
+              </p>
+
+
+
 
               <button onClick={() => console.log('Manage Account')} style={{ background: 'transparent', border: '1px solid #d1d5db', color: '#000000', borderRadius: '24px', padding: '10px 20px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '20px', width: 'auto' }}>
                 <i className="fa-solid fa-user-gear"></i> Manage your account

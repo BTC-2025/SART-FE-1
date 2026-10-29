@@ -804,7 +804,20 @@ export default function HomeTab() {
                 <div className="book-footer"></div>
               </div>
 
-              {/* 3. Vehicle Rental */}
+              {/* 3. Parcel Delivery (Packers, Movers & Courier) */}
+              <div className="book-card" onClick={() => handleServiceClick('carrier')}>
+                <div className="book-img-wrapper">
+                  <img
+                    src="/images/parcel_service.png"
+                    alt="Parcel Delivery"
+                    className="book-card-img"
+                  />
+                </div>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Parcel</h3>
+                <div className="book-footer"></div>
+              </div>
+
+              {/* 4. Vehicle Rental */}
               <div className="book-card" onClick={() => handleServiceClick('rental')}>
                 <div className="book-img-wrapper">
                   <img
@@ -817,7 +830,7 @@ export default function HomeTab() {
                 <div className="book-footer"></div>
               </div>
 
-              {/* 4. Drivers Hire */}
+              {/* 5. Drivers Hire */}
               <div className="book-card" onClick={() => handleServiceClick('drivers')}>
                 <div className="book-img-wrapper">
                   <img

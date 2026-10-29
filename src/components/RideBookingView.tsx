@@ -75,6 +75,46 @@ export default function RideBookingView({
   const [pickupCoords, setPickupCoords] = useState<LatLng | null>(null);
   const [dropCoords, setDropCoords] = useState<LatLng | null>(null);
 
+  // Reverse geocoding helper (OpenStreetMap Nominatim, no API key needed)
+  const reverseGeocode = useCallback(async (lat: number, lng: number): Promise<string> => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
+        headers: {
+          'Accept-Language': 'en',
+          'User-Agent': 'SART-RideApp/1.0 (Customer Ride Booking)'
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.display_name) {
+          const parts = data.display_name.split(',');
+          return parts.slice(0, 3).join(', ').trim();
+        }
+      }
+    } catch (err) { }
+    return `Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+  }, []);
+
+  // Automatically request real-time user GPS location as soon as user enters the website!
+  useEffect(() => {
+    if (!pickup.trim() && typeof window !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          setPickupCoords({ lat, lng });
+          const addr = await reverseGeocode(lat, lng);
+          setPickup(addr);
+          if (onSourceChange) onSourceChange(addr);
+        },
+        (err) => {
+          console.warn('Auto GPS location prompt:', err.message);
+        },
+        { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+      );
+    }
+  }, [pickup, onSourceChange, reverseGeocode]);
+
   // Single Source of Truth Route State
   const [routeState, setRouteState] = useState<SingleSourceRouteState>({
     origin: null,
@@ -156,8 +196,7 @@ export default function RideBookingView({
         console.log('[User Socket] Connected to SART backend:', s.id);
       });
 
-      // Real-time notification when Captain accepts ride!
-      s.on('booking_status_changed', (data: any) => {
+      const handleRideAcceptedOrChanged = (data: any) => {
         console.log('[User Socket] Booking status changed event received:', data);
         if (data.status === 'Accepted') {
           const cap = data.captain || {};
@@ -174,13 +213,41 @@ export default function RideBookingView({
               isAcceptedByCaptain: true
             };
           });
+
+          // Start smooth captain moving animation towards pickup only now
+          let prog = 0;
+          const intv = setInterval(() => {
+            prog += 15;
+            if (prog >= 100) {
+              prog = 100;
+              setCaptainProgress(100);
+              setCaptainStatus('arrived');
+              clearInterval(intv);
+            } else {
+              setCaptainProgress(prog);
+            }
+          }, 1500);
+
         } else if (data.status === 'In-Trip') {
           setCaptainStatus('arrived');
-          setRideBookedModal((prev: any) => prev ? { ...prev, eta: 'In-Trip (En Route)' } : prev);
+          setRideBookedModal((prev: any) => prev ? {
+            ...prev,
+            status: 'In-Trip',
+            eta: 'In-Trip (Heading to Destination)'
+          } : prev);
         } else if (data.status === 'Completed') {
-          setRideBookedModal((prev: any) => prev ? { ...prev, eta: 'Trip Completed' } : prev);
+          setRideBookedModal((prev: any) => prev ? {
+            ...prev,
+            status: 'Completed',
+            eta: 'Trip Completed'
+          } : prev);
         }
-      });
+      };
+
+      // Real-time notification when Captain accepts ride, starts trip with OTP, or completes trip!
+      s.on('booking_status_changed', handleRideAcceptedOrChanged);
+      s.on('ride_status_global_sync', handleRideAcceptedOrChanged);
+      s.on('ride_status_update', handleRideAcceptedOrChanged);
 
       // Real-time chat messages from captain (or AI assistant)
       s.on('chat_message_received', (msg: any) => {
@@ -243,23 +310,6 @@ export default function RideBookingView({
       localStorage.setItem('sart_ride_stops', JSON.stringify(stops));
     }
   }, [stops]);
-
-  // Reverse geocoding helper (OpenStreetMap Nominatim, no API key needed)
-  const reverseGeocode = useCallback(async (lat: number, lng: number): Promise<string> => {
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
-        headers: { 'Accept-Language': 'en' }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.display_name) {
-          const parts = data.display_name.split(',');
-          return parts.slice(0, 3).join(', ').trim();
-        }
-      }
-    } catch (err) { }
-    return `Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
-  }, []);
 
   // Forward geocoding search for typing
   const searchAddress = async (query: string): Promise<{ label: string; coords: LatLng }[]> => {
@@ -407,11 +457,19 @@ export default function RideBookingView({
       },
       (err) => {
         setIsRouteCalculating(false);
-        alert('Could not retrieve your current location: ' + err.message);
+        console.warn('Geolocation access:', err.message);
+        // Fallback to active city or central coordinates
+        const fallbackLat = 13.0827; // Chennai Central
+        const fallbackLng = 80.2755;
+        setPickupCoords({ lat: fallbackLat, lng: fallbackLng });
+        const fallbackAddr = 'Chennai Central, Park Town, Chennai, Tamil Nadu';
+        setPickup(fallbackAddr);
+        if (onSourceChange) onSourceChange(fallbackAddr);
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
     );
   };
+
 
   // Open "Pick on map"
   const handleOpenMapPicker = (target: 'pickup' | 'drop' | 'new-stop' | string) => {
@@ -524,8 +582,8 @@ export default function RideBookingView({
           type="button"
           className="rb-header-vehicle-image-wrapper"
           onClick={() => {
-            const bizUrl = `http://localhost:3007/Business/Home?category=${mode}`;
-            window.open(bizUrl, '_blank') || (window.location.href = bizUrl);
+            const captainUrl = `/ride/captain/${mode || 'bike'}`;
+            window.location.href = captainUrl;
           }}
           title="Click to enter Captain Business Portal"
         >
@@ -1425,58 +1483,37 @@ export default function RideBookingView({
                         if (checkRes.ok) {
                           const checkData = await checkRes.json();
                           const b = checkData.data;
-                          if (b && (b.status === 'Accepted' || b.status === 'In-Trip')) {
+                          if (b && (b.status === 'Accepted' || b.status === 'In-Trip' || b.status === 'Completed')) {
                             let parsed: any = {};
                             try {
                               parsed = typeof b.extraData === 'string' ? JSON.parse(b.extraData) : (b.extraData || {});
                             } catch (e) { }
 
-                            setCaptainStatus(b.status === 'In-Trip' ? 'arrived' : 'accepted');
+                            setCaptainStatus(b.status === 'In-Trip' || b.status === 'Completed' ? 'arrived' : 'accepted');
                             setRideBookedModal((prev: any) => ({
                               ...prev,
-                              captain: parsed.captainName || 'Sai (Star Captain)',
-                              plate: parsed.vehiclePlate || 'TN 09 EQ 4421',
-                              phone: parsed.captainPhone || '+91 98765 43210',
-                              eta: parsed.pickupTime || '3 mins away',
+                              status: b.status,
+                              captain: parsed.captainName || prev?.captain || 'Sai (Star Captain)',
+                              plate: parsed.vehiclePlate || prev?.plate || 'TN 09 EQ 4421',
+                              phone: parsed.captainPhone || prev?.phone || '+91 98765 43210',
+                              eta: b.status === 'Completed' ? 'Trip Completed' : b.status === 'In-Trip' ? 'In-Trip (En Route)' : (parsed.pickupTime || '3 mins away'),
                               distanceToCaptain: parsed.pickupDist ? `${parsed.pickupDist} from you` : '0.8 km from you',
                               isAcceptedByCaptain: true
                             }));
-                            clearInterval(pollInterval);
+                            if (b.status === 'Completed') {
+                              clearInterval(pollInterval);
+                            }
                             return;
                           }
                         }
                       } catch (err) { }
                     }
 
-                    // Fallback only after 45 seconds if no captain accepted manually
-                    if (pollCount >= 22) {
+                    // Stop polling after 60 seconds if no captain accepts
+                    if (pollCount >= 30) {
                       clearInterval(pollInterval);
-                      setCaptainStatus('arriving');
-                      setRideBookedModal((prev: any) => ({
-                        ...prev,
-                        captain: captainName,
-                        plate: plateNum,
-                        eta: '3 mins',
-                        distanceToCaptain: '1.2 km from you',
-                        isAcceptedByCaptain: true
-                      }));
                     }
                   }, 2000);
-
-
-                  // Progressively move captain on road towards user over 15 seconds
-                  let prog = 0;
-                  const intv = setInterval(() => {
-                    prog += 12;
-                    if (prog >= 100) {
-                      prog = 100;
-                      setCaptainProgress(100);
-                      setCaptainStatus('arrived');
-                      clearInterval(intv);
-                    } else {
-                      setCaptainProgress(prog);
-                    }
-                  }, 1200);
                 }}
               >
                 Confirm & Request Captain
@@ -1525,20 +1562,54 @@ export default function RideBookingView({
               margin: '0 auto 14px auto'
             }}></div>
 
-            {/* OTP Header Section (matches user screenshot: "Start your order with PIN:XXXX") */}
+            {/* OTP & Ride Lifecycle Status Header Section */}
             <div style={{
               textAlign: 'center',
               borderBottom: '1px solid #f1f5f9',
               paddingBottom: '14px',
               marginBottom: '16px'
             }}>
-              <span style={{ fontSize: '15px', color: '#0f172a', fontWeight: 800 }}>
-                Start your order with PIN: <strong style={{ color: '#0f172a', letterSpacing: '1px', fontSize: '18px' }}>{rideBookedModal.otp}</strong>
-              </span>
-              <div style={{ fontSize: '12px', color: '#16a34a', fontWeight: 700, marginTop: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                <span className="pulse-dot"></span>
-                <span>Captain is arriving • Live on road</span>
-              </div>
+              {rideBookedModal.status === 'Completed' ? (
+                <>
+                  <div style={{ fontSize: '18px', color: '#16a34a', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <i className="fa-solid fa-circle-check" style={{ color: '#16a34a', fontSize: '22px' }}></i>
+                    <span>Ride Completed Successfully!</span>
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#0f172a', fontWeight: 700, marginTop: '6px' }}>
+                    You have reached your destination. Thank you for riding with SART!
+                  </div>
+                </>
+              ) : rideBookedModal.status === 'In-Trip' ? (
+                <>
+                  <div style={{ fontSize: '17px', color: '#0284c7', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <i className="fa-solid fa-route fa-beat" style={{ color: '#0284c7' }}></i>
+                    <span>Ride In Progress • Heading to Destination</span>
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 700, marginTop: '4px' }}>
+                    OTP verified by Captain • Live navigation to {dropoff || 'destination'}
+                  </div>
+                </>
+              ) : rideBookedModal.isAcceptedByCaptain ? (
+                <>
+                  <span style={{ fontSize: '15px', color: '#0f172a', fontWeight: 800 }}>
+                    Start your order with PIN: <strong style={{ color: '#16a34a', letterSpacing: '2px', fontSize: '20px', padding: '2px 8px', background: '#dcfce7', borderRadius: '8px' }}>{rideBookedModal.otp}</strong>
+                  </span>
+                  <div style={{ fontSize: '12px', color: '#16a34a', fontWeight: 700, marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                    <span className="pulse-dot"></span>
+                    <span>Captain has accepted your ride • Live on road to pickup</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span style={{ fontSize: '15px', color: '#ea580c', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <i className="fa-solid fa-satellite-dish fa-spin" style={{ color: '#ea580c' }}></i>
+                    <span>Connecting with nearby Captains...</span>
+                  </span>
+                  <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>
+                    PIN / OTP will appear here as soon as Captain accepts your ride
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Captain Profile Card & Call Button (matches user screenshot 1) */}
@@ -1735,53 +1806,158 @@ export default function RideBookingView({
                   <i className="fa-solid fa-qrcode" style={{ color: '#0284c7' }}></i>
                   <span>QR Pay / UPI on arrival</span>
                 </div>
+
+                {/* Add More Incentive / Boost Fare for Captain (matches user request) */}
+                <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px dashed #cbd5e1' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#15803d' }}>
+                      <i className="fa-solid fa-bolt" style={{ color: '#f59e0b', marginRight: '4px' }}></i>
+                      Add More / Tip Captain for Faster Pickup:
+                    </span>
+                    <span style={{ fontSize: '12px', fontWeight: 900, color: '#16a34a' }}>
+                      +{rideBookedModal.bonus || 10}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {[10, 20, 50].map((extraAmt) => (
+                      <button
+                        key={extraAmt}
+                        type="button"
+                        onClick={async () => {
+                          const newBonus = (rideBookedModal.bonus || 10) + extraAmt;
+                          setRideBookedModal((prev: any) => ({
+                            ...prev,
+                            bonus: newBonus
+                          }));
+                          if (socketRef && rideBookedModal.id) {
+                            socketRef.emit('boost_ride_fare', {
+                              bookingId: rideBookedModal.id,
+                              bonus: newBonus,
+                              fare: rideBookedModal.fare
+                            });
+                          }
+                          try {
+                            await fetch(`http://localhost:5000/api/rides/boost-fare`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                bookingId: rideBookedModal.id,
+                                bonus: newBonus
+                              })
+                            });
+                          } catch (e) { }
+                        }}
+                        style={{
+                          flex: 1,
+                          padding: '6px 10px',
+                          borderRadius: '16px',
+                          border: '1px solid #86efac',
+                          background: '#f0fdf4',
+                          color: '#15803d',
+                          fontSize: '12px',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        + ₹{extraAmt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Cancel & Done Bottom Actions (matches Screenshot 2 Cancel button) */}
+            {/* Cancel & Done Bottom Actions (matches Screenshot 2 Cancel button & handles In-Trip/Completed states) */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <button
-                type="button"
-                onClick={() => setRideBookedModal(null)}
-                style={{
+              {rideBookedModal.status === 'Completed' ? (
+                <button
+                  type="button"
+                  onClick={() => setRideBookedModal(null)}
+                  style={{
+                    flex: 1,
+                    background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+                    border: 'none',
+                    borderRadius: '24px',
+                    padding: '13px 20px',
+                    color: '#ffffff',
+                    fontWeight: 800,
+                    fontSize: '15px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 12px rgba(22, 163, 74, 0.35)'
+                  }}
+                >
+                  <i className="fa-solid fa-circle-check"></i>
+                  <span>Done & Close</span>
+                </button>
+              ) : rideBookedModal.status === 'In-Trip' ? (
+                <div style={{
                   flex: 1,
-                  background: '#ffffff',
-                  border: '1.5px solid #f87171',
+                  background: '#f0fdf4',
+                  border: '1.5px solid #86efac',
                   borderRadius: '24px',
-                  padding: '12px 20px',
-                  color: '#dc2626',
+                  padding: '11px 18px',
+                  color: '#15803d',
                   fontWeight: 800,
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                Cancel Ride
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowChatModal(true)}
-                style={{
-                  flex: 1,
-                  background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
-                  border: 'none',
-                  borderRadius: '24px',
-                  padding: '12px 20px',
-                  color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '14px',
-                  cursor: 'pointer',
+                  fontSize: '13px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px',
-                  boxShadow: '0 4px 12px rgba(234, 88, 12, 0.3)'
-                }}
-              >
-                <i className="fa-solid fa-comments"></i>
-                <span>Chat Captain</span>
-              </button>
+                  gap: '8px'
+                }}>
+                  <i className="fa-solid fa-shield-halved" style={{ color: '#16a34a' }}></i>
+                  <span>Ride in progress • Safety tracking active</span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setRideBookedModal(null)}
+                  style={{
+                    flex: 1,
+                    background: '#ffffff',
+                    border: '1.5px solid #f87171',
+                    borderRadius: '24px',
+                    padding: '12px 20px',
+                    color: '#dc2626',
+                    fontWeight: 800,
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  Cancel Ride
+                </button>
+              )}
+
+              {rideBookedModal.status !== 'Completed' && (
+                <button
+                  type="button"
+                  onClick={() => setShowChatModal(true)}
+                  style={{
+                    flex: 1,
+                    background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+                    border: 'none',
+                    borderRadius: '24px',
+                    padding: '12px 20px',
+                    color: '#ffffff',
+                    fontWeight: 800,
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 12px rgba(234, 88, 12, 0.3)'
+                  }}
+                >
+                  <i className="fa-solid fa-comments"></i>
+                  <span>Chat Captain</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
