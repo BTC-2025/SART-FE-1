@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CaptainRegisterPage from './CaptainRegisterPage';
 
-export default function CaptainLoginPage() {
+function CaptainLoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const targetCategory = searchParams?.get('category') || 'bike';
@@ -22,3 +22,10 @@ export default function CaptainLoginPage() {
   );
 }
 
+export default function CaptainLoginPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#0a101d', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>Loading SART Captain Portal...</div>}>
+      <CaptainLoginContent />
+    </Suspense>
+  );
+}
