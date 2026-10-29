@@ -795,7 +795,7 @@ export default function HomeTab() {
               <div className="book-card" onClick={() => handleServiceClick('carrier')}>
                 <div className="book-img-wrapper">
                   <img
-                    src="/images/carrier_service.png"
+                    src="/images/parcel_service.png"
                     alt="Carrier Logistics"
                     className="book-card-img"
                   />
@@ -804,24 +804,13 @@ export default function HomeTab() {
                 <div className="book-footer"></div>
               </div>
 
-              {/* 3. Parcel Delivery (Packers, Movers & Courier) */}
-              <div className="book-card" onClick={() => handleServiceClick('carrier')}>
-                <div className="book-img-wrapper">
-                  <img
-                    src="/images/parcel_service.png"
-                    alt="Parcel Delivery"
-                    className="book-card-img"
-                  />
-                </div>
-                <h3 className="book-title" style={{ textAlign: 'center' }}>Parcel</h3>
-                <div className="book-footer"></div>
-              </div>
+
 
               {/* 4. Vehicle Rental */}
               <div className="book-card" onClick={() => handleServiceClick('rental')}>
                 <div className="book-img-wrapper">
                   <img
-                    src="/images/vehicle_rental_fleet.png"
+                    src="/images/carrier_service.png"
                     alt="Vehicle Rental"
                     className="book-card-img"
                   />

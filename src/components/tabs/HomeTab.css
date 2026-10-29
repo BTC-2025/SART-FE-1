@@ -2531,7 +2531,7 @@
 
 .book-service-grid {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 10px;
   padding: 4px 2px;
   width: 100%;
@@ -2751,12 +2751,15 @@
     grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 8px;
   }
+
   .book-card {
     height: 170px;
   }
+
   .book-img-wrapper {
     height: 122px;
   }
+
   .book-title {
     font-size: 12.5px;
   }
@@ -2767,12 +2770,15 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
   }
+
   .book-card {
     height: 180px;
   }
+
   .book-img-wrapper {
     height: 135px;
   }
+
   .book-title {
     font-size: 14px;
   }
@@ -2791,12 +2797,15 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
+
   .book-card {
     height: 160px;
   }
+
   .book-img-wrapper {
     height: 115px;
   }
+
   .book-title {
     font-size: 12px;
   }
