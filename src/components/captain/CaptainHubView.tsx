@@ -190,7 +190,23 @@ export default function CaptainHubView({ initialCategory = 'bike' }: CaptainHubV
   }
 
   // If Captain is not logged in / registered, show the Captain Authentication & Registration Page
+  // STRICT ROUTE GUARD: If Captain is not authenticated, redirect to /ride/captain/login
   if (!partnerDetails) {
+    if (typeof window !== 'undefined') {
+      window.location.replace('/ride/captain/login?category=' + initialCategory);
+    }
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a101d' }}>
+        <div style={{ color: '#94a3b8', fontSize: '15px', fontWeight: 700 }}>
+          <i className="fa-solid fa-lock" style={{ marginRight: '10px', color: '#ef4444' }}></i>
+          Redirecting to Captain Sign In (/ride/captain/login)...
+        </div>
+      </div>
+    );
+  }
+
+  // Original fallback if already on login view
+  if (!partnerDetails && false) {
     return (
       <CaptainRegisterPage
         onLoginSuccess={(captainUser: any) => {

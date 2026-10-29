@@ -217,7 +217,7 @@ export default function Navbar() {
                 className="bittool-vehicle-item bike"
                 onClick={() => {
                   setIsBittoolOpen(false);
-                  router.push('/ride/captain/bike');
+                  router.push('/ride/captain/login?category=bike');
                 }}
                 title="Bike Captain (Helmet)"
               >
@@ -226,7 +226,7 @@ export default function Navbar() {
                 </div>
                 <div className="vehicle-info-text">
                   <strong>Bike Captain</strong>
-                  <span>/ride/captain/bike</span>
+                  <span>/ride/captain/login?category=bike</span>
                 </div>
               </button>
 
@@ -236,7 +236,7 @@ export default function Navbar() {
                 className="bittool-vehicle-item auto"
                 onClick={() => {
                   setIsBittoolOpen(false);
-                  router.push('/ride/captain/auto');
+                  router.push('/ride/captain/login?category=auto');
                 }}
                 title="Auto Captain (Auto Rickshaw)"
               >
@@ -245,7 +245,7 @@ export default function Navbar() {
                 </div>
                 <div className="vehicle-info-text">
                   <strong>Auto Captain</strong>
-                  <span>/ride/captain/auto</span>
+                  <span>/ride/captain/login?category=auto</span>
                 </div>
               </button>
 
@@ -255,7 +255,7 @@ export default function Navbar() {
                 className="bittool-vehicle-item car"
                 onClick={() => {
                   setIsBittoolOpen(false);
-                  router.push('/ride/captain/car');
+                  router.push('/ride/captain/login?category=car');
                 }}
                 title="Cab Captain (Car Seat)"
               >
@@ -264,7 +264,7 @@ export default function Navbar() {
                 </div>
                 <div className="vehicle-info-text">
                   <strong>Cab Captain</strong>
-                  <span>/ride/captain/car</span>
+                  <span>/ride/captain/login?category=car</span>
                 </div>
               </button>
 
