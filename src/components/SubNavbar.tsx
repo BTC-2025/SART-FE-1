@@ -19,13 +19,7 @@ export default function SubNavbar() {
   const router = useRouter();
 
   const subNavItems: SubNavItem[] = [
-    { id: 'rides', label: 'Rides', icon: 'fa-car-side', targetTab: 'ride' },
-    { id: 'carrier', label: 'Logistics & Cargo', icon: 'fa-truck-fast', targetTab: 'carrier' },
-    { id: 'rental', label: 'Rentals', icon: 'fa-key', targetTab: 'rental' },
-    { id: 'drivers', label: 'Hire Drivers', icon: 'fa-user-tie', targetTab: 'drivers' },
-    { id: 'parking', label: 'Parking Slots', icon: 'fa-square-parking', targetTab: 'parking' },
-    { id: 'mechanic', label: 'Mechanic', icon: 'fa-screwdriver-wrench', targetTab: 'mechanic' },
-    { id: 'community', label: 'Community', icon: 'fa-users', targetTab: 'community' },
+    // { id: 'rides', label: 'Rides', icon: 'fa-car-side', targetTab: 'ride' },
   ];
 
   const handleItemClick = (item: SubNavItem) => {
@@ -43,8 +37,26 @@ export default function SubNavbar() {
     }
   };
 
+  const handleSupportClick = () => {
+    setActiveTab('support');
+    router.push('/support', { scroll: false });
+  };
+
+  const handleSettingsClick = () => {
+    setActiveTab('profile');
+    router.push('/profile', { scroll: false });
+  };
+
+  const handleCaptainLoginClick = () => {
+    router.push('/ride/captain/login');
+  };
+
   return (
     <nav className="subnavbar-container" aria-label="Sub Navigation">
+      {/* Invisible spacer to balance the right-side actions and keep center items truly centered */}
+      <div className="subnavbar-spacer" aria-hidden="true"></div>
+
+      {/* Center Shortcuts */}
       <div className="subnavbar-links">
         {subNavItems.map((item) => {
           const isActive = activeTab === item.targetTab;
@@ -63,6 +75,36 @@ export default function SubNavbar() {
         })}
       </div>
 
+      {/* End Actions: Captain Login External Link, Help & Support, Settings */}
+      <div className="subnavbar-actions">
+        <button
+          type="button"
+          className="subnav-icon-btn"
+          onClick={handleCaptainLoginClick}
+          title="Captain Login"
+          aria-label="Captain Login"
+        >
+          <i className="fa-solid fa-arrow-up-right-from-square"></i>
+        </button>
+        <button
+          type="button"
+          className="subnav-icon-btn"
+          onClick={handleSupportClick}
+          title="Help & Support"
+          aria-label="Help & Support"
+        >
+          <i className="fa-solid fa-headset"></i>
+        </button>
+        <button
+          type="button"
+          className="subnav-icon-btn"
+          onClick={handleSettingsClick}
+          title="Settings"
+          aria-label="Settings"
+        >
+          <i className="fa-solid fa-gear"></i>
+        </button>
+      </div>
     </nav>
   );
 }

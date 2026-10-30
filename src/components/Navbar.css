@@ -223,7 +223,7 @@
   position: absolute;
   right: 260px;
   /* Increased to not hide heart and bag icons */
-  width: 320px;
+  width: 200px;
   z-index: 100;
   animation: expandSearch 0.3s ease forwards;
   transform-origin: right center;
