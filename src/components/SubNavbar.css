@@ -23,10 +23,17 @@ body:not(.light-theme) .subnavbar-container {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.subnavbar-spacer {
+  width: 120px;
+  flex-shrink: 0;
+}
+
 .subnavbar-links {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  margin: 0 auto;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -92,44 +99,54 @@ body:not(.light-theme) .subnav-item.active {
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 120px;
+  justify-content: flex-end;
   flex-shrink: 0;
 }
 
-.subnav-action-pill {
+.subnav-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: 16px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
+  justify-content: center;
   border: 1px solid #e2e8f0;
   background: #f8fafc;
-  color: #334155;
+  color: #475569;
+  font-size: 14px;
+  cursor: pointer;
   transition: all 0.2s ease;
+  user-select: none;
 }
 
-body:not(.light-theme) .subnav-action-pill {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.1);
+body:not(.light-theme) .subnav-icon-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
   color: #cbd5e1;
 }
 
-.subnav-action-pill:hover {
+.subnav-icon-btn:hover {
   border-color: #ea580c;
   color: #ea580c;
   background: #fff7ed;
+  transform: translateY(-1px);
 }
 
-.subnav-action-pill.vendor-pill {
-  background: #fffbeb;
-  border-color: #fde68a;
-  color: #b45309;
+body:not(.light-theme) .subnav-icon-btn:hover {
+  background: rgba(234, 88, 12, 0.2);
+  color: #fb923c;
+  border-color: rgba(234, 88, 12, 0.4);
 }
 
-.subnav-action-pill.vendor-pill:hover {
-  background: #fef3c7;
+@media (max-width: 900px) {
+  .subnavbar-spacer {
+    display: none;
+  }
+  .subnavbar-links {
+    margin: 0;
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 768px) {
@@ -139,12 +156,14 @@ body:not(.light-theme) .subnav-action-pill {
     top: 60px;
   }
 
-  .subnavbar-actions {
-    display: none;
-  }
-
   .subnav-item {
     padding: 4px 10px;
+    font-size: 12px;
+  }
+
+  .subnav-icon-btn {
+    width: 28px;
+    height: 28px;
     font-size: 12px;
   }
 }

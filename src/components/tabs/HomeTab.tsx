@@ -230,6 +230,88 @@ export default function HomeTab() {
     parking: SHARED_VEHICLES
   };
 
+  // Custom Category Request / Add Category States
+  const [customVehicles, setCustomVehicles] = useState<Record<string, Array<{ id: string; name: string; icon: string; count?: string }>>>(() => {
+    if (typeof window === 'undefined') return {};
+    try {
+      const saved = localStorage.getItem('sart_custom_categories');
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
+  const [showOtherInput, setShowOtherInput] = useState(false);
+  const [otherCategoryName, setOtherCategoryName] = useState('');
+  const [backendCustomVehicles, setBackendCustomVehicles] = useState<any[]>([]);
+  const [isSubmittingCustom, setIsSubmittingCustom] = useState(false);
+
+  // Fetch registered custom vehicles from backend
+  const fetchCustomVehicles = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/rides/custom-categories');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data) {
+          setBackendCustomVehicles(json.data);
+          try {
+            localStorage.setItem('sart_custom_categories', JSON.stringify(json.data));
+          } catch (e) { }
+        }
+      }
+    } catch (err) {
+      try {
+        const cached = localStorage.getItem('sart_custom_categories');
+        if (cached) setBackendCustomVehicles(JSON.parse(cached));
+      } catch (e) { }
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomVehicles();
+  }, []);
+
+  const handleSaveCustomCategory = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!otherCategoryName.trim()) return;
+
+    setIsSubmittingCustom(true);
+    const payload = {
+      name: otherCategoryName.trim(),
+      category: selectedCategory,
+      count: '1+ requested nearby',
+      icon: 'fa-truck-ramp-box'
+    };
+
+    try {
+      const res = await fetch('http://localhost:5000/api/rides/custom-categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data) {
+          setBackendCustomVehicles(prev => [json.data, ...prev.filter(x => x.id !== json.data.id)]);
+        }
+      }
+    } catch (err) {
+      const fallbackItem = {
+        id: payload.name.toLowerCase().replace(/[^a-z0-9]/g, '_'),
+        name: payload.name,
+        category: payload.category,
+        count: '1+ requested nearby',
+        icon: 'fa-truck-ramp-box'
+      };
+      setBackendCustomVehicles(prev => [fallbackItem, ...prev]);
+    }
+
+    setSelectedVehicle(payload.name);
+    setShowOtherInput(false);
+    setIsSubmittingCustom(false);
+    setShowVehicleDropdown(false);
+  };
+
   const [selectedVehicle, setSelectedVehicle] = useState<string>('bike');
   const [showVehicleDropdown, setShowVehicleDropdown] = useState(false);
   const vehicleRef = React.useRef<HTMLDivElement>(null);
@@ -239,6 +321,7 @@ export default function HomeTab() {
     setSelectedCategory(cat);
     const firstVeh = CATEGORY_VEHICLES[cat][0]?.id || '';
     setSelectedVehicle(firstVeh);
+    setShowOtherInput(false);
   };
 
   const handleExecuteSearch = () => {
@@ -363,25 +446,135 @@ export default function HomeTab() {
           {/* Bottom Card: Search & Booking Bar */}
           <div className="hero-search-card">
             <div className="hero-search-horizontal-row">
-              {/* 1. Vehicle Dropdown on the Left of From */}
-              <div className="hero-h-cell hero-h-vehicle-cell" ref={vehicleRef}>
-                <div
-                  className="hero-h-vehicle-trigger"
-                  onClick={() => setShowVehicleDropdown(prev => !prev)}
-                >
-                  <div className="hero-h-icon">
-                    <i className={`fa-solid ${CATEGORY_VEHICLES[selectedCategory].find(v => v.id === selectedVehicle)?.icon || 'fa-car'}`}></i>
-                  </div>
-                  <div className="hero-h-input-wrap">
-                    <span className="hero-h-label">Vehicle</span>
-                    <span className="hero-h-val">
-                      {CATEGORY_VEHICLES[selectedCategory].find(v => v.id === selectedVehicle)?.name || 'Select'}
-                    </span>
-                  </div>
-                  <i className="fa-solid fa-chevron-down hero-h-chevron"></i>
-                </div>
+              {/* 1. Vehicle Dropdown on the Left of From OR In-Place Input */}
+              <div className="hero-h-cell hero-h-vehicle-cell" ref={vehicleRef} style={{ position: 'relative' }}>
+                {showOtherInput ? (
+                  /* IN-PLACE INPUT WHEN OTHER IS CLICKED */
+                  <div className="hero-h-other-input-container" style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '8px' }}>
+                    <div className="hero-h-icon" style={{ color: '#2563eb' }}>
+                      <i className="fa-solid fa-pen-to-square"></i>
+                    </div>
+                    <div className="hero-h-input-wrap" style={{ flex: 1 }}>
+                      <span className="hero-h-label" style={{ color: '#2563eb' }}>Vehicle Name</span>
+                      <input
+                        type="text"
+                        className="hero-h-input"
+                        placeholder="Bike"
+                        value={otherCategoryName}
+                        onChange={(e) => setOtherCategoryName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleSaveCustomCategory();
+                        }}
+                        autoFocus
+                        style={{ fontWeight: 600, color: '#0f172a' }}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleSaveCustomCategory}
+                      disabled={isSubmittingCustom || !otherCategoryName.trim()}
+                      title="Save & Select"
+                      style={{
+                        background: '#2563eb',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '6px 10px',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <i className="fa-solid fa-check"></i>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowOtherInput(false)}
+                      title="Cancel"
+                      style={{
+                        background: '#f1f5f9',
+                        color: '#64748b',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '6px 8px',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <i className="fa-solid fa-xmark"></i>
+                    </button>
 
-                {showVehicleDropdown && (
+                    {/* Auto-suggest dropdown below Other input if matches exist */}
+                    {otherCategoryName.trim() && backendCustomVehicles.filter(v => v.name.toLowerCase().includes(otherCategoryName.trim().toLowerCase())).length > 0 && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '100%',
+                          left: 0,
+                          right: 0,
+                          background: '#fff',
+                          borderRadius: '12px',
+                          boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                          border: '1px solid #e2e8f0',
+                          marginTop: '8px',
+                          zIndex: 1100,
+                          padding: '6px'
+                        }}
+                      >
+                        <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', padding: '4px 8px' }}>
+                          Registered by other users:
+                        </div>
+                        {backendCustomVehicles.filter(v => v.name.toLowerCase().includes(otherCategoryName.trim().toLowerCase())).map(m => (
+                          <div
+                            key={m.id}
+                            onClick={() => {
+                              setSelectedVehicle(m.name);
+                              setShowOtherInput(false);
+                            }}
+                            style={{
+                              padding: '8px 10px',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              fontSize: '13px',
+                              color: '#1e293b'
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = '#f0fdf4'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                          >
+                            <span style={{ fontWeight: 600 }}>
+                              <i className={`fa-solid ${m.icon || 'fa-truck'}`} style={{ marginRight: '8px', color: '#2563eb' }}></i>
+                              {m.name}
+                            </span>
+                            <span style={{ fontSize: '11px', background: '#dcfce7', color: '#16a34a', padding: '2px 6px', borderRadius: '4px' }}>
+                              {m.count || 'Available'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div
+                    className="hero-h-vehicle-trigger"
+                    onClick={() => setShowVehicleDropdown(prev => !prev)}
+                  >
+                    <div className="hero-h-icon">
+                      <i className={`fa-solid ${CATEGORY_VEHICLES[selectedCategory]?.find(v => v.id === selectedVehicle)?.icon || backendCustomVehicles.find(v => v.id === selectedVehicle || v.name === selectedVehicle)?.icon || 'fa-car'}`}></i>
+                    </div>
+                    <div className="hero-h-input-wrap">
+                      <span className="hero-h-label">Vehicle</span>
+                      <span className="hero-h-val">
+                        {CATEGORY_VEHICLES[selectedCategory]?.find(v => v.id === selectedVehicle)?.name || backendCustomVehicles.find(v => v.id === selectedVehicle || v.name === selectedVehicle)?.name || selectedVehicle || 'Select'}
+                      </span>
+                    </div>
+                    <i className="fa-solid fa-chevron-down hero-h-chevron"></i>
+                  </div>
+                )}
+
+                {showVehicleDropdown && !showOtherInput && (
                   <div className="hero-vehicle-dropdown-menu" onClick={(e) => e.stopPropagation()}>
                     <div className="hero-vdp-header">
                       <div>
@@ -403,6 +596,7 @@ export default function HomeTab() {
 
                     {/* Scrollable Vehicle Cards List */}
                     <div className="hero-vehicle-dropdown-list">
+                      {/* Standard Category Vehicles */}
                       {CATEGORY_VEHICLES[selectedCategory].map((veh) => {
                         const isSelected = selectedVehicle === veh.id;
                         return (
@@ -435,11 +629,72 @@ export default function HomeTab() {
                           </div>
                         );
                       })}
+
+                      {/* Backend Saved Custom Vehicles (Visible for other users) */}
+                      {selectedCategory !== 'rides' && backendCustomVehicles.filter(v => (v.category || '').toLowerCase() === selectedCategory.toLowerCase() && v.id !== 'electric_auto' && v.name.toLowerCase() !== 'electric auto').map((custom) => {
+                        const isSelected = selectedVehicle === custom.name || selectedVehicle === custom.id;
+                        return (
+                          <div
+                            key={custom.id}
+                            className={`hero-vdp-card ${isSelected ? 'active' : ''}`}
+                            style={{ borderLeft: '3px solid #16a34a' }}
+                            onClick={() => {
+                              setSelectedVehicle(custom.name);
+                              setShowVehicleDropdown(false);
+                            }}
+                          >
+                            <div className="hero-vdp-card-left">
+                              <div className={`hero-vdp-icon-box ${isSelected ? 'active' : ''}`} style={{ background: '#ecfdf5', color: '#16a34a' }}>
+                                <i className={`fa-solid ${custom.icon || 'fa-truck-ramp-box'}`}></i>
+                              </div>
+                              <span className="hero-vdp-name">{custom.name}</span>
+                              <span className="hero-vdp-badge active" style={{ background: '#dcfce7', color: '#15803d' }}>
+                                {custom.count || 'Requested'}
+                              </span>
+                            </div>
+                            <div className="hero-vdp-arrow">
+                              <i className="fa-solid fa-chevron-right"></i>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {/* OTHER OPTION CARD */}
+                      {selectedCategory !== 'rides' && (
+                        <div
+                          className="hero-vdp-card other-option-card"
+                          style={{
+                            background: '#f8fafc',
+                            border: '1px dashed #3b82f6',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => {
+                            setShowOtherInput(true);
+                            setShowVehicleDropdown(false);
+                          }}
+                        >
+                          <div className="hero-vdp-card-left">
+                            <div className="hero-vdp-icon-box" style={{ background: '#eff6ff', color: '#2563eb' }}>
+                              <i className="fa-solid fa-plus"></i>
+                            </div>
+                            <div>
+                              <span className="hero-vdp-name" style={{ color: '#2563eb', fontWeight: 700 }}>
+                                Other
+                              </span>
+                              <div style={{ fontSize: '11.5px', color: '#64748b' }}>
+                                request category
+                              </div>
+                            </div>
+                          </div>
+                          <div className="hero-vdp-arrow" style={{ color: '#2563eb' }}>
+                            <i className="fa-solid fa-pencil"></i>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
               </div>
-
               {/* Divider */}
               <div className="hero-h-divider"></div>
 
@@ -782,7 +1037,7 @@ export default function HomeTab() {
               <div className="book-card" onClick={() => handleServiceClick('ride')}>
                 <div className="book-img-wrapper">
                   <img
-                    src="/images/rides_fleet_showcase.png"
+                    src="/images/Ride.jpg"
                     alt="Rides Fleet"
                     className="book-card-img"
                   />
@@ -795,7 +1050,7 @@ export default function HomeTab() {
               <div className="book-card" onClick={() => handleServiceClick('carrier')}>
                 <div className="book-img-wrapper">
                   <img
-                    src="/images/parcel_service.png"
+                    src="/images/parcel.jpg"
                     alt="Carrier Logistics"
                     className="book-card-img"
                   />
@@ -810,7 +1065,7 @@ export default function HomeTab() {
               <div className="book-card" onClick={() => handleServiceClick('rental')}>
                 <div className="book-img-wrapper">
                   <img
-                    src="/images/carrier_service.png"
+                    src="/images/rental.png"
                     alt="Vehicle Rental"
                     className="book-card-img"
                   />
@@ -823,7 +1078,7 @@ export default function HomeTab() {
               <div className="book-card" onClick={() => handleServiceClick('drivers')}>
                 <div className="book-img-wrapper">
                   <img
-                    src="/images/Driver.jpg"
+                    src="/images/Driver1.jpg"
                     alt="Drivers Hire"
                     className="book-card-img"
                   />
@@ -836,7 +1091,7 @@ export default function HomeTab() {
               <div className="book-card" onClick={() => handleServiceClick('parking')}>
                 <div className="book-img-wrapper">
                   <img
-                    src="/images/parking_service.jpg"
+                    src="/images/Parking1.jpg"
                     alt="Parking Slots"
                     className="book-card-img"
                   />

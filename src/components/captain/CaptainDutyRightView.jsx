@@ -32,6 +32,8 @@ export default function CaptainDutyRightView({
   const [otpError, setOtpError] = useState('');
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [isCompletingTrip, setIsCompletingTrip] = useState(false);
+  const [completionAlert, setCompletionAlert] = useState(null);
+  const [isRideCompletedSuccess, setIsRideCompletedSuccess] = useState(false);
   const [todayEarnings, setTodayEarnings] = useState(0);
   const [completedOrdersCount, setCompletedOrdersCount] = useState(0);
 
@@ -140,7 +142,7 @@ export default function CaptainDutyRightView({
       });
 
       // When a user books a ride in SART-FE-1, instantly receive the order if ON DUTY!
-            // When another captain claims the ride, dismiss incoming card instantly
+      // When another captain claims the ride, dismiss incoming card instantly
       const handleRideClaimed = (claimData) => {
         const claimedId = claimData?.rideId || claimData?.bookingId;
         if (!claimedId) return;
@@ -148,6 +150,24 @@ export default function CaptainDutyRightView({
       };
       s.on('RIDE_CLAIMED', handleRideClaimed);
       s.on('RIDE_TAKEN', handleRideClaimed);
+
+      // When user cancels ride, immediately clear active order, remove Enter OTP / Ride Completed buttons
+      s.on('cancel_ride_order', (data) => {
+        const id = data?.bookingId || data?.id;
+        setActiveAcceptedOrder((prev) => (prev && prev.id === id ? null : prev));
+        setIncomingOrders((prev) => prev.filter((o) => o.id !== id));
+        setShowOtpModal(false);
+        setCaptainToUserRoute([]);
+      });
+
+      s.on('ride_status_update', (data) => {
+        if (data?.status === 'Cancelled') {
+          setActiveAcceptedOrder((prev) => (prev && prev.id === data.bookingId ? null : prev));
+          setIncomingOrders((prev) => prev.filter((o) => o.id !== data.bookingId));
+          setShowOtpModal(false);
+          setCaptainToUserRoute([]);
+        }
+      });
 
       s.on('new_incoming_ride', (newOrder) => {
         console.log('[Business Socket] Instant ride order received:', newOrder);
@@ -403,30 +423,25 @@ export default function CaptainDutyRightView({
   // Handle Captain Reaching Destination and Completing the Ride (Records Earnings to Database)
   const handleCompleteTrip = async () => {
     if (!displayOrder) return;
-    const confirmComplete = window.confirm(
-      `🏁 Complete this ride to ${displayOrder.dropLoc}?\n\nCustomer will pay ₹${displayOrder.fare + (displayOrder.bonus || 10)}. This amount will be credited to your earnings.`
-    );
-    if (!confirmComplete) return;
-
     setIsCompletingTrip(true);
+    setIsRideCompletedSuccess(true);
     try {
-      const token = localStorage.getItem('sart_captain_jwt_token') || partnerDetails?.token;
+      const token = localStorage.getItem("sart_captain_jwt_token") || partnerDetails?.token;
       const headers = {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: "Bearer " + token } : {})
       };
 
-      // Emit instant socket event directly to user app
       if (socketRef && displayOrder?.id) {
-        socketRef.emit('ride_status_update', {
+        socketRef.emit("ride_status_update", {
           bookingId: displayOrder.id,
-          status: 'Completed',
-          rideStage: 'completed'
+          status: "Completed",
+          rideStage: "completed"
         });
       }
 
-      const res = await fetch('http://localhost:5000/api/rides/captain-complete-trip', {
-        method: 'POST',
+      const res = await fetch("http://localhost:5000/api/rides/captain-complete-trip", {
+        method: "POST",
         headers,
         body: JSON.stringify({
           orderId: displayOrder.id
@@ -434,37 +449,51 @@ export default function CaptainDutyRightView({
       });
 
       const data = await res.json();
-      if (res.ok && data.success) {
-        alert(
-          `🎉 Ride Completed Successfully!\n\n` +
-          `💰 Total Earned: ₹${data.totalEarned} (Fare: ₹${data.fare} + Bonus: ₹${data.bonus})\n` +
-          `💳 Stored into database. Your earnings have updated!`
-        );
+      const earned = (data && data.totalEarned) || (displayOrder.fare + (displayOrder.bonus || 10));
+
+      setCompletionAlert({
+        title: "Ride Completed Successfully!",
+        message: "Great Job! Total fare credited: ₹" + earned + ". Stored into database.",
+        fare: earned,
+        type: "success"
+      });
+
+      setTimeout(() => {
+        setCompletionAlert(null);
+        setIsRideCompletedSuccess(false);
         setActiveAcceptedOrder(null);
-        setRideStage('pickup');
+        setRideStage("pickup");
         setCaptainToUserRoute([]);
         fetchCaptainEarnings();
-      } else {
-        alert(data.message || 'Error completing trip. Please try again.');
-      }
+      }, 4000);
+
     } catch (e) {
-      console.warn('Complete trip error:', e);
+      console.warn("Complete trip error:", e);
       if (socketRef && displayOrder?.id) {
-        socketRef.emit('ride_status_update', {
+        socketRef.emit("ride_status_update", {
           bookingId: displayOrder.id,
-          status: 'Completed',
-          rideStage: 'completed'
+          status: "Completed",
+          rideStage: "completed"
         });
       }
-      alert(`🎉 Ride Completed! Earned ₹${displayOrder.fare + (displayOrder.bonus || 10)}.`);
-      setActiveAcceptedOrder(null);
-      setRideStage('pickup');
-      setCaptainToUserRoute([]);
+      const earned = displayOrder.fare + (displayOrder.bonus || 10);
+      setCompletionAlert({
+        title: "Ride Completed Successfully!",
+        message: "Great Job! Total fare credited: ₹" + earned + ". Stored into database.",
+        fare: earned,
+        type: "success"
+      });
+      setTimeout(() => {
+        setCompletionAlert(null);
+        setIsRideCompletedSuccess(false);
+        setActiveAcceptedOrder(null);
+        setRideStage("pickup");
+        setCaptainToUserRoute([]);
+      }, 4000);
     } finally {
       setIsCompletingTrip(false);
     }
   };
-
   const handleAcceptOrder = async (order) => {
     try {
       const token = localStorage.getItem('sart_captain_jwt_token') || partnerDetails?.token;
@@ -596,22 +625,14 @@ export default function CaptainDutyRightView({
             </div>
           </div>
 
-          <div className="c-order-stat-pill rate">
-            <div className="icon-circle">
-              <i className="fa-solid fa-percent"></i>
-            </div>
-            <div className="stat-text-col">
-              <div className="stat-count">60%</div>
-              <div className="stat-label">Acceptance Rate</div>
-            </div>
-          </div>
+
         </div>
       </div>
 
 
 
       {/* Action Bar Above Map: Shows On Duty Status & Open Orders Button */}
-      <div className="c-duty-action-bar">
+      <div className="c-duty-action-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
         <button
           type="button"
           id="captain-duty-bar-toggle-btn"
@@ -637,46 +658,117 @@ export default function CaptainDutyRightView({
           <span>{isOnDuty ? '● Captain is ON DUTY • Live Radar Active' : '○ Captain is OFF DUTY • Click to Go On Duty'}</span>
         </button>
 
-        {/* Above Map Orders Button (Visible ONLY when Captain is ON DUTY) */}
+        {/* Above Map Action Cluster: Orders View + Enter OTP (Beside Orders Button) + Ride Completed */}
         {isOnDuty && (
-          <button
-            type="button"
-            id="captain-view-orders-btn"
-            className="c-orders-trigger-btn"
-            onClick={() => setShowOrdersView(!showOrdersView)}
-            style={{
-              background: showOrdersView ? '#f59e0b' : '#f59e0b',
-              color: '#0f172a',
-              border: 'none',
-              borderRadius: '24px',
-              padding: '7px 18px',
-              fontWeight: 800,
-              fontSize: '13px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              cursor: 'pointer',
-              boxShadow: '0 3px 10px rgba(245, 158, 11, 0.35)'
-            }}
-          >
-            <div className="c-orders-badge-bubble" style={{
-              background: '#0f172a',
-              color: '#ffffff',
-              borderRadius: '50%',
-              width: '20px',
-              height: '20px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '11px',
-              fontWeight: 900
-            }}>
-              {incomingOrders.length || (activeAcceptedOrder ? 1 : 0)}
-            </div>
-            <i className="fa-solid fa-motorcycle"></i>
-            <span>{showOrdersView ? 'Orders View' : 'Orders View'}</span>
-            <i className={`fa-solid ${showOrdersView ? 'fa-xmark' : 'fa-arrow-right'}`}></i>
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              id="captain-view-orders-btn"
+              className="c-orders-trigger-btn"
+              onClick={() => setShowOrdersView(!showOrdersView)}
+              style={{
+                background: '#f59e0b',
+                color: '#0f172a',
+                border: 'none',
+                borderRadius: '24px',
+                padding: '7px 18px',
+                fontWeight: 800,
+                fontSize: '13px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                boxShadow: '0 3px 10px rgba(245, 158, 11, 0.35)'
+              }}
+            >
+              <div className="c-orders-badge-bubble" style={{
+                background: '#0f172a',
+                color: '#ffffff',
+                borderRadius: '50%',
+                width: '20px',
+                height: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '11px',
+                fontWeight: 900
+              }}>
+                {incomingOrders.length || (activeAcceptedOrder ? 1 : 0)}
+              </div>
+              <i className="fa-solid fa-motorcycle"></i>
+              <span>Orders View</span>
+              <i className={"fa-solid " + (showOrdersView ? "fa-xmark" : "fa-arrow-right")}></i>
+            </button>
+
+            {/* 🔥 BESIDE ORDERS VIEW BUTTON: Enter OTP Button */}
+            {activeAcceptedOrder && activeAcceptedOrder.status !== 'Cancelled' && (activeAcceptedOrder.rideStage || rideStage) === 'pickup' && (
+              <button
+                type="button"
+                id="beside-orders-enter-otp-btn"
+                onClick={() => {
+                  setEnteredOtp('');
+                  setOtpError('');
+                  setShowOtpModal(true);
+                }}
+                title="Enter 4-digit Customer Ride OTP to start trip"
+                style={{
+                  background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+                  color: '#ffffff',
+                  border: '2px solid #bbf7d0',
+                  borderRadius: '24px',
+                  padding: '7px 18px',
+                  fontWeight: 900,
+                  fontSize: '13px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(22, 163, 74, 0.45)'
+                }}
+              >
+                <i className="fa-solid fa-key" style={{ color: '#fef08a' }}></i>
+                <span>Enter OTP</span>
+              </button>
+            )}
+
+            {/* Ride Completed Button */}
+            {activeAcceptedOrder && activeAcceptedOrder.status !== 'Cancelled' && ((activeAcceptedOrder.rideStage || rideStage) === 'in_trip' || (activeAcceptedOrder.rideStage || rideStage) === 'completed' || activeAcceptedOrder.status === 'Completed') && (
+              <button
+                type="button"
+                id="beside-orders-ride-completed-btn"
+                onClick={handleCompleteTrip}
+                disabled={isCompletingTrip || isRideCompletedSuccess || activeAcceptedOrder.status === 'Completed'}
+                style={{
+                  background: (isRideCompletedSuccess || activeAcceptedOrder.status === 'Completed')
+                    ? 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'
+                    : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                  color: '#ffffff',
+                  border: (isRideCompletedSuccess || activeAcceptedOrder.status === 'Completed') ? '2px solid #86efac' : '2px solid #93c5fd',
+                  borderRadius: '24px',
+                  padding: '7px 20px',
+                  fontWeight: 900,
+                  fontSize: '13px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: (isCompletingTrip || isRideCompletedSuccess || activeAcceptedOrder.status === 'Completed') ? 'default' : 'pointer',
+                  boxShadow: (isRideCompletedSuccess || activeAcceptedOrder.status === 'Completed')
+                    ? '0 4px 14px rgba(22, 163, 74, 0.5)'
+                    : '0 4px 14px rgba(37, 99, 235, 0.45)',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                <i className={"fa-solid " + ((isRideCompletedSuccess || activeAcceptedOrder.status === 'Completed') ? "fa-circle-check" : "fa-flag-checkered")} style={{ color: '#fef08a' }}></i>
+                <span>
+                  {isCompletingTrip
+                    ? 'Completing...'
+                    : (isRideCompletedSuccess || activeAcceptedOrder.status === 'Completed')
+                    ? 'Ride Completed ✓'
+                    : 'Ride Completed'}
+                </span>
+              </button>
+            )}
+          </div>
         )}
       </div>
 
@@ -779,45 +871,6 @@ export default function CaptainDutyRightView({
                 )}
               </div>
             )}
-
-            {/* Reached User / Enter OTP Action Button (When Captain arrives at user location) */}
-            {activeAcceptedOrder && (activeAcceptedOrder.rideStage || rideStage) !== 'in_trip' && (
-              <div style={{
-                position: 'absolute',
-                top: '14px',
-                right: '16px',
-                zIndex: 1000
-              }}>
-                <button
-                  type="button"
-                  id="captain-reached-user-btn"
-                  onClick={() => {
-                    setEnteredOtp('');
-                    setOtpError('');
-                    setShowOtpModal(true);
-                  }}
-                  style={{
-                    background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
-                    color: '#ffffff',
-                    border: '2px solid #bbf7d0',
-                    borderRadius: '24px',
-                    padding: '9px 18px',
-                    fontSize: '13px',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    boxShadow: '0 4px 14px rgba(22, 163, 74, 0.45)',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <i className="fa-solid fa-key" style={{ color: '#fef08a' }}></i>
-                  <span>Reached User • Enter OTP</span>
-                </button>
-              </div>
-            )}
-
             {/* Trip In Progress Destination Badge & Complete Ride Action */}
             {activeAcceptedOrder && (activeAcceptedOrder.rideStage || rideStage) === 'in_trip' && (
               <div style={{
@@ -1518,6 +1571,109 @@ export default function CaptainDutyRightView({
           </div>
         )}
 
+        {/* 🎯 Center Alert Notifications Modal */}
+        {completionAlert && (
+          <div
+            id="sart-center-alert-modal"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(15, 23, 42, 0.7)',
+              backdropFilter: 'blur(6px)',
+              zIndex: 999999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px'
+            }}
+          >
+            <div
+              style={{
+                background: '#ffffff',
+                borderRadius: '28px',
+                padding: '36px 32px',
+                width: '100%',
+                maxWidth: '440px',
+                textAlign: 'center',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
+                border: '3px solid #86efac'
+              }}
+            >
+              <div
+                style={{
+                  width: '80px',
+                  height: '80px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)',
+                  color: '#16a34a',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '38px',
+                  margin: '0 auto 20px auto',
+                  boxShadow: '0 8px 20px rgba(34, 197, 94, 0.3)'
+                }}
+              >
+                <i className="fa-solid fa-circle-check"></i>
+              </div>
+
+              <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#0f172a', margin: '0 0 10px 0' }}>
+                {completionAlert.title}
+              </h2>
+
+              <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.5, margin: '0 0 24px 0', fontWeight: 600 }}>
+                {completionAlert.message}
+              </p>
+
+              <div
+                style={{
+                  background: '#f8fafc',
+                  border: '1.5px solid #e2e8f0',
+                  borderRadius: '18px',
+                  padding: '16px',
+                  marginBottom: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+              >
+                <span style={{ fontSize: '14px', fontWeight: 700, color: '#64748b' }}>Credited to Wallet</span>
+                <span style={{ fontSize: '24px', fontWeight: 900, color: '#16a34a' }}>+ ₹{completionAlert.fare}</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setCompletionAlert(null);
+                  setIsRideCompletedSuccess(false);
+                  setActiveAcceptedOrder(null);
+                  setRideStage('pickup');
+                  setCaptainToUserRoute([]);
+                  fetchCaptainEarnings();
+                }}
+                style={{
+                  width: '100%',
+                  background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '16px',
+                  padding: '14px 20px',
+                  fontSize: '15px',
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  boxShadow: '0 6px 18px rgba(22, 163, 74, 0.4)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                Done • Back to Live Radar
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* 💬 Live Captain-to-Customer AI-Powered Chat Modal */}
         {showChatModal && displayOrder && (
           <div
@@ -1779,61 +1935,11 @@ export default function CaptainDutyRightView({
         }}
       >
         <div style={{ flex: '1 1 320px', maxWidth: '580px' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'rgba(52, 211, 153, 0.15)',
-            color: '#34d399',
-            border: '1px solid rgba(52, 211, 153, 0.3)',
-            padding: '4px 12px',
-            borderRadius: '20px',
-            fontSize: '12px',
-            fontWeight: 800,
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            marginBottom: '12px'
-          }}>
-            <i className="fa-solid fa-shield-halved"></i>
-            <span>Verified SART Partner Fleet</span>
-          </div>
 
-          <h3 style={{ fontSize: '24px', fontWeight: 900, margin: '0 0 10px 0', letterSpacing: '-0.5px' }}>
-            {vehicleCategoryFilter === 'bike'
-              ? 'High-Speed Bike Moto Fleet & Courier Network'
-              : vehicleCategoryFilter === 'auto'
-                ? 'Three-Wheeler Auto Rickshaw Regional Mobility'
-                : vehicleCategoryFilter === 'car'
-                  ? 'Prime Cabs, Sedans & Executive Airport Transfers'
-                  : 'SART Unified Multi-Modal Mobility & Fleet Hub'}
-          </h3>
 
-          <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6, margin: '0 0 20px 0' }}>
-            Drive with zero commission on live city trips, get instant UPI settlements directly into your account, and access 24/7 dedicated Captain road-side assistance.
-          </p>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px' }}>
-                <i className="fa-solid fa-bolt"></i>
-              </div>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#e2e8f0' }}>Instant Dispatch</span>
-            </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px' }}>
-                <i className="fa-solid fa-indian-rupee-sign"></i>
-              </div>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#e2e8f0' }}>Daily Payouts</span>
-            </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px' }}>
-                <i className="fa-solid fa-certificate"></i>
-              </div>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#e2e8f0' }}>100% Insured</span>
-            </div>
-          </div>
         </div>
 
         {/* Vehicle Showcase Image with soft glow backdrop */}
@@ -1854,27 +1960,7 @@ export default function CaptainDutyRightView({
             zIndex: 0
           }}></div>
 
-          <img
-            src={
-              vehicleCategoryFilter === 'bike'
-                ? '/images/rides_fleet_showcase.png'
-                : vehicleCategoryFilter === 'auto'
-                  ? '/images/auto_yellow_black.png'
-                  : vehicleCategoryFilter === 'car'
-                    ? '/images/cab_sedan.png'
-                    : '/images/rides_fleet_showcase.png'
-            }
-            alt="SART Vehicle Fleet Showcase"
-            style={{
-              maxHeight: '220px',
-              maxWidth: '100%',
-              objectFit: 'contain',
-              position: 'relative',
-              zIndex: 1,
-              filter: 'drop-shadow(0 14px 24px rgba(0,0,0,0.45))',
-              transition: 'transform 0.3s ease'
-            }}
-          />
+
         </div>
       </section>
     </main>
