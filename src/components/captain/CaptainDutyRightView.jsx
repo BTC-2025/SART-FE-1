@@ -140,7 +140,7 @@ export default function CaptainDutyRightView({
       });
 
       // When a user books a ride in SART-FE-1, instantly receive the order if ON DUTY!
-            // When another captain claims the ride, dismiss incoming card instantly
+      // When another captain claims the ride, dismiss incoming card instantly
       const handleRideClaimed = (claimData) => {
         const claimedId = claimData?.rideId || claimData?.bookingId;
         if (!claimedId) return;
@@ -1779,61 +1779,11 @@ export default function CaptainDutyRightView({
         }}
       >
         <div style={{ flex: '1 1 320px', maxWidth: '580px' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'rgba(52, 211, 153, 0.15)',
-            color: '#34d399',
-            border: '1px solid rgba(52, 211, 153, 0.3)',
-            padding: '4px 12px',
-            borderRadius: '20px',
-            fontSize: '12px',
-            fontWeight: 800,
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            marginBottom: '12px'
-          }}>
-            <i className="fa-solid fa-shield-halved"></i>
-            <span>Verified SART Partner Fleet</span>
-          </div>
 
-          <h3 style={{ fontSize: '24px', fontWeight: 900, margin: '0 0 10px 0', letterSpacing: '-0.5px' }}>
-            {vehicleCategoryFilter === 'bike'
-              ? 'High-Speed Bike Moto Fleet & Courier Network'
-              : vehicleCategoryFilter === 'auto'
-                ? 'Three-Wheeler Auto Rickshaw Regional Mobility'
-                : vehicleCategoryFilter === 'car'
-                  ? 'Prime Cabs, Sedans & Executive Airport Transfers'
-                  : 'SART Unified Multi-Modal Mobility & Fleet Hub'}
-          </h3>
 
-          <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.6, margin: '0 0 20px 0' }}>
-            Drive with zero commission on live city trips, get instant UPI settlements directly into your account, and access 24/7 dedicated Captain road-side assistance.
-          </p>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px' }}>
-                <i className="fa-solid fa-bolt"></i>
-              </div>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#e2e8f0' }}>Instant Dispatch</span>
-            </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px' }}>
-                <i className="fa-solid fa-indian-rupee-sign"></i>
-              </div>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#e2e8f0' }}>Daily Payouts</span>
-            </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px' }}>
-                <i className="fa-solid fa-certificate"></i>
-              </div>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#e2e8f0' }}>100% Insured</span>
-            </div>
-          </div>
         </div>
 
         {/* Vehicle Showcase Image with soft glow backdrop */}
@@ -1854,27 +1804,7 @@ export default function CaptainDutyRightView({
             zIndex: 0
           }}></div>
 
-          <img
-            src={
-              vehicleCategoryFilter === 'bike'
-                ? '/images/rides_fleet_showcase.png'
-                : vehicleCategoryFilter === 'auto'
-                  ? '/images/auto_yellow_black.png'
-                  : vehicleCategoryFilter === 'car'
-                    ? '/images/cab_sedan.png'
-                    : '/images/rides_fleet_showcase.png'
-            }
-            alt="SART Vehicle Fleet Showcase"
-            style={{
-              maxHeight: '220px',
-              maxWidth: '100%',
-              objectFit: 'contain',
-              position: 'relative',
-              zIndex: 1,
-              filter: 'drop-shadow(0 14px 24px rgba(0,0,0,0.45))',
-              transition: 'transform 0.3s ease'
-            }}
-          />
+
         </div>
       </section>
     </main>
