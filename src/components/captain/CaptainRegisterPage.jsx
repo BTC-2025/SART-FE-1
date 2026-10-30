@@ -428,12 +428,38 @@ export default function CaptainRegisterPage({ onLoginSuccess }) {
       console.warn('Backend captain registration error (fallback to local):', apiErr);
     }
 
-    // 2. Persist in localStorage
-    localStorage.setItem(`sart_captain_${phone.trim()}`, JSON.stringify(savedUser));
-    if (formData.email.trim()) {
-      localStorage.setItem(`sart_captain_${formData.email.trim().toLowerCase()}`, JSON.stringify(savedUser));
+    // 2. Persist in localStorage safely (with quota guard & fallback)
+    try {
+      const lightweightUser = {
+        id: savedUser.id,
+        driverName: savedUser.driverName,
+        name: savedUser.name,
+        email: savedUser.email,
+        phone: savedUser.phone,
+        serviceType: savedUser.serviceType,
+        vehicleModel: savedUser.vehicleModel,
+        plateNumber: savedUser.plateNumber,
+        licenseNumber: savedUser.licenseNumber,
+        city: savedUser.city,
+        token: savedUser.token || ('cpt_tok_' + Date.now())
+      };
+      const userStr = JSON.stringify(lightweightUser);
+      localStorage.setItem('sart_captain_' + phone.trim(), userStr);
+      if (formData.email && formData.email.trim()) {
+        localStorage.setItem('sart_captain_' + formData.email.trim().toLowerCase(), userStr);
+      }
+      localStorage.setItem('sart_captain_session', userStr);
+    } catch (quotaErr) {
+      console.warn('Storage quota limit reached, falling back to lightweight session:', quotaErr);
+      try {
+        sessionStorage.setItem('sart_captain_session', JSON.stringify({
+          id: savedUser.id,
+          name: savedUser.name,
+          phone: savedUser.phone,
+          serviceType: savedUser.serviceType
+        }));
+      } catch (e) {}
     }
-    localStorage.setItem('sart_captain_session', JSON.stringify(savedUser));
 
 
     setIsSubmitting(false);
