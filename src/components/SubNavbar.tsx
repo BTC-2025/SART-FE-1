@@ -77,15 +77,7 @@ export default function SubNavbar() {
 
       {/* End Actions: Captain Login External Link, Help & Support, Settings */}
       <div className="subnavbar-actions">
-        <button
-          type="button"
-          className="subnav-icon-btn"
-          onClick={handleCaptainLoginClick}
-          title="Captain Login"
-          aria-label="Captain Login"
-        >
-          <i className="fa-solid fa-arrow-up-right-from-square"></i>
-        </button>
+
         <button
           type="button"
           className="subnav-icon-btn"

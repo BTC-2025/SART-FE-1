@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import './CaptainRegisterPage.css';
 
 // Master Indian Cities & Operating Hubs for Autocomplete
@@ -35,9 +36,16 @@ const INDIAN_CITIES = [
   'Nashik, Maharashtra'
 ];
 
-export default function CaptainRegisterPage({ onLoginSuccess }) {
+export default function CaptainRegisterPage({ onLoginSuccess, initialTab = 'login' }) {
+  const router = useRouter();
   // Top-level Auth Tab: 'login' (Existing Captain) | 'register' (New Captain)
-  const [activeTab, setActiveTab] = useState('login');
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   // Login Method: 'phone_otp' | 'email_password'
   const [loginMethod, setLoginMethod] = useState('phone_otp');
@@ -312,20 +320,40 @@ export default function CaptainRegisterPage({ onLoginSuccess }) {
         return;
       }
 
-      // If captain is already registered, enter home dashboard
-      if (data.isRegistered && (existingUser || data.captain)) {
-        const userToSave = existingUser || data.captain;
+      // If activeTab is 'login' OR captain is already registered OR existing partner:
+      // old/existing user: directly enter duty dashboard without showing registration steps!
+      if (activeTab === 'login' || data.isRegistered || existingUser || data.captain) {
+        const cleanPhone = phone.trim();
+        const userToSave = existingUser || data.captain || {
+          id: 'CPT-' + cleanPhone.slice(-4),
+          name: existingUser?.name || data.captain?.name || ('Captain ' + cleanPhone.slice(-4)),
+          driverName: existingUser?.name || data.captain?.name || ('Captain ' + cleanPhone.slice(-4)),
+          phone: cleanPhone,
+          role: 'driver',
+          serviceType: existingUser?.serviceType || data.captain?.serviceType || 'bike',
+          city: existingUser?.city || data.captain?.city || 'Bengaluru',
+          vehicleModel: existingUser?.vehicleModel || data.captain?.vehicleModel || 'Hero Splendor / White EV Bike',
+          plateNumber: existingUser?.plateNumber || data.captain?.plateNumber || 'TN 09 EQ 4421',
+          licenseNumber: 'DL-VERIFIED',
+          avatarUrl: existingUser?.avatarUrl || data.captain?.avatarUrl || ''
+        };
+
         if (data.token) {
           userToSave.token = data.token;
-          userToSave.role = 'driver';
           localStorage.setItem('sart_captain_jwt_token', data.token);
         }
-        localStorage.setItem('sart_captain_session', JSON.stringify(userToSave));
-        localStorage.setItem(`sart_captain_${userToSave.phone}`, JSON.stringify(userToSave));
+        userToSave.role = 'driver';
+        try {
+          localStorage.setItem('sart_captain_session', JSON.stringify(userToSave));
+          localStorage.setItem('sart_captain_' + cleanPhone, JSON.stringify(userToSave));
+        } catch (storageErr) {
+          console.warn('LocalStorage quota reached:', storageErr);
+          sessionStorage.setItem('sart_captain_session', JSON.stringify(userToSave));
+        }
         setIsSubmitting(false);
         onLoginSuccess(userToSave);
       } else {
-        // New partner: enter registration details
+        // ONLY for registration flow: proceed to registration details & document upload
         setIsSubmitting(false);
         setStep('register_details');
       }
@@ -499,6 +527,7 @@ export default function CaptainRegisterPage({ onLoginSuccess }) {
                   setActiveTab('login');
                   setStep('enter_phone');
                   setErrorMessage('');
+                  try { router.push('/ride/captain/login'); } catch (e) {}
                 }}
               >
                 <i className="fa-solid fa-right-to-bracket"></i>
@@ -512,6 +541,7 @@ export default function CaptainRegisterPage({ onLoginSuccess }) {
                   setLoginMethod('phone_otp');
                   setStep('enter_phone');
                   setErrorMessage('');
+                  try { router.push('/ride/captain/register'); } catch (e) {}
                 }}
               >
                 <i className="fa-solid fa-user-plus"></i>
@@ -615,6 +645,7 @@ export default function CaptainRegisterPage({ onLoginSuccess }) {
                             setActiveTab('register');
                             setLoginMethod('phone_otp');
                             setStep('enter_phone');
+                            try { router.push('/ride/captain/register'); } catch (e) {}
                           }}
                         >
                           Register Captain Account
@@ -732,6 +763,7 @@ export default function CaptainRegisterPage({ onLoginSuccess }) {
                         onClick={() => {
                           setActiveTab('login');
                           setStep('enter_phone');
+                          try { router.push('/ride/captain/login'); } catch (e) {}
                         }}
                       >
                         Sign In with Email or Mobile
