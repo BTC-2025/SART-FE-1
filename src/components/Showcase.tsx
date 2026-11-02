@@ -1317,7 +1317,7 @@ export default function Showcase() {
         <div className="showcase-section-header">
           <div className="showcase-header-left">
             <h2 className="showcase-title">Carrier Listings</h2>
-            <span className="showcase-subtitle-tag" style={{ color: '#ea580c' }}>Cargo & Logistics</span>
+            <span className="showcase-subtitle-tag" style={{ color: '#ea580c' }}>Carrier</span>
           </div>
           <div className="showcase-header-right">
             <div className="showcase-category-pills">

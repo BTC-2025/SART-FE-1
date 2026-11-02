@@ -486,7 +486,7 @@ export default function CaptainRegisterPage({ onLoginSuccess, initialTab = 'logi
           phone: savedUser.phone,
           serviceType: savedUser.serviceType
         }));
-      } catch (e) {}
+      } catch (e) { }
     }
 
 
@@ -498,21 +498,115 @@ export default function CaptainRegisterPage({ onLoginSuccess, initialTab = 'logi
 
   return (
     <div className="c-auth-page-wrapper">
-      {/* Top Navbar */}
-      <nav className="c-auth-nav">
-        <div className="c-brand-logo-area">
-          <div className="c-brand-badge">SART</div>
-          <div>
-            <div className="c-brand-text">
-              <span>Captain Partner Portal</span>
-            </div>
+      {/* Top Navbar matching User Image 2 */}
+      <header className="web-navbar" style={{ position: 'relative', zIndex: 100 }}>
+        {/* Left: SART Brand + Location Selector */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div
+            className="nav-brand"
+            onClick={() => {
+              if (typeof window !== 'undefined') window.location.href = '/';
+            }}
+            style={{ cursor: 'pointer' }}
+          >
+            <i className="fa-solid fa-compass-drafting brand-icon"></i>
+            <span>SART</span>
+            <span className="brand-badge">UNIVERSAL</span>
+          </div>
+
+          <div
+            className="location-nav-btn"
+            style={{ flexShrink: 0, alignSelf: 'center', cursor: 'pointer' }}
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('openReactModal', { detail: 'modal-city-selector' }));
+              }
+            }}
+          >
+            <i className="fa-solid fa-location-dot"></i>
+            <span id="nav-location-txt">Chennai</span>
+            <i className="fa-solid fa-chevron-down" style={{ fontSize: '10px' }}></i>
           </div>
         </div>
-        <div className="c-auth-nav-support">
-          <i className="fa-solid fa-shield-halved" style={{ color: '#22c55e' }}></i>
-          <span>Official 100% Verified SART Business</span>
+
+        {/* Center: Home | Store | Tracks Pill Navigation */}
+        <nav className="nav-links">
+          <div
+            className="nav-link active"
+            id="nav-btn-home"
+            style={{ cursor: 'pointer' }}
+            onClick={() => {
+              if (typeof window !== 'undefined') window.location.href = '/';
+            }}
+          >
+            <span>Home</span>
+          </div>
+          <div
+            className="nav-link"
+            id="nav-btn-store"
+            style={{ cursor: 'pointer' }}
+            onClick={() => {
+              if (typeof window !== 'undefined') window.location.href = '/store';
+            }}
+          >
+            <span>Store</span>
+          </div>
+          <div
+            className="nav-link"
+            id="nav-btn-booking"
+            style={{ cursor: 'pointer' }}
+            onClick={() => {
+              if (typeof window !== 'undefined') window.location.href = '/booking';
+            }}
+          >
+            <span>Tracks</span>
+          </div>
+        </nav>
+
+        {/* Right: Controls & User Profile matching Image 2 */}
+        <div className="nav-controls">
+          <div className="ctrl-btn" title="Search">
+            <i className="fa-solid fa-magnifying-glass"></i>
+          </div>
+
+          <div className="ctrl-btn" title="Favorites">
+            <i className="fa-solid fa-heart"></i>
+          </div>
+
+          <div className="ctrl-btn" title="Cart / Alerts" style={{ position: 'relative' }}>
+            <i className="fa-solid fa-bag-shopping"></i>
+            <span className="cart-badge" style={{
+              position: 'absolute',
+              top: '-4px',
+              right: '-4px',
+              background: '#ef4444',
+              color: '#ffffff',
+              borderRadius: '50%',
+              fontSize: '10px',
+              fontWeight: 800,
+              width: '16px',
+              height: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>3</span>
+          </div>
+
+          <div
+            className="profile-nav-btn"
+            style={{
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <i className="fa-regular fa-circle-user" style={{ fontSize: '18px' }}></i>
+            <span style={{ fontWeight: 700, fontSize: '13.5px' }}>Alex Carter</span>
+            <i className="fa-solid fa-chevron-down" style={{ fontSize: '10px' }}></i>
+          </div>
         </div>
-      </nav>
+      </header>
 
       {/* Main Form Center Card */}
       <main className="c-auth-center-container">
@@ -527,26 +621,13 @@ export default function CaptainRegisterPage({ onLoginSuccess, initialTab = 'logi
                   setActiveTab('login');
                   setStep('enter_phone');
                   setErrorMessage('');
-                  try { router.push('/ride/captain/login'); } catch (e) {}
+                  try { router.push('/ride/captain/login'); } catch (e) { }
                 }}
               >
                 <i className="fa-solid fa-right-to-bracket"></i>
-                <span>Captain Sign In</span>
+                <span>Sign In</span>
               </button>
-              <button
-                type="button"
-                className={`c-auth-tab-btn ${activeTab === 'register' ? 'active' : ''}`}
-                onClick={() => {
-                  setActiveTab('register');
-                  setLoginMethod('phone_otp');
-                  setStep('enter_phone');
-                  setErrorMessage('');
-                  try { router.push('/ride/captain/register'); } catch (e) {}
-                }}
-              >
-                <i className="fa-solid fa-user-plus"></i>
-                <span>New Captain Registration</span>
-              </button>
+
             </div>
           )}
 
@@ -560,7 +641,7 @@ export default function CaptainRegisterPage({ onLoginSuccess, initialTab = 'logi
                       <i className={loginMethod === 'email_password' ? 'fa-solid fa-envelope' : 'fa-solid fa-mobile-screen-button'}></i>
                     </div>
                     <div>
-                      <h2 className="c-auth-title">Captain Sign In</h2>
+                      <h2 className="c-auth-title">Sign In</h2>
                       <p className="c-auth-subtitle">
                         {loginMethod === 'email_password'
                           ? 'Sign in with your registered email and password'
@@ -569,29 +650,7 @@ export default function CaptainRegisterPage({ onLoginSuccess, initialTab = 'logi
                     </div>
                   </div>
 
-                  {/* Sub-toggle: Email/Password vs Mobile OTP */}
-                  <div className="c-auth-subtoggle-row">
-                    <button
-                      type="button"
-                      className={`c-auth-subtoggle-btn ${loginMethod === 'phone_otp' ? 'active' : ''}`}
-                      onClick={() => {
-                        setLoginMethod('phone_otp');
-                        setErrorMessage('');
-                      }}
-                    >
-                      <i className="fa-solid fa-mobile-screen"></i> Mobile OTP
-                    </button>
-                    <button
-                      type="button"
-                      className={`c-auth-subtoggle-btn ${loginMethod === 'email_password' ? 'active' : ''}`}
-                      onClick={() => {
-                        setLoginMethod('email_password');
-                        setErrorMessage('');
-                      }}
-                    >
-                      <i className="fa-solid fa-lock"></i> Email & Password
-                    </button>
-                  </div>
+
 
                   {errorMessage && <div className="c-auth-error-banner">{errorMessage}</div>}
 
@@ -645,7 +704,7 @@ export default function CaptainRegisterPage({ onLoginSuccess, initialTab = 'logi
                             setActiveTab('register');
                             setLoginMethod('phone_otp');
                             setStep('enter_phone');
-                            try { router.push('/ride/captain/register'); } catch (e) {}
+                            try { router.push('/ride/captain/register'); } catch (e) { }
                           }}
                         >
                           Register Captain Account
@@ -763,10 +822,10 @@ export default function CaptainRegisterPage({ onLoginSuccess, initialTab = 'logi
                         onClick={() => {
                           setActiveTab('login');
                           setStep('enter_phone');
-                          try { router.push('/ride/captain/login'); } catch (e) {}
+                          try { router.push('/ride/captain/login'); } catch (e) { }
                         }}
                       >
-                        Sign In with Email or Mobile
+                        Sign In
                       </button>
                     </div>
                   </form>

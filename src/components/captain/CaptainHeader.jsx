@@ -7,6 +7,7 @@ export default function CaptainHeader({
   setIsOnDuty,
   onOpenProfile,
   onOpenLocationModal,
+  onOpenWallet,
   onLogout,
   activeSubTab = 'rides',
   setActiveSubTab = (_tab) => { },
@@ -144,7 +145,7 @@ export default function CaptainHeader({
                   style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #dc2626' }}
                 />
               ) : (
-                <i className="fa-solid fa-id-badge" style={{ color: '#dc2626' }}></i>
+                <i className="fa-solid fa-circle-user" style={{ color: '#dc2626' }}></i>
               )}
               <span style={{ color: '#dc2626', fontWeight: 800, letterSpacing: '0.2px' }}>
                 {partnerDetails?.name || 'Captain Partner'}
@@ -204,15 +205,17 @@ export default function CaptainHeader({
                         fontWeight: 700
                       }}
                     >
-                      {(partnerDetails?.name || 'C').charAt(0).toUpperCase()}
+                      <i className="fa-solid fa-circle-user" style={{ fontSize: "40px", color: "white" }}></i>
                     </div>
                   )}
                 </div>
-                <div style={{ display: 'inline-block', background: '#fee2e2', color: '#b91c1c', fontSize: '11px', fontWeight: 800, padding: '3px 10px', borderRadius: '12px', marginBottom: '8px', border: '1px solid #fca5a5' }}>
-                  COMMERCIAL FLEET CAPTAIN
-                </div>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#dc2626' }}>{partnerDetails?.name || 'Captain Partner'}</h3>
-                <p style={{ margin: '2px 0 14px', fontSize: '13px', color: '#64748b' }}>{partnerDetails?.email || partnerDetails?.phone || partnerDetails?.mobile || 'captain@sart.com'}</p>
+
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#dc2626' }}>
+                  {partnerDetails?.name || 'Captain'}
+                </h3>
+                <p style={{ margin: '2px 0 14px', fontSize: '13px', color: '#64748b' }}>
+                  {partnerDetails?.phone || partnerDetails?.mobile || '7834849386'}
+                </p>
 
 
 
@@ -241,6 +244,27 @@ export default function CaptainHeader({
                 </button>
 
                 <div style={{ borderTop: '1px solid #e2e8f0', margin: '8px 0 10px' }}></div>
+
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    textAlign: 'left',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: '#1e293b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    cursor: 'pointer',
+                    borderRadius: '8px'
+                  }}
+                  onClick={() => {
+                    setIsProfileDropdownOpen(false);
+                    if (onOpenWallet) onOpenWallet();
+                  }}
+                >
+                  <i className="fa-solid fa-wallet" style={{ color: '#2563eb' }}></i> Wallet
+                </div>
 
                 <div
                   style={{

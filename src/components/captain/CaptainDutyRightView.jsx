@@ -519,19 +519,20 @@ export default function CaptainDutyRightView({
         body: JSON.stringify(captainData)
       });
 
-      // 2. Emit real-time WebSocket event directly to user app
+      // 2. Emit real-time WebSocket event directly to user app with identical OTP
       if (socketRef) {
         socketRef.emit('ride_status_update', {
           bookingId: order.id,
           status: 'Accepted',
+          otp: order.otp,
           captain: {
             name: captainData.captainName,
             phone: captainData.captainPhone,
             vehiclePlate: captainData.vehiclePlate,
             lat: captainCoords.lat,
             lng: captainCoords.lng,
-            eta: '3 mins away',
-            distanceToCaptain: order.pickupDist || '0.8 km'
+            eta: '4 mins away',
+            distanceToCaptain: order.pickupDist || '1.2 km'
           }
         });
       }
@@ -594,7 +595,7 @@ export default function CaptainDutyRightView({
             </div>
           </div>
 
-          <div className="c-duty-hero-right">
+          <div className="c-duty-hero-right" onClick={() => { if (onOpenWallet) onOpenWallet(); }} style={{ cursor: onOpenWallet ? "pointer" : "default" }} title="Click to view Captain Wallet & Daily Breakdown">
             <span className="c-earnings-title">TODAY'S EARNINGS</span>
             <div className="c-earnings-amount" title="Stored safely in database">
               <span>₹{todayEarnings}</span>
@@ -610,7 +611,7 @@ export default function CaptainDutyRightView({
               <i className="fa-solid fa-check"></i>
             </div>
             <div className="stat-text-col">
-              <div className="stat-count">{completedOrdersCount || (partnerDetails?.ordersAccepted !== undefined ? partnerDetails.ordersAccepted : 6)}</div>
+              <div className="stat-count">{completedOrdersCount !== undefined ? completedOrdersCount : (partnerDetails?.ordersAccepted !== undefined ? partnerDetails.ordersAccepted : 0)}</div>
               <div className="stat-label">Orders Accepted</div>
             </div>
           </div>
@@ -620,7 +621,7 @@ export default function CaptainDutyRightView({
               <i className="fa-solid fa-xmark"></i>
             </div>
             <div className="stat-text-col">
-              <div className="stat-count">{partnerDetails?.ordersRejected !== undefined ? partnerDetails.ordersRejected : 4}</div>
+              <div className="stat-count">{partnerDetails?.ordersRejected !== undefined ? partnerDetails.ordersRejected : 0}</div>
               <div className="stat-label">Orders Rejected</div>
             </div>
           </div>
@@ -700,7 +701,7 @@ export default function CaptainDutyRightView({
               <i className={"fa-solid " + (showOrdersView ? "fa-xmark" : "fa-arrow-right")}></i>
             </button>
 
-            {/* 🔥 BESIDE ORDERS VIEW BUTTON: Enter OTP Button */}
+            {/* 🔥 BESIDE ORDERS VIEW BUTTON: Enter OTP Button with OTP Code */}
             {activeAcceptedOrder && activeAcceptedOrder.status !== 'Cancelled' && (activeAcceptedOrder.rideStage || rideStage) === 'pickup' && (
               <button
                 type="button"
@@ -727,7 +728,7 @@ export default function CaptainDutyRightView({
                 }}
               >
                 <i className="fa-solid fa-key" style={{ color: '#fef08a' }}></i>
-                <span>Enter OTP</span>
+                <span>Enter OTP {activeAcceptedOrder.otp ? `(${activeAcceptedOrder.otp})` : ''}</span>
               </button>
             )}
 
@@ -763,8 +764,8 @@ export default function CaptainDutyRightView({
                   {isCompletingTrip
                     ? 'Completing...'
                     : (isRideCompletedSuccess || activeAcceptedOrder.status === 'Completed')
-                    ? 'Ride Completed ✓'
-                    : 'Ride Completed'}
+                      ? 'Ride Completed ✓'
+                      : 'Ride Completed'}
                 </span>
               </button>
             )}
@@ -1157,7 +1158,7 @@ export default function CaptainDutyRightView({
                         }}
                       >
                         <i className="fa-solid fa-key" style={{ color: '#fef08a' }}></i>
-                        <span>Reached User • Enter OTP</span>
+                        <span>Reached User • Enter OTP {activeAcceptedOrder?.otp ? `(${activeAcceptedOrder.otp})` : ''}</span>
                       </button>
 
                       <button
@@ -1360,23 +1361,36 @@ export default function CaptainDutyRightView({
 
               {/* OTP Form Input */}
               <form onSubmit={handleVerifyOtpAndStartTrip}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
                   <label style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>
                     Enter Customer 4-Digit Ride OTP
                   </label>
                   {(displayOrder.otp || '2746') && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const code = String(displayOrder.otp || '2746').trim();
-                        setEnteredOtp(code);
-                        setOtpError('');
-                      }}
-                      style={{
-
-                      }}
-                    >
-                    </button>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#dcfce7', border: '1px solid #86efac', padding: '3px 8px', borderRadius: '8px' }}>
+                      <span style={{ fontSize: '11px', fontWeight: 800, color: '#166534' }}>Customer OTP:</span>
+                      <strong style={{ fontSize: '13px', fontWeight: 900, color: '#15803d', letterSpacing: '1px' }}>{displayOrder.otp || '2746'}</strong>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const code = String(displayOrder.otp || '2746').trim();
+                          setEnteredOtp(code);
+                          setOtpError('');
+                        }}
+                        style={{
+                          background: '#16a34a',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '2px 6px',
+                          fontSize: '10px',
+                          fontWeight: 800,
+                          cursor: 'pointer'
+                        }}
+                        title="Auto-fill OTP"
+                      >
+                        Auto-fill
+                      </button>
+                    </div>
                   )}
                 </div>
 
@@ -1916,54 +1930,120 @@ export default function CaptainDutyRightView({
         )}
       </div>
 
-      {/* 4. Fleet & Vehicle Showcase Banner Below Map */}
-      <section
-        id="sart-captain-fleet-showcase"
-        style={{
-          margin: '10px 16px 28px 16px',
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-          borderRadius: '20px',
-          padding: '28px 32px',
-          color: '#ffffff',
-          boxShadow: '0 8px 28px rgba(15, 23, 42, 0.12)',
-          border: '1px solid #334155',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '24px'
-        }}
-      >
-        <div style={{ flex: '1 1 320px', maxWidth: '580px' }}>
+      {/* 4. Live Trip Telematics & Fuel Metrics Strip (Matches User Image 4: Appears below Map after Accepting Ride & Entering OTP) */}
+      {isOnDuty && activeAcceptedOrder && (activeAcceptedOrder.rideStage || rideStage) === 'in_trip' && (
+        <section
+          id="captain-in-trip-metrics-banner"
+          style={{
+            margin: '12px 16px 20px 16px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px'
+          }}
+        >
+          {/* Top Bar: Distance & Duration Pill */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '16px',
+              background: '#f8fafc',
+              border: '1.5px solid #e2e8f0',
+              borderRadius: '12px',
+              padding: '10px 18px',
+              fontSize: '13px',
+              color: '#1e293b',
+              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.03)'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <i className="fa-solid fa-route" style={{ color: '#ea580c', fontSize: '13px' }}></i>
+              <span>Distance: <strong>{activeAcceptedOrder.dropDist || activeAcceptedOrder.pickupDist || '53.3 km'}</strong></span>
+            </div>
+            <div style={{ color: '#cbd5e1', fontWeight: 900 }}>•</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <i className="fa-solid fa-clock" style={{ color: '#ea580c', fontSize: '13px' }}></i>
+              <span>Time: <strong>{activeAcceptedOrder.duration || '3 hr 7 min'}</strong></span>
+            </div>
+          </div>
 
+          {/* Bottom Card: Fuel Economy, Estimated Consumption, Fuel Cost & Speed */}
+          {(() => {
+            const vMode = partnerDetails?.serviceType || vehicleCategoryFilter || 'bike';
+            const distNum = parseFloat(String(activeAcceptedOrder.dropDist || activeAcceptedOrder.pickupDist || '53.3').replace(/[^0-9.]/g, '')) || 53.3;
+            const kmPerUnit = vMode === 'bike' ? 45 : vMode === 'auto' ? 28 : 18;
+            const consumption = (distNum / kmPerUnit).toFixed(2);
+            const pricePerUnit = vMode === 'auto' ? 99.50 : 107.76;
+            const fuelCost = (parseFloat(consumption) * pricePerUnit).toFixed(1);
+            const cityName = partnerDetails?.city || (activeAcceptedOrder?.dropLoc ? activeAcceptedOrder.dropLoc.split(',')[0].trim() : 'Amirthi');
 
+            return (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '14px',
+                  padding: '14px 20px',
+                  fontSize: '13px',
+                  color: '#334155',
+                  flexWrap: 'wrap',
+                  gap: '14px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
+                }}
+              >
+                {/* Left: Fuel Pump Icon & Fuel Economy */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <i className="fa-solid fa-gas-pump" style={{ color: '#ea580c', fontSize: '20px' }}></i>
+                  <div>
+                    <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '14px' }}>
+                      Fuel Economy: {vMode === 'bike' ? '45 km/L (Petrol)' : vMode === 'auto' ? '28 km/kg (CNG)' : '18 km/L (Petrol)'}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                      Rate in {cityName}: ₹{pricePerUnit.toFixed(2)} per {vMode === 'auto' ? 'kg' : 'Liter'}
+                    </div>
+                  </div>
+                </div>
 
+                {/* Right: Consumption, Cost Pill, Speed Badge */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                  <div style={{ fontSize: '12.5px' }}>
+                    Estimated Consumption: <strong style={{ color: '#0f172a' }}>{consumption} {vMode === 'auto' ? 'kgs' : 'Liters'}</strong>
+                  </div>
+                  <div
+                    style={{
+                      background: '#dcfce7',
+                      color: '#15803d',
+                      padding: '5px 12px',
+                      borderRadius: '8px',
+                      fontWeight: 800,
+                      fontSize: '13px'
+                    }}
+                  >
+                    Fuel Cost: ₹{fuelCost}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '11.5px',
+                      color: '#475569',
+                      background: '#ffffff',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '6px',
+                      padding: '4px 10px'
+                    }}
+                  >
+                    ⏱️ Speed: {vMode === 'bike' ? '3 to 4 mins' : vMode === 'auto' ? '2 to 3 mins' : '2 to 4 mins'} per km
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </section>
+      )}
 
-
-        </div>
-
-        {/* Vehicle Showcase Image with soft glow backdrop */}
-        <div style={{
-          flex: '1 1 280px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative'
-        }}>
-          <div style={{
-            position: 'absolute',
-            width: '260px',
-            height: '160px',
-            background: vehicleCategoryFilter === 'bike' ? 'rgba(234, 88, 12, 0.25)' : vehicleCategoryFilter === 'auto' ? 'rgba(234, 179, 8, 0.25)' : 'rgba(37, 99, 235, 0.25)',
-            filter: 'blur(40px)',
-            borderRadius: '50%',
-            zIndex: 0
-          }}></div>
-
-
-        </div>
-      </section>
     </main>
   );
 }
-

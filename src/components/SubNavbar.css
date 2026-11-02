@@ -1,4 +1,4 @@
-/* SubNavbar.css - Horizontal SubNavbar directly below the Top Navbar */
+/* SubNavbar.css - Horizontal SubNavbar matching Image 1 & Image 2 */
 
 .subnavbar-container {
   width: 100%;
@@ -23,85 +23,156 @@ body:not(.light-theme) .subnavbar-container {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.subnavbar-spacer {
-  width: 120px;
-  flex-shrink: 0;
-}
-
-.subnavbar-links {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin: 0 auto;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.subnavbar-links::-webkit-scrollbar {
-  display: none;
-}
-
-.subnav-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #475569;
-  cursor: pointer;
-  background: transparent;
-  border: 1px solid transparent;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  white-space: nowrap;
-  user-select: none;
-}
-
-body:not(.light-theme) .subnav-item {
-  color: #94a3b8;
-}
-
-.subnav-item:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-}
-
-body:not(.light-theme) .subnav-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #f8fafc;
-}
-
-.subnav-item.active {
-  background: #fff7ed;
-  color: #ea580c;
-  border-color: #fed7aa;
-  font-weight: 700;
-}
-
-body:not(.light-theme) .subnav-item.active {
-  background: rgba(234, 88, 12, 0.15);
-  color: #fb923c;
-  border-color: rgba(234, 88, 12, 0.35);
-}
-
-.subnav-item-icon {
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: inherit;
-}
-
-.subnavbar-actions {
+/* 1. Left Side: Bike & Custom Shortcuts */
+.subnavbar-left-actions {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 120px;
-  justify-content: flex-end;
-  flex-shrink: 0;
+}
+
+.subnav-quick-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ea580c;
+  background: #fff7ed;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+body:not(.light-theme) .subnav-quick-btn {
+  background: rgba(234, 88, 12, 0.15);
+  border: none;
+  color: #fb923c;
+}
+
+.subnav-quick-btn:hover {
+  background: #ffedd5;
+  color: #c2410c;
+  border: none;
+  transform: translateY(-1px);
+}
+
+.subnav-quick-btn.active {
+  background: #fff7ed;
+  color: #ea580c;
+  border: none;
+  box-shadow: none;
+}
+
+.subnav-quick-btn i {
+  font-size: 14px;
+  color: #ea580c;
+}
+
+/* Plus '+' Symbol button beside shortcuts */
+.subnav-plus-shortcut-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px dashed #ea580c;
+  background: #fff7ed;
+  color: #ea580c;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.subnav-plus-shortcut-btn:hover {
+  background: #ea580c;
+  color: #ffffff;
+  border-style: solid;
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.25);
+}
+
+body:not(.light-theme) .subnav-plus-shortcut-btn {
+  background: rgba(234, 88, 12, 0.15);
+  border-color: #fb923c;
+  color: #fb923c;
+}
+
+body:not(.light-theme) .subnav-plus-shortcut-btn:hover {
+  background: #ea580c;
+  color: #ffffff;
+}
+
+/* 2. Center: Customize Dock Pill Button */
+.subnavbar-center-dock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 3. Right Side: Help & Support, Settings matching User Image */
+.subnavbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.subnav-action-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: none;
+
+  color: #2563eb;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  outline: none;
+}
+
+.subnav-action-icon-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  color: #2563eb;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+body:not(.light-theme) .subnav-action-pill-btn {
+  background: rgba(37, 99, 235, 0.2);
+  border: none;
+
+}
+
+body:not(.light-theme) .subnav-action-icon-circle {
+  background: rgba(37, 99, 235, 0.35);
+  border: none;
+
+}
+
+.subnav-action-pill-btn:hover {
+  background: #dbeafe;
+  color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.subnav-action-pill-btn:hover .subnav-action-icon-circle {
+
+  color: #1d4ed8;
 }
 
 .subnav-icon-btn {
@@ -139,16 +210,6 @@ body:not(.light-theme) .subnav-icon-btn:hover {
   border-color: rgba(234, 88, 12, 0.4);
 }
 
-@media (max-width: 900px) {
-  .subnavbar-spacer {
-    display: none;
-  }
-  .subnavbar-links {
-    margin: 0;
-    justify-content: flex-start;
-  }
-}
-
 @media (max-width: 768px) {
   .subnavbar-container {
     padding: 0 14px;
@@ -156,9 +217,14 @@ body:not(.light-theme) .subnav-icon-btn:hover {
     top: 60px;
   }
 
-  .subnav-item {
+  .subnav-quick-btn {
     padding: 4px 10px;
     font-size: 12px;
+  }
+
+  .customize-dock-pill-btn {
+    padding: 4px 14px;
+    font-size: 12.5px;
   }
 
   .subnav-icon-btn {

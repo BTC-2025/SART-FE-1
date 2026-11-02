@@ -161,25 +161,25 @@ export default function Footer() {
               <li>
                 <button type="button" onClick={() => handleServiceClick('carrier')}>
                   <span className="sart-service-icon orange"><i className="fa-solid fa-truck"></i></span>
-                  <span>Cargo & Carrier</span>
+                  <span>Carrier</span>
                 </button>
               </li>
               <li>
                 <button type="button" onClick={() => handleServiceClick('rental')}>
                   <span className="sart-service-icon blue"><i className="fa-solid fa-car"></i></span>
-                  <span>Vehicle Rental</span>
+                  <span>Rentals</span>
                 </button>
               </li>
               <li>
                 <button type="button" onClick={() => handleServiceClick('drivers')}>
                   <span className="sart-service-icon purple"><i className="fa-solid fa-user-tie"></i></span>
-                  <span>Drivers Hire</span>
+                  <span>Drivers</span>
                 </button>
               </li>
               <li>
                 <button type="button" onClick={() => handleServiceClick('parking')}>
                   <span className="sart-service-icon teal"><i className="fa-solid fa-square-parking"></i></span>
-                  <span>Parking</span>
+                  <span>Parkings</span>
                 </button>
               </li>
               <li>

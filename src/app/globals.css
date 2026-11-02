@@ -41,11 +41,11 @@
   /* Light grayish background for UI sheets */
   --surface: #ffffff;
   /* Pure white for cards */
-  --navbar-bg: #391E8A;
+  --navbar-bg: #4608AD;
   /* CHANGE MAIN NAVBAR COLOR HERE */
   --nav-center-bg: #3712A6;
   /* CHANGE CENTER PILL COLOR HERE */
-  --nav-btn-active-bg: #D6EBB7;
+  --nav-btn-active-bg: #B59CDE;
   /* CHANGE ACTIVE BUTTON COLOR HERE */
   --nav-btn-active-text: #000000;
   /* CHANGE ACTIVE BUTTON TEXT HERE */
@@ -169,6 +169,7 @@ h6 {
   font-weight: 900;
   background: var(--primary-gradient);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -424,6 +425,7 @@ h6 {
   font-weight: 900;
   background: linear-gradient(135deg, #fff 0%, var(--text-secondary) 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 8px;
 }
@@ -1641,6 +1643,7 @@ h6 {
   background: #ffffff !important;
   color: var(--primary) !important;
   -webkit-background-clip: unset !important;
+  background-clip: unset !important;
   -webkit-text-fill-color: var(--primary) !important;
   padding: 6px 16px !important;
   border-radius: 10px !important;

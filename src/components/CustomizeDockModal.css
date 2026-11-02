@@ -1,0 +1,306 @@
+/* CustomizeDockModal.css - Pixel-Match to User's Uploaded Image 2 */
+
+.dock-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 16px;
+  animation: dockFadeIn 0.2s ease-out;
+}
+
+@keyframes dockFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.dock-modal-card {
+  height: 550px;
+  width: 100%;
+  max-width: 620px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  animation: dockCardSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dockCardSlide {
+  from {
+    transform: translateY(18px) scale(0.98);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Modal Header */
+.dock-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 24px 14px 24px;
+}
+
+.dock-modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.3px;
+}
+
+.dock-modal-subtitle {
+  font-size: 13.5px;
+  color: #64748b;
+  font-weight: 600;
+  margin-top: 4px;
+  display: block;
+}
+
+.dock-modal-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dock-modal-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Search Box */
+.dock-modal-search-box {
+  position: relative;
+  margin: 0 24px 14px 24px;
+}
+
+.dock-modal-search-box .search-ico {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.dock-modal-search-input {
+  width: 100%;
+  padding: 11px 14px 11px 40px;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.dock-modal-search-input:focus {
+  border-color: #ea580c;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
+
+/* Category Filter Tabs */
+.dock-service-filter-row {
+  display: flex;
+  gap: 8px;
+  padding: 0 24px 14px 24px;
+}
+
+.dock-filter-tab {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 700;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dock-filter-tab:hover {
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.dock-filter-tab.active {
+  background: #fff7ed;
+  color: #ea580c;
+  border-color: #fdba74;
+}
+
+/* 2-Column Grid (Matches Image 2) */
+.dock-shortcuts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 0 24px 20px 24px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+@media (max-width: 580px) {
+  .dock-shortcuts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Individual Shortcut Card */
+.shortcut-item-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+
+.shortcut-item-card:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+/* Selected state with orange border and background like Image 2 */
+.shortcut-item-card.selected {
+  background: #fff7ed;
+  border-color: #fdba74;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.08);
+}
+
+.shortcut-item-card.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.shortcut-card-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shortcut-icon-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.18s ease;
+}
+
+.shortcut-icon-badge.active {
+  background: #ea580c;
+  color: #ffffff;
+}
+
+.shortcut-card-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.shortcut-item-card.selected .shortcut-card-name {
+  color: #ea580c;
+}
+
+/* Circular Radio / Checkbox on right side */
+.shortcut-radio-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #ffffff;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+
+.shortcut-radio-circle.checked {
+  background: #ea580c;
+  border-color: #ea580c;
+}
+
+/* Modal Footer */
+.dock-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-top: 1px solid #f1f5f9;
+  background: #ffffff;
+}
+
+.dock-reset-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.dock-reset-btn:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+.dock-done-btn {
+  background: #f97316;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 28px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.28);
+  transition: all 0.15s ease;
+}
+
+.dock-done-btn:hover {
+  background: #ea580c;
+  transform: translateY(-1px);
+}

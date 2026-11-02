@@ -205,11 +205,12 @@ export default function RideBookingView({
             if (!prev) return prev;
             return {
               ...prev,
+              otp: data.otp || prev.otp,
               captain: cap.name || 'Sai (Star Captain)',
               plate: cap.vehiclePlate || 'TN 09 EQ 4421',
               phone: cap.phone || '+91 98765 43210',
-              eta: cap.eta || '3 mins away',
-              distanceToCaptain: cap.distanceToCaptain || '0.8 km from you',
+              eta: cap.eta || '4 mins away',
+              distanceToCaptain: cap.distanceToCaptain || '1.2 km from you',
               isAcceptedByCaptain: true
             };
           });
@@ -1393,7 +1394,7 @@ export default function RideBookingView({
                   const selectedDriver = backendDrivers.length > 0 ? backendDrivers[0] : null;
                   const captainName = selectedDriver ? `${selectedDriver.driverName} (${selectedDriver.vehicleModel || 'SART Partner'})` : 'Karthik Raja (Super Captain)';
                   const plateNum = selectedDriver ? selectedDriver.plateNumber : (mode === 'bike' ? 'TN 09 BX 4281' : mode === 'auto' ? 'TN 05 AT 9821' : 'TN 01 CB 7741');
-                  const otpCode = `${Math.floor(1000 + Math.random() * 9000)}`;
+                  let otpCode = `${Math.floor(1000 + Math.random() * 9000)}`;
 
                   const riderDisplay = bookingFor === 'others' && otherRiderName.trim()
                     ? `${otherRiderName.trim()} (${otherRiderPhone || 'Rider'})`
@@ -1436,6 +1437,13 @@ export default function RideBookingView({
                       const resData = await createRes.json();
                       if (resData.data && resData.data.id) {
                         createdBookingId = resData.data.id;
+                        let serverExtra: any = {};
+                        try {
+                          serverExtra = typeof resData.data.extraData === 'string' ? JSON.parse(resData.data.extraData) : (resData.data.extraData || {});
+                        } catch (e) { }
+                        if (serverExtra.otp) {
+                          otpCode = String(serverExtra.otp);
+                        }
                       }
                     }
                   } catch (e) {
@@ -1443,17 +1451,20 @@ export default function RideBookingView({
                   }
 
                   // Join socket room for this booking and broadcast to business captains
-                  if (socketRef && createdBookingId) {
-                    socketRef.emit('join_booking', createdBookingId);
+                  if (socketRef) {
+                    const bookingIdentifier = createdBookingId || ('LOCAL-BOOKING-' + Date.now());
+                    socketRef.emit('join_booking', bookingIdentifier);
                     socketRef.emit('new_booking_created', {
-                      id: createdBookingId,
+                      id: bookingIdentifier,
                       category: mode.charAt(0).toUpperCase() + mode.slice(1),
                       fare: currentVehicleData.fare,
                       pickupLoc: pickup || 'Pickup Point',
                       dropLoc: dropoff || 'Drop Point',
                       userLat: pickupCoords?.lat || 13.0827,
                       userLng: pickupCoords?.lng || 80.2755,
-                      otp: otpCode
+                      otp: otpCode,
+                      customerName: bookingFor === 'others' && otherRiderName.trim() ? otherRiderName.trim() : 'Alex Carter',
+                      customerPhone: bookingFor === 'others' && otherRiderPhone.trim() ? otherRiderPhone.trim() : '+91 98765 43210'
                     });
                   }
 
@@ -1493,11 +1504,12 @@ export default function RideBookingView({
                             setRideBookedModal((prev: any) => ({
                               ...prev,
                               status: b.status,
+                              otp: parsed.otp || prev?.otp || otpCode,
                               captain: parsed.captainName || prev?.captain || 'Sai (Star Captain)',
                               plate: parsed.vehiclePlate || prev?.plate || 'TN 09 EQ 4421',
                               phone: parsed.captainPhone || prev?.phone || '+91 98765 43210',
                               eta: b.status === 'Completed' ? 'Trip Completed' : b.status === 'In-Trip' ? 'In-Trip (En Route)' : (parsed.pickupTime || '3 mins away'),
-                              distanceToCaptain: parsed.pickupDist ? `${parsed.pickupDist} from you` : '0.8 km from you',
+                              distanceToCaptain: parsed.pickupDist ? `${parsed.pickupDist} from you` : '1.2 km from you',
                               isAcceptedByCaptain: true
                             }));
                             if (b.status === 'Completed') {
@@ -1650,7 +1662,12 @@ export default function RideBookingView({
                   {/* Distance from Captain to User */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 800, color: '#16a34a', marginTop: '3px' }}>
                     <i className="fa-solid fa-route"></i>
-                    <span>{rideBookedModal.distanceToCaptain || '0.8 km from you'} ({rideBookedModal.eta || '3 mins'})</span>
+                    <span>{rideBookedModal.distanceToCaptain || '1.2 km from you'} ({rideBookedModal.eta || '4 mins'})</span>
+                  </div>
+                  {/* Captain Mobile Number */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#0369a1', marginTop: '3px' }}>
+                    <i className="fa-solid fa-phone" style={{ fontSize: '10px' }}></i>
+                    <span>{rideBookedModal.phone || '+91 98765 43210'}</span>
                   </div>
                 </div>
               </div>
@@ -1694,7 +1711,7 @@ export default function RideBookingView({
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <i className="fa-solid fa-phone-volume fa-shake" style={{ color: '#10b981' }}></i>
-                  <span>Calling {rideBookedModal.captain}... (Connecting via secure line)</span>
+                  <span>Calling {rideBookedModal.captain} at <strong>{rideBookedModal.phone || '+91 98765 43210'}</strong> (Connecting via secure line)...</span>
                 </div>
                 <button
                   onClick={() => setCallActive(false)}

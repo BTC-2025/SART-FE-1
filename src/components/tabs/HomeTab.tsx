@@ -405,7 +405,7 @@ export default function HomeTab() {
                 <div className="hero-cat-icon-box cat-carrier">
                   <i className="fa-solid fa-truck-fast"></i>
                 </div>
-                <span>Cargo &amp; Logistics</span>
+                <span>Carriers</span>
               </button>
 
               <button
@@ -416,7 +416,7 @@ export default function HomeTab() {
                 <div className="hero-cat-icon-box cat-rental">
                   <i className="fa-solid fa-key"></i>
                 </div>
-                <span>Vehicle Rental</span>
+                <span>Rentals</span>
               </button>
 
               <button
@@ -427,7 +427,7 @@ export default function HomeTab() {
                 <div className="hero-cat-icon-box cat-drivers">
                   <i className="fa-solid fa-user-tie"></i>
                 </div>
-                <span>Drivers Hire</span>
+                <span>Drivers</span>
               </button>
 
               <button
@@ -438,7 +438,7 @@ export default function HomeTab() {
                 <div className="hero-cat-icon-box cat-parking">
                   <i className="fa-solid fa-square-parking"></i>
                 </div>
-                <span>Parking Slots</span>
+                <span>Parkings</span>
               </button>
             </div>
           </div>
@@ -1055,7 +1055,7 @@ export default function HomeTab() {
                     className="book-card-img"
                   />
                 </div>
-                <h3 className="book-title" style={{ textAlign: 'center' }}>Carrier</h3>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Carriers</h3>
                 <div className="book-footer"></div>
               </div>
 
@@ -1066,11 +1066,11 @@ export default function HomeTab() {
                 <div className="book-img-wrapper">
                   <img
                     src="/images/rental.png"
-                    alt="Vehicle Rental"
+                    alt="Rentals"
                     className="book-card-img"
                   />
                 </div>
-                <h3 className="book-title" style={{ textAlign: 'center' }}>Vehicle Rental</h3>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Rentals</h3>
                 <div className="book-footer"></div>
               </div>
 
@@ -1079,11 +1079,11 @@ export default function HomeTab() {
                 <div className="book-img-wrapper">
                   <img
                     src="/images/Driver1.jpg"
-                    alt="Drivers Hire"
+                    alt="Drivers"
                     className="book-card-img"
                   />
                 </div>
-                <h3 className="book-title" style={{ textAlign: 'center' }}>Drivers Hire</h3>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Drivers</h3>
                 <div className="book-footer"></div>
               </div>
 
@@ -1096,7 +1096,7 @@ export default function HomeTab() {
                     className="book-card-img"
                   />
                 </div>
-                <h3 className="book-title" style={{ textAlign: 'center' }}>Parking Slots</h3>
+                <h3 className="book-title" style={{ textAlign: 'center' }}>Parkings</h3>
                 <div className="book-footer"></div>
               </div>
 
