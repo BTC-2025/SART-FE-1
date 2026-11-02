@@ -17,6 +17,7 @@ export default function CaptainDutyRightView({
   isOnDuty,
   setIsOnDuty,
   onOpenProfile,
+  onOpenWallet = () => {},
   vehicleCategoryFilter
 }) {
   // Show active order requests view / modal
