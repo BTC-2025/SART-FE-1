@@ -43,69 +43,12 @@ export default function Footer() {
 
   return (
     <footer className="sart-universal-footer">
-      {/* Top Value Propositions Ribbon */}
-      <div className="sart-footer-features-ribbon">
-        <div className="sart-footer-features-container">
-          {/* Logo badge in banner */}
-          <div className="sart-feature-brand">
-            <div className="sart-logo-wordmark">
-              <span className="sart-logo-sart">SART</span>
-            </div>
-            <span className="sart-tagline"></span>
-          </div>
-
-          <div className="sart-feature-item">
-            <div className="sart-feature-icon-badge green">
-              <i className="fa-solid fa-shield-halved"></i>
-            </div>
-            <div className="sart-feature-text">
-              <h4>Safe & Secure</h4>
-              <p>Your safety is our priority</p>
-            </div>
-          </div>
-
-          <div className="sart-feature-item">
-            <div className="sart-feature-icon-badge teal">
-              <i className="fa-solid fa-location-dot"></i>
-            </div>
-            <div className="sart-feature-text">
-              <h4>Real-time Tracking</h4>
-              <p>Track your journey or shipment</p>
-            </div>
-          </div>
-
-          <div className="sart-feature-item">
-            <div className="sart-feature-icon-badge cyan">
-              <i className="fa-solid fa-headset"></i>
-            </div>
-            <div className="sart-feature-text">
-              <h4>24/7 Support</h4>
-              <p>We're always here to help</p>
-            </div>
-          </div>
-
-          <div className="sart-feature-item">
-            <div className="sart-feature-icon-badge emerald">
-              <i className="fa-solid fa-leaf"></i>
-            </div>
-            <div className="sart-feature-text">
-              <h4>Greener Tomorrow</h4>
-              <p>Smarter travel, cleaner planet</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Footer Body */}
+            {/* Main Footer Body */}
       <div className="sart-footer-main">
         <div className="sart-footer-container">
           {/* Column 1: Brand & Bio */}
           <div className="sart-footer-col sart-footer-brand-col">
-            <div className="sart-footer-logo-wrap">
-              <div className="sart-logo-wordmark large">
-                <span>SART</span>
-              </div>
-            </div>
+            
             <h3 className="sart-brand-tagline">
               Your One Stop Solution for<br />
               Rides, Cargo, Rentals & More

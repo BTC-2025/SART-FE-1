@@ -377,8 +377,9 @@
 
 /* 3. Bottom Legal & Copyright Bar (Compact) */
 .sart-footer-bottom-bar {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 16px 0 20px 0;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  padding: 16px 24px 20px 24px;
 }
 
 .sart-footer-bottom-container {
@@ -393,7 +394,8 @@
 
 .sart-copyright {
   font-size: 12.5px;
-  color: #94a3b8;
+  color: #475569;
+  font-weight: 500;
   margin: 0;
 }
 
@@ -408,10 +410,11 @@
   border: none;
   padding: 0;
   font-size: 12.5px;
-  color: #94a3b8;
+  color: #475569;
   cursor: pointer;
   transition: color 0.18s ease;
   font-family: inherit;
+  font-weight: 500;
 }
 
 .sart-legal-links button:hover {
@@ -419,7 +422,7 @@
 }
 
 .sart-legal-separator {
-  color: #334155;
+  color: #cbd5e1;
   font-size: 11px;
 }
 
@@ -427,9 +430,9 @@
   width: 32px;
   height: 32px;
   border-radius: 7px;
-  background: #1e293b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #cbd5e1;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #334155;
   display: flex;
   align-items: center;
   justify-content: center;
