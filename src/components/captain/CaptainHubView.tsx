@@ -9,6 +9,7 @@ import EnableLocationModal from './EnableLocationModal';
 import RideCategoryPage from './RideCategoryPage';
 import Footer from './Footer';
 import CaptainRegisterPage from './CaptainRegisterPage';
+import CaptainWalletPage from './CaptainWalletPage';
 
 interface CaptainHubViewProps {
   initialCategory?: 'bike' | 'auto' | 'car';
@@ -21,7 +22,7 @@ export default function CaptainHubView({ initialCategory = 'bike' }: CaptainHubV
   const [isOnDuty, setIsOnDuty] = useState(true);
   const [activeSubTab, setActiveSubTab] = useState<any>(initialCategory);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
-  const [currentView, setCurrentView] = useState<'category' | 'profile' | 'all'>('category');
+  const [currentView, setCurrentView] = useState<'category' | 'profile' | 'all' | 'wallet'>('category');
   const [showScrollBottom, setShowScrollBottom] = useState(true);
 
   useEffect(() => {
@@ -223,6 +224,7 @@ export default function CaptainHubView({ initialCategory = 'bike' }: CaptainHubV
         isOnDuty={isOnDuty}
         setIsOnDuty={setIsOnDuty}
         onOpenProfile={() => setCurrentView('profile')}
+        onOpenWallet={() => setCurrentView('wallet')}
         onOpenLocationModal={() => setIsLocationModalOpen(true)}
         onLogout={handleLogout}
 
