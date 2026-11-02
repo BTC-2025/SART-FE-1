@@ -43,11 +43,11 @@
   /* Pure white for cards */
   --navbar-bg: #4608AD;
   /* CHANGE MAIN NAVBAR COLOR HERE */
-  --nav-center-bg: #3712A6;
+  --nav-center-bg: #0056b3;
   /* CHANGE CENTER PILL COLOR HERE */
   --nav-btn-active-bg: #B59CDE;
   /* CHANGE ACTIVE BUTTON COLOR HERE */
-  --nav-btn-active-text: #000000;
+  --nav-btn-active-text: #04261b;
   /* CHANGE ACTIVE BUTTON TEXT HERE */
   --header-text: #111827;
   /* Dark text for contrast on light blue */
@@ -2026,11 +2026,13 @@ h6 {
 .nav-link,
 .nav-link span {
   color: #ffffff !important;
+  font-weight: 500 !important;
 }
 
 .nav-link.active {
   background: var(--nav-btn-active-bg) !important;
   color: var(--nav-btn-active-text) !important;
+  font-weight: 500 !important;
 }
 
 .nav-link:hover {
@@ -2042,6 +2044,7 @@ h6 {
 .nav-link:hover span {
   color: #000000 !important;
   background: transparent !important;
+  font-weight: 500 !important;
 }
 
 .subnav-btn {
@@ -2108,6 +2111,7 @@ h6 {
   background: transparent !important;
   color: #ffffff !important;
   box-shadow: none !important;
+  font-weight: 500 !important;
 }
 
 .nav-link i {
@@ -2117,6 +2121,7 @@ h6 {
 .nav-link.active {
   background: var(--nav-btn-active-bg) !important;
   color: var(--nav-btn-active-text) !important;
+  font-weight: 500 !important;
 }
 
 .nav-link.active i {

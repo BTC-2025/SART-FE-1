@@ -17,7 +17,7 @@ export default function CaptainDutyRightView({
   isOnDuty,
   setIsOnDuty,
   onOpenProfile,
-  onOpenWallet = () => {},
+  onOpenWallet = () => { },
   vehicleCategoryFilter
 }) {
   // Show active order requests view / modal
@@ -614,16 +614,6 @@ export default function CaptainDutyRightView({
             <div className="stat-text-col">
               <div className="stat-count">{completedOrdersCount !== undefined ? completedOrdersCount : (partnerDetails?.ordersAccepted !== undefined ? partnerDetails.ordersAccepted : 0)}</div>
               <div className="stat-label">Orders Accepted</div>
-            </div>
-          </div>
-
-          <div className="c-order-stat-pill rejected">
-            <div className="icon-circle">
-              <i className="fa-solid fa-xmark"></i>
-            </div>
-            <div className="stat-text-col">
-              <div className="stat-count">{partnerDetails?.ordersRejected !== undefined ? partnerDetails.ordersRejected : 0}</div>
-              <div className="stat-label">Orders Rejected</div>
             </div>
           </div>
 

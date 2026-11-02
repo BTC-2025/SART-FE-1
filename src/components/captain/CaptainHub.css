@@ -1057,7 +1057,7 @@ body {
 }
 
 /* Map Layer Pills (Google Map, Satellite, OSM) matching user screenshot */
-.c-map-layer-pills {
+/* .c-map-layer-pills {
   position: absolute;
   top: 56px;
   right: 16px;
@@ -1083,7 +1083,6 @@ body {
   color: #334155;
   cursor: pointer;
   border-right: 1px solid #e2e8f0;
-  transition: all 0.15s ease;
 }
 
 .c-layer-pill:last-child {
@@ -1097,7 +1096,7 @@ body {
 
 .c-layer-pill:hover:not(.active) {
   background: #f1f5f9;
-}
+} */
 
 /* Live GPS Marker on Map */
 .c-captain-gps-marker {

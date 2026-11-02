@@ -172,7 +172,8 @@ export default function CaptainHeader({
                   position: 'absolute',
                   top: '46px',
                   right: 0,
-                  width: '320px',
+
+                  width: '420px',
                   padding: '16px',
                   borderRadius: '24px',
                   textAlign: 'center',
