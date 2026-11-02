@@ -23,7 +23,7 @@ body:not(.light-theme) .subnavbar-container {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* 1. Left Side: Bike & Custom Shortcuts */
+/* 1. Left Side: Bike & Custom Shortcuts - ALL BLACK DEFAULT, #B59CDE ON HOVER/ENTER */
 .subnavbar-left-actions {
   display: flex;
   align-items: center;
@@ -38,37 +38,49 @@ body:not(.light-theme) .subnavbar-container {
   border-radius: 20px;
   font-size: 13.5px;
   font-weight: 700;
-  color: #ea580c;
-  background: #fff7ed;
+  color: #000000;
+  background: transparent;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   user-select: none;
-}
-
-body:not(.light-theme) .subnav-quick-btn {
-  background: rgba(234, 88, 12, 0.15);
-  border: none;
-  color: #fb923c;
-}
-
-.subnav-quick-btn:hover {
-  background: #ffedd5;
-  color: #c2410c;
-  border: none;
-  transform: translateY(-1px);
-}
-
-.subnav-quick-btn.active {
-  background: #fff7ed;
-  color: #ea580c;
-  border: none;
-  box-shadow: none;
 }
 
 .subnav-quick-btn i {
   font-size: 14px;
-  color: #ea580c;
+  color: #000000;
+  transition: color 0.25s ease;
+}
+
+body:not(.light-theme) .subnav-quick-btn {
+  background: transparent;
+  border: none;
+  color: #000000;
+}
+
+/* When hover / enter / active: background becomes #B59CDE with black text & icons */
+.subnav-quick-btn:hover,
+.subnav-quick-btn:focus-visible {
+  background: #B59CDE !important;
+  color: #000000 !important;
+  border: none;
+  transform: translateY(-1px);
+}
+
+.subnav-quick-btn:hover i,
+.subnav-quick-btn:focus-visible i {
+  color: #000000 !important;
+}
+
+.subnav-quick-btn.active {
+  background: #B59CDE;
+  color: #000000;
+  border: none;
+  box-shadow: 0 2px 8px rgba(181, 156, 222, 0.35);
+}
+
+.subnav-quick-btn.active i {
+  color: #000000;
 }
 
 /* Plus '+' Symbol button beside shortcuts */
@@ -76,36 +88,38 @@ body:not(.light-theme) .subnav-quick-btn {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 1.5px dashed #ea580c;
-  background: #fff7ed;
-  color: #ea580c;
+  border: 1.5px dashed #000000;
+  background: transparent;
+  color: #000000;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   user-select: none;
 }
 
-.subnav-plus-shortcut-btn:hover {
-  background: #ea580c;
-  color: #ffffff;
-  border-style: solid;
+.subnav-plus-shortcut-btn:hover,
+.subnav-plus-shortcut-btn:focus-visible {
+  background: #B59CDE !important;
+  color: #000000 !important;
+  border-color: #B59CDE;
   transform: scale(1.08);
-  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.25);
+  box-shadow: 0 2px 8px rgba(181, 156, 222, 0.4);
 }
 
 body:not(.light-theme) .subnav-plus-shortcut-btn {
-  background: rgba(234, 88, 12, 0.15);
-  border-color: #fb923c;
-  color: #fb923c;
+  background: transparent;
+  border-color: #000000;
+  color: #000000;
 }
 
 body:not(.light-theme) .subnav-plus-shortcut-btn:hover {
-  background: #ea580c;
-  color: #ffffff;
+  background: #B59CDE !important;
+  color: #000000 !important;
+  border-color: #B59CDE;
 }
 
 /* 2. Center: Customize Dock Pill Button */
@@ -129,12 +143,12 @@ body:not(.light-theme) .subnav-plus-shortcut-btn:hover {
   padding: 5px 14px;
   border-radius: 20px;
   border: none;
-
-  color: #2563eb;
+  background: transparent;
+  color: #000000;
   font-size: 13.5px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   user-select: none;
   outline: none;
 }
@@ -147,32 +161,34 @@ body:not(.light-theme) .subnav-plus-shortcut-btn:hover {
   align-items: center;
   justify-content: center;
   border: none;
-  color: #2563eb;
+  color: #000000;
   font-size: 13px;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 body:not(.light-theme) .subnav-action-pill-btn {
-  background: rgba(37, 99, 235, 0.2);
+  background: transparent;
   border: none;
-
+  color: #000000;
 }
 
 body:not(.light-theme) .subnav-action-icon-circle {
-  background: rgba(37, 99, 235, 0.35);
+  background: transparent;
   border: none;
-
+  color: #000000;
 }
 
-.subnav-action-pill-btn:hover {
-  background: #dbeafe;
-  color: #1d4ed8;
+/* When hover / enter / focus: background becomes #B59CDE */
+.subnav-action-pill-btn:hover,
+.subnav-action-pill-btn:focus-visible {
+  background: #B59CDE !important;
+  color: #000000 !important;
   transform: translateY(-1px);
 }
 
-.subnav-action-pill-btn:hover .subnav-action-icon-circle {
-
-  color: #1d4ed8;
+.subnav-action-pill-btn:hover .subnav-action-icon-circle,
+.subnav-action-pill-btn:focus-visible .subnav-action-icon-circle {
+  color: #000000 !important;
 }
 
 .subnav-icon-btn {
@@ -182,32 +198,32 @@ body:not(.light-theme) .subnav-action-icon-circle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  color: #475569;
+  border: 1px solid #000000;
+  background: transparent;
+  color: #000000;
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   user-select: none;
 }
 
 body:not(.light-theme) .subnav-icon-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
+  background: transparent;
+  border-color: #000000;
+  color: #000000;
 }
 
 .subnav-icon-btn:hover {
-  border-color: #ea580c;
-  color: #ea580c;
-  background: #fff7ed;
+  border-color: #B59CDE;
+  color: #000000;
+  background: #B59CDE;
   transform: translateY(-1px);
 }
 
 body:not(.light-theme) .subnav-icon-btn:hover {
-  background: rgba(234, 88, 12, 0.2);
-  color: #fb923c;
-  border-color: rgba(234, 88, 12, 0.4);
+  background: #B59CDE;
+  color: #000000;
+  border-color: #B59CDE;
 }
 
 @media (max-width: 768px) {
