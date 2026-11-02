@@ -18,20 +18,21 @@ export default function SubNavbar() {
   const [isDockModalOpen, setIsDockModalOpen] = useState(false);
 
   // Default: only Bike appears initially (matching user image)
-  const [selectedShortcutIds, setSelectedShortcutIds] = useState<string[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('sart_subnav_shortcut_ids');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed.slice(0, 4); // Enforce max 4
-          }
+  const [selectedShortcutIds, setSelectedShortcutIds] = useState<string[]>(DEFAULT_SELECTED_SHORTCUT_IDS);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    try {
+      const saved = localStorage.getItem('sart_subnav_shortcut_ids');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setSelectedShortcutIds(parsed.slice(0, 4));
         }
-      } catch (e) {}
-    }
-    return DEFAULT_SELECTED_SHORTCUT_IDS; // ['bike']
-  });
+      }
+    } catch (e) {}
+  }, []);
 
   const handleSaveShortcuts = (newIds: string[]) => {
     const limited = newIds.slice(0, 4);
