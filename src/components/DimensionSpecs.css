@@ -30,33 +30,93 @@
 }
 
 .nav-links {
-  width: 295px !important;
+  width: 310px !important;
   height: 42px !important;
   border-radius: 9999px !important;
   display: flex !important;
   align-items: center !important;
-  justify-content: center !important;
+  justify-content: space-between !important;
+  background: #3712a6 !important;
+  /* Exact color from Image 2 */
+  border: 1.5px solid #ffffff !important;
+  /* Crisp white border */
+  padding: 4px 6px !important;
   box-sizing: border-box !important;
+  gap: 8px !important;
 }
 
-.nav-link.active {
-  min-width: 82px !important;
-  height: 36px !important;
+.nav-link {
+  height: 34px !important;
+  padding: 0 16px !important;
+  border-radius: 9999px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  border-radius: 9999px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  white-space: nowrap !important;
+  border: none !important;
+}
+
+.nav-link:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+.nav-link.active {
+  background: #b59cde !important;
+  /* Exact color from Image 3 */
+  color: #000000 !important;
+  /* Bold dark text on lavender active button */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+  border: none !important;
+  font-weight: 600 !important;
+  padding: 0 20px !important;
+}
+
+.nav-link span {
+  color: inherit !important;
+  font-weight: inherit !important;
+  background: transparent !important;
+}
+
+.nav-link.active span {
+  color: #000000 !important;
+  font-weight: 600 !important;
+  background: transparent !important;
 }
 
 .ctrl-btn,
-.nav-circle-action-btn,
-.nav-bittool-slider-btn {
-  width: 36px !important;
+.nav-circle-action-btn {
+  width: 40px !important;
   height: 36px !important;
   border-radius: 50% !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
+}
+
+.nav-bittool-slider-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.nav-bittool-slider-btn img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+  border-radius: 8px !important;
 }
 
 .profile-nav-btn,
@@ -73,13 +133,21 @@
 
 /* Sub-navbar leaves 58px on right so Bit-Tool strip (starting with B) appears right beside it at top: 64px */
 .subnavbar-container {
-  width: calc(100% - 58px) !important;
+  width: 100% !important;
+  /* Full width till end by default */
   height: 36px !important;
   min-height: 36px !important;
   padding: 0 18px !important;
   transition: width 0.22s ease !important;
 }
 
+/* When bit-tool is open, adjust width for the icons */
+.subnavbar-container.has-bittool,
+body:has(.user-side-bittool-strip) .subnavbar-container {
+  width: calc(100% - 58px) !important;
+}
+
+/* When side dock panel (calendar/calculator) opens, adjust further */
 body:has(.user-side-dock-panel) .subnavbar-container {
   width: calc(100% - 498px) !important;
 }
@@ -92,12 +160,14 @@ body:has(.user-side-dock-panel) .subnavbar-container {
 }
 
 .subnav-customize-combined-btn {
-  padding: 2px 6px !important;
+  height: 26px !important;
+  padding: 0 10px !important;
+  border-radius: 9999px !important;
+  border: 1.5px dashed #000000 !important;
+  gap: 6px !important;
 }
 
-.subnav-plus-circle-icon {
-  width: 20px !important;
-  height: 20px !important;
+.subnav-customize-plus-icon {
   font-size: 10px !important;
 }
 
@@ -118,10 +188,11 @@ body:has(.user-side-dock-panel) .subnavbar-container {
 }
 
 .user-side-bittool-strip {
-  top: 64px !important; /* Starts right below main navbar (64px), beside subnavbar */
+  top: 64px !important;
+  /* Starts right below main navbar (64px), beside subnavbar */
 }
 
 .user-side-dock-panel {
-  top: 64px !important; /* Sits beside Bit-Tool strip */
+  top: 64px !important;
+  /* Sits beside Bit-Tool strip */
 }
-

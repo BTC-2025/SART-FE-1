@@ -11,7 +11,7 @@ import CustomizeDockModal, {
 } from './CustomizeDockModal';
 
 export default function SubNavbar() {
-  const { activeTab, setActiveTab } = useSartStore();
+  const { activeTab, setActiveTab, activeRideMode, setActiveRideMode, isBitToolOpen } = useSartStore();
   const router = useRouter();
 
   // State for customize shortcuts modal
@@ -46,6 +46,13 @@ export default function SubNavbar() {
 
   const handleShortcutClick = (shortcut: ShortcutItem) => {
     if (shortcut.type === 'ride') {
+      const rideMode = (shortcut.id === 'train_ride' ? 'train' : shortcut.id === 'flight_ride' ? 'flight' : shortcut.id) as any;
+      if (setActiveRideMode) {
+        setActiveRideMode(rideMode);
+      }
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sart_active_ride_mode', rideMode);
+      }
       setActiveTab('ride');
       router.push(shortcut.route, { scroll: false });
     } else {
@@ -71,13 +78,19 @@ export default function SubNavbar() {
 
   return (
     <>
-      <nav className="subnavbar-container" aria-label="Sub Navigation">
-        {/* 1. Left Side: Configured Shortcuts (Bike and Car default, up to 4) + '+' Plus Icon Button */}
+      <nav
+        className={`subnavbar-container ${isBitToolOpen ? 'has-bittool' : 'no-bittool'}`}
+        aria-label="Sub Navigation"
+      >
+        {/* 1. Left Side: Configured Shortcuts (Bike, Car, etc.) + '+' Plus Icon Button */}
         <div className="subnavbar-left-actions">
           {activeShortcuts.map((shortcut) => {
+            const normalizedShortcutMode = shortcut.id === 'train_ride' ? 'train' : shortcut.id === 'flight_ride' ? 'flight' : shortcut.id;
+            const currentMode = activeRideMode || 'bike';
             const isActive =
-              (shortcut.type === 'ride' && activeTab === 'ride') ||
-              (shortcut.type === 'carrier' && activeTab === 'carrier');
+              shortcut.type === 'ride'
+                ? activeTab === 'ride' && (currentMode === normalizedShortcutMode || currentMode === shortcut.id)
+                : activeTab === 'carrier' && shortcut.type === 'carrier';
 
             return (
               <button
@@ -93,7 +106,7 @@ export default function SubNavbar() {
             );
           })}
 
-          {/* Plus '+' Symbol button with 'Customize' inside one unified button */}
+          {/* Plus '+' Symbol and 'Customize' wrapped inside ONE dashed pill border */}
           <button
             type="button"
             className="subnav-customize-combined-btn"
@@ -101,9 +114,7 @@ export default function SubNavbar() {
             title="Add or Customize Shortcuts (Max 4)"
             aria-label="Add or Customize Shortcuts"
           >
-            <span className="subnav-plus-circle-icon">
-              <i className="fa-solid fa-plus"></i>
-            </span>
+            <i className="fa-solid fa-plus subnav-customize-plus-icon"></i>
             <span className="subnav-customize-text">Customize</span>
           </button>
         </div>

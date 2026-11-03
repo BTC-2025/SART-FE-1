@@ -42,11 +42,11 @@
   /* Light grayish background for UI sheets */
   --surface: #ffffff;
   /* Pure white for cards */
-  --navbar-bg: #4608AD;
+  --navbar-bg: #1F1B4D;
   /* CHANGE MAIN NAVBAR COLOR HERE */
   --nav-center-bg: #0056b3;
   /* CHANGE CENTER PILL COLOR HERE */
-  --nav-btn-active-bg: #B59CDE;
+  --nav-btn-active-bg: #6057C9;
   /* CHANGE ACTIVE BUTTON COLOR HERE */
   --nav-btn-active-text: #04261b;
   /* CHANGE ACTIVE BUTTON TEXT HERE */
@@ -146,7 +146,7 @@ h6 {
 
 /* Premium Top Navigation Bar */
 .web-navbar {
-  height: 64px;
+  height: 60px;
   width: 100%;
   background: var(--navbar-bg) !important;
   backdrop-filter: blur(16px);
@@ -155,7 +155,7 @@ h6 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 30px;
+  padding: 0 10px;
   z-index: 100;
   flex-shrink: 0;
 }
@@ -198,15 +198,14 @@ h6 {
 /* Nav tabs */
 .nav-links {
   display: flex;
-  gap: 6px;
-  width: 295px;
-  height: 42px;
+  gap: 5px;
+  width: 290px;
+  height: 37.33px;
   background: var(--nav-center-bg) !important;
   border-radius: 28px;
   padding: 0 4px;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.15);
   box-sizing: border-box;
 }
 
@@ -235,6 +234,7 @@ h6 {
 }
 
 .nav-link.active {
+
   color: var(--nav-btn-active-text) !important;
   background: var(--nav-btn-active-bg) !important;
 }
@@ -385,7 +385,8 @@ h6 {
 }
 
 .web-main-content.has-bittool-panel {
-  margin-right: 498px; /* 440px dock panel + 58px strip */
+  margin-right: 498px;
+  /* 440px dock panel + 58px strip */
 }
 
 .web-main-content::-webkit-scrollbar {
@@ -2170,4 +2171,69 @@ h6 {
   color: #000000 !important;
   transform: none !important;
   box-shadow: none !important;
+}
+
+/* ==========================================================================
+   CENTER NAV CAPSULE MATCHING EXACT IMAGE COLORS
+   ========================================================================== */
+.nav-links {
+  width: 310px !important;
+  height: 42px !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: #391E8A !important;
+  /* Exact color from Image 2 */
+  border: 1.5px solid #ffffff !important;
+  /* Crisp white border */
+  padding: 4px 6px !important;
+  box-sizing: border-box !important;
+  gap: 8px !important;
+}
+
+.nav-link {
+  height: 34px !important;
+  padding: 0 16px !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  white-space: nowrap !important;
+  border: none !important;
+}
+
+.nav-link:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+.nav-link.active,
+.nav-link.active:hover {
+  background: #b59cde !important;
+  /* Exact color from Image 3 */
+  color: #000000 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+  border: none !important;
+  font-weight: 600 !important;
+  padding: 0 20px !important;
+}
+
+.nav-link span {
+  color: inherit !important;
+  font-weight: inherit !important;
+  background: transparent !important;
+}
+
+.nav-link.active span,
+.nav-link.active:hover span {
+  color: #000000 !important;
+  font-weight: 600 !important;
+  background: transparent !important;
 }

@@ -8,10 +8,10 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 28px;
-  height: 50px;
+  height: 41.33px;
   position: sticky;
   top: 64px;
-  z-index: 90;
+  /* z-index: 90; */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -74,7 +74,7 @@ body:not(.light-theme) .subnav-quick-btn {
 }
 
 .subnav-quick-btn.active {
-  background: #B59CDE;
+  /* background: #B59CDE; */
   color: #000000;
   border: none;
   box-shadow: 0 2px 8px rgba(181, 156, 222, 0.35);
@@ -84,61 +84,51 @@ body:not(.light-theme) .subnav-quick-btn {
   color: #000000;
 }
 
-/* Plus '+' Symbol button and Customize combined into ONE button (Image 1 UI) */
+/* Plus '+' Symbol and Customize combined into ONE dashed border button (Image 2) */
 .subnav-customize-combined-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: transparent;
-  border: none;
-  color: #1e293b;
+  border: 1.5px dashed #000000;
+  color: #000000;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 20px;
-  transition: all 0.25s ease;
+  padding: 0 12px;
+  height: 26px;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
   user-select: none;
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 
-.subnav-plus-circle-icon {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 1.5px dashed #000000;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
+.subnav-customize-plus-icon {
+  font-size: 11px;
   font-weight: 700;
   color: #000000;
-  transition: all 0.2s ease;
 }
 
 .subnav-customize-text {
-  font-size: 13.5px;
+  font-size: 12px;
   font-weight: 600;
-  color: #1e293b;
+  color: #000000;
 }
 
 .subnav-customize-combined-btn:hover,
 .subnav-customize-combined-btn:focus-visible {
   background: #B59CDE !important;
   color: #000000 !important;
-  transform: translateY(-1px);
-}
-
-.subnav-customize-combined-btn:hover .subnav-plus-circle-icon,
-.subnav-customize-combined-btn:focus-visible .subnav-plus-circle-icon {
   border-color: #000000;
-  background: rgba(255, 255, 255, 0.4);
 }
 
-.subnav-customize-combined-btn:hover .subnav-customize-text,
-.subnav-customize-combined-btn:focus-visible .subnav-customize-text {
+.subnav-customize-combined-btn:hover .subnav-customize-plus-icon,
+.subnav-customize-combined-btn:hover .subnav-customize-text {
   color: #000000 !important;
 }
 
 body:not(.light-theme) .subnav-customize-combined-btn {
-  color: #1e293b;
+  color: #000000;
+  border-color: #000000;
 }
 
 /* Plus '+' Symbol button beside shortcuts (Legacy fallback) */

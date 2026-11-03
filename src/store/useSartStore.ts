@@ -69,7 +69,7 @@ export const useSartStore = create<SartStore>()(
   persist(
     (set, get) => ({
       ...DEFAULT_STATE,
-      isBitToolOpen: true,
+      isBitToolOpen: false,
       toggleBitTool: () => set((state) => ({ isBitToolOpen: !state.isBitToolOpen })),
       setBitToolOpen: (open) => set({ isBitToolOpen: open }),
 

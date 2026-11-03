@@ -13,15 +13,15 @@ export interface ShortcutItem {
 
 export const ALL_SERVICES_SHORTCUTS: ShortcutItem[] = [
   // Rides Services
-  { id: 'bike', name: 'Bike', type: 'ride', icon: 'fa-motorcycle', route: '/home/ride' },
-  { id: 'car', name: 'Car', type: 'ride', icon: 'fa-car', route: '/home/ride' },
-  { id: 'auto', name: 'Auto', type: 'ride', icon: 'fa-taxi', route: '/home/ride' },
-  { id: 'bus', name: 'Bus Booking', type: 'ride', icon: 'fa-bus', route: '/home/ride' },
-  { id: 'shuttle', name: 'Shuttle / Van Booking', type: 'ride', icon: 'fa-van-shuttle', route: '/home/ride' },
-  { id: 'train_ride', name: 'Train Booking', type: 'ride', icon: 'fa-train', route: '/home/ride' },
-  { id: 'flight_ride', name: 'Flight Booking', type: 'ride', icon: 'fa-plane', route: '/home/ride' },
-  { id: 'ferry', name: 'Ferry / Boat Booking', type: 'ride', icon: 'fa-ship', route: '/home/ride' },
-  { id: 'helicopter', name: 'Helicopter Booking', type: 'ride', icon: 'fa-helicopter', route: '/home/ride' },
+  { id: 'bike', name: 'Bike', type: 'ride', icon: 'fa-motorcycle', route: '/home/ride/bike' },
+  { id: 'car', name: 'Car', type: 'ride', icon: 'fa-car', route: '/home/ride/car' },
+  { id: 'auto', name: 'Auto', type: 'ride', icon: 'fa-taxi', route: '/home/ride/auto' },
+  { id: 'bus', name: 'Bus Booking', type: 'ride', icon: 'fa-bus', route: '/home/ride/bus' },
+  { id: 'shuttle', name: 'Shuttle / Van Booking', type: 'ride', icon: 'fa-van-shuttle', route: '/home/ride/bus' },
+  { id: 'train_ride', name: 'Train Booking', type: 'ride', icon: 'fa-train', route: '/home/ride/train' },
+  { id: 'flight_ride', name: 'Flight Booking', type: 'ride', icon: 'fa-plane', route: '/home/ride/flight' },
+  { id: 'ferry', name: 'Ferry / Boat Booking', type: 'ride', icon: 'fa-ship', route: '/home/ride/boat' },
+  { id: 'helicopter', name: 'Helicopter Booking', type: 'ride', icon: 'fa-helicopter', route: '/home/ride/helicopter' },
 
   // Carriers & Cargo Logistics
   { id: 'truck', name: 'Truck Cargo', type: 'carrier', icon: 'fa-truck-moving', route: '/home/carrier' },

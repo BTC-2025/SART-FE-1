@@ -15,7 +15,7 @@ const MONTH_NAMES = [
 ];
 
 export default function UserSideBitTool({
-  isOpen = true,
+  isOpen = false,
   onActivePanelChange = () => {}
 }: UserSideBitToolProps) {
   const { setActiveTab } = useSartStore();
@@ -389,75 +389,7 @@ export default function UserSideBitTool({
         </div>
       )}
 
-      {/* PANEL 5: PORTAL / CAPTAIN / QUICK SWITCH */}
-      {(activeModal === 'portal' || activeModal === 'shortcuts' || activeModal === 'settings') && (
-        <div className="user-side-dock-panel">
-          <div className="user-dock-header">
-            <span className="user-dock-title">
-              {activeModal === 'portal' ? 'SART HUBS & CAPTAIN MODES' : 'QUICK SERVICE SWITCHER'}
-            </span>
-            <button className="user-dock-close-btn" onClick={closeModal} title="Close">
-              <i className="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-          <div className="user-dock-inner">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div
-                style={{ padding: '14px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
-                onClick={() => { closeModal(); window.open('http://localhost:3007', '_blank'); }}
-              >
-                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1d4ed8', fontWeight: 900, fontFamily: 'serif' }}>
-                  B
-                </div>
-                <div>
-                  <strong style={{ fontSize: '13.5px', color: '#0f172a', display: 'block' }}>SART Business & Partner Portal</strong>
-                  <span style={{ fontSize: '11.5px', color: '#64748b' }}>Switch to Fleet, Carrier & Rental Management</span>
-                </div>
-                <i className="fa-solid fa-arrow-up-right-from-square" style={{ marginLeft: 'auto', color: '#94a3b8' }}></i>
-              </div>
-
-              <div
-                style={{ padding: '14px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
-                onClick={() => { closeModal(); window.location.href = '/ride/captain/login?category=bike'; }}
-              >
-                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706', fontSize: '16px' }}>
-                  <i className="fa-solid fa-helmet-safety"></i>
-                </div>
-                <div>
-                  <strong style={{ fontSize: '13.5px', color: '#0f172a', display: 'block' }}>Bike Captain Mode</strong>
-                  <span style={{ fontSize: '11.5px', color: '#64748b' }}>On-Duty Bike Pilot Dispatch Console</span>
-                </div>
-              </div>
-
-              <div
-                style={{ padding: '14px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
-                onClick={() => { closeModal(); window.location.href = '/ride/captain/login?category=auto'; }}
-              >
-                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a', fontSize: '16px' }}>
-                  <i className="fa-solid fa-taxi"></i>
-                </div>
-                <div>
-                  <strong style={{ fontSize: '13.5px', color: '#0f172a', display: 'block' }}>Auto Captain Mode</strong>
-                  <span style={{ fontSize: '11.5px', color: '#64748b' }}>Auto Rickshaw Meter & Trip radar</span>
-                </div>
-              </div>
-
-              <div
-                style={{ padding: '14px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
-                onClick={() => { closeModal(); window.location.href = '/ride/captain/login?category=car'; }}
-              >
-                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#ede9fe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7c3aed', fontSize: '16px' }}>
-                  <i className="fa-solid fa-car"></i>
-                </div>
-                <div>
-                  <strong style={{ fontSize: '13.5px', color: '#0f172a', display: 'block' }}>Cab Captain Mode</strong>
-                  <span style={{ fontSize: '11.5px', color: '#64748b' }}>City & Outstation Sedan Cab Pilot</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      
     </>
   );
 }

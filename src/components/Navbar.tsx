@@ -308,23 +308,42 @@ export default function Navbar() {
                 </div>
                 <label style={{ position: 'absolute', bottom: 0, right: 0, background: 'white', color: 'black', width: '26px', height: '26px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', cursor: 'pointer' }}>
                   <i className="fa-solid fa-camera"></i>
-                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => { if (e.target.files && e.target.files[0]) alert('Selected file: ' + e.target.files[0].name) }} />
+                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = async () => {
+                      const base64 = reader.result;
+                      try {
+                        await fetch('http://localhost:5000/api/user/profile/photo', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ image: base64 })
+                        });
+                      } catch (err) {}
+                      window.dispatchEvent(new CustomEvent('user-photo-updated', { detail: base64 }));
+                    };
+                    reader.readAsDataURL(file);
+                  }} />
                 </label>
               </div>
               <div style={{ display: 'inline-block', background: '#eff6ff', color: '#1d4ed8', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '12px', marginBottom: '8px', border: '1px solid #bfdbfe' }}>
-                CUSTOMER / USER
+                USER
               </div>
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#2563eb' }}>
-                Alex Carter
+                Kumar
               </h3>
               <p style={{ margin: '4px 0 16px', fontSize: '14px', color: '#4b5563' }}>
-                alex.carter@sart.com
+                kumar@bnxmail.com
+              </p>
+              <p style={{ margin: '4px 0 16px', fontSize: '14px', color: '#4b5563' }}>
+                Mobile Number : 8642097532
               </p>
 
 
 
 
-              <button onClick={() => console.log('Manage Account')} style={{ background: 'transparent', border: '1px solid #d1d5db', color: '#000000', borderRadius: '24px', padding: '10px 20px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '20px', width: 'auto' }}>
+              <button onClick={() => { setActiveTab('profile'); router.push('/home/profile', { scroll: false }); setIsProfileOpen(false); }} style={{ background: 'transparent', border: '1px solid #d1d5db', color: '#000000', borderRadius: '24px', padding: '10px 20px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '20px', width: 'auto' }}>
                 <i className="fa-solid fa-user-gear"></i> Manage your account
               </button>
 
@@ -358,7 +377,11 @@ export default function Navbar() {
           title="Toggle Right Side Utilities"
           onClick={toggleBitTool}
         >
-          <i className="fa-solid fa-sliders"></i>
+          <img
+            src="/images/slider_toggle_icon.png"
+            alt="Toggle"
+            style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px" }}
+          />
         </button>
       </div>
     </header>
