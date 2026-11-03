@@ -1042,8 +1042,8 @@ export default function HomeTab() {
                     className="book-card-img"
                   />
                 </div>
+
                 <h3 className="book-title" style={{ textAlign: 'center' }}>Rides</h3>
-                <div className="book-footer"></div>
               </div>
 
               {/* 2. Cargo & Logistics */}

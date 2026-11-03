@@ -31,7 +31,7 @@ export default function Navbar() {
   ];
 
   const [captainProfile, setCaptainProfile] = useState<{ name?: string; email?: string; phone?: string } | null>(null);
-  const [userSession, setUserSession] = useState<{ id?: string; name?: string; email?: string; phone?: string; avatar?: string } | null>(null);
+  const [userSession, setUserSession] = useState<{ id?: string; name?: string; email?: string; phone?: string; avatar?: string; token?: string } | null>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   useEffect(() => {

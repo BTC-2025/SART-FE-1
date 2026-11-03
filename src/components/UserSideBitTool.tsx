@@ -16,7 +16,7 @@ const MONTH_NAMES = [
 
 export default function UserSideBitTool({
   isOpen = false,
-  onActivePanelChange = () => {}
+  onActivePanelChange = () => { }
 }: UserSideBitToolProps) {
   const { setActiveTab } = useSartStore();
   const [activeModal, setActiveModal] = useState<string | null>(null);
@@ -228,7 +228,7 @@ export default function UserSideBitTool({
       {activeModal === 'calendar' && (
         <div className="user-side-dock-panel">
           <div className="user-dock-header">
-            <span className="user-dock-title">TRIP SCHEDULE & CALENDAR</span>
+            <span className="user-dock-title">CALENDAR</span>
             <button className="user-dock-close-btn" onClick={closeModal} title="Close">
               <i className="fa-solid fa-xmark"></i>
             </button>
@@ -301,116 +301,116 @@ export default function UserSideBitTool({
         </div>
       )}
 
-      {/* PANEL 2: CALCULATOR */}
-      {activeModal === 'calculator' && (
-        <div className="user-side-dock-panel">
-          <div className="user-dock-header">
-            <span className="user-dock-title">FARE & EXPENSE CALCULATOR</span>
-            <button className="user-dock-close-btn" onClick={closeModal} title="Close">
-              <i className="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-          <div className="user-dock-inner">
-            <div className="user-calc-screen">
-              <div className="user-calc-formula">{calcFormula}</div>
-              <div className="user-calc-display">{calcDisplay}</div>
-            </div>
-            <div className="user-calc-pad">
-              <button className="user-calc-key clear" onClick={() => handleCalcClick('AC')}>AC</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('backspace')}>⌫</button>
-              <button className="user-calc-key op" onClick={() => handleCalcClick('%')}>%</button>
-              <button className="user-calc-key op" onClick={() => handleCalcClick('÷')}>÷</button>
-
-              <button className="user-calc-key" onClick={() => handleCalcClick('7')}>7</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('8')}>8</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('9')}>9</button>
-              <button className="user-calc-key op" onClick={() => handleCalcClick('x')}>×</button>
-
-              <button className="user-calc-key" onClick={() => handleCalcClick('4')}>4</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('5')}>5</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('6')}>6</button>
-              <button className="user-calc-key op" onClick={() => handleCalcClick('-')}>−</button>
-
-              <button className="user-calc-key" onClick={() => handleCalcClick('1')}>1</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('2')}>2</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('3')}>3</button>
-              <button className="user-calc-key op" onClick={() => handleCalcClick('+')}>+</button>
-
-              <button className="user-calc-key" onClick={() => handleCalcClick('0')}>0</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('.')}>.</button>
-              <button className="user-calc-key equal" style={{ gridColumn: 'span 2' }} onClick={() => handleCalcClick('=')}>=</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* PANEL 3: CONTACTS */}
-      {activeModal === 'contacts' && (
-        <div className="user-side-dock-panel">
-          <div className="user-dock-header">
-            <span className="user-dock-title">SAVED CAPTAINS & FLEET HUBS</span>
-            <button className="user-dock-close-btn" onClick={closeModal} title="Close">
-              <i className="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-          <div className="user-dock-inner">
-            <div className="user-contacts-grid">
-              {contactsList.map((c, i) => (
-                <div key={i} className="user-contact-tile">
-                  <div className="user-contact-avatar">{c.initial}</div>
-                  <div>
-                    <div className="user-contact-name">{c.name}</div>
-                    <div className="user-contact-role">{c.role}</div>
-                    <div style={{ fontSize: '11px', color: '#2563eb', fontWeight: 600, marginTop: '2px' }}>{c.phone}</div>
-                  </div>
-                  <button className="user-contact-call-btn" onClick={() => window.open(`tel:${c.phone}`)}>Call</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* PANEL 4: NOTES */}
-      {activeModal === 'notes' && (
-        <div className="user-side-dock-panel">
-          <div className="user-dock-header">
-            <span className="user-dock-title">TRIP NOTES & MEMOS</span>
-            <button className="user-dock-close-btn" onClick={closeModal} title="Close">
-              <i className="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-          <div className="user-dock-inner">
-            <div className="user-note-input-row">
-              <input
-                type="text"
-                className="user-note-input"
-                placeholder="Write a new note or memo..."
-                value={noteInput}
-                onChange={(e) => setNoteInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleAddNote(); }}
-              />
-              <button className="user-note-add-btn" onClick={handleAddNote}>Add</button>
-            </div>
-            <div className="user-notes-list">
-              {notesList.map((n, i) => (
-                <div key={i} className="user-note-card">
-                  <span style={{ fontSize: '13px', color: '#1e293b' }}>{n}</span>
-                  <button
-                    className="user-note-delete-btn"
-                    onClick={() => setNotesList(prev => prev.filter((_, idx) => idx !== i))}
-                    title="Delete"
-                  >
-                    <i className="fa-regular fa-trash-can"></i>
+            {/* PANEL 2: CALCULATOR */}
+            {activeModal === 'calculator' && (
+              <div className="user-side-dock-panel">
+                <div className="user-dock-header">
+                  <span className="user-dock-title">FARE & EXPENSE CALCULATOR</span>
+                  <button className="user-dock-close-btn" onClick={closeModal} title="Close">
+                    <i className="fa-solid fa-xmark"></i>
                   </button>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+                <div className="user-dock-inner">
+                  <div className="user-calc-screen">
+                    <div className="user-calc-formula">{calcFormula}</div>
+                    <div className="user-calc-display">{calcDisplay}</div>
+                  </div>
+                  <div className="user-calc-pad">
+                    <button className="user-calc-key clear" onClick={() => handleCalcClick('AC')}>AC</button>
+                    <button className="user-calc-key" onClick={() => handleCalcClick('backspace')}>⌫</button>
+                    <button className="user-calc-key op" onClick={() => handleCalcClick('%')}>%</button>
+                    <button className="user-calc-key op" onClick={() => handleCalcClick('÷')}>÷</button>
 
-      
-    </>
-  );
+                    <button className="user-calc-key" onClick={() => handleCalcClick('7')}>7</button>
+                    <button className="user-calc-key" onClick={() => handleCalcClick('8')}>8</button>
+                    <button className="user-calc-key" onClick={() => handleCalcClick('9')}>9</button>
+                    <button className="user-calc-key op" onClick={() => handleCalcClick('x')}>×</button>
+
+                    <button className="user-calc-key" onClick={() => handleCalcClick('4')}>4</button>
+                    <button className="user-calc-key" onClick={() => handleCalcClick('5')}>5</button>
+                    <button className="user-calc-key" onClick={() => handleCalcClick('6')}>6</button>
+                    <button className="user-calc-key op" onClick={() => handleCalcClick('-')}>−</button>
+
+                    <button className="user-calc-key" onClick={() => handleCalcClick('1')}>1</button>
+                    <button className="user-calc-key" onClick={() => handleCalcClick('2')}>2</button>
+                    <button className="user-calc-key" onClick={() => handleCalcClick('3')}>3</button>
+                    <button className="user-calc-key op" onClick={() => handleCalcClick('+')}>+</button>
+
+                    <button className="user-calc-key" onClick={() => handleCalcClick('0')}>0</button>
+                    <button className="user-calc-key" onClick={() => handleCalcClick('.')}>.</button>
+                    <button className="user-calc-key equal" style={{ gridColumn: 'span 2' }} onClick={() => handleCalcClick('=')}>=</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* PANEL 3: CONTACTS */}
+            {activeModal === 'contacts' && (
+              <div className="user-side-dock-panel">
+                <div className="user-dock-header">
+                  <span className="user-dock-title">SAVED CAPTAINS & FLEET HUBS</span>
+                  <button className="user-dock-close-btn" onClick={closeModal} title="Close">
+                    <i className="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+                <div className="user-dock-inner">
+                  <div className="user-contacts-grid">
+                    {contactsList.map((c, i) => (
+                      <div key={i} className="user-contact-tile">
+                        <div className="user-contact-avatar">{c.initial}</div>
+                        <div>
+                          <div className="user-contact-name">{c.name}</div>
+                          <div className="user-contact-role">{c.role}</div>
+                          <div style={{ fontSize: '11px', color: '#2563eb', fontWeight: 600, marginTop: '2px' }}>{c.phone}</div>
+                        </div>
+                        <button className="user-contact-call-btn" onClick={() => window.open(`tel:${c.phone}`)}>Call</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* PANEL 4: NOTES */}
+            {activeModal === 'notes' && (
+              <div className="user-side-dock-panel">
+                <div className="user-dock-header">
+                  <span className="user-dock-title">TRIP NOTES & MEMOS</span>
+                  <button className="user-dock-close-btn" onClick={closeModal} title="Close">
+                    <i className="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+                <div className="user-dock-inner">
+                  <div className="user-note-input-row">
+                    <input
+                      type="text"
+                      className="user-note-input"
+                      placeholder="Write a new note or memo..."
+                      value={noteInput}
+                      onChange={(e) => setNoteInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') handleAddNote(); }}
+                    />
+                    <button className="user-note-add-btn" onClick={handleAddNote}>Add</button>
+                  </div>
+                  <div className="user-notes-list">
+                    {notesList.map((n, i) => (
+                      <div key={i} className="user-note-card">
+                        <span style={{ fontSize: '13px', color: '#1e293b' }}>{n}</span>
+                        <button
+                          className="user-note-delete-btn"
+                          onClick={() => setNotesList(prev => prev.filter((_, idx) => idx !== i))}
+                          title="Delete"
+                        >
+                          <i className="fa-regular fa-trash-can"></i>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+
+          </>
+          );
 }

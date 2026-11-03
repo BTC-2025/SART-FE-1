@@ -2546,7 +2546,6 @@
 .book-card {
   height: 180px;
   width: 100%;
-  background: #ffffff;
   border-radius: 16px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
@@ -2561,11 +2560,11 @@
 
 .book-img-wrapper {
   width: 100%;
-  height: 135px;
+  height: 200px;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 8px;
+
   border-radius: 12px;
   overflow: hidden;
 }
@@ -2590,17 +2589,14 @@
   font-size: 8px;
   font-weight: 800;
   text-transform: uppercase;
-  color: #ffffff;
   width: fit-content;
-  margin-bottom: 12px;
   letter-spacing: 0.3px;
   white-space: nowrap;
 }
 
 .book-card {
-  height: 180px;
+  height: 300px;
   width: 100%;
-  background: #ffffff;
   border-radius: 16px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
@@ -2629,7 +2625,13 @@
   flex: 1;
 }
 
-.book-footer {}
+.book-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: auto;
+  gap: 4px;
+}
 
 .book-meta {
   display: flex;
