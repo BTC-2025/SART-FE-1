@@ -31,6 +31,23 @@ export default function UserAuthModal({ isOpen, onClose, onSuccess }: UserAuthMo
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
 
+  const resetAndClose = () => {
+    setStep('login');
+    setPhone('');
+    setOtp('');
+    setEmail('');
+    setPassword('');
+    setFullName('');
+    setAge('');
+    setGender('Male');
+    setDetailPhone('');
+    setDetailEmail('');
+    setAuthToken('');
+    setError('');
+    setInfo('');
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   // 1. Send OTP to Mobile
@@ -210,9 +227,9 @@ export default function UserAuthModal({ isOpen, onClose, onSuccess }: UserAuthMo
   };
 
   return (
-    <div className="ixigo-auth-overlay" onClick={onClose}>
+    <div className="ixigo-auth-overlay" onClick={resetAndClose}>
       <div className="ixigo-auth-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="ixigo-close-btn" onClick={onClose} aria-label="Close">
+        <button className="ixigo-close-btn" onClick={resetAndClose} aria-label="Close">
           <i className="fa-solid fa-xmark"></i>
         </button>
 
