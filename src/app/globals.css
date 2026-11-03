@@ -42,11 +42,11 @@
   /* Light grayish background for UI sheets */
   --surface: #ffffff;
   /* Pure white for cards */
-  --navbar-bg: #1F1B4D;
+  --navbar-bg: #391E8A;
   /* CHANGE MAIN NAVBAR COLOR HERE */
   --nav-center-bg: #0056b3;
   /* CHANGE CENTER PILL COLOR HERE */
-  --nav-btn-active-bg: #6057C9;
+  --nav-btn-active-bg: #4726AB;
   /* CHANGE ACTIVE BUTTON COLOR HERE */
   --nav-btn-active-text: #04261b;
   /* CHANGE ACTIVE BUTTON TEXT HERE */
@@ -2183,7 +2183,7 @@ h6 {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  background: #391E8A !important;
+  background: #1F1B4D !important;
   /* Exact color from Image 2 */
   border: 1.5px solid #ffffff !important;
   /* Crisp white border */
