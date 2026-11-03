@@ -281,28 +281,6 @@ export default function UserAuthModal({ isOpen, onClose, onSuccess }: UserAuthMo
                 setStep('email_login');
               }}
             >
-              <i className="fa-regular fa-envelope" style={{ fontSize: '18px', color: '#2563eb' }}></i>
-              <span>Log in with Email & Password</span>
-            </button>
-
-            <button
-              type="button"
-              className="ixigo-google-btn"
-              style={{ marginTop: '10px' }}
-              onClick={() => {
-                const googleUser = {
-                  id: `usr_g_${Date.now()}`,
-                  name: 'Kumar',
-                  email: 'kumar@bnxmail.com',
-                  phone: '+919032932985',
-                  token: `sart_tk_g_${Date.now()}`
-                };
-                localStorage.setItem('sart_user_session', JSON.stringify(googleUser));
-                window.dispatchEvent(new CustomEvent('user-session-changed', { detail: googleUser }));
-                onSuccess(googleUser);
-                onClose();
-              }}
-            >
               <svg width="20" height="20" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>

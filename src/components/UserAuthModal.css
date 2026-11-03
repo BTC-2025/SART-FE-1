@@ -267,15 +267,17 @@
   display: flex;
   align-items: center;
   border: 1.5px solid #d1d5db;
-  border-radius: 10px;
-  padding: 0 12px;
-  height: 46px;
-  background: #ffffff;
-  transition: border-color 0.2s;
+  border-radius: 12px;
+  padding: 0 14px;
+  height: 50px;
+  background: #eef2f6;
+  transition: all 0.2s ease;
 }
 
 .ixigo-simple-input:focus-within {
-  border-color: #ea580c;
+  border-color: #f97316;
+  background: #f0f7ff;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
 }
 
 .ixigo-simple-input i {
