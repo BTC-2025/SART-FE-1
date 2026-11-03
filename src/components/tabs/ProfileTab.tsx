@@ -38,21 +38,60 @@ export default function ProfileTab() {
           avatar: parsed.avatar || prev.avatar
         }));
       }
-    } catch (e) {}
+    } catch (e) { }
 
-    // Fetch live user profile from Backend API (http://localhost:5000)
-    fetch('http://localhost:5000/api/user/profile')
-      .then(res => res.json())
-      .then(res => {
-        if (res.success && res.data) {
+    const loadUserProfile = () => {
+      let token = '';
+      let phone = '';
+      let email = '';
+      try {
+        const stored = localStorage.getItem('sart_user_session');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          token = parsed.token || '';
+          phone = parsed.phone || '';
+          email = parsed.email || '';
           setProfile(prev => ({
             ...prev,
-            ...res.data,
-            avatar: res.data.avatar || prev.avatar
+            name: parsed.name || prev.name,
+            phone: parsed.phone || prev.phone,
+            email: parsed.email || prev.email,
+            gender: parsed.gender || prev.gender,
+            birthday: parsed.age ? `${parsed.age} years old` : prev.birthday,
+            avatar: parsed.avatar || prev.avatar
           }));
         }
-      })
-      .catch(() => {});
+      } catch (e) {}
+
+      // Fetch live user profile from Backend API passing token, phone, or email
+      const queryParams = new URLSearchParams();
+      if (token) queryParams.append('token', token);
+      if (phone) queryParams.append('phone', phone);
+      if (email) queryParams.append('email', email);
+
+      fetch(`http://localhost:5000/api/user/profile?${queryParams.toString()}`)
+        .then(res => res.json())
+        .then(res => {
+          if (res.success && res.data) {
+            setProfile(prev => ({
+              ...prev,
+              name: res.data.name || prev.name,
+              phone: res.data.phone || prev.phone,
+              email: res.data.email || prev.email,
+              gender: res.data.gender || prev.gender,
+              birthday: res.data.birthday || prev.birthday,
+              avatar: res.data.avatar || prev.avatar
+            }));
+          }
+        })
+        .catch(() => {});
+    };
+
+    loadUserProfile();
+
+    const handleSessionChanged = () => loadUserProfile();
+    window.addEventListener('user-session-changed', handleSessionChanged);
+    window.addEventListener('storage', handleSessionChanged);
 
     const handlePhotoUpdated = (e: any) => {
       if (e.detail) {
@@ -60,7 +99,11 @@ export default function ProfileTab() {
       }
     };
     window.addEventListener('user-photo-updated', handlePhotoUpdated);
-    return () => window.removeEventListener('user-photo-updated', handlePhotoUpdated);
+    return () => {
+      window.removeEventListener('user-photo-updated', handlePhotoUpdated);
+      window.removeEventListener('user-session-changed', handleSessionChanged);
+      window.removeEventListener('storage', handleSessionChanged);
+    };
   }, []);
 
   const showToast = (msg: string) => {
@@ -90,9 +133,20 @@ export default function ProfileTab() {
     }
 
     try {
+      let token = '';
+      try {
+        const stored = localStorage.getItem('sart_user_session');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          token = parsed.token || '';
+        }
+      } catch (e) {}
+
       const payload = {
+        token,
         name: activeModal === 'name' ? editValues.name : profile.name,
         phone: activeModal === 'phone' ? editValues.phone : profile.phone,
+        email: activeModal === 'email' ? editValues.email : profile.email,
         birthday: activeModal === 'birthday' ? editValues.birthday : profile.birthday,
         gender: activeModal === 'gender' ? editValues.gender : profile.gender,
         recoveryEmail: activeModal === 'recoveryEmail' ? editValues.recoveryEmail : profile.recoveryEmail,
@@ -105,8 +159,18 @@ export default function ProfileTab() {
         body: JSON.stringify(payload)
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.data) {
         setProfile(prev => ({ ...prev, ...data.data }));
+        // Also update local storage session & notify navbar
+        try {
+          const stored = localStorage.getItem('sart_user_session');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            const updated = { ...parsed, ...data.data };
+            localStorage.setItem('sart_user_session', JSON.stringify(updated));
+            window.dispatchEvent(new CustomEvent('user-session-changed', { detail: updated }));
+          }
+        } catch (e) {}
         showToast(activeModal === 'password' ? 'Password changed successfully' : 'Profile updated successfully');
       }
     } catch (e) {
@@ -182,7 +246,7 @@ export default function ProfileTab() {
             )}
           </div>
           <h1 style={{ fontSize: '26px', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>Welcome, {firstName}</h1>
-          <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Manage your info, privacy, and security to make B2Auth work better for you.</p>
+          <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Manage your info, privacy, and security to make better for you.</p>
         </div>
 
         {/* Card 1: Basic Info matching Screenshot 2 & 3 (without NICKNAME and DISPLAY NAME) */}

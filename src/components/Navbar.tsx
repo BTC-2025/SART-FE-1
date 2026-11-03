@@ -41,11 +41,16 @@ export default function Navbar() {
         if (stored) {
           const parsed = JSON.parse(stored);
           setUserSession(parsed);
-          fetch('http://localhost:5000/api/user/profile')
+          const qParams = new URLSearchParams();
+          if (parsed.token) qParams.append('token', parsed.token);
+          if (parsed.phone) qParams.append('phone', parsed.phone);
+          if (parsed.email) qParams.append('email', parsed.email);
+
+          fetch(`http://localhost:5000/api/user/profile?${qParams.toString()}`)
             .then(res => res.json())
             .then(data => {
-              if (data && data.profile) {
-                const merged = { ...parsed, ...data.profile };
+              if (data && data.success && data.data) {
+                const merged = { ...parsed, ...data.data };
                 setUserSession(merged);
                 localStorage.setItem('sart_user_session', JSON.stringify(merged));
               }
