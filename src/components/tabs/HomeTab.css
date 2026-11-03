@@ -122,7 +122,7 @@
 }
 
 .hero-cat-tab-btn.active {
-  color: #d84e55;
+  color: #2a1373;
 }
 
 .hero-cat-tab-btn.active::after {
@@ -132,7 +132,7 @@
   left: 0;
   width: 100%;
   height: 3.5px;
-  background: #d84e55;
+  background: #2a1373;
   border-radius: 4px 4px 0 0;
 }
 
@@ -148,28 +148,28 @@
 }
 
 .hero-cat-icon-box.cat-rides {
-  background: #fee2e2;
-  color: #dc2626;
+  background: white;
+  color: #000000;
 }
 
 .hero-cat-icon-box.cat-carrier {
-  background: #ffedd5;
-  color: #ea580c;
+  background: white;
+  color: #000000;
 }
 
 .hero-cat-icon-box.cat-rental {
-  background: #ccfbf1;
-  color: #0d9488;
+  background: #ffffff;
+  color: #000000;
 }
 
 .hero-cat-icon-box.cat-drivers {
-  background: #e0e7ff;
-  color: #4f46e5;
+  background: #ffffff;
+  color: #000000;
 }
 
 .hero-cat-icon-box.cat-parking {
-  background: #ede9fe;
-  color: #7c3aed;
+  background: #ffffff;
+  color: #000000;
 }
 
 /* Card 2: Bottom Search & Booking Bar (Full wide horizontal card, sits directly underneath) */
@@ -2629,13 +2629,7 @@
   flex: 1;
 }
 
-.book-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-top: auto;
-  gap: 4px;
-}
+.book-footer {}
 
 .book-meta {
   display: flex;

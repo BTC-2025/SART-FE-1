@@ -61,7 +61,7 @@ export default function ProfileTab() {
             avatar: parsed.avatar || prev.avatar
           }));
         }
-      } catch (e) {}
+      } catch (e) { }
 
       // Fetch live user profile from Backend API passing token, phone, or email
       const queryParams = new URLSearchParams();
@@ -84,7 +84,7 @@ export default function ProfileTab() {
             }));
           }
         })
-        .catch(() => {});
+        .catch(() => { });
     };
 
     loadUserProfile();
@@ -140,7 +140,7 @@ export default function ProfileTab() {
           const parsed = JSON.parse(stored);
           token = parsed.token || '';
         }
-      } catch (e) {}
+      } catch (e) { }
 
       const payload = {
         token,
@@ -170,7 +170,7 @@ export default function ProfileTab() {
             localStorage.setItem('sart_user_session', JSON.stringify(updated));
             window.dispatchEvent(new CustomEvent('user-session-changed', { detail: updated }));
           }
-        } catch (e) {}
+        } catch (e) { }
         showToast(activeModal === 'password' ? 'Password changed successfully' : 'Profile updated successfully');
       }
     } catch (e) {
@@ -483,8 +483,8 @@ export default function ProfileTab() {
                     >
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
-                      <option value="Non-binary">Non-binary</option>
-                      <option value="Rather not say">Rather not say</option>
+                      <option value="Non-binary"></option>
+                      <option value="Rather not say">Gender</option>
                     </select>
                   </div>
                 )}

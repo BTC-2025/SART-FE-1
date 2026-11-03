@@ -460,3 +460,142 @@
   cursor: pointer;
 }
 
+
+
+/* =========================================================================
+   BNX MAIL INBOX SIDE STRIP EXACT MATCH (Image 1 UI)
+   ========================================================================= */
+.user-side-bittool-strip.bnx-style {
+  position: fixed;
+  right: 0;
+  top: 56px;
+  bottom: 0;
+  width: 66px;
+  background: #ffffff;
+  border-left: 1.5px solid #e0edff;
+  border-top-left-radius: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0 20px;
+  gap: 14px;
+  z-index: 900;
+  box-shadow: -4px 0 20px rgba(37, 99, 235, 0.05);
+  box-sizing: border-box;
+}
+
+/* BNX B Logo at the Top */
+.bnx-brand-b {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0;
+  margin-bottom: 2px;
+}
+
+.bnx-brand-b .bnx-b-letter {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 800;
+  font-size: 26px;
+  color: #0d5bb5;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
+  line-height: 1;
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+.bnx-brand-b:hover .bnx-b-letter {
+  transform: scale(1.1);
+}
+
+/* Thin horizontal line divider under B */
+.bnx-divider {
+  width: 32px;
+  height: 1px;
+  background: #e2e8f0;
+  margin: 0 0 4px;
+}
+
+/* Circular Pill Action Buttons (Image 1 UI) */
+.bnx-tool-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+  position: relative;
+  user-select: none;
+}
+
+.bnx-tool-btn:hover {
+  transform: translateY(-2px) scale(1.06);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+.bnx-tool-btn.active-tool {
+  box-shadow: 0 0 0 2.5px #2563eb, 0 6px 16px rgba(37, 99, 235, 0.3) !important;
+}
+
+/* 1. Yellow Calendar Circle */
+.bnx-tool-btn.bnx-calendar {
+  background: #fffbeb;
+}
+
+/* 2. Mint Green Calculator Circle */
+.bnx-tool-btn.bnx-calculator {
+  background: #f0fdf4;
+}
+
+/* 3. Soft Blue People Circle */
+.bnx-tool-btn.bnx-people {
+  background: #eff6ff;
+}
+
+/* 4. Warm Yellow Notes / Clipboard Circle */
+.bnx-tool-btn.bnx-notes {
+  background: #fefce8;
+}
+
+/* 5. Lavender Purple Keyboard Circle */
+.bnx-tool-btn.bnx-keyboard {
+  background: #eef2ff;
+}
+
+/* 6. Soft Cyan Cloud Storage Circle */
+.bnx-tool-btn.bnx-cloud {
+  background: #ecfeff;
+}
+
+/* Circular White Toggle Button in Navbar (Image 1 top) */
+.nav-bittool-slider-btn.bnx-toggle {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  background: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.nav-bittool-slider-btn.bnx-toggle:hover {
+  transform: scale(1.05) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18) !important;
+}
+
+.nav-bittool-slider-btn.bnx-toggle .bnx-slider-icon-img {
+  width: 22px !important;
+  height: 22px !important;
+  object-fit: contain !important;
+}

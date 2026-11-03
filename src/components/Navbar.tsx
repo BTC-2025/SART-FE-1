@@ -460,17 +460,17 @@ export default function Navbar() {
           }}
         />
 
-        {/* 4. Bit-tool / Sliders Toggle Button matching Business Navbar End (Image 2) */}
+        {/* 4. Bit-tool / Sliders Toggle Button matching Image 1 UI (Circular White Avatar with Blue Slider) */}
         <button
           type="button"
-          className={`nav-bittool-slider-btn ${isBitToolOpen ? 'active' : ''}`}
+          className={`nav-bittool-slider-btn bnx-toggle ${isBitToolOpen ? 'active' : ''}`}
           title="Toggle Right Side Utilities"
           onClick={toggleBitTool}
         >
           <img
             src="/images/slider_toggle_icon.png"
             alt="Toggle"
-            style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px" }}
+            className="bnx-slider-icon-img"
           />
         </button>
       </div>

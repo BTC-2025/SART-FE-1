@@ -112,92 +112,113 @@ export default function UserSideBitTool({
 
   return (
     <>
-      {/* 1. Vertical Bit-Tool Strip on the right starting at top: 64px beside subnavbar */}
-      <aside className="user-side-bittool-strip" aria-label="SART Side Utilities">
-        {/* 1. Blue B Button (Starts beside the sub-navbar) */}
+      {/* 1. Vertical Bit-Tool Strip matching BNX Mail Inbox (Image 1 UI) */}
+      <aside className="user-side-bittool-strip bnx-style" aria-label="SART Side Utilities">
+        {/* Top Floating Curve Pill Header with Brand B */}
         <button
           type="button"
-          className={`user-bittool-pill-btn brand-b ${activeModal === 'portal' ? 'active-tool' : ''}`}
+          className={`bnx-tool-btn bnx-brand-b ${activeModal === 'portal' ? 'active-tool' : ''}`}
           title="SART Portal & Captain Hub"
           onClick={() => toggleModal('portal')}
         >
-          <span style={{ fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: '20px', color: '#0056b3' }}>B</span>
+          <span className="bnx-b-letter">B</span>
         </button>
 
-        {/* Small Divider */}
-        <div className="user-bittool-divider"></div>
+        {/* Thin Divider */}
+        <div className="bnx-divider"></div>
 
-        {/* 2. Yellow Calendar */}
+        {/* 1. Yellow Calendar Icon (Orange Outline on Soft Warm Yellow Pill) */}
         <button
           type="button"
-          className={`user-bittool-pill-btn calendar ${activeModal === 'calendar' ? 'active-tool' : ''}`}
+          className={`bnx-tool-btn bnx-calendar ${activeModal === 'calendar' ? 'active-tool' : ''}`}
           title="SART Schedule & Calendar"
           onClick={() => toggleModal('calendar')}
         >
-          <i className="fa-regular fa-calendar-days"></i>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e67e22" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="4" ry="4"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
         </button>
 
-        {/* 3. Mint Calculator */}
+        {/* 2. Mint Green Calculator Icon */}
         <button
           type="button"
-          className={`user-bittool-pill-btn calculator ${activeModal === 'calculator' ? 'active-tool' : ''}`}
+          className={`bnx-tool-btn bnx-calculator ${activeModal === 'calculator' ? 'active-tool' : ''}`}
           title="Fare & Distance Calculator"
           onClick={() => toggleModal('calculator')}
         >
-          <i className="fa-solid fa-calculator"></i>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="18" height="18" rx="5" fill="#10b981"></rect>
+            <line x1="6.5" y1="8" x2="10.5" y2="8" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
+            <line x1="8.5" y1="6" x2="8.5" y2="10" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
+            <line x1="13.5" y1="8" x2="17.5" y2="8" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
+            <line x1="13.5" y1="14" x2="17.5" y2="14" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
+            <line x1="13.5" y1="17" x2="17.5" y2="17" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
+            <line x1="6.5" y1="14" x2="10.5" y2="17" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round"></line>
+            <line x1="10.5" y1="14" x2="6.5" y2="17" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round"></line>
+          </svg>
         </button>
 
-        {/* 4. Soft Blue Contacts ID */}
+        {/* 3. Soft Blue People / Community Icon */}
         <button
           type="button"
-          className={`user-bittool-pill-btn contact-id ${activeModal === 'contacts' ? 'active-tool' : ''}`}
+          className={`bnx-tool-btn bnx-people ${activeModal === 'contacts' ? 'active-tool' : ''}`}
           title="Saved Pilots & Contacts"
           onClick={() => toggleModal('contacts')}
         >
-          <i className="fa-regular fa-id-badge"></i>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#2563eb">
+            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"></path>
+          </svg>
         </button>
 
-        {/* 5. Pink Notes */}
+        {/* 4. Warm Yellow Note / Clipboard with Pen Icon */}
         <button
           type="button"
-          className={`user-bittool-pill-btn doc-note ${activeModal === 'notes' ? 'active-tool' : ''}`}
+          className={`bnx-tool-btn bnx-notes ${activeModal === 'notes' ? 'active-tool' : ''}`}
           title="Trip Notes & Documents"
           onClick={() => toggleModal('notes')}
         >
-          <i className="fa-regular fa-file"></i>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <rect x="4" y="4" width="16" height="17" rx="3" stroke="#d97706" strokeWidth="2.2"></rect>
+            <path d="M9 3h6a1 1 0 0 1 1 1v1H8V4a1 1 0 0 1 1-1z" fill="#d97706"></path>
+            <path d="M9.5 14.5l5-5 1.5 1.5-5 5H9.5v-1.5z" fill="#d97706"></path>
+          </svg>
         </button>
 
-        {/* 6. Dashed Add Button */}
+        {/* 5. Lavender Purple Keyboard Icon */}
         <button
           type="button"
-          className={`user-bittool-pill-btn add-more ${activeModal === 'shortcuts' ? 'active-tool' : ''}`}
-          title="Quick Booking Shortcuts"
+          className={`bnx-tool-btn bnx-keyboard ${activeModal === 'shortcuts' ? 'active-tool' : ''}`}
+          title="Shortcuts & Tools"
           onClick={() => toggleModal('shortcuts')}
         >
-          <i className="fa-solid fa-plus"></i>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#6366f1">
+            <rect x="2" y="5" width="20" height="14" rx="3" stroke="#6366f1" strokeWidth="1.5" fill="#6366f1"></rect>
+            <rect x="4.5" y="8" width="2" height="2" rx="0.5" fill="#ffffff"></rect>
+            <rect x="8" y="8" width="2" height="2" rx="0.5" fill="#ffffff"></rect>
+            <rect x="11.5" y="8" width="2" height="2" rx="0.5" fill="#ffffff"></rect>
+            <rect x="15" y="8" width="2" height="2" rx="0.5" fill="#ffffff"></rect>
+            <rect x="18" y="8" width="1.5" height="2" rx="0.5" fill="#ffffff"></rect>
+            <rect x="4.5" y="11.5" width="2.5" height="2" rx="0.5" fill="#ffffff"></rect>
+            <rect x="8.5" y="11.5" width="2" height="2" rx="0.5" fill="#ffffff"></rect>
+            <rect x="12" y="11.5" width="2" height="2" rx="0.5" fill="#ffffff"></rect>
+            <rect x="15.5" y="11.5" width="4" height="2" rx="0.5" fill="#ffffff"></rect>
+            <rect x="7" y="15" width="10" height="1.8" rx="0.8" fill="#ffffff"></rect>
+          </svg>
         </button>
 
-        {/* Spacer to push edit/settings to bottom */}
-        <div style={{ flex: 1 }}></div>
-
-        {/* Bottom Tool: Quick Edit Notes */}
+        {/* 6. Soft Cyan Cloud Storage Icon */}
         <button
           type="button"
-          className={`user-bittool-pill-btn bottom-tool ${activeModal === 'notes' ? 'active-tool' : ''}`}
-          title="Quick Memo"
-          onClick={() => toggleModal('notes')}
-        >
-          <i className="fa-regular fa-pen-to-square"></i>
-        </button>
-
-        {/* Bottom Tool: Settings / Sliders */}
-        <button
-          type="button"
-          className={`user-bittool-pill-btn bottom-tool ${activeModal === 'settings' ? 'active-tool' : ''}`}
-          title="User Preferences & Portal Controls"
+          className={`bnx-tool-btn bnx-cloud ${activeModal === 'settings' ? 'active-tool' : ''}`}
+          title="Cloud Backup & Storage"
           onClick={() => toggleModal('settings')}
         >
-          <i className="fa-solid fa-sliders"></i>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+          </svg>
         </button>
       </aside>
 
