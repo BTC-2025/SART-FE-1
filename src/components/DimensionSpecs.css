@@ -1,0 +1,80 @@
+/* ==========================================================================
+   EXACT SPEC DIMENSIONS FOR MAIN NAVBAR & SUBNAVBAR
+   Matching User Dimensions Spec:
+   - Total Combined Height: 114px (64px + 50px)
+   - Logo: ~130px width x 42px height
+   - Location Pill: ~140px width x 36px height (rounded-full)
+   - Center Navigation Bar: ~295px width x 42px height (rounded-full)
+   - Active Nav Item: ~82px width
+   - Circular Action Buttons: 36px x 36px
+   - User Profile Pill: ~115px width x 36px height
+   - Subnav Filter / Quick Pills: 32px height (rounded-full)
+   ========================================================================== */
+
+.nav-brand img,
+.brand-logo-container img {
+  width: 130px !important;
+  height: 42px !important;
+  object-fit: contain;
+}
+
+.location-nav-btn {
+  width: 140px !important;
+  height: 36px !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 12px !important;
+  box-sizing: border-box !important;
+}
+
+.nav-links {
+  width: 295px !important;
+  height: 42px !important;
+  border-radius: 9999px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+
+.nav-link.active {
+  min-width: 82px !important;
+  height: 36px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 9999px !important;
+}
+
+.ctrl-btn,
+.nav-circle-action-btn,
+.nav-bittool-slider-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.profile-nav-btn,
+.nav-account-capsule-btn {
+  min-width: 115px !important;
+  height: 36px !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 12px !important;
+  box-sizing: border-box !important;
+}
+
+.user-side-bittool-strip {
+  top: 114px !important; /* Exactly below 64px main navbar + 50px subnavbar = 114px */
+}
+
+.user-side-dock-panel {
+  top: 114px !important;
+}
