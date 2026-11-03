@@ -2216,7 +2216,7 @@ h6 {
 
 .nav-link.active,
 .nav-link.active:hover {
-  background: #b59cde !important;
+  background: #4726AB !important;
   /* Exact color from Image 3 */
   color: #000000 !important;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
@@ -2233,7 +2233,7 @@ h6 {
 
 .nav-link.active span,
 .nav-link.active:hover span {
-  color: #000000 !important;
+  color: #ffffff !important;
   font-weight: 600 !important;
   background: transparent !important;
 }
