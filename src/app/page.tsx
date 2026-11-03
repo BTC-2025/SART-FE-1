@@ -32,6 +32,7 @@ export default function Home() {
   const { activeTab, setActiveTab, setActiveRideMode, isBitToolOpen } = useSartStore();
   const [isCityModalOpen, setIsCityModalOpen] = useState(false);
   const [isBookingsModalOpen, setIsBookingsModalOpen] = useState(false);
+  const [activeBitToolPanel, setActiveBitToolPanel] = useState<string | null>(null);
 
   useEffect(() => {
     const handleOpenModal = (e: any) => {
@@ -94,9 +95,12 @@ export default function Home() {
       <SubNavbar />
 
       {/* User Side Bit-Tool Strip & Sliding Panels (Image 2) */}
-      <UserSideBitTool isOpen={isBitToolOpen} />
+      <UserSideBitTool
+        isOpen={isBitToolOpen}
+        onActivePanelChange={(panel) => setActiveBitToolPanel(panel)}
+      />
 
-      <main className={`web-main-content ${isBitToolOpen ? 'has-bittool-strip' : ''}`}>
+      <main className={`web-main-content ${isBitToolOpen ? (activeBitToolPanel ? 'has-bittool-panel' : 'has-bittool-strip') : ''}`}>
         <HomeTab />
         <StoreTab />
         <BookingsTab />

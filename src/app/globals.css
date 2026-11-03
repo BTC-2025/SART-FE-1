@@ -384,6 +384,10 @@ h6 {
   margin-right: 58px;
 }
 
+.web-main-content.has-bittool-panel {
+  margin-right: 498px; /* 440px dock panel + 58px strip */
+}
+
 .web-main-content::-webkit-scrollbar {
   display: none;
 }

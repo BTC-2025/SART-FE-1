@@ -15,7 +15,7 @@
 .user-side-bittool-strip {
   position: fixed;
   right: 0;
-  top: 96px; /* Below Main Navbar (56px) + SubNavbar (40px) */
+  top: 64px; /* Below Main Navbar (56px) + SubNavbar (40px) */
   bottom: 0;
   width: 58px;
   background: #ffffff;
@@ -150,7 +150,7 @@
 
 .user-side-dock-panel {
   position: fixed;
-  top: 96px;
+  top: 64px;
   right: 58px;
   width: 440px;
   bottom: 0;

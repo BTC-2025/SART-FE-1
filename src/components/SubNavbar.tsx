@@ -103,8 +103,10 @@ export default function SubNavbar() {
           >
             <span className="subnav-plus-circle-icon">
               <i className="fa-solid fa-plus"></i>
+              <span className="subnav-customize-text">Customize</span>
+
             </span>
-            <span className="subnav-customize-text">Customize</span>
+            {/* <span className="subnav-customize-text">Customize</span> */}
           </button>
         </div>
 

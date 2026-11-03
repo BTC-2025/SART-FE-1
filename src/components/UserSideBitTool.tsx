@@ -6,14 +6,54 @@ import { useSartStore } from '../store/useSartStore';
 
 interface UserSideBitToolProps {
   isOpen?: boolean;
+  onActivePanelChange?: (panel: string | null) => void;
 }
 
-export default function UserSideBitTool({ isOpen = true }: UserSideBitToolProps) {
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+export default function UserSideBitTool({
+  isOpen = true,
+  onActivePanelChange = () => {}
+}: UserSideBitToolProps) {
   const { setActiveTab } = useSartStore();
   const [activeModal, setActiveModal] = useState<string | null>(null);
 
   const toggleModal = (modalKey: string) => {
-    setActiveModal(prev => (prev === modalKey ? null : modalKey));
+    setActiveModal(prev => {
+      const next = prev === modalKey ? null : modalKey;
+      onActivePanelChange(next);
+      return next;
+    });
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
+    onActivePanelChange(null);
+  };
+
+  // Dynamic Calendar state
+  const [currentDate, setCurrentDate] = useState(() => new Date(2026, 10, 3)); // Nov 3, 2026
+  const [selectedDay, setSelectedDay] = useState(3);
+
+  const currentYear = currentDate.getFullYear();
+  const currentMonthIdx = currentDate.getMonth();
+  const currentMonthName = MONTH_NAMES[currentMonthIdx];
+
+  // Calculate days in month & starting weekday
+  const daysInMonth = new Date(currentYear, currentMonthIdx + 1, 0).getDate();
+  const firstDayWeekday = new Date(currentYear, currentMonthIdx, 1).getDay(); // 0 (Sun) to 6 (Sat)
+
+  const handlePrevMonth = () => {
+    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+    setSelectedDay(1);
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+    setSelectedDay(1);
   };
 
   // Calculator states
@@ -72,9 +112,9 @@ export default function UserSideBitTool({ isOpen = true }: UserSideBitToolProps)
 
   return (
     <>
-      {/* 1. Vertical Bit-Tool Strip on the right matching Image 2 */}
+      {/* 1. Vertical Bit-Tool Strip on the right starting at top: 64px beside subnavbar */}
       <aside className="user-side-bittool-strip" aria-label="SART Side Utilities">
-        {/* 1. Blue B Button (SART Portal / Captain Hub Switcher) */}
+        {/* 1. Blue B Button (Starts beside the sub-navbar) */}
         <button
           type="button"
           className={`user-bittool-pill-btn brand-b ${activeModal === 'portal' ? 'active-tool' : ''}`}
@@ -163,21 +203,30 @@ export default function UserSideBitTool({ isOpen = true }: UserSideBitToolProps)
 
       {/* 2. Interactive Sliding Panels */}
 
-      {/* PANEL 1: CALENDAR */}
+      {/* PANEL 1: FULLY INTERACTIVE DYNAMIC CALENDAR */}
       {activeModal === 'calendar' && (
         <div className="user-side-dock-panel">
           <div className="user-dock-header">
             <span className="user-dock-title">TRIP SCHEDULE & CALENDAR</span>
-            <button className="user-dock-close-btn" onClick={() => setActiveModal(null)} title="Close">
+            <button className="user-dock-close-btn" onClick={closeModal} title="Close">
               <i className="fa-solid fa-xmark"></i>
             </button>
           </div>
           <div className="user-dock-inner">
+            {/* Month & Year Navigation */}
             <div className="user-cal-nav">
-              <button className="user-cal-arrow"><i className="fa-solid fa-chevron-left"></i></button>
-              <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>November 2026</h4>
-              <button className="user-cal-arrow"><i className="fa-solid fa-chevron-right"></i></button>
+              <button type="button" className="user-cal-arrow" onClick={handlePrevMonth} title="Previous Month">
+                <i className="fa-solid fa-chevron-left"></i>
+              </button>
+              <h4 style={{ margin: 0, fontSize: '14.5px', fontWeight: 800, color: '#0f172a' }}>
+                {currentMonthName} {currentYear}
+              </h4>
+              <button type="button" className="user-cal-arrow" onClick={handleNextMonth} title="Next Month">
+                <i className="fa-solid fa-chevron-right"></i>
+              </button>
             </div>
+
+            {/* Calendar Days Matrix */}
             <div className="user-cal-grid">
               <span className="user-cal-wk">Su</span>
               <span className="user-cal-wk">Mo</span>
@@ -187,15 +236,45 @@ export default function UserSideBitTool({ isOpen = true }: UserSideBitToolProps)
               <span className="user-cal-wk">Fr</span>
               <span className="user-cal-wk">Sa</span>
 
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30].map(day => (
-                <div key={day} className={`user-cal-cell ${day === 3 ? 'active-day' : ''}`}>
+              {/* Empty padding slots before the 1st of month */}
+              {Array.from({ length: firstDayWeekday }).map((_, idx) => (
+                <div key={`empty-${idx}`} className="user-cal-cell empty" style={{ opacity: 0 }}></div>
+              ))}
+
+              {/* Day cells for the active month */}
+              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => (
+                <div
+                  key={day}
+                  className={`user-cal-cell ${selectedDay === day ? 'active-day' : ''}`}
+                  onClick={() => setSelectedDay(day)}
+                >
                   {day}
                 </div>
               ))}
             </div>
-            <div style={{ marginTop: '14px', padding: '12px', background: '#f8fafc', borderRadius: '10px', borderLeft: '3px solid #2563eb' }}>
-              <strong style={{ fontSize: '12.5px', color: '#0f172a', display: 'block' }}>Upcoming Ride • 03 Nov</strong>
-              <span style={{ fontSize: '11.5px', color: '#64748b' }}>Chennai Central to Airport T2 • 02:30 PM</span>
+
+            {/* Dynamic Schedule Preview for Selected Date */}
+            <div style={{ marginTop: '14px', padding: '14px', background: '#f8fafc', borderRadius: '12px', borderLeft: '3px solid #2563eb' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <strong style={{ fontSize: '13px', color: '#0f172a' }}>
+                  Schedule for {selectedDay} {currentMonthName} {currentYear}
+                </strong>
+                <span style={{ fontSize: '11px', background: '#dbeafe', color: '#1d4ed8', padding: '2px 8px', borderRadius: '10px', fontWeight: 700 }}>
+                  Active Day
+                </span>
+              </div>
+              <span style={{ fontSize: '12px', color: '#64748b', display: 'block' }}>
+                {selectedDay === 3
+                  ? 'Ride Confirmed: Chennai Central ➔ Airport T2 • 02:30 PM (Toyota Innova Crysta)'
+                  : `No bookings scheduled for ${selectedDay} ${currentMonthName}. Click below to plan a trip.`}
+              </span>
+              <button
+                type="button"
+                style={{ marginTop: '10px', background: '#2563eb', color: '#ffffff', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                onClick={() => { closeModal(); setActiveTab('ride'); }}
+              >
+                + Book Ride for This Date
+              </button>
             </div>
           </div>
         </div>
@@ -206,7 +285,7 @@ export default function UserSideBitTool({ isOpen = true }: UserSideBitToolProps)
         <div className="user-side-dock-panel">
           <div className="user-dock-header">
             <span className="user-dock-title">FARE & EXPENSE CALCULATOR</span>
-            <button className="user-dock-close-btn" onClick={() => setActiveModal(null)} title="Close">
+            <button className="user-dock-close-btn" onClick={closeModal} title="Close">
               <i className="fa-solid fa-xmark"></i>
             </button>
           </div>
@@ -249,7 +328,7 @@ export default function UserSideBitTool({ isOpen = true }: UserSideBitToolProps)
         <div className="user-side-dock-panel">
           <div className="user-dock-header">
             <span className="user-dock-title">SAVED CAPTAINS & FLEET HUBS</span>
-            <button className="user-dock-close-btn" onClick={() => setActiveModal(null)} title="Close">
+            <button className="user-dock-close-btn" onClick={closeModal} title="Close">
               <i className="fa-solid fa-xmark"></i>
             </button>
           </div>
@@ -276,7 +355,7 @@ export default function UserSideBitTool({ isOpen = true }: UserSideBitToolProps)
         <div className="user-side-dock-panel">
           <div className="user-dock-header">
             <span className="user-dock-title">TRIP NOTES & MEMOS</span>
-            <button className="user-dock-close-btn" onClick={() => setActiveModal(null)} title="Close">
+            <button className="user-dock-close-btn" onClick={closeModal} title="Close">
               <i className="fa-solid fa-xmark"></i>
             </button>
           </div>
@@ -317,7 +396,7 @@ export default function UserSideBitTool({ isOpen = true }: UserSideBitToolProps)
             <span className="user-dock-title">
               {activeModal === 'portal' ? 'SART HUBS & CAPTAIN MODES' : 'QUICK SERVICE SWITCHER'}
             </span>
-            <button className="user-dock-close-btn" onClick={() => setActiveModal(null)} title="Close">
+            <button className="user-dock-close-btn" onClick={closeModal} title="Close">
               <i className="fa-solid fa-xmark"></i>
             </button>
           </div>
@@ -325,7 +404,7 @@ export default function UserSideBitTool({ isOpen = true }: UserSideBitToolProps)
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div
                 style={{ padding: '14px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
-                onClick={() => { setActiveModal(null); window.open('http://localhost:3007', '_blank'); }}
+                onClick={() => { closeModal(); window.open('http://localhost:3007', '_blank'); }}
               >
                 <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1d4ed8', fontWeight: 900, fontFamily: 'serif' }}>
                   B
@@ -339,7 +418,7 @@ export default function UserSideBitTool({ isOpen = true }: UserSideBitToolProps)
 
               <div
                 style={{ padding: '14px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
-                onClick={() => { setActiveModal(null); window.location.href = '/ride/captain/login?category=bike'; }}
+                onClick={() => { closeModal(); window.location.href = '/ride/captain/login?category=bike'; }}
               >
                 <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706', fontSize: '16px' }}>
                   <i className="fa-solid fa-helmet-safety"></i>
@@ -352,7 +431,7 @@ export default function UserSideBitTool({ isOpen = true }: UserSideBitToolProps)
 
               <div
                 style={{ padding: '14px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
-                onClick={() => { setActiveModal(null); window.location.href = '/ride/captain/login?category=auto'; }}
+                onClick={() => { closeModal(); window.location.href = '/ride/captain/login?category=auto'; }}
               >
                 <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a', fontSize: '16px' }}>
                   <i className="fa-solid fa-taxi"></i>
@@ -365,7 +444,7 @@ export default function UserSideBitTool({ isOpen = true }: UserSideBitToolProps)
 
               <div
                 style={{ padding: '14px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
-                onClick={() => { setActiveModal(null); window.location.href = '/ride/captain/login?category=car'; }}
+                onClick={() => { closeModal(); window.location.href = '/ride/captain/login?category=car'; }}
               >
                 <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#ede9fe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7c3aed', fontSize: '16px' }}>
                   <i className="fa-solid fa-car"></i>
@@ -382,4 +461,3 @@ export default function UserSideBitTool({ isOpen = true }: UserSideBitToolProps)
     </>
   );
 }
-

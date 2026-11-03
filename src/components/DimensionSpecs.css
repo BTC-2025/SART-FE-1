@@ -71,10 +71,21 @@
   box-sizing: border-box !important;
 }
 
+/* Sub-navbar leaves 58px on right so Bit-Tool strip (starting with B) appears right beside it at top: 64px */
+.subnavbar-container {
+  width: calc(100% - 58px) !important;
+  transition: width 0.22s ease !important;
+}
+
+body:has(.user-side-dock-panel) .subnavbar-container {
+  width: calc(100% - 498px) !important;
+}
+
 .user-side-bittool-strip {
-  top: 114px !important; /* Exactly below 64px main navbar + 50px subnavbar = 114px */
+  top: 64px !important; /* Starts right below main navbar (64px), beside subnavbar */
 }
 
 .user-side-dock-panel {
-  top: 114px !important;
+  top: 64px !important; /* Sits beside Bit-Tool strip */
 }
+
