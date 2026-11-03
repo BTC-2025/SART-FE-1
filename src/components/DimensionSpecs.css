@@ -1,14 +1,14 @@
 /* ==========================================================================
    EXACT SPEC DIMENSIONS FOR MAIN NAVBAR & SUBNAVBAR
    Matching User Dimensions Spec:
-   - Total Combined Height: 114px (64px + 50px)
+   - Total Combined Height: 100px (64px + 36px)
    - Logo: ~130px width x 42px height
    - Location Pill: ~140px width x 36px height (rounded-full)
    - Center Navigation Bar: ~295px width x 42px height (rounded-full)
    - Active Nav Item: ~82px width
    - Circular Action Buttons: 36px x 36px
    - User Profile Pill: ~115px width x 36px height
-   - Subnav Filter / Quick Pills: 32px height (rounded-full)
+   - Subnav Filter / Quick Pills: 26px height (compact bokspot style)
    ========================================================================== */
 
 .nav-brand img,
@@ -74,11 +74,47 @@
 /* Sub-navbar leaves 58px on right so Bit-Tool strip (starting with B) appears right beside it at top: 64px */
 .subnavbar-container {
   width: calc(100% - 58px) !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 18px !important;
   transition: width 0.22s ease !important;
 }
 
 body:has(.user-side-dock-panel) .subnavbar-container {
   width: calc(100% - 498px) !important;
+}
+
+.subnav-quick-btn {
+  height: 26px !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+  border-radius: 9999px !important;
+}
+
+.subnav-customize-combined-btn {
+  padding: 2px 6px !important;
+}
+
+.subnav-plus-circle-icon {
+  width: 20px !important;
+  height: 20px !important;
+  font-size: 10px !important;
+}
+
+.subnav-customize-text {
+  font-size: 12px !important;
+}
+
+.subnav-action-pill-btn {
+  height: 26px !important;
+  padding: 0 10px !important;
+  font-size: 11.5px !important;
+}
+
+.subnav-action-icon-circle {
+  width: 18px !important;
+  height: 18px !important;
+  font-size: 10px !important;
 }
 
 .user-side-bittool-strip {

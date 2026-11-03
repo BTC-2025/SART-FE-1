@@ -94,7 +94,6 @@ body:not(.light-theme) .subnav-quick-btn {
   color: #1e293b;
   cursor: pointer;
   padding: 4px 8px;
-  border-width: 30px;
   border-radius: 20px;
   transition: all 0.25s ease;
   user-select: none;
