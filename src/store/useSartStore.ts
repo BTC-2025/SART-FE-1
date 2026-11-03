@@ -47,6 +47,9 @@ const DEFAULT_STATE: AppState = {
 };
 
 interface SartStore extends AppState {
+  isBitToolOpen: boolean;
+  toggleBitTool: () => void;
+  setBitToolOpen: (open: boolean) => void;
   // Actions
   addTransaction: (tx: Transaction) => void;
   updateBalance: (amount: number, isDeposit: boolean) => void;
@@ -66,6 +69,9 @@ export const useSartStore = create<SartStore>()(
   persist(
     (set, get) => ({
       ...DEFAULT_STATE,
+      isBitToolOpen: true,
+      toggleBitTool: () => set((state) => ({ isBitToolOpen: !state.isBitToolOpen })),
+      setBitToolOpen: (open) => set({ isBitToolOpen: open }),
 
       addTransaction: (tx) =>
         set((state) => ({

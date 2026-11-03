@@ -145,7 +145,7 @@ h6 {
 
 /* Premium Top Navigation Bar */
 .web-navbar {
-  height: 70px;
+  height: 56px;
   background: var(--navbar-bg) !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -372,6 +372,11 @@ h6 {
   /* IE and Edge */
   scrollbar-width: none;
   /* Firefox */
+  transition: margin-right 0.22s ease;
+}
+
+.web-main-content.has-bittool-strip {
+  margin-right: 58px;
 }
 
 .web-main-content::-webkit-scrollbar {

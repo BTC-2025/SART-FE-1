@@ -31,7 +31,7 @@ export default function SubNavbar() {
           setSelectedShortcutIds(parsed.slice(0, 4));
         }
       }
-    } catch (e) {}
+    } catch (e) { }
   }, []);
 
   const handleSaveShortcuts = (newIds: string[]) => {
@@ -40,7 +40,7 @@ export default function SubNavbar() {
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem('sart_subnav_shortcut_ids', JSON.stringify(limited));
-      } catch (e) {}
+      } catch (e) { }
     }
   };
 
@@ -93,15 +93,18 @@ export default function SubNavbar() {
             );
           })}
 
-          {/* Plus '+' Symbol button beside shortcuts to open Customize Shortcuts Modal */}
+          {/* Plus '+' Symbol button with 'Customize' inside one unified button */}
           <button
             type="button"
-            className="subnav-plus-shortcut-btn"
+            className="subnav-customize-combined-btn"
             onClick={() => setIsDockModalOpen(true)}
             title="Add or Customize Shortcuts (Max 4)"
             aria-label="Add or Customize Shortcuts"
           >
-            <i className="fa-solid fa-plus"></i>
+            <span className="subnav-plus-circle-icon">
+              <i className="fa-solid fa-plus"></i>
+            </span>
+            <span className="subnav-customize-text">Customize</span>
           </button>
         </div>
 

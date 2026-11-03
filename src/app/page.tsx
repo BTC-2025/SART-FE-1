@@ -26,9 +26,10 @@ import CartModal from '@/components/CartModal';
 import Footer from '@/components/Footer';
 
 import SubNavbar from '@/components/SubNavbar';
+import UserSideBitTool from '@/components/UserSideBitTool';
 
 export default function Home() {
-  const { activeTab, setActiveTab, setActiveRideMode } = useSartStore();
+  const { activeTab, setActiveTab, setActiveRideMode, isBitToolOpen } = useSartStore();
   const [isCityModalOpen, setIsCityModalOpen] = useState(false);
   const [isBookingsModalOpen, setIsBookingsModalOpen] = useState(false);
 
@@ -92,7 +93,10 @@ export default function Home() {
       <Navbar />
       <SubNavbar />
 
-      <main className="web-main-content">
+      {/* User Side Bit-Tool Strip & Sliding Panels (Image 2) */}
+      <UserSideBitTool isOpen={isBitToolOpen} />
+
+      <main className={`web-main-content ${isBitToolOpen ? 'has-bittool-strip' : ''}`}>
         <HomeTab />
         <StoreTab />
         <BookingsTab />

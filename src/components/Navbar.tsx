@@ -3,10 +3,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import './Navbar.css';
+import './UserSideBitTool.css';
 import { useSartStore } from '../store/useSartStore';
 
 export default function Navbar() {
-  const { wallet, activeTab, setActiveTab, wishlist, cart } = useSartStore();
+  const { wallet, activeTab, setActiveTab, wishlist, cart, isBitToolOpen, toggleBitTool } = useSartStore();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isBittoolOpen, setIsBittoolOpen] = useState(false);
   const bittoolRef = useRef<HTMLDivElement>(null);
@@ -349,6 +350,16 @@ export default function Navbar() {
             </div>
           )}
         </div>
+
+        {/* 4. Bit-tool / Sliders Toggle Button matching Business Navbar End (Image 2) */}
+        <button
+          type="button"
+          className={`nav-bittool-slider-btn ${isBitToolOpen ? 'active' : ''}`}
+          title="Toggle Right Side Utilities"
+          onClick={toggleBitTool}
+        >
+          <i className="fa-solid fa-sliders"></i>
+        </button>
       </div>
     </header>
   );

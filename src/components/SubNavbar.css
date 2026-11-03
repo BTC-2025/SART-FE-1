@@ -83,7 +83,64 @@ body:not(.light-theme) .subnav-quick-btn {
   color: #000000;
 }
 
-/* Plus '+' Symbol button beside shortcuts */
+/* Plus '+' Symbol button and Customize combined into ONE button (Image 1 UI) */
+.subnav-customize-combined-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  color: #1e293b;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 20px;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.subnav-plus-circle-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px dashed #000000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #000000;
+  transition: all 0.2s ease;
+}
+
+.subnav-customize-text {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.subnav-customize-combined-btn:hover,
+.subnav-customize-combined-btn:focus-visible {
+  background: #B59CDE !important;
+  color: #000000 !important;
+  transform: translateY(-1px);
+}
+
+.subnav-customize-combined-btn:hover .subnav-plus-circle-icon,
+.subnav-customize-combined-btn:focus-visible .subnav-plus-circle-icon {
+  border-color: #000000;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.subnav-customize-combined-btn:hover .subnav-customize-text,
+.subnav-customize-combined-btn:focus-visible .subnav-customize-text {
+  color: #000000 !important;
+}
+
+body:not(.light-theme) .subnav-customize-combined-btn {
+  color: #1e293b;
+}
+
+/* Plus '+' Symbol button beside shortcuts (Legacy fallback) */
 .subnav-plus-shortcut-btn {
   width: 30px;
   height: 30px;
