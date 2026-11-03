@@ -17,6 +17,7 @@ export default function CaptainDutyRightView({
   isOnDuty,
   setIsOnDuty,
   onOpenProfile,
+  onOpenWallet = () => { },
   vehicleCategoryFilter
 }) {
   // Show active order requests view / modal
@@ -616,16 +617,6 @@ export default function CaptainDutyRightView({
             </div>
           </div>
 
-          <div className="c-order-stat-pill rejected">
-            <div className="icon-circle">
-              <i className="fa-solid fa-xmark"></i>
-            </div>
-            <div className="stat-text-col">
-              <div className="stat-count">{partnerDetails?.ordersRejected !== undefined ? partnerDetails.ordersRejected : 0}</div>
-              <div className="stat-label">Orders Rejected</div>
-            </div>
-          </div>
-
 
         </div>
       </div>
@@ -633,7 +624,7 @@ export default function CaptainDutyRightView({
 
 
       {/* Action Bar Above Map: Shows On Duty Status & Open Orders Button */}
-      <div className="c-duty-action-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+      <div className="c-duty-action-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginTop: '4px' }}>
         <button
           type="button"
           id="captain-duty-bar-toggle-btn"
@@ -938,23 +929,23 @@ export default function CaptainDutyRightView({
                   border: '2px solid #facc15',
                   color: '#ffffff',
                   borderRadius: '28px',
-                  padding: '8px 18px',
-                  display: 'flex',
+                  borderRadius: '20px',
+                  padding: '4px 12px',
+                  width: 'fit-content',
+                  maxWidth: 'fit-content',
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '12px',
-                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.45)',
-                  zIndex: 1000,
-                  cursor: 'pointer'
+                  gap: '8px',
                 }}
                 onClick={() => setShowOrdersView(true)}
               >
                 <div style={{
-                  width: '26px',
-                  height: '26px',
+                  width: '18px',
+                  height: '18px',
                   borderRadius: '50%',
                   background: '#ffffff',
                   color: '#0f172a',
-                  fontSize: '13px',
+                  fontSize: '10px',
                   fontWeight: 900,
                   display: 'flex',
                   alignItems: 'center',
@@ -962,7 +953,7 @@ export default function CaptainDutyRightView({
                 }}>
                   1
                 </div>
-                <span style={{ fontSize: '14px', fontWeight: 900, letterSpacing: '0.4px' }}>
+                <span style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '0.2px' }}>
                   {(activeAcceptedOrder.rideStage || rideStage) === 'in_trip' ? 'Trip In Progress to Destination' : 'Ride Accepted • Heading to User'}
                 </span>
                 <span style={{ fontSize: '12px', color: '#facc15', fontWeight: 800 }}>

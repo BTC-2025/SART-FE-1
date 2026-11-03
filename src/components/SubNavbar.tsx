@@ -11,27 +11,28 @@ import CustomizeDockModal, {
 } from './CustomizeDockModal';
 
 export default function SubNavbar() {
-  const { activeTab, setActiveTab } = useSartStore();
+  const { activeTab, setActiveTab, activeRideMode, setActiveRideMode, isBitToolOpen } = useSartStore();
   const router = useRouter();
 
   // State for customize shortcuts modal
   const [isDockModalOpen, setIsDockModalOpen] = useState(false);
 
   // Default: only Bike appears initially (matching user image)
-  const [selectedShortcutIds, setSelectedShortcutIds] = useState<string[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('sart_subnav_shortcut_ids');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed.slice(0, 4); // Enforce max 4
-          }
+  const [selectedShortcutIds, setSelectedShortcutIds] = useState<string[]>(DEFAULT_SELECTED_SHORTCUT_IDS);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    try {
+      const saved = localStorage.getItem('sart_subnav_shortcut_ids');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setSelectedShortcutIds(parsed.slice(0, 4));
         }
-      } catch (e) {}
-    }
-    return DEFAULT_SELECTED_SHORTCUT_IDS; // ['bike']
-  });
+      }
+    } catch (e) { }
+  }, []);
 
   const handleSaveShortcuts = (newIds: string[]) => {
     const limited = newIds.slice(0, 4);
@@ -39,12 +40,19 @@ export default function SubNavbar() {
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem('sart_subnav_shortcut_ids', JSON.stringify(limited));
-      } catch (e) {}
+      } catch (e) { }
     }
   };
 
   const handleShortcutClick = (shortcut: ShortcutItem) => {
     if (shortcut.type === 'ride') {
+      const rideMode = (shortcut.id === 'train_ride' ? 'train' : shortcut.id === 'flight_ride' ? 'flight' : shortcut.id) as any;
+      if (setActiveRideMode) {
+        setActiveRideMode(rideMode);
+      }
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sart_active_ride_mode', rideMode);
+      }
       setActiveTab('ride');
       router.push(shortcut.route, { scroll: false });
     } else {
@@ -70,13 +78,19 @@ export default function SubNavbar() {
 
   return (
     <>
-      <nav className="subnavbar-container" aria-label="Sub Navigation">
-        {/* 1. Left Side: Configured Shortcuts (Bike and Car default, up to 4) + '+' Plus Icon Button */}
+      <nav
+        className={`subnavbar-container ${isBitToolOpen ? 'has-bittool' : 'no-bittool'}`}
+        aria-label="Sub Navigation"
+      >
+        {/* 1. Left Side: Configured Shortcuts (Bike, Car, etc.) + '+' Plus Icon Button */}
         <div className="subnavbar-left-actions">
           {activeShortcuts.map((shortcut) => {
+            const normalizedShortcutMode = shortcut.id === 'train_ride' ? 'train' : shortcut.id === 'flight_ride' ? 'flight' : shortcut.id;
+            const currentMode = activeRideMode || 'bike';
             const isActive =
-              (shortcut.type === 'ride' && activeTab === 'ride') ||
-              (shortcut.type === 'carrier' && activeTab === 'carrier');
+              shortcut.type === 'ride'
+                ? activeTab === 'ride' && (currentMode === normalizedShortcutMode || currentMode === shortcut.id)
+                : activeTab === 'carrier' && shortcut.type === 'carrier';
 
             return (
               <button
@@ -92,15 +106,16 @@ export default function SubNavbar() {
             );
           })}
 
-          {/* Plus '+' Symbol button beside shortcuts to open Customize Shortcuts Modal */}
+          {/* Plus '+' Symbol and 'Customize' wrapped inside ONE dashed pill border */}
           <button
             type="button"
-            className="subnav-plus-shortcut-btn"
+            className="subnav-customize-combined-btn"
             onClick={() => setIsDockModalOpen(true)}
             title="Add or Customize Shortcuts (Max 4)"
             aria-label="Add or Customize Shortcuts"
           >
-            <i className="fa-solid fa-plus"></i>
+            <i className="fa-solid fa-plus subnav-customize-plus-icon"></i>
+            <span className="subnav-customize-text">Customize</span>
           </button>
         </div>
 

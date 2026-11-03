@@ -1,0 +1,462 @@
+/* =========================================================================
+   USER SIDE BITTOOL SYSTEM
+   Exact recreation of the Business Portal Bit-tool strip & panels (Image 2)
+   - Vertical strip on the right side
+   - Blue B (SART Portal / Captain Hub)
+   - Yellow Calendar (Schedule & Appointments)
+   - Mint Calculator (Fare / Expense Calculator)
+   - Soft Blue Contacts ID (Saved Pilots / Fleet Contacts)
+   - Pink File / Notes (Quick Notes)
+   - Dashed Plus button (Customize Shortcuts)
+   - Bottom Edit / Sliders controls
+   - Interactive sliding dock panels
+   ========================================================================= */
+
+.user-side-bittool-strip {
+  position: fixed;
+  right: 0;
+  top: 64px; /* Below Main Navbar (56px) + SubNavbar (40px) */
+  bottom: 0;
+  width: 58px;
+  background: #ffffff;
+  border-left: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 0;
+  gap: 12px;
+  z-index: 900;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.03);
+}
+
+.user-bittool-pill-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  background: transparent;
+  user-select: none;
+}
+
+.user-bittool-pill-btn:hover {
+  transform: scale(1.08);
+}
+
+.user-bittool-pill-btn.active-tool {
+  box-shadow: 0 0 0 2px #3b82f6, 0 4px 12px rgba(59, 130, 246, 0.25) !important;
+}
+
+/* 1. SART Business/Universal Brand Logo Button (Blue 'B') */
+.user-bittool-pill-btn.brand-b {
+  background: #ffffff;
+  border: 1.5px solid #dbeafe;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+/* 2. Yellow Calendar */
+.user-bittool-pill-btn.calendar {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+/* 3. Mint Calculator */
+.user-bittool-pill-btn.calculator {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+/* 4. Contact / ID Card */
+.user-bittool-pill-btn.contact-id {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+/* 5. Document / Notes Pink */
+.user-bittool-pill-btn.doc-note {
+  background: #fdf2f8;
+  color: #db2777;
+}
+
+/* Small horizontal divider */
+.user-bittool-divider {
+  width: 28px;
+  height: 1.5px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  margin: 2px 0;
+}
+
+/* 6. Dashed Add Button */
+.user-bittool-pill-btn.add-more {
+  border: 1.5px dashed #cbd5e1;
+  color: #94a3b8;
+  background: transparent;
+}
+
+.user-bittool-pill-btn.add-more:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+  background: #eff6ff;
+}
+
+/* Bottom tools: Edit and Sliders */
+.user-bittool-pill-btn.bottom-tool {
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  background: #f8fafc;
+}
+
+.user-bittool-pill-btn.bottom-tool:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Navbar Slider Control Button matching Business Navbar End */
+.nav-bittool-slider-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-bittool-slider-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+}
+
+.nav-bittool-slider-btn.active {
+  background: #B59CDE;
+  color: #000000;
+  border-color: #B59CDE;
+}
+
+/* =========================================================================
+   DOCK PANELS (Calendar, Calculator, Contacts, Notes, Quick Launch)
+   ========================================================================= */
+
+.user-side-dock-panel {
+  position: fixed;
+  top: 64px;
+  right: 58px;
+  width: 440px;
+  bottom: 0;
+  background: #ffffff;
+  border-left: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.08);
+  z-index: 880;
+  display: flex;
+  flex-direction: column;
+  animation: slideBittoolIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+@keyframes slideBittoolIn {
+  from {
+    transform: translateX(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.user-dock-header {
+  height: 52px;
+  padding: 0 20px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.user-dock-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: 0.5px;
+}
+
+.user-dock-close-btn {
+  background: #f1f5f9;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.15s ease;
+}
+
+.user-dock-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.user-dock-inner {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+/* Calendar Card inside Panel */
+.user-cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.user-cal-arrow {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.user-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+.user-cal-wk {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  padding: 6px 0;
+}
+
+.user-cal-cell {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.user-cal-cell:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.user-cal-cell.active-day {
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+
+/* Calculator Grid */
+.user-calc-screen {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: right;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.user-calc-formula {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 4px;
+  min-height: 18px;
+}
+
+.user-calc-display {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.user-calc-pad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.user-calc-key {
+  height: 48px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.user-calc-key:hover {
+  background: #f1f5f9;
+}
+
+.user-calc-key.op {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.user-calc-key.clear {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.user-calc-key.equal {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #1d4ed8;
+}
+
+/* Notes List */
+.user-note-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.user-note-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
+  outline: none;
+}
+
+.user-note-add-btn {
+  padding: 0 16px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.user-notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.user-note-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.user-note-delete-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.user-note-delete-btn:hover {
+  color: #ef4444;
+}
+
+/* Contacts List */
+.user-contacts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.user-contact-tile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.user-contact-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1d4ed8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.user-contact-name {
+  font-weight: 700;
+  font-size: 13.5px;
+  color: #0f172a;
+}
+
+.user-contact-role {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.user-contact-call-btn {
+  margin-left: auto;
+  background: #22c55e;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
