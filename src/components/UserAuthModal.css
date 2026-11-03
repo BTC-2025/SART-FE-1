@@ -1,0 +1,339 @@
+/* Ixigo-styled Center Auth Modal matching user's uploaded reference image */
+.ixigo-auth-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+  padding: 16px;
+  animation: ixigoFadeIn 0.2s ease-out;
+}
+
+@keyframes ixigoFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.ixigo-auth-modal {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 440px;
+  padding: 36px 32px 32px;
+  position: relative;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.16);
+  animation: ixigoSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #111827;
+}
+
+@keyframes ixigoSlideIn {
+  from {
+    transform: translateY(16px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.ixigo-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 17px;
+  transition: all 0.2s;
+}
+
+.ixigo-close-btn:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.ixigo-modal-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.ixigo-modal-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #111827;
+  text-align: center;
+  margin: 0 0 24px;
+  letter-spacing: -0.4px;
+}
+
+.ixigo-modal-sub {
+  font-size: 14px;
+  color: #6b7280;
+  text-align: center;
+  margin: -16px 0 20px;
+  line-height: 1.5;
+}
+
+/* Reference image phone input wrapper */
+.ixigo-phone-field {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #d1d5db;
+  border-radius: 12px;
+  padding: 4px 14px;
+  height: 52px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #ffffff;
+}
+
+.ixigo-phone-field:focus-within {
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+}
+
+.ixigo-country-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #374151;
+  cursor: default;
+  user-select: none;
+}
+
+.ixigo-country-pill i {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.ixigo-field-divider {
+  width: 1px;
+  height: 24px;
+  background: #e5e7eb;
+  margin: 0 12px;
+}
+
+.ixigo-phone-field input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 16px;
+  color: #111827;
+  font-weight: 400;
+}
+
+.ixigo-phone-field input::placeholder {
+  color: #9ca3af;
+}
+
+/* Reference Continue button */
+.ixigo-continue-btn {
+  width: 100%;
+  height: 50px;
+  margin-top: 18px;
+  border-radius: 12px;
+  border: none;
+  background: #eceff1;
+  color: #90a4ae;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: not-allowed;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ixigo-continue-btn.active,
+.ixigo-continue-btn:not(:disabled) {
+  background: #ea580c;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.25);
+}
+
+.ixigo-continue-btn.active:hover,
+.ixigo-continue-btn:not(:disabled):hover {
+  background: #c2410c;
+}
+
+/* Divider with 'Other login options:' */
+.ixigo-divider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0 20px;
+}
+
+.ixigo-divider-line {
+  flex: 1;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.ixigo-divider-text {
+  font-size: 13.5px;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+/* Google / External login button matching uploaded image */
+.ixigo-google-btn {
+  width: 100%;
+  height: 50px;
+  border-radius: 12px;
+  border: 1.5px solid #e5e7eb;
+  background: #ffffff;
+  color: #1f2937;
+  font-size: 15.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ixigo-google-btn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+/* OTP Input */
+.ixigo-otp-field {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.ixigo-otp-field input {
+  width: 200px;
+  height: 54px;
+  border-radius: 12px;
+  border: 2px solid #cbd5e1;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  color: #111827;
+}
+
+.ixigo-otp-field input:focus {
+  border-color: #ea580c;
+}
+
+/* Form Groups for Details & Email Login */
+.ixigo-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ixigo-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.ixigo-input-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.ixigo-simple-input {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  padding: 0 12px;
+  height: 46px;
+  background: #ffffff;
+  transition: border-color 0.2s;
+}
+
+.ixigo-simple-input:focus-within {
+  border-color: #ea580c;
+}
+
+.ixigo-simple-input i {
+  color: #9ca3af;
+  margin-right: 10px;
+  font-size: 15px;
+}
+
+.ixigo-simple-input input,
+.ixigo-simple-input select {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14.5px;
+  color: #111827;
+}
+
+.ixigo-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ixigo-auth-alert {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.ixigo-auth-alert.error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fee2e2;
+}
+
+.ixigo-auth-alert.info {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+}
+
+.ixigo-modal-links {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.ixigo-link-btn {
+  background: none;
+  border: none;
+  color: #ea580c;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ixigo-link-btn:hover {
+  text-decoration: underline;
+}

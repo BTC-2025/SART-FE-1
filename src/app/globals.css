@@ -230,7 +230,6 @@ h6 {
 
 .nav-link:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
 }
 
 .nav-link.active {
@@ -2057,7 +2056,7 @@ h6 {
 
 .nav-link.active span,
 .nav-link:hover span {
-  color: #000000 !important;
+  color: #ffffff !important;
   background: transparent !important;
   font-weight: 500 !important;
 }
@@ -2184,9 +2183,7 @@ h6 {
   align-items: center !important;
   justify-content: space-between !important;
   background: #1F1B4D !important;
-  /* Exact color from Image 2 */
   border: 1.5px solid #ffffff !important;
-  /* Crisp white border */
   padding: 4px 6px !important;
   box-sizing: border-box !important;
   gap: 8px !important;
@@ -2201,7 +2198,7 @@ h6 {
   justify-content: center !important;
   font-size: 14px !important;
   font-weight: 600 !important;
-  color: #ffffff !important;
+  color: #B59CDE !important; /* Before entering / inactive: text color #B59CDE */
   background: transparent !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
@@ -2211,29 +2208,33 @@ h6 {
 
 .nav-link:hover {
   color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.12) !important;
+  background: transparent !important;
+}
+
+.nav-link span {
+  color: #B59CDE !important; /* Before entering / inactive: text color #B59CDE */
+  font-weight: inherit !important;
+  background: transparent !important;
+  transition: color 0.2s ease !important;
+}
+
+.nav-link:hover span {
+  color: #ffffff !important;
 }
 
 .nav-link.active,
 .nav-link.active:hover {
-  background: #4726AB !important;
-  /* Exact color from Image 3 */
-  color: #000000 !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+  background: #391E8A !important; /* After entering / active: button background #391E8A */
+  color: #ffffff !important;       /* Text color white */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
   border: none !important;
   font-weight: 600 !important;
   padding: 0 20px !important;
 }
 
-.nav-link span {
-  color: inherit !important;
-  font-weight: inherit !important;
-  background: transparent !important;
-}
-
 .nav-link.active span,
 .nav-link.active:hover span {
-  color: #ffffff !important;
+  color: #ffffff !important;       /* Text color white */
   font-weight: 600 !important;
   background: transparent !important;
 }

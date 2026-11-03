@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import './Navbar.css';
 import './UserSideBitTool.css';
+import UserAuthModal from './UserAuthModal';
 import { useSartStore } from '../store/useSartStore';
 
 export default function Navbar() {
@@ -30,6 +31,43 @@ export default function Navbar() {
   ];
 
   const [captainProfile, setCaptainProfile] = useState<{ name?: string; email?: string; phone?: string } | null>(null);
+  const [userSession, setUserSession] = useState<{ id?: string; name?: string; email?: string; phone?: string; avatar?: string } | null>(null);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  useEffect(() => {
+    const loadSession = () => {
+      try {
+        const stored = localStorage.getItem('sart_user_session');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setUserSession(parsed);
+          fetch('http://localhost:5000/api/user/profile')
+            .then(res => res.json())
+            .then(data => {
+              if (data && data.profile) {
+                const merged = { ...parsed, ...data.profile };
+                setUserSession(merged);
+                localStorage.setItem('sart_user_session', JSON.stringify(merged));
+              }
+            })
+            .catch(() => {});
+        } else {
+          setUserSession(null);
+        }
+      } catch (e) {
+        setUserSession(null);
+      }
+    };
+    loadSession();
+
+    const handleSessionChange = () => loadSession();
+    window.addEventListener('user-session-changed', handleSessionChange);
+    window.addEventListener('storage', handleSessionChange);
+    return () => {
+      window.removeEventListener('user-session-changed', handleSessionChange);
+      window.removeEventListener('storage', handleSessionChange);
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -294,18 +332,45 @@ export default function Navbar() {
         </div>
 
         <div ref={profileRef}>
-          <div className="profile-nav-btn" onClick={() => setIsProfileOpen(!isProfileOpen)} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <i className="fa-solid fa-circle-user" style={{ color: '#2563eb' }}></i>
-            <span style={{ color: '#2563eb', fontWeight: 700 }}>Alex Carter</span>
-            <i className="fa-solid fa-chevron-down" style={{ fontSize: '9px', color: '#2563eb' }}></i>
-          </div>
+          {!userSession ? (
+            /* Logged-out state: Image 3 */
+            <button
+              type="button"
+              className="nav-login-signup-btn"
+              onClick={() => setIsLoginModalOpen(true)}
+            >
+              <span className="login-circle-avatar">
+                <i className="fa-solid fa-user"></i>
+              </span>
+              <span>Log in/Sign up</span>
+            </button>
+          ) : (
+            /* Logged-in state: Image 2 */
+            <div
+              className="profile-nav-btn"
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+            >
+              <i className="fa-solid fa-circle-user"></i>
+              <span className="profile-name">{userSession.name || 'Kumar'}</span>
+              <i className="fa-solid fa-chevron-down"></i>
+            </div>
+          )}
 
-          {isProfileOpen && (
+          {userSession && isProfileOpen && (
+            /* Image 1 Dropdown */
             <div className="profile-dropdown-menu show" style={{ width: '320px', height: '470px', padding: '14px', borderRadius: '28px', textAlign: 'center', background: '#ffffff', border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', color: '#000000' }}>
               <div style={{ position: 'relative', width: '80px', height: '80px', margin: '0 auto 12px' }}>
-                <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#2563eb', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', fontWeight: 500 }}>
-                  A
-                </div>
+                {userSession.avatar ? (
+                  <img
+                    src={userSession.avatar}
+                    alt={userSession.name || 'Avatar'}
+                    style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#2563eb', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', fontWeight: 500 }}>
+                    {(userSession.name || 'A').charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <label style={{ position: 'absolute', bottom: 0, right: 0, background: 'white', color: 'black', width: '26px', height: '26px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', cursor: 'pointer' }}>
                   <i className="fa-solid fa-camera"></i>
                   <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async (e) => {
@@ -313,14 +378,17 @@ export default function Navbar() {
                     if (!file) return;
                     const reader = new FileReader();
                     reader.onload = async () => {
-                      const base64 = reader.result;
+                      const base64 = reader.result as string;
                       try {
                         await fetch('http://localhost:5000/api/user/profile/photo', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ image: base64 })
                         });
-                      } catch (err) {}
+                      } catch (err) { }
+                      const updated = { ...userSession, avatar: base64 };
+                      setUserSession(updated);
+                      localStorage.setItem('sart_user_session', JSON.stringify(updated));
                       window.dispatchEvent(new CustomEvent('user-photo-updated', { detail: base64 }));
                     };
                     reader.readAsDataURL(file);
@@ -331,30 +399,22 @@ export default function Navbar() {
                 USER
               </div>
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#2563eb' }}>
-                Kumar
+                {userSession.name || 'Kumar'}
               </h3>
               <p style={{ margin: '4px 0 16px', fontSize: '14px', color: '#4b5563' }}>
-                kumar@bnxmail.com
+                {userSession.email || 'kumar@bnxmail.com'}
               </p>
               <p style={{ margin: '4px 0 16px', fontSize: '14px', color: '#4b5563' }}>
-                Mobile Number : 8642097532
+                Mobile Number : {userSession.phone || '8642097532'}
               </p>
-
-
-
 
               <button onClick={() => { setActiveTab('profile'); router.push('/home/profile', { scroll: false }); setIsProfileOpen(false); }} style={{ background: 'transparent', border: '1px solid #d1d5db', color: '#000000', borderRadius: '24px', padding: '10px 20px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '20px', width: 'auto' }}>
                 <i className="fa-solid fa-user-gear"></i> Manage your account
               </button>
 
-              {/* <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
-                <button onClick={() => { document.body.classList.add('light-theme'); localStorage.setItem('sart-theme', 'light'); }} style={{ background: '#f3f4f6', border: 'none', color: '#000000', padding: '8px 16px', borderRadius: '12px', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}><i className="fa-solid fa-sun"></i> Light</button>
-                <button onClick={() => { document.body.classList.remove('light-theme'); localStorage.setItem('sart-theme', 'dark'); }} style={{ background: '#f3f4f6', border: 'none', color: '#000000', padding: '8px 16px', borderRadius: '12px', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}><i className="fa-solid fa-moon"></i> Dark</button>
-              </div> */}
-
               <div style={{ borderTop: '1px solid #e5e7eb', margin: '0 -24px 10px' }}></div>
 
-              <a className="dropdown-item" style={{ padding: '12px 24px', textAlign: 'left', fontSize: '14px', fontWeight: 500, color: '#000000', display: 'flex', alignItems: 'center', gap: '12px' }} onClick={() => console.log('Add account')}>
+              <a className="dropdown-item" style={{ padding: '12px 24px', textAlign: 'left', fontSize: '14px', fontWeight: 500, color: '#000000', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setIsLoginModalOpen(true)}>
                 <i className="fa-solid fa-user-plus" style={{ fontSize: '18px', color: '#4b5563' }}></i> Add another account
               </a>
               <a className="dropdown-item" style={{ padding: '12px 24px', textAlign: 'left', fontSize: '14px', fontWeight: 500, color: '#000000', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => { setActiveTab('support'); router.push('/home/support', { scroll: false }); setIsProfileOpen(false); }}>
@@ -363,12 +423,37 @@ export default function Navbar() {
               <a className="dropdown-item" style={{ padding: '12px 24px', textAlign: 'left', fontSize: '14px', fontWeight: 500, color: '#000000', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => { setActiveTab('profile'); router.push('/profile', { scroll: false }); setIsProfileOpen(false); }}>
                 <i className="fa-solid fa-gear" style={{ fontSize: '18px', color: '#4b5563' }}></i> Settings
               </a>
-              <a className="dropdown-item signout-btn" style={{ padding: '12px 24px', textAlign: 'left', fontSize: '14px', fontWeight: 500, color: '#000000', display: 'flex', alignItems: 'center', gap: '12px' }} onClick={() => { console.log('Sign out'); setIsProfileOpen(false); }}>
+              <a className="dropdown-item signout-btn" style={{ padding: '12px 24px', textAlign: 'left', fontSize: '14px', fontWeight: 500, color: '#000000', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={async () => {
+                try {
+                  const token = userSession?.token;
+                  if (token) {
+                    await fetch('http://localhost:5000/api/user/auth/logout', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ token })
+                    });
+                  }
+                } catch (e) {}
+                localStorage.removeItem('sart_user_session');
+                setUserSession(null);
+                setIsProfileOpen(false);
+                window.dispatchEvent(new CustomEvent('user-session-changed', { detail: null }));
+              }}>
                 <i className="fa-solid fa-arrow-right-from-bracket" style={{ fontSize: '18px', color: '#4b5563' }}></i> Sign out of this account
               </a>
             </div>
           )}
         </div>
+
+        {/* User Mobile + OTP Login Modal */}
+        <UserAuthModal
+          isOpen={isLoginModalOpen}
+          onClose={() => setIsLoginModalOpen(false)}
+          onSuccess={(u) => {
+            setUserSession(u);
+            setIsLoginModalOpen(false);
+          }}
+        />
 
         {/* 4. Bit-tool / Sliders Toggle Button matching Business Navbar End (Image 2) */}
         <button

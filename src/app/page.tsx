@@ -65,6 +65,10 @@ export default function Home() {
       // Handle plural vs singular mismatches
       if (tab === 'rides') tab = 'ride';
 
+      if (tab === 'profile') {
+        setActiveTab('profile');
+        return;
+      }
       if (tab === 'ride') {
         if (parts[3] && parts[3].toLowerCase() === 'manageyouraccount') {
           setActiveTab('profile');
@@ -73,7 +77,7 @@ export default function Home() {
         const mode = getRideModeFromPath(pathname);
         setActiveRideMode(mode);
       }
-      if (['ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking', 'support'].includes(tab)) {
+      if (['ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking', 'support', 'profile'].includes(tab)) {
         setActiveTab(tab as any);
       }
     } else if (pathname.startsWith('/booking/')) {

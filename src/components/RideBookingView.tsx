@@ -15,6 +15,7 @@ import {
   RideBookedInfo
 } from './rideData';
 import CaptainBusinessPortalModal from './CaptainBusinessPortalModal';
+import UserAuthModal from './UserAuthModal';
 import { ridesApiClient, CaptainItem, FuelFareResponse } from '../services/ridesApi';
 import dynamic from 'next/dynamic';
 import { io, Socket } from 'socket.io-client';
@@ -160,6 +161,8 @@ export default function RideBookingView({
 
   // Captain Business Portal Modal state
   const [showCaptainPortal, setShowCaptainPortal] = useState(false);
+  const [isUserAuthOpen, setIsUserAuthOpen] = useState(false);
+  const pendingBookingActionRef = useRef<(() => void) | null>(null);
 
   // Booking for Self or Others
   const [bookingFor, setBookingFor] = useState<'myself' | 'others'>('myself');
@@ -1390,6 +1393,15 @@ export default function RideBookingView({
                 type="button"
                 className="rb-modal-confirm-btn"
                 onClick={async () => {
+                  const userSession = typeof window !== 'undefined' ? localStorage.getItem('sart_user_session') : null;
+                  if (!userSession) {
+                    pendingBookingActionRef.current = () => {
+                      // Trigger proceed after login
+                      setShowConfirmModal(true);
+                    };
+                    setIsUserAuthOpen(true);
+                    return;
+                  }
                   setShowConfirmModal(false);
                   const selectedDriver = backendDrivers.length > 0 ? backendDrivers[0] : null;
                   const captainName = selectedDriver ? `${selectedDriver.driverName} (${selectedDriver.vehicleModel || 'SART Partner'})` : 'Karthik Raja (Super Captain)';
@@ -2100,6 +2112,20 @@ export default function RideBookingView({
         isOpen={showCaptainPortal}
         onClose={() => setShowCaptainPortal(false)}
         category={mode}
+      />
+
+      {/* User Login with Mobile & OTP required for booking */}
+      <UserAuthModal
+        isOpen={isUserAuthOpen}
+        onClose={() => setIsUserAuthOpen(false)}
+        onSuccess={() => {
+          setIsUserAuthOpen(false);
+          if (pendingBookingActionRef.current) {
+            const action = pendingBookingActionRef.current;
+            pendingBookingActionRef.current = null;
+            action();
+          }
+        }}
       />
     </div>
   );

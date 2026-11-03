@@ -23,6 +23,23 @@ export default function ProfileTab() {
 
   useEffect(() => {
     setMounted(true);
+    // Load from local session first if available
+    try {
+      const stored = localStorage.getItem('sart_user_session');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setProfile(prev => ({
+          ...prev,
+          name: parsed.name || prev.name,
+          phone: parsed.phone || prev.phone,
+          email: parsed.email || prev.email,
+          gender: parsed.gender || prev.gender,
+          birthday: parsed.age ? `${parsed.age} years old` : prev.birthday,
+          avatar: parsed.avatar || prev.avatar
+        }));
+      }
+    } catch (e) {}
+
     // Fetch live user profile from Backend API (http://localhost:5000)
     fetch('http://localhost:5000/api/user/profile')
       .then(res => res.json())
@@ -31,7 +48,7 @@ export default function ProfileTab() {
           setProfile(prev => ({
             ...prev,
             ...res.data,
-            avatar: res.data.avatar || ''
+            avatar: res.data.avatar || prev.avatar
           }));
         }
       })

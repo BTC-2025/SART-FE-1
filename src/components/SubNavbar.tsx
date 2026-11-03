@@ -115,7 +115,7 @@ export default function SubNavbar() {
             aria-label="Add or Customize Shortcuts"
           >
             <i className="fa-solid fa-plus subnav-customize-plus-icon"></i>
-            <span className="subnav-customize-text">Customize</span>
+            <span className="subnav-customize-text">Shortcut</span>
           </button>
         </div>
 

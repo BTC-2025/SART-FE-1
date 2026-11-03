@@ -91,32 +91,13 @@
 }
 
 .ctrl-btn,
-.nav-circle-action-btn {
+.nav-circle-action-btn,
+.nav-bittool-slider-btn {
   width: 40px !important;
   height: 36px !important;
-  border-radius: 50% !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-}
-
-.nav-bittool-slider-btn {
-  width: 36px !important;
-  height: 36px !important;
-  border-radius: 8px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  overflow: hidden !important;
-  padding: 0 !important;
-}
-
-.nav-bittool-slider-btn img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  display: block !important;
-  border-radius: 8px !important;
 }
 
 .profile-nav-btn,

@@ -506,3 +506,78 @@
   background: #f1f5f9;
   margin: 4px 0;
 }
+
+
+/* ============================================================================
+   USER LOGIN / LOGGED-IN NAVBAR BUTTONS
+   ============================================================================ */
+.nav-login-signup-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  padding: 6px 16px 6px 6px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #0f172a;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.nav-login-signup-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.login-circle-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.profile-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  padding: 6px 14px 6px 10px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.profile-nav-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.profile-nav-btn .fa-circle-user {
+  font-size: 19px;
+  color: #000000;
+}
+
+.profile-nav-btn .profile-name {
+  color: #2563eb;
+  font-weight: 700;
+  font-size: 14.5px;
+}
+
+.profile-nav-btn .fa-chevron-down {
+  font-size: 10px;
+  color: #000000;
+  margin-left: 2px;
+}
