@@ -494,7 +494,7 @@
   top: 104px;
   bottom: 0;
   width: 66px;
-  height: 600px;
+  height: 650px;
   background: #ffffff;
   border-left: 1.5px solid #e0edff;
   border-top-left-radius: 28px;
@@ -627,7 +627,7 @@
 /* Classes matching user BNX Mail DevTools inspection */
 .right-tools-sidebar {
   width: 60px !important;
-  overflow: hidden !important;
+  overflow: visible !important;
 }
 
 .right-tools-sidebar::-webkit-scrollbar,
