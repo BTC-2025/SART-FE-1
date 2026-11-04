@@ -112,35 +112,24 @@ export default function UserSideBitTool({
 
   return (
     <>
-      {/* 1. Vertical Bit-Tool Strip matching BNX Mail Inbox (Image 2 DevTools & Image 3) */}
+      {/* 1. Vertical Bit-Tool Strip matching BNX Mail Inbox Exact UI */}
       <aside className="right-tools-sidebar relative w-[60px] flex flex-col items-center pb-4 h-full justify-between select-none shrink-0 user-side-bittool-strip bnx-style" aria-label="SART Side Utilities">
         <div className="flex-1 overflow-y-auto hidden-scrollbar px-3 py-2 flex flex-col justify-between">
           <div className="flex flex-col items-center gap-3 w-full">
-            {/* Top Floating Curve Pill Header with Brand B (Exact Image 1 Logo) */}
-            <button
-              type="button"
-              className={`bnx-tool-btn bnx-brand-b ${activeModal === 'portal' ? 'active-tool' : ''}`}
-              title="SART Portal & Captain Hub"
-              onClick={() => toggleModal('portal')}
-            >
-              <img
-                src="/images/bnx_brand_b.png"
-                alt="BNX Brand"
-                className="bnx-b-logo-img"
-              />
-            </button>
+            {/* Top Text: EDIT PINS */}
+            <div className="bnx-edit-pins-btn" onClick={() => toggleModal('shortcuts')} title="Edit Pins">
+              <span>EDIT</span>
+              <span>PINS</span>
+            </div>
 
-            {/* Thin Divider */}
-            <div className="bnx-divider"></div>
-
-            {/* 1. Yellow Calendar Icon (Orange Outline on Soft Warm Yellow Pill) */}
+            {/* 1. Orange Calendar Circle (Selected in screenshot) */}
             <button
               type="button"
               className={`bnx-tool-btn bnx-calendar ${activeModal === 'calendar' ? 'active-tool' : ''}`}
               title="SART Schedule & Calendar"
               onClick={() => toggleModal('calendar')}
             >
-              <svg className="w-6 h-6 object-contain" viewBox="0 0 24 24" fill="none" stroke="#e67e22" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="4" ry="4"></rect>
                 <line x1="16" y1="2" x2="16" y2="6"></line>
                 <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -148,15 +137,15 @@ export default function UserSideBitTool({
               </svg>
             </button>
 
-            {/* 2. Mint Green Calculator Icon */}
+            {/* 2. Green Calculator Circle with Green border */}
             <button
               type="button"
               className={`bnx-tool-btn bnx-calculator ${activeModal === 'calculator' ? 'active-tool' : ''}`}
               title="Fare & Distance Calculator"
               onClick={() => toggleModal('calculator')}
             >
-              <svg className="w-6 h-6 object-contain" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="3" width="18" height="18" rx="5" fill="#10b981"></rect>
+              <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="18" height="18" rx="4" fill="#059669"></rect>
                 <line x1="6.5" y1="8" x2="10.5" y2="8" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
                 <line x1="8.5" y1="6" x2="8.5" y2="10" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
                 <line x1="13.5" y1="8" x2="17.5" y2="8" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
@@ -167,40 +156,39 @@ export default function UserSideBitTool({
               </svg>
             </button>
 
-            {/* 3. Soft Blue People / Community Icon */}
+            {/* 3. Blue People Circle with Blue border */}
             <button
               type="button"
               className={`bnx-tool-btn bnx-people ${activeModal === 'contacts' ? 'active-tool' : ''}`}
               title="Saved Pilots & Contacts"
               onClick={() => toggleModal('contacts')}
             >
-              <svg className="w-6 h-6 object-contain" viewBox="0 0 24 24" fill="#2563eb">
+              <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="#2563eb">
                 <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"></path>
               </svg>
             </button>
 
-            {/* 4. Warm Yellow Note / Clipboard with Pen Icon */}
+            {/* 4. Dashed Grey Circle with Document Edit Icon */}
             <button
               type="button"
-              className={`bnx-tool-btn bnx-notes ${activeModal === 'notes' ? 'active-tool' : ''}`}
+              className={`bnx-tool-btn bnx-dashed-note ${activeModal === 'notes' ? 'active-tool' : ''}`}
               title="Trip Notes & Documents"
               onClick={() => toggleModal('notes')}
             >
-              <svg className="w-6 h-6 object-contain" viewBox="0 0 24 24" fill="none">
-                <rect x="4" y="4" width="16" height="17" rx="3" stroke="#d97706" strokeWidth="2.2"></rect>
-                <path d="M9 3h6a1 1 0 0 1 1 1v1H8V4a1 1 0 0 1 1-1z" fill="#d97706"></path>
-                <path d="M9.5 14.5l5-5 1.5 1.5-5 5H9.5v-1.5z" fill="#d97706"></path>
+              <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="4" y="3" width="16" height="18" rx="3"></rect>
+                <path d="M9 13.5l4-4 2 2-4 4H9v-2z"></path>
               </svg>
             </button>
 
-            {/* 5. Lavender Purple Keyboard Icon */}
+            {/* 5. Purple Keyboard Circle with Purple border */}
             <button
               type="button"
               className={`bnx-tool-btn bnx-keyboard ${activeModal === 'shortcuts' ? 'active-tool' : ''}`}
               title="Shortcuts & Tools"
               onClick={() => toggleModal('shortcuts')}
             >
-              <svg className="w-6 h-6 object-contain" viewBox="0 0 24 24" fill="#6366f1">
+              <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="#6366f1">
                 <rect x="2" y="5" width="20" height="14" rx="3" stroke="#6366f1" strokeWidth="1.5" fill="#6366f1"></rect>
                 <rect x="4.5" y="8" width="2" height="2" rx="0.5" fill="#ffffff"></rect>
                 <rect x="8" y="8" width="2" height="2" rx="0.5" fill="#ffffff"></rect>
@@ -215,15 +203,39 @@ export default function UserSideBitTool({
               </svg>
             </button>
 
-            {/* 6. Soft Cyan Cloud Storage Icon */}
+            {/* 6. Cyan Cloud Circle with Cyan border */}
             <button
               type="button"
               className={`bnx-tool-btn bnx-cloud ${activeModal === 'settings' ? 'active-tool' : ''}`}
               title="Cloud Backup & Storage"
               onClick={() => toggleModal('settings')}
             >
-              <svg className="w-6 h-6 object-contain" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+              </svg>
+            </button>
+
+            {/* 7. Solid Green Checkmark Circle */}
+            <button
+              type="button"
+              className="bnx-tool-btn bnx-check"
+              title="Tasks & Verification"
+              onClick={() => toggleModal('tasks')}
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </button>
+
+            {/* 8. Light Grey Circle with Pencil / Edit icon */}
+            <button
+              type="button"
+              className="bnx-tool-btn bnx-pencil"
+              title="Quick Memo & Notes"
+              onClick={() => toggleModal('notes')}
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
               </svg>
             </button>
           </div>
@@ -304,6 +316,11 @@ export default function UserSideBitTool({
               >
                 + Add
               </button>
+            </div>
+
+            {/* Empty items message matching user screenshot */}
+            <div className="bnx-cal-empty-msg">
+              No items scheduled
             </div>
           </div>
         </div>

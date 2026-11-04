@@ -15,7 +15,8 @@
 .user-side-bittool-strip {
   position: fixed;
   right: 0;
-  top: 64px; /* Below Main Navbar (56px) + SubNavbar (40px) */
+  top: 64px;
+  /* Below Main Navbar (56px) + SubNavbar (40px) */
   bottom: 0;
   width: 58px;
   background: #ffffff;
@@ -171,6 +172,7 @@
     transform: translateX(30px);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -653,7 +655,7 @@
 
 /* Header with Title and subtle close icon */
 .bnx-cal-header {
-  height: 64px;
+  height: 60px;
   padding: 0 24px;
   display: flex;
   align-items: center;
@@ -830,4 +832,116 @@
 .bnx-add-btn:hover {
   background: #fde68a;
   color: #b45309;
+}
+/* =========================================================================
+   PERFECT MATCH FOR USER SCREENSHOT SIDEBAR & CALENDAR
+   ========================================================================= */
+
+/* Top EDIT PINS label */
+.bnx-edit-pins-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #0f172a;
+  letter-spacing: 0.8px;
+  padding: 6px 0 4px;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s;
+}
+
+.bnx-edit-pins-btn:hover {
+  opacity: 0.7;
+}
+
+/* Sidebar Circles: 42px x 42px with colored borders matching screenshot */
+.bnx-tool-btn {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 50% !important;
+  border: 1.8px solid transparent !important;
+  background: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Calendar Button (Orange Border) */
+.bnx-tool-btn.bnx-calendar {
+  border-color: #ea580c !important;
+  background: #ffffff !important;
+}
+
+/* Calculator Button (Green Border) */
+.bnx-tool-btn.bnx-calculator {
+  border-color: #059669 !important;
+  background: #ffffff !important;
+}
+
+/* People Button (Blue Border) */
+.bnx-tool-btn.bnx-people {
+  border-color: #2563eb !important;
+  background: #ffffff !important;
+}
+
+/* Dashed Document Button */
+.bnx-tool-btn.bnx-dashed-note {
+  border: 1.8px dashed #cbd5e1 !important;
+  background: #ffffff !important;
+}
+
+.bnx-tool-btn.bnx-dashed-note:hover {
+  border-color: #94a3b8 !important;
+}
+
+/* Keyboard Button (Purple Border) */
+.bnx-tool-btn.bnx-keyboard {
+  border-color: #6366f1 !important;
+  background: #ffffff !important;
+}
+
+/* Cloud Button (Cyan Border) */
+.bnx-tool-btn.bnx-cloud {
+  border-color: #06b6d4 !important;
+  background: #ffffff !important;
+}
+
+/* Solid Green Checkmark Circle Button */
+.bnx-tool-btn.bnx-check {
+  background: #10b981 !important;
+  border: none !important;
+}
+
+.bnx-tool-btn.bnx-check:hover {
+  background: #059669 !important;
+}
+
+/* Subtle Pencil / Edit Button */
+.bnx-tool-btn.bnx-pencil {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.bnx-tool-btn.bnx-pencil:hover {
+  background: #e2e8f0 !important;
+}
+
+/* Calendar empty message */
+.bnx-cal-empty-msg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 90px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #94a3b8;
+  letter-spacing: -0.2px;
 }
