@@ -260,15 +260,15 @@ export default function UserSideBitTool({
             ) : (
               <>
                 <div className="w-8 h-[1px] bg-gray-200 dark:bg-gray-800 -mt-[1px] mb-1 shrink-0"></div>
-            <button
-                type="button"
-                className={`bnx-tool-btn bnx-brand-b bnx-square-shape ${activeModal === 'portal' ? 'active-tool' : ''}`}
-                title="Beta App Launcher"
-                onClick={() => toggleModal('portal')}
-              >
-                <img src="/images/bnx_brand_b.png" alt="Beta Launcher" className="bnx-b-logo-img" />
-                <span className="bnx-tooltip">Beta Launcher</span>
-              </button>
+                <button
+                  type="button"
+                  className={`bnx-tool-btn bnx-brand-b bnx-square-shape ${activeModal === 'portal' ? 'active-tool' : ''}`}
+                  title="Beta App Launcher"
+                  onClick={() => toggleModal('portal')}
+                >
+                  <img src="/images/bnx_brand_b.png" alt="Beta Launcher" className="bnx-b-logo-img" />
+                  <span className="bnx-tooltip">Beta Launcher</span>
+                </button>
               </>
             )}
 
@@ -362,7 +362,7 @@ export default function UserSideBitTool({
       {/* MODAL: ADD MORE OPTIONS (Shown when clicking + in Edit Pins Mode) */}
       {showAddOptionsModal && (
         <div className="fixed inset-0 z-[999] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-2xl shadow-2xl border-2 border-slate-300 w-full max-w-md my-auto overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/60">
               <h3 className="font-bold text-slate-900 text-sm tracking-wide">Add Website Shortcuts</h3>
               <button
@@ -377,7 +377,7 @@ export default function UserSideBitTool({
               </button>
             </div>
 
-            <div className="p-4 space-y-2 max-h-80 overflow-y-auto">
+            <div className="p-4 space-y-2 max-h-[360px] overflow-y-auto hidden-scrollbar">
               {AVAILABLE_WEBSITE_APPS.map(app => {
                 const existing = pinItems.find(p => p.id === app.id);
                 const isPinned = existing ? existing.isPinned : false;
@@ -385,7 +385,7 @@ export default function UserSideBitTool({
                 return (
                   <div
                     key={app.id}
-                    className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/40 transition-all cursor-pointer"
+                    className="flex items-center justify-between p-2.5 rounded-xl border-2 border-slate-200 hover:border-blue-200 hover:bg-blue-50/40 transition-all cursor-pointer"
                     onClick={() => {
                       if (existing) {
                         handleTogglePin(app.id);
