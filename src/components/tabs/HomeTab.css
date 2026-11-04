@@ -2595,7 +2595,7 @@
 }
 
 .book-card {
-  height: 300px;
+  height: 200px;
   width: 100%;
   border-radius: 16px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -2607,6 +2607,7 @@
 
 .book-title {
   font-size: clamp(12px, 0.95vw, 15px);
+  font-size: 15px;
   font-weight: 800;
   color: #111827;
   margin: 0 0 6px 0;

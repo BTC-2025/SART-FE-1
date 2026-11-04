@@ -599,3 +599,17 @@
   height: 22px !important;
   object-fit: contain !important;
 }
+
+/* Classes matching user BNX Mail DevTools inspection */
+.right-tools-sidebar {
+  width: 60px !important;
+}
+
+.hidden-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+
+.hidden-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}

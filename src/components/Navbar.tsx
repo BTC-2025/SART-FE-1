@@ -460,17 +460,17 @@ export default function Navbar() {
           }}
         />
 
-        {/* 4. Bit-tool / Sliders Toggle Button matching Image 1 UI (Circular White Avatar with Blue Slider) */}
+        {/* 4. Bit-tool / Sliders Toggle Button matching Image 1 & 4 (Circular White Button with BNX blue logo) */}
         <button
           type="button"
-          className={`nav-bittool-slider-btn bnx-toggle ${isBitToolOpen ? 'active' : ''}`}
+          className={`h-8 sm:h-9 px-1.5 sm:px-2 rounded-full bg-white dark:hover:bg-white/10 transition-colors flex items-center justify-center shrink-0 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 cursor-pointer nav-bittool-slider-btn bnx-toggle ${isBitToolOpen ? 'active' : ''}`}
           title="Toggle Right Side Utilities"
           onClick={toggleBitTool}
         >
           <img
-            src="/images/slider_toggle_icon.png"
+            src="/images/bnx_slider_icon.png"
             alt="Toggle"
-            className="bnx-slider-icon-img"
+            className="h-4 sm:h-5 object-contain opacity-80 hover:opacity-100 bnx-slider-icon-img"
           />
         </button>
       </div>
