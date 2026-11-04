@@ -229,7 +229,7 @@ export default function InteractiveRideMap({
     const isBike = mode === 'bike' || driver.serviceType === 'bike';
 
     const iconImage = isAuto
-      ? 'https://cdn-icons-png.flaticon.com/512/3063/3063822.png'
+      ? '/images/auto_rickshaw_3d.png'
       : isBike
         ? '/images/red_bike_3d.png'
         : 'https://cdn-icons-png.flaticon.com/512/75/75780.png';
