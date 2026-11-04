@@ -915,19 +915,16 @@
 
 /* Calendar Button (Orange Border) */
 .bnx-tool-btn.bnx-calendar {
-  border-color: #ea580c !important;
   background: #ffffff !important;
 }
 
 /* Calculator Button (Green Border) */
 .bnx-tool-btn.bnx-calculator {
-  border-color: #059669 !important;
   background: #ffffff !important;
 }
 
 /* People Button (Blue Border) */
 .bnx-tool-btn.bnx-people {
-  border-color: #2563eb !important;
   background: #ffffff !important;
 }
 
@@ -943,13 +940,11 @@
 
 /* Keyboard Button (Purple Border) */
 .bnx-tool-btn.bnx-keyboard {
-  border-color: #6366f1 !important;
   background: #ffffff !important;
 }
 
 /* Contacts Button (Blue Border) */
 .bnx-tool-btn.bnx-contacts {
-  border-color: #2563eb !important;
   background: #ffffff !important;
 }
 

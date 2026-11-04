@@ -24,7 +24,7 @@ body:not(.light-theme) .subnavbar-container {
 }
 
 /* 1. Left Side: Bike & Custom Shortcuts - ALL BLACK DEFAULT, #B59CDE ON HOVER/ENTER */
-.subnavbar-left-actions {
+.subnavbar-center-actions, .subnavbar-left-actions {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -170,11 +170,13 @@ body:not(.light-theme) .subnav-plus-shortcut-btn:hover {
   border-color: #B59CDE;
 }
 
-/* 2. Center: Customize Dock Pill Button */
-.subnavbar-center-dock {
+.subnavbar-center-actions {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
 }
 
 /* 3. Right Side: Help & Support, Settings matching User Image */

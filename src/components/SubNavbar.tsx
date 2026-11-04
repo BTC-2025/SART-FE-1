@@ -83,7 +83,7 @@ export default function SubNavbar() {
         aria-label="Sub Navigation"
       >
         {/* 1. Left Side: Configured Shortcuts (Bike, Car, etc.) + '+' Plus Icon Button */}
-        <div className="subnavbar-left-actions">
+        <div className="subnavbar-center-actions">
           {activeShortcuts.map((shortcut) => {
             const normalizedShortcutMode = shortcut.id === 'train_ride' ? 'train' : shortcut.id === 'flight_ride' ? 'flight' : shortcut.id;
             const currentMode = activeRideMode || 'bike';
