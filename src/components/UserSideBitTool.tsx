@@ -252,11 +252,11 @@ export default function UserSideBitTool({
   return (
     <>
       {/* 1. Vertical Bit-Tool Strip on the Right Hand Edge */}
-      <aside className="right-tools-sidebar relative w-[60px] flex flex-col items-center pb-4 h-full justify-between select-none shrink-0 user-side-bittool-strip bnx-style" aria-label="SART Side Utilities">
-        {/* Scrollable middle container */}
-        <div className="flex-1 overflow-y-400px hidden-scrollbar px-2 py-2 flex flex-col w-full">
-          <div className="flex flex-col items-center gap-3 w-full">
-            {/* Header: EDIT PINS in edit mode or Brand B launcher in normal mode (Square shape as requested) */}
+      <aside className="right-tools-sidebar relative w-[58px] flex flex-col items-center select-none shrink-0 user-side-bittool-strip bnx-style" aria-label="SART Side Utilities">
+        {/* Icons stack container */}
+        <div className="px-2 py-2 flex flex-col items-center w-full">
+          <div className="flex flex-col items-center gap-2.5 w-full">
+            {/* Header: EDIT PINS in edit mode or Brand B launcher in normal mode (Consistent 42px width) */}
             {isEditMode ? (
               <div className="bnx-edit-pins-btn active-mode">
                 <span>EDIT</span>
@@ -306,9 +306,9 @@ export default function UserSideBitTool({
               );
             })}
 
-            {/* In Edit mode, show dedicated dashed '+' slot directly below the icons with divider */}
+            {/* In Edit mode, show dedicated dashed '+' slot directly below the cloud icon */}
             {isEditMode && (
-              <div className="flex flex-col items-center gap-3 w-full">
+              <div className="flex flex-col items-center gap-2.5 w-full">
                 <div className="w-7 h-[1.5px] bg-slate-200 rounded my-0.5"></div>
                 <div className="bnx-pin-wrapper relative">
                   <button
@@ -323,36 +323,41 @@ export default function UserSideBitTool({
                 </div>
               </div>
             )}
-          </div>
-        </div>
 
-        {/* Sticky Bottom Actions Bar: Checkmark in edit mode, Pencil in normal mode */}
-        <div className="flex flex-col items-center gap-2 w-full pt-2 pb-2 shrink-0 border-t border-slate-100 bg-white">
-          {isEditMode ? (
-            <button
-              type="button"
-              className="bnx-tool-btn bnx-check"
-              title="Save Pins"
-              onClick={() => setIsEditMode(false)}
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <span className="bnx-tooltip">Save Pins</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="bnx-tool-btn bnx-pencil"
-              title="Edit Pins"
-              onClick={() => setIsEditMode(true)}
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-              </svg>
-              <span className="bnx-tooltip">Edit Pins</span>
-            </button>
-          )}
+            {/* In Normal mode, show the shortcut customize pencil right below cloud */}
+            {!isEditMode && (
+              <div className="bnx-pin-wrapper relative">
+                <button
+                  type="button"
+                  className="bnx-tool-btn bnx-pencil"
+                  title="Customize Pins"
+                  onClick={() => setIsEditMode(true)}
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                  </svg>
+                  <span className="bnx-tooltip">Customize Pins</span>
+                </button>
+              </div>
+            )}
+
+            {/* In Edit mode, show the Save Checkmark directly below to end the bar */}
+            {isEditMode && (
+              <div className="bnx-pin-wrapper relative mt-1">
+                <button
+                  type="button"
+                  className="bnx-tool-btn bnx-check"
+                  title="Save Pins"
+                  onClick={() => setIsEditMode(false)}
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span className="bnx-tooltip">Save Pins</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </aside>
 

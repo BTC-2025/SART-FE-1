@@ -17,8 +17,13 @@
   right: 0;
   top: 104px;
   /* Below Main Navbar (56px) + SubNavbar (40px) */
-  bottom: 0;
+  height: fit-content;
+  max-height: calc(100vh - 120px);
+  bottom: auto;
   width: 58px;
+  border-bottom: 1px solid #e2e8f0;
+  border-radius: 0 0 0 16px;
+  padding-bottom: 10px;
   background: #ffffff;
   border-left: 1px solid #e2e8f0;
   display: flex;
@@ -1249,8 +1254,10 @@
 
 .bnx-edit-pins-btn.active-mode {
   background: #e0f2fe;
-  border-radius: 8px;
-  width: 100%;
-  padding: 6px 2px;
+  border-radius: 12px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
   color: #0284c7;
+  box-sizing: border-box;
 }
