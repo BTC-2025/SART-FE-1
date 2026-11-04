@@ -102,16 +102,12 @@ export default function UserSideBitTool({
 
   // Notes state
   const [notesList, setNotesList] = useState<string[]>([
-    'Remember to verify car rental fuel receipt',
-    'Drop luggage at airport depot bay 4'
+
   ]);
   const [noteInput, setNoteInput] = useState('');
 
   // Contacts state
   const [contactsList] = useState([
-    { name: 'Ramesh Pilot (Bike Captain)', role: 'Rapid Express Pilot', phone: '+91 94440 12345', initial: 'R' },
-    { name: 'Tata Steel Container Depo', role: 'Freight & Carrier Hub', phone: '+91 94440 98765', initial: 'T' },
-    { name: 'SART 24/7 Roadside Assistance', role: 'Emergency Helpline', phone: '1800-425-7278', initial: 'S' }
   ]);
 
   if (!isOpen) return null;
@@ -724,7 +720,7 @@ export default function UserSideBitTool({
       {activeModal === 'contacts' && (
         <div className="user-side-dock-panel">
           <div className="bnx-cal-header">
-            <h3 className="bnx-cal-title">SAVED CAPTAINS & FLEET HUBS</h3>
+            <h3 className="bnx-cal-title">CONTACTS</h3>
             <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
