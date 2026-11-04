@@ -125,7 +125,7 @@
 /* When bit-tool is open, adjust width for the icons */
 .subnavbar-container.has-bittool,
 body:has(.user-side-bittool-strip) .subnavbar-container {
-  width: 100% !important;
+  width: calc(100% - 66px) !important;
 }
 
 /* When side dock panel (calendar/calculator) opens, adjust further */
