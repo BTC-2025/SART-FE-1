@@ -19,18 +19,25 @@ interface PinItem {
   name: string;
   color: string;
   isPinned: boolean;
-  iconType: 'b' | 'calendar' | 'calculator' | 'contacts' | 'notes' | 'keyboard' | 'cloud' | 'tasks';
+  iconType: 'calendar' | 'calculator' | 'contacts' | 'notes' | 'keyboard' | 'cloud' | 'custom_edit' | 'rides' | 'rentals' | 'logistics' | 'parking';
 }
 
 const INITIAL_PINS: PinItem[] = [
-  { id: 'portal', name: 'Beta Launcher', color: '#0056b3', isPinned: true, iconType: 'b' },
   { id: 'calendar', name: 'Calendar', color: '#ea580c', isPinned: true, iconType: 'calendar' },
   { id: 'calculator', name: 'Calculator', color: '#059669', isPinned: true, iconType: 'calculator' },
   { id: 'contacts', name: 'Contacts', color: '#2563eb', isPinned: true, iconType: 'contacts' },
   { id: 'notes', name: 'Notes', color: '#64748b', isPinned: false, iconType: 'notes' },
   { id: 'shortcuts', name: 'Keyboard', color: '#6366f1', isPinned: true, iconType: 'keyboard' },
-  { id: 'settings', name: 'Cloud Storage', color: '#06b6d4', isPinned: true, iconType: 'cloud' },
-  { id: 'tasks', name: 'Tasks', color: '#10b981', isPinned: false, iconType: 'tasks' }
+  { id: 'cloud', name: 'Cloud Storage', color: '#06b6d4', isPinned: true, iconType: 'cloud' },
+  { id: 'custom_edit', name: 'Quick Edit', color: '#3b82f6', isPinned: true, iconType: 'custom_edit' },
+];
+
+const AVAILABLE_WEBSITE_APPS: { id: string; name: string; iconType: PinItem['iconType']; color: string }[] = [
+  { id: 'rides', name: 'Ride Booking', iconType: 'rides', color: '#2563eb' },
+  { id: 'rentals', name: 'Vehicle Rentals', iconType: 'rentals', color: '#10b981' },
+  { id: 'logistics', name: 'Cargo & Parcel', iconType: 'logistics', color: '#f59e0b' },
+  { id: 'parking', name: 'Smart Parking', iconType: 'parking', color: '#8b5cf6' },
+  { id: 'notes', name: 'Notes & Memos', iconType: 'notes', color: '#64748b' }
 ];
 
 export default function UserSideBitTool({
@@ -43,6 +50,7 @@ export default function UserSideBitTool({
   // Edit pins mode
   const [isEditMode, setIsEditMode] = useState(false);
   const [pinItems, setPinItems] = useState<PinItem[]>(INITIAL_PINS);
+  const [showAddOptionsModal, setShowAddOptionsModal] = useState(false);
 
   // App Launcher (BETA) View states
   const [launcherTab, setLauncherTab] = useState<'favorites' | 'recent'>('favorites');
@@ -146,8 +154,6 @@ export default function UserSideBitTool({
   // Render individual Icon by type
   const renderItemIcon = (type: string) => {
     switch (type) {
-      case 'b':
-        return <img src="/images/bnx_brand_b.png" alt="B" className="w-5 h-5 object-contain" />;
       case 'calendar':
         return (
           <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -205,10 +211,38 @@ export default function UserSideBitTool({
             <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
           </svg>
         );
-      case 'tasks':
+      case 'custom_edit':
         return (
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12"></polyline>
+          <img src="/images/bnx_edit_pencil.png" alt="Edit Notes" className="w-5 h-5 object-contain rounded" />
+        );
+      case 'rides':
+        return (
+          <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path>
+            <circle cx="7" cy="17" r="2"></circle>
+            <circle cx="17" cy="17" r="2"></circle>
+          </svg>
+        );
+      case 'rentals':
+        return (
+          <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        );
+      case 'logistics':
+        return (
+          <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="21 8 21 21 3 21 3 8"></polyline>
+            <rect x="1" y="3" width="22" height="5"></rect>
+            <line x1="10" y1="12" x2="14" y2="12"></line>
+          </svg>
+        );
+      case 'parking':
+        return (
+          <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" stroke="#8b5cf6" strokeWidth="2"></circle>
+            <path d="M10 8h3a2 2 0 0 1 0 4h-3v4"></path>
           </svg>
         );
       default:
@@ -220,9 +254,10 @@ export default function UserSideBitTool({
     <>
       {/* 1. Vertical Bit-Tool Strip on the Right Hand Edge */}
       <aside className="right-tools-sidebar relative w-[60px] flex flex-col items-center pb-4 h-full justify-between select-none shrink-0 user-side-bittool-strip bnx-style" aria-label="SART Side Utilities">
-        <div className="flex-1 overflow-y-auto hidden-scrollbar px-3 py-2 flex flex-col justify-between w-full">
+        {/* Scrollable middle container */}
+        <div className="flex-1 overflow-y-auto hidden-scrollbar px-2 py-2 flex flex-col w-full">
           <div className="flex flex-col items-center gap-3 w-full">
-            {/* Header: EDIT PINS in edit mode or Brand B launcher in normal mode */}
+            {/* Header: EDIT PINS in edit mode or Brand B launcher in normal mode (Square shape as requested) */}
             {isEditMode ? (
               <div className="bnx-edit-pins-btn active-mode">
                 <span>EDIT</span>
@@ -231,7 +266,7 @@ export default function UserSideBitTool({
             ) : (
               <button
                 type="button"
-                className={`bnx-tool-btn bnx-brand-b ${activeModal === 'portal' ? 'active-tool' : ''}`}
+                className={`bnx-tool-btn bnx-brand-b bnx-square-shape ${activeModal === 'portal' ? 'active-tool' : ''}`}
                 title="Beta App Launcher"
                 onClick={() => toggleModal('portal')}
               >
@@ -271,38 +306,125 @@ export default function UserSideBitTool({
                 </div>
               );
             })}
-          </div>
 
-          {/* Bottom Edit Pins / Save Button */}
-          <div className="flex flex-col items-center gap-3 w-full mt-4">
-            {isEditMode ? (
-              <button
-                type="button"
-                className="bnx-tool-btn bnx-check"
-                title="Save Pins"
-                onClick={() => setIsEditMode(false)}
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                <span className="bnx-tooltip">Save Pins</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="bnx-tool-btn bnx-pencil"
-                title="Edit Pins"
-                onClick={() => setIsEditMode(true)}
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-                </svg>
-                <span className="bnx-tooltip">Edit Pins</span>
-              </button>
+            {/* In Edit mode, show dedicated dashed '+' slot to open additional options */}
+            {isEditMode && (
+              <div className="bnx-pin-wrapper relative">
+                <button
+                  type="button"
+                  className="bnx-tool-btn dashed-unpinned"
+                  title="Add more options"
+                  onClick={() => setShowAddOptionsModal(true)}
+                >
+                  <span className="text-gray-500 font-bold text-xl leading-none">+</span>
+                  <span className="bnx-tooltip">Add More Apps</span>
+                </button>
+              </div>
             )}
           </div>
         </div>
+
+        {/* Sticky Bottom Actions Bar: Checkmark in edit mode, Pencil in normal mode */}
+        <div className="flex flex-col items-center gap-2 w-full pt-2 pb-2 shrink-0 border-t border-slate-100 bg-white">
+          {isEditMode ? (
+            <button
+              type="button"
+              className="bnx-tool-btn bnx-check"
+              title="Save Pins"
+              onClick={() => setIsEditMode(false)}
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span className="bnx-tooltip">Save Pins</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="bnx-tool-btn bnx-pencil"
+              title="Edit Pins"
+              onClick={() => setIsEditMode(true)}
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+              </svg>
+              <span className="bnx-tooltip">Edit Pins</span>
+            </button>
+          )}
+        </div>
       </aside>
+
+      {/* MODAL: ADD MORE OPTIONS (Shown when clicking + in Edit Pins Mode) */}
+      {showAddOptionsModal && (
+        <div className="fixed inset-0 z-[999] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/60">
+              <h3 className="font-bold text-slate-900 text-sm tracking-wide">Add Website Shortcuts</h3>
+              <button
+                type="button"
+                className="text-slate-400 hover:text-slate-700 p-1 rounded-lg transition-colors"
+                onClick={() => setShowAddOptionsModal(false)}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-4 space-y-2 max-h-80 overflow-y-auto">
+              {AVAILABLE_WEBSITE_APPS.map(app => {
+                const existing = pinItems.find(p => p.id === app.id);
+                const isPinned = existing ? existing.isPinned : false;
+
+                return (
+                  <div
+                    key={app.id}
+                    className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/40 transition-all cursor-pointer"
+                    onClick={() => {
+                      if (existing) {
+                        handleTogglePin(app.id);
+                      } else {
+                        setPinItems(prev => [...prev, { ...app, isPinned: true }]);
+                      }
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-100 border border-slate-200">
+                        {renderItemIcon(app.iconType)}
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-slate-800">{app.name}</div>
+                        <div className="text-[11px] text-slate-400">Quick action icon</div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className={`text-xs font-bold px-3 py-1 rounded-lg transition-colors ${
+                        isPinned
+                          ? 'bg-rose-100 text-rose-700 hover:bg-rose-200'
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
+                    >
+                      {isPinned ? 'Remove' : '+ Add'}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="p-3 bg-slate-50 border-t border-slate-100 flex justify-end">
+              <button
+                type="button"
+                className="bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-slate-800 transition-colors"
+                onClick={() => setShowAddOptionsModal(false)}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 2. Flyout Side Drawers Attached to Pin Bar */}
 

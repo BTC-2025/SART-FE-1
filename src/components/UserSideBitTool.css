@@ -872,6 +872,38 @@
   transition: all 0.2s ease !important;
   padding: 0 !important;
   margin: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+.bnx-tool-btn.bnx-square-shape {
+  border-radius: 12px !important;
+  border: 1.5px solid #dbeafe !important;
+  background: #ffffff !important;
+}
+
+.bnx-tool-btn.bnx-custom_edit {
+  border: 1.8px solid #cbd5e1 !important;
+  background: #ffffff !important;
+}
+
+.bnx-tool-btn.bnx-rides {
+  border: 1.8px solid #2563eb !important;
+  background: #ffffff !important;
+}
+
+.bnx-tool-btn.bnx-rentals {
+  border: 1.8px solid #10b981 !important;
+  background: #ffffff !important;
+}
+
+.bnx-tool-btn.bnx-logistics {
+  border: 1.8px solid #f59e0b !important;
+  background: #ffffff !important;
+}
+
+.bnx-tool-btn.bnx-parking {
+  border: 1.8px solid #8b5cf6 !important;
+  background: #ffffff !important;
 }
 
 /* Calendar Button (Orange Border) */
