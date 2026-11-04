@@ -212,6 +212,7 @@ export default function Navbar() {
         </div>
         <div className={`ctrl-btn ${activeTab === "favorites" ? "active" : ""}`}
           title="Favorites & Wishlist"
+          onClick={() => setActiveTab("favorites")}
         >
           <i className="fa-solid fa-heart"></i>
           {wishlist.length > 0 && <span className="ctrl-badge">{wishlist.length}</span>}
