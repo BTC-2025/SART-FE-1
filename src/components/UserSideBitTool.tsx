@@ -35,8 +35,8 @@ export default function UserSideBitTool({
   };
 
   // Dynamic Calendar state
-  const [currentDate, setCurrentDate] = useState(() => new Date(2026, 10, 3)); // Nov 3, 2026
-  const [selectedDay, setSelectedDay] = useState(3);
+  const [currentDate, setCurrentDate] = useState(() => new Date(2026, 10, 4)); // Nov 4, 2026
+  const [selectedDay, setSelectedDay] = useState(4);
 
   const currentYear = currentDate.getFullYear();
   const currentMonthIdx = currentDate.getMonth();
@@ -232,49 +232,56 @@ export default function UserSideBitTool({
 
       {/* 2. Interactive Sliding Panels */}
 
-      {/* PANEL 1: FULLY INTERACTIVE DYNAMIC CALENDAR */}
+      {/* PANEL 1: EXACT MATCH TO USER IMAGE (BNX Calendar Modal) */}
       {activeModal === 'calendar' && (
-        <div className="user-side-dock-panel">
-          <div className="user-dock-header">
-            <span className="user-dock-title">CALENDAR</span>
-            <button className="user-dock-close-btn" onClick={closeModal} title="Close">
-              <i className="fa-solid fa-xmark"></i>
+        <div className="user-side-dock-panel bnx-cal-panel">
+          {/* Header */}
+          <div className="bnx-cal-header">
+            <h3 className="bnx-cal-title">Calendar</h3>
+            <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
             </button>
           </div>
-          <div className="user-dock-inner">
-            {/* Month & Year Navigation */}
-            <div className="user-cal-nav">
-              <button type="button" className="user-cal-arrow" onClick={handlePrevMonth} title="Previous Month">
-                <i className="fa-solid fa-chevron-left"></i>
-              </button>
-              <h4 style={{ margin: 0, fontSize: '14.5px', fontWeight: 800, color: '#0f172a' }}>
-                {currentMonthName} {currentYear}
-              </h4>
-              <button type="button" className="user-cal-arrow" onClick={handleNextMonth} title="Next Month">
-                <i className="fa-solid fa-chevron-right"></i>
-              </button>
+
+          <div className="bnx-cal-body">
+            {/* Month Header with Right Aligned Arrows */}
+            <div className="bnx-month-row">
+              <h4 className="bnx-month-name">{currentMonthName} {currentYear}</h4>
+              <div className="bnx-month-arrows">
+                <button type="button" className="bnx-arrow-btn" onClick={handlePrevMonth} title="Previous Month">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
+                <button type="button" className="bnx-arrow-btn" onClick={handleNextMonth} title="Next Month">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+              </div>
             </div>
 
-            {/* Calendar Days Matrix */}
-            <div className="user-cal-grid">
-              <span className="user-cal-wk">Su</span>
-              <span className="user-cal-wk">Mo</span>
-              <span className="user-cal-wk">Tu</span>
-              <span className="user-cal-wk">We</span>
-              <span className="user-cal-wk">Th</span>
-              <span className="user-cal-wk">Fr</span>
-              <span className="user-cal-wk">Sa</span>
+            {/* Days Matrix */}
+            <div className="bnx-days-grid">
+              <span className="bnx-day-wk">Su</span>
+              <span className="bnx-day-wk">Mo</span>
+              <span className="bnx-day-wk">Tu</span>
+              <span className="bnx-day-wk">We</span>
+              <span className="bnx-day-wk">Th</span>
+              <span className="bnx-day-wk">Fr</span>
+              <span className="bnx-day-wk">Sa</span>
 
-              {/* Empty padding slots before the 1st of month */}
               {Array.from({ length: firstDayWeekday }).map((_, idx) => (
-                <div key={`empty-${idx}`} className="user-cal-cell empty" style={{ opacity: 0 }}></div>
+                <div key={`empty-${idx}`} className="bnx-day-cell empty"></div>
               ))}
 
-              {/* Day cells for the active month */}
               {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => (
                 <div
                   key={day}
-                  className={`user-cal-cell ${selectedDay === day ? 'active-day' : ''}`}
+                  className={`bnx-day-cell ${selectedDay === day ? 'active-orange' : ''}`}
                   onClick={() => setSelectedDay(day)}
                 >
                   {day}
@@ -282,27 +289,20 @@ export default function UserSideBitTool({
               ))}
             </div>
 
-            {/* Dynamic Schedule Preview for Selected Date */}
-            <div style={{ marginTop: '14px', padding: '14px', background: '#f8fafc', borderRadius: '12px', borderLeft: '3px solid #2563eb' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                <strong style={{ fontSize: '13px', color: '#0f172a' }}>
-                  Schedule for {selectedDay} {currentMonthName} {currentYear}
-                </strong>
-                <span style={{ fontSize: '11px', background: '#dbeafe', color: '#1d4ed8', padding: '2px 8px', borderRadius: '10px', fontWeight: 700 }}>
-                  Active Day
-                </span>
-              </div>
-              <span style={{ fontSize: '12px', color: '#64748b', display: 'block' }}>
-                {selectedDay === 3
-                  ? 'Ride Confirmed: Chennai Central ➔ Airport T2 • 02:30 PM (Toyota Innova Crysta)'
-                  : `No bookings scheduled for ${selectedDay} ${currentMonthName}. Click below to plan a trip.`}
+            {/* Divider line before schedule footer */}
+            <div className="bnx-cal-footer-divider"></div>
+
+            {/* Footer Row: e.g. "NOVEMBER 4 SCHEDULE" and "+ Add" button */}
+            <div className="bnx-schedule-row">
+              <span className="bnx-schedule-label">
+                {currentMonthName.toUpperCase()} {selectedDay} SCHEDULE
               </span>
               <button
                 type="button"
-                style={{ marginTop: '10px', background: '#2563eb', color: '#ffffff', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                className="bnx-add-btn"
                 onClick={() => { closeModal(); setActiveTab('ride'); }}
               >
-                + Book Ride for This Date
+                + Add
               </button>
             </div>
           </div>
