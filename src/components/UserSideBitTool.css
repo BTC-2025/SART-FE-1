@@ -15,7 +15,7 @@
 .user-side-bittool-strip {
   position: fixed;
   right: 0;
-  top: 104px;
+  top: 105px;
   /* Below Main Navbar (56px) + SubNavbar (40px) */
   height: fit-content;
   max-height: calc(100vh - 120px);
@@ -169,7 +169,7 @@
 
 .user-side-dock-panel {
   position: fixed !important;
-  top: 104px !important;
+  top: 105px !important;
   right: 58px !important;
   width: 380px !important;
   height: 540px !important;
@@ -491,10 +491,10 @@
 .user-side-bittool-strip.bnx-style {
   position: fixed;
   right: 0;
-  top: 104px;
+  top: 105px;
   bottom: 0;
   width: 60px;
-  height: 650px;
+  height: 680px;
   background: #ffffff;
   border-left: 1.5px solid #e0edff;
   border-top-left-radius: 28px;
@@ -670,7 +670,7 @@
 
 .user-side-dock-panel.bnx-cal-panel {
   position: fixed !important;
-  top: 104px !important;
+  top: 105px !important;
   right: 60px !important;
   width: 380px !important;
   height: 540px !important;
@@ -1062,9 +1062,9 @@
    ========================================================================= */
 
 .user-side-dock-panel.bnx-beta-panel {
-  margin-top: 4px;
+  margin-top: 0;
   position: fixed !important;
-  top: 104px !important;
+  top: 105px !important;
   right: 60px !important;
   width: 380px !important;
   height: 580px !important;

@@ -180,11 +180,11 @@ body:has(.user-side-dock-panel) .subnavbar-container {
 }
 
 .user-side-bittool-strip {
-  top: 104px !important;
+  top: 105px !important;
   /* Starts right below main navbar (64px), beside subnavbar */
 }
 
 .user-side-dock-panel {
-  top: 104px !important;
+  top: 105px !important;
   /* Sits beside Bit-Tool strip */
 }
