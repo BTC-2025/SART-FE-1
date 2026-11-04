@@ -259,7 +259,6 @@ export default function UserSideBitTool({
               </div>
             ) : (
               <>
-                <div className="w-8 h-[1px] bg-gray-200 dark:bg-gray-800 -mt-[1px] mb-1 shrink-0"></div>
                 <button
                   type="button"
                   className={`bnx-tool-btn bnx-brand-b bnx-square-shape ${activeModal === 'portal' ? 'active-tool' : ''}`}
@@ -269,6 +268,7 @@ export default function UserSideBitTool({
                   <img src="/images/bnx_brand_b.png" alt="Beta Launcher" className="bnx-b-logo-img" />
                   <span className="bnx-tooltip">Beta Launcher</span>
                 </button>
+                <div className="w-8 h-[1px] bg-gray-200 dark:bg-gray-800 mt-1 mb-0.5 shrink-0"></div>
               </>
             )}
 
