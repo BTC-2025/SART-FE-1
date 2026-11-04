@@ -361,7 +361,7 @@ export default function UserSideBitTool({
 
       {/* MODAL: ADD MORE OPTIONS (Shown when clicking + in Edit Pins Mode) */}
       {showAddOptionsModal && (
-        <div className="fixed inset-0 z-[999] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 top-[105px] z-[999] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl border-2 border-slate-300 w-full max-w-md my-auto overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/60">
               <h3 className="font-bold text-slate-900 text-sm tracking-wide">Add Website Shortcuts</h3>
@@ -377,7 +377,7 @@ export default function UserSideBitTool({
               </button>
             </div>
 
-            <div className="p-4 space-y-2 max-h-[360px] overflow-y-auto hidden-scrollbar">
+            <div className="p-4 space-y-2 max-h-[300px] overflow-y-auto hidden-scrollbar">
               {AVAILABLE_WEBSITE_APPS.map(app => {
                 const existing = pinItems.find(p => p.id === app.id);
                 const isPinned = existing ? existing.isPinned : false;
