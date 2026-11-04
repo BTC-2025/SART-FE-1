@@ -36,7 +36,7 @@ const AVAILABLE_WEBSITE_APPS: { id: string; name: string; iconType: PinItem['ico
   { id: 'rentals', name: 'Vehicle Rentals', iconType: 'rentals', color: '#10b981' },
   { id: 'logistics', name: 'Cargo & Parcel', iconType: 'logistics', color: '#f59e0b' },
   { id: 'parking', name: 'Smart Parking', iconType: 'parking', color: '#8b5cf6' },
-  { id: 'notes', name: 'Notes & Memos', iconType: 'notes', color: '#64748b' }
+  { id: 'notes', name: 'Notes', iconType: 'notes', color: '#64748b' }
 ];
 
 export default function UserSideBitTool({
@@ -681,7 +681,7 @@ export default function UserSideBitTool({
       {activeModal === 'calculator' && (
         <div className="user-side-dock-panel">
           <div className="user-dock-header">
-            <span className="user-dock-title">FARE & EXPENSE CALCULATOR</span>
+            <span className="user-dock-title">CALCULATOR</span>
             <button className="user-dock-close-btn" onClick={closeModal} title="Close">
               <i className="fa-solid fa-xmark"></i>
             </button>
@@ -723,10 +723,13 @@ export default function UserSideBitTool({
       {/* DRAWER 4: CONTACTS */}
       {activeModal === 'contacts' && (
         <div className="user-side-dock-panel">
-          <div className="user-dock-header">
-            <span className="user-dock-title">SAVED CAPTAINS & FLEET HUBS</span>
-            <button className="user-dock-close-btn" onClick={closeModal} title="Close">
-              <i className="fa-solid fa-xmark"></i>
+          <div className="bnx-cal-header">
+            <h3 className="bnx-cal-title">SAVED CAPTAINS & FLEET HUBS</h3>
+            <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
             </button>
           </div>
           <div className="user-dock-inner">
@@ -750,10 +753,13 @@ export default function UserSideBitTool({
       {/* DRAWER 5: NOTES */}
       {activeModal === 'notes' && (
         <div className="user-side-dock-panel">
-          <div className="user-dock-header">
-            <span className="user-dock-title">TRIP NOTES & MEMOS</span>
-            <button className="user-dock-close-btn" onClick={closeModal} title="Close">
-              <i className="fa-solid fa-xmark"></i>
+          <div className="bnx-cal-header">
+            <h3 className="bnx-cal-title">NOTES</h3>
+            <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
             </button>
           </div>
           <div className="user-dock-inner">
