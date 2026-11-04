@@ -183,7 +183,7 @@ export default function UserSideBitTool({
         );
       case 'notes':
         return (
-          <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="4" y="3" width="16" height="18" rx="3"></rect>
             <path d="M9 13.5l4-4 2 2-4 4H9v-2z"></path>
           </svg>
@@ -306,18 +306,21 @@ export default function UserSideBitTool({
               );
             })}
 
-            {/* In Edit mode, show dedicated dashed '+' slot to open additional options */}
+            {/* In Edit mode, show dedicated dashed '+' slot directly below the icons with divider */}
             {isEditMode && (
-              <div className="bnx-pin-wrapper relative">
-                <button
-                  type="button"
-                  className="bnx-tool-btn dashed-unpinned"
-                  title="Add more options"
-                  onClick={() => setShowAddOptionsModal(true)}
-                >
-                  <span className="text-gray-500 font-bold text-xl leading-none">+</span>
-                  <span className="bnx-tooltip">Add More Apps</span>
-                </button>
+              <div className="flex flex-col items-center gap-3 w-full">
+                <div className="w-7 h-[1.5px] bg-slate-200 rounded my-0.5"></div>
+                <div className="bnx-pin-wrapper relative">
+                  <button
+                    type="button"
+                    className="bnx-tool-btn dashed-unpinned"
+                    title="Add more options"
+                    onClick={() => setShowAddOptionsModal(true)}
+                  >
+                    <span className="text-gray-500 font-bold text-xl leading-none">+</span>
+                    <span className="bnx-tooltip">Add More Apps</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>

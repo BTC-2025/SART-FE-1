@@ -116,7 +116,7 @@
 .subnavbar-container {
   width: 100% !important;
   /* Full width till end by default */
-  height: 36px !important;
+  height: 40px !important;
   min-height: 36px !important;
   padding: 0 18px !important;
   transition: width 0.22s ease !important;
