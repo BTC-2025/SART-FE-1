@@ -132,41 +132,42 @@ export default function Navbar() {
         </div>
       </div>
 
-      <div className="nav-center-group" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <nav className="nav-links">
-          <div
-            className={`nav-link ${['home', 'ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking'].includes(activeTab) ? 'active' : ''}`}
-            id="nav-btn-home"
-            onClick={() => {
-              setActiveTab('home');
-              router.push('/', { scroll: false });
-            }}
-          >
-            <span>Home</span>
-          </div>
-          <div
-            className={`nav-link ${activeTab === 'store' ? 'active' : ''}`}
-            id="nav-btn-store"
-            onClick={() => {
-              setActiveTab('store');
-              router.push('/store', { scroll: false });
-            }}
-          >
-            <span>Store</span>
-          </div>
-          <div
-            className={`nav-link ${activeTab === 'booking' ? 'active' : ''}`}
-            id="nav-btn-booking"
-            onClick={() => {
-              setActiveTab('booking');
-              router.push('/booking', { scroll: false });
-            }}
-          >
-            <span>Tracks</span>
-          </div>
-        </nav>
+      <nav className="nav-links">
+        <div
+          className={`nav-link ${['home', 'ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking'].includes(activeTab) ? 'active' : ''}`}
+          id="nav-btn-home"
+          onClick={() => {
+            setActiveTab('home');
+            router.push('/', { scroll: false });
+          }}
+        >
+          <span>Home</span>
+        </div>
+        <div
+          className={`nav-link ${activeTab === 'store' ? 'active' : ''}`}
+          id="nav-btn-store"
+          onClick={() => {
+            setActiveTab('store');
+            router.push('/store', { scroll: false });
+          }}
+        >
+          <span>Store</span>
+        </div>
+        <div
+          className={`nav-link ${activeTab === 'booking' ? 'active' : ''}`}
+          id="nav-btn-booking"
+          onClick={() => {
+            setActiveTab('booking');
+            router.push('/booking', { scroll: false });
+          }}
+        >
+          <span>Tracks</span>
+        </div>
+      </nav>
 
-        {isSearchExpanded && (
+      <div className="nav-controls">
+        <div className="search-control-slot" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+          {isSearchExpanded ? (
           <div className="expanded-search-container">
             <i className="fa-solid fa-magnifying-glass search-icon-left"></i>
             <input
@@ -203,18 +204,13 @@ export default function Navbar() {
               </div>
             )}
           </div>
-        )}
-      </div>
-
-      <div className="nav-controls">
-        {!isSearchExpanded && (
-          <div className="ctrl-btn" onClick={() => setIsSearchExpanded(true)} title="Search">
-            <i className="fa-solid fa-magnifying-glass"></i>
-          </div>
-        )}
-        <div
-          className={`ctrl-btn ${activeTab === 'favorites' ? 'active' : ''}`}
-          onClick={() => setActiveTab('favorites')}
+          ) : (
+            <div className="ctrl-btn" onClick={() => setIsSearchExpanded(true)} title="Search">
+              <i className="fa-solid fa-magnifying-glass"></i>
+            </div>
+          )}
+        </div>
+        <div className={`ctrl-btn ${activeTab === "favorites" ? "active" : ""}`}
           title="Favorites & Wishlist"
         >
           <i className="fa-solid fa-heart"></i>
