@@ -125,12 +125,12 @@
 /* When bit-tool is open, adjust width for the icons */
 .subnavbar-container.has-bittool,
 body:has(.user-side-bittool-strip) .subnavbar-container {
-  width: calc(100% - 58px) !important;
+  width: 100% !important;
 }
 
 /* When side dock panel (calendar/calculator) opens, adjust further */
 body:has(.user-side-dock-panel) .subnavbar-container {
-  width: calc(100% - 498px) !important;
+  width: 100% !important;
 }
 
 .subnav-quick-btn {
@@ -169,11 +169,11 @@ body:has(.user-side-dock-panel) .subnavbar-container {
 }
 
 .user-side-bittool-strip {
-  top: 64px !important;
+  top: 104px !important;
   /* Starts right below main navbar (64px), beside subnavbar */
 }
 
 .user-side-dock-panel {
-  top: 64px !important;
+  top: 104px !important;
   /* Sits beside Bit-Tool strip */
 }

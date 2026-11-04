@@ -15,7 +15,7 @@
 .user-side-bittool-strip {
   position: fixed;
   right: 0;
-  top: 64px;
+  top: 104px;
   /* Below Main Navbar (56px) + SubNavbar (40px) */
   bottom: 0;
   width: 58px;
@@ -152,7 +152,7 @@
 .user-side-dock-panel {
   margin-top: 4px;
   position: fixed;
-  top: 64px;
+  top: 104px;
   right: 58px;
   width: 440px;
   bottom: 0;
@@ -635,7 +635,7 @@
 
 .user-side-dock-panel.bnx-cal-panel {
   position: fixed !important;
-  top: 56px !important;
+  top: 104px !important;
   right: 60px !important;
   width: 380px !important;
   height: 540px !important;
@@ -1001,7 +1001,7 @@
 .user-side-dock-panel.bnx-beta-panel {
   margin-top: 4px;
   position: fixed !important;
-  top: 56px !important;
+  top: 104px !important;
   right: 60px !important;
   width: 410px !important;
   height: 580px !important;

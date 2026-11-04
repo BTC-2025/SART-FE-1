@@ -212,7 +212,7 @@ export default function UserSideBitTool({
         );
       case 'custom_edit':
         return (
-          <img src="/images/bnx_edit_pencil.png" alt="Edit Notes" className="w-5 h-5 object-contain rounded" />
+          <img src="/images/bnx_edit_pencil.png" alt="Edit Notes" className="w-80 h-80 object-contain rounded" />
         );
       case 'rides':
         return (
@@ -254,7 +254,7 @@ export default function UserSideBitTool({
       {/* 1. Vertical Bit-Tool Strip on the Right Hand Edge */}
       <aside className="right-tools-sidebar relative w-[60px] flex flex-col items-center pb-4 h-full justify-between select-none shrink-0 user-side-bittool-strip bnx-style" aria-label="SART Side Utilities">
         {/* Scrollable middle container */}
-        <div className="flex-1 overflow-y-auto hidden-scrollbar px-2 py-2 flex flex-col w-full">
+        <div className="flex-1 overflow-y-400px hidden-scrollbar px-2 py-2 flex flex-col w-full">
           <div className="flex flex-col items-center gap-3 w-full">
             {/* Header: EDIT PINS in edit mode or Brand B launcher in normal mode (Square shape as requested) */}
             {isEditMode ? (
@@ -403,8 +403,8 @@ export default function UserSideBitTool({
                     <button
                       type="button"
                       className={`text-xs font-bold px-3 py-1 rounded-lg transition-colors ${isPinned
-                          ? 'bg-rose-100 text-rose-700 hover:bg-rose-200'
-                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                        ? 'bg-rose-100 text-rose-700 hover:bg-rose-200'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
                         }`}
                     >
                       {isPinned ? 'Remove' : '+ Add'}
