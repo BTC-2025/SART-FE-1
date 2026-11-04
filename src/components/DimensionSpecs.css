@@ -115,6 +115,7 @@
 /* Sub-navbar leaves 58px on right so Bit-Tool strip (starting with B) appears right beside it at top: 64px */
 .subnavbar-container {
   width: 100% !important;
+  z-index: 1000 !important;
   /* Full width till end by default */
   height: 40px !important;
   min-height: 36px !important;
