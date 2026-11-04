@@ -26,10 +26,9 @@ const INITIAL_PINS: PinItem[] = [
   { id: 'calendar', name: 'Calendar', color: '#ea580c', isPinned: true, iconType: 'calendar' },
   { id: 'calculator', name: 'Calculator', color: '#059669', isPinned: true, iconType: 'calculator' },
   { id: 'contacts', name: 'Contacts', color: '#2563eb', isPinned: true, iconType: 'contacts' },
-  { id: 'notes', name: 'Notes', color: '#64748b', isPinned: false, iconType: 'notes' },
+  { id: 'notes', name: 'Notes', color: '#64748b', isPinned: true, iconType: 'notes' },
   { id: 'shortcuts', name: 'Keyboard', color: '#6366f1', isPinned: true, iconType: 'keyboard' },
   { id: 'cloud', name: 'Cloud Storage', color: '#06b6d4', isPinned: true, iconType: 'cloud' },
-  { id: 'custom_edit', name: 'Quick Edit', color: '#3b82f6', isPinned: true, iconType: 'custom_edit' },
 ];
 
 const AVAILABLE_WEBSITE_APPS: { id: string; name: string; iconType: PinItem['iconType']; color: string }[] = [
@@ -400,11 +399,10 @@ export default function UserSideBitTool({
                     </div>
                     <button
                       type="button"
-                      className={`text-xs font-bold px-3 py-1 rounded-lg transition-colors ${
-                        isPinned
+                      className={`text-xs font-bold px-3 py-1 rounded-lg transition-colors ${isPinned
                           ? 'bg-rose-100 text-rose-700 hover:bg-rose-200'
                           : 'bg-blue-600 text-white hover:bg-blue-700'
-                      }`}
+                        }`}
                     >
                       {isPinned ? 'Remove' : '+ Add'}
                     </button>
@@ -413,12 +411,18 @@ export default function UserSideBitTool({
               })}
             </div>
 
-            <div className="p-3 bg-slate-50 border-t border-slate-100 flex justify-end">
+            <div className="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[11px] text-slate-500 font-medium">Click Save (✓) on the bar to confirm</span>
               <button
                 type="button"
-                className="bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-slate-800 transition-colors"
-                onClick={() => setShowAddOptionsModal(false)}
+                className="bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-emerald-700 transition-colors flex items-center gap-1.5"
+                onClick={() => {
+                  setShowAddOptionsModal(false);
+                }}
               >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
                 Done
               </button>
             </div>
@@ -435,16 +439,7 @@ export default function UserSideBitTool({
           <div className="bnx-beta-header">
             <h2 className="bnx-beta-title">BETA</h2>
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                className="bnx-beta-edit-btn"
-                onClick={() => {
-                  closeModal();
-                  setIsEditMode(true);
-                }}
-              >
-                EDIT
-              </button>
+
               <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
