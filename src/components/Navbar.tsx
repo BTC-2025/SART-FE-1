@@ -166,51 +166,50 @@ export default function Navbar() {
 
       </nav>
 
-      {isSearchExpanded && (
-        <div className="expanded-search-container">
-          <i className="fa-solid fa-magnifying-glass search-icon-left"></i>
-          <input
-            type="text"
-            className="expanded-search-input"
-            placeholder="Search..."
-            autoFocus
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onBlur={() => setTimeout(() => { setIsSearchExpanded(false); setSearchQuery(''); }, 200)}
-          />
-          {searchQuery && (
-            <div className="search-dropdown">
-              {SEARCH_OPTIONS.filter(opt => opt.title.toLowerCase().includes(searchQuery.toLowerCase()) || opt.kw.some(k => k.includes(searchQuery.toLowerCase()))).length > 0 ? (
-                SEARCH_OPTIONS.filter(opt => opt.title.toLowerCase().includes(searchQuery.toLowerCase()) || opt.kw.some(k => k.includes(searchQuery.toLowerCase()))).map(opt => (
-                  <div key={opt.title} className="booking-card" onClick={() => { (window as any).openModal(opt.modal); setIsSearchExpanded(false); setSearchQuery(''); }}>
-                    <div className="booking-card-left">
-                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: opt.color }}>
-                        <i className={`fa-solid ${opt.icon}`}></i>
-                      </div>
-                      <div className="booking-card-text">
-                        <h4 style={{ margin: 0, fontSize: '13px', color: '#fff' }}>{opt.title}</h4>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '9px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Shortcut trigger</p>
-                      </div>
-                    </div>
-                    <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px', color: 'var(--text-secondary)' }}></i>
-                  </div>
-                ))
-              ) : (
-                <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '15px', fontSize: '12px' }}>
-                  No matching modules found in directory.
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
 
       <div className="nav-controls">
-
-        <div className="ctrl-btn" style={{ visibility: isSearchExpanded ? 'hidden' : 'visible' }} onClick={() => setIsSearchExpanded(true)}>
-          <i className="fa-solid fa-magnifying-glass"></i>
-        </div>
-
+        {isSearchExpanded ? (
+          <div className="expanded-search-container">
+            <i className="fa-solid fa-magnifying-glass search-icon-left"></i>
+            <input
+              type="text"
+              className="expanded-search-input"
+              placeholder="Search..."
+              autoFocus
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onBlur={() => setTimeout(() => { setIsSearchExpanded(false); setSearchQuery(''); }, 200)}
+            />
+            {searchQuery && (
+              <div className="search-dropdown">
+                {SEARCH_OPTIONS.filter(opt => opt.title.toLowerCase().includes(searchQuery.toLowerCase()) || opt.kw.some(k => k.includes(searchQuery.toLowerCase()))).length > 0 ? (
+                  SEARCH_OPTIONS.filter(opt => opt.title.toLowerCase().includes(searchQuery.toLowerCase()) || opt.kw.some(k => k.includes(searchQuery.toLowerCase()))).map(opt => (
+                    <div key={opt.title} className="booking-card" onClick={() => { (window as any).openModal(opt.modal); setIsSearchExpanded(false); setSearchQuery(''); }}>
+                      <div className="booking-card-left">
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: opt.color }}>
+                          <i className={`fa-solid ${opt.icon}`}></i>
+                        </div>
+                        <div className="booking-card-text">
+                          <h4 style={{ margin: 0, fontSize: '13px', color: '#fff' }}>{opt.title}</h4>
+                          <p style={{ margin: '2px 0 0 0', fontSize: '9px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Shortcut trigger</p>
+                        </div>
+                      </div>
+                      <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px', color: 'var(--text-secondary)' }}></i>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '15px', fontSize: '12px' }}>
+                    No matching modules found in directory.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="ctrl-btn" onClick={() => setIsSearchExpanded(true)} title="Search">
+            <i className="fa-solid fa-magnifying-glass"></i>
+          </div>
+        )}
         <div
           className={`ctrl-btn ${activeTab === 'favorites' ? 'active' : ''}`}
           onClick={() => setActiveTab('favorites')}

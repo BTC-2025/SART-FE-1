@@ -913,51 +913,84 @@
   background: #ffffff !important;
 }
 
-/* Calendar Button (Orange Border) */
+/* Default Inactive: clean white background, soft rounded squircle border */
+.bnx-tool-btn.bnx-brand-b {
+  border: 1.5px solid #dbeafe !important;
+  background: #ffffff !important;
+}
+
 .bnx-tool-btn.bnx-calendar {
+  border: 1.5px solid #fed7aa !important;
   background: #ffffff !important;
 }
 
-/* Calculator Button (Green Border) */
 .bnx-tool-btn.bnx-calculator {
+  border: 1.5px solid #a7f3d0 !important;
   background: #ffffff !important;
 }
 
-/* People Button (Blue Border) */
+.bnx-tool-btn.bnx-contacts,
 .bnx-tool-btn.bnx-people {
+  border: 1.5px solid #bfdbfe !important;
   background: #ffffff !important;
 }
 
-/* Dashed Document Button */
-.bnx-tool-btn.bnx-dashed-note {
-  border: 1.8px dashed #cbd5e1 !important;
-  background: #ffffff !important;
-}
-
-.bnx-tool-btn.bnx-dashed-note:hover {
-  border-color: #94a3b8 !important;
-}
-
-/* Keyboard Button (Purple Border) */
-.bnx-tool-btn.bnx-keyboard {
-  background: #ffffff !important;
-}
-
-/* Contacts Button (Blue Border) */
-.bnx-tool-btn.bnx-contacts {
-  background: #ffffff !important;
-}
-
-/* Notes Button (Golden/Yellow Border) */
 .bnx-tool-btn.bnx-notes {
-  border-color: #eab308 !important;
+  border: 1.5px solid #fef08a !important;
   background: #ffffff !important;
 }
 
-/* Cloud Button (Cyan Border) */
-.bnx-tool-btn.bnx-cloud {
-  border-color: #06b6d4 !important;
+.bnx-tool-btn.bnx-keyboard {
+  border: 1.5px solid #c7d2fe !important;
   background: #ffffff !important;
+}
+
+.bnx-tool-btn.bnx-cloud {
+  border: 1.5px solid #a5f3fc !important;
+  background: #ffffff !important;
+}
+
+.bnx-tool-btn.bnx-pencil {
+  border: 1.5px solid #e2e8f0 !important;
+  background: #ffffff !important;
+}
+
+/* Active Selected Tool: Bold 2.5px ring matching Image 1, 2, 3 */
+.bnx-tool-btn.active-tool {
+  border: 2.5px solid #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+  background: #ffffff !important;
+}
+
+.bnx-tool-btn.bnx-calendar.active-tool {
+  border: 2.5px solid #ea580c !important;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15) !important;
+}
+
+.bnx-tool-btn.bnx-calculator.active-tool {
+  border: 2.5px solid #059669 !important;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15) !important;
+}
+
+.bnx-tool-btn.bnx-contacts.active-tool,
+.bnx-tool-btn.bnx-people.active-tool {
+  border: 2.5px solid #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+
+.bnx-tool-btn.bnx-notes.active-tool {
+  border: 2.5px solid #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+
+.bnx-tool-btn.bnx-keyboard.active-tool {
+  border: 2.5px solid #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}
+
+.bnx-tool-btn.bnx-cloud.active-tool {
+  border: 2.5px solid #06b6d4 !important;
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15) !important;
 }
 
 /* Solid Green Checkmark Circle Button */
