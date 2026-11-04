@@ -55,7 +55,7 @@ export default function Navbar() {
                 localStorage.setItem('sart_user_session', JSON.stringify(merged));
               }
             })
-            .catch(() => {});
+            .catch(() => { });
         } else {
           setUserSession(null);
         }
@@ -127,7 +127,7 @@ export default function Navbar() {
           }
         }}>
           <i className="fa-solid fa-location-dot"></i>
-          <span id="nav-location-txt">{currentLocation}</span>
+          <span id="nav-location-txt" >{currentLocation}</span>
           <i className="fa-solid fa-chevron-down" style={{ fontSize: '10px' }}></i>
         </div>
       </div>
@@ -163,58 +163,56 @@ export default function Navbar() {
         >
           <span>Tracks</span>
         </div>
-
       </nav>
 
-      {isSearchExpanded && (
-        <div className="expanded-search-container">
-          <i className="fa-solid fa-magnifying-glass search-icon-left"></i>
-          <input
-            type="text"
-            className="expanded-search-input"
-            placeholder="Search..."
-            autoFocus
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onBlur={() => setTimeout(() => { setIsSearchExpanded(false); setSearchQuery(''); }, 200)}
-          />
-          {searchQuery && (
-            <div className="search-dropdown">
-              {SEARCH_OPTIONS.filter(opt => opt.title.toLowerCase().includes(searchQuery.toLowerCase()) || opt.kw.some(k => k.includes(searchQuery.toLowerCase()))).length > 0 ? (
-                SEARCH_OPTIONS.filter(opt => opt.title.toLowerCase().includes(searchQuery.toLowerCase()) || opt.kw.some(k => k.includes(searchQuery.toLowerCase()))).map(opt => (
-                  <div key={opt.title} className="booking-card" onClick={() => { (window as any).openModal(opt.modal); setIsSearchExpanded(false); setSearchQuery(''); }}>
-                    <div className="booking-card-left">
-                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: opt.color }}>
-                        <i className={`fa-solid ${opt.icon}`}></i>
+      <div className="nav-controls">
+        <div className="search-control-slot" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+          {isSearchExpanded ? (
+            <div className="expanded-search-container">
+              <i className="fa-solid fa-magnifying-glass search-icon-left"></i>
+              <input
+                type="text"
+                className="expanded-search-input"
+                placeholder="Search all features, tools, records..."
+                autoFocus
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onBlur={() => setTimeout(() => { setIsSearchExpanded(false); setSearchQuery(''); }, 200)}
+              />
+              {searchQuery && (
+                <div className="search-dropdown">
+                  {SEARCH_OPTIONS.filter(opt => opt.title.toLowerCase().includes(searchQuery.toLowerCase()) || opt.kw.some(k => k.includes(searchQuery.toLowerCase()))).length > 0 ? (
+                    SEARCH_OPTIONS.filter(opt => opt.title.toLowerCase().includes(searchQuery.toLowerCase()) || opt.kw.some(k => k.includes(searchQuery.toLowerCase()))).map(opt => (
+                      <div key={opt.title} className="booking-card" onClick={() => { (window as any).openModal(opt.modal); setIsSearchExpanded(false); setSearchQuery(''); }}>
+                        <div className="booking-card-left">
+                          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: opt.color }}>
+                            <i className={`fa-solid ${opt.icon}`}></i>
+                          </div>
+                          <div className="booking-card-text">
+                            <h4 style={{ margin: 0, fontSize: '13px', color: '#fff' }}>{opt.title}</h4>
+                            <p style={{ margin: '2px 0 0 0', fontSize: '9px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Shortcut trigger</p>
+                          </div>
+                        </div>
+                        <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px', color: 'var(--text-secondary)' }}></i>
                       </div>
-                      <div className="booking-card-text">
-                        <h4 style={{ margin: 0, fontSize: '13px', color: '#fff' }}>{opt.title}</h4>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '9px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Shortcut trigger</p>
-                      </div>
+                    ))
+                  ) : (
+                    <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '15px', fontSize: '12px' }}>
+                      No matching modules found in directory.
                     </div>
-                    <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px', color: 'var(--text-secondary)' }}></i>
-                  </div>
-                ))
-              ) : (
-                <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '15px', fontSize: '12px' }}>
-                  No matching modules found in directory.
+                  )}
                 </div>
               )}
             </div>
+          ) : (
+            <div className="ctrl-btn" onClick={() => setIsSearchExpanded(true)} title="Search">
+              <i className="fa-solid fa-magnifying-glass"></i>
+            </div>
           )}
         </div>
-      )}
-
-      <div className="nav-controls">
-
-        <div className="ctrl-btn" style={{ visibility: isSearchExpanded ? 'hidden' : 'visible' }} onClick={() => setIsSearchExpanded(true)}>
-          <i className="fa-solid fa-magnifying-glass"></i>
-        </div>
-
-        <div
-          className={`ctrl-btn ${activeTab === 'favorites' ? 'active' : ''}`}
-          onClick={() => setActiveTab('favorites')}
+        <div className={`ctrl-btn ${activeTab === "favorites" ? "active" : ""}`}
           title="Favorites & Wishlist"
+          onClick={() => setActiveTab("favorites")}
         >
           <i className="fa-solid fa-heart"></i>
           {wishlist.length > 0 && <span className="ctrl-badge">{wishlist.length}</span>}
@@ -438,7 +436,7 @@ export default function Navbar() {
                       body: JSON.stringify({ token })
                     });
                   }
-                } catch (e) {}
+                } catch (e) { }
                 localStorage.removeItem('sart_user_session');
                 setUserSession(null);
                 setIsProfileOpen(false);
@@ -460,17 +458,18 @@ export default function Navbar() {
           }}
         />
 
-        {/* 4. Bit-tool / Sliders Toggle Button matching Image 1 UI (Circular White Avatar with Blue Slider) */}
+        {/* 4. Bit-tool / Sliders Toggle Button matching Image 1 & 4 (Circular White Button with BNX blue logo) */}
+        <div className="h-6 w-[1px] bg-white/20 ml-0.5 sm:ml-1 hidden sm:block shrink-0"></div>
         <button
           type="button"
-          className={`nav-bittool-slider-btn bnx-toggle ${isBitToolOpen ? 'active' : ''}`}
+          className={`h-8 sm:h-9 px-1.5 sm:px-2 rounded-full bg-white dark:hover:bg-white/10 transition-colors flex items-center justify-center shrink-0 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 cursor-pointer nav-bittool-slider-btn bnx-toggle ${isBitToolOpen ? 'active' : ''}`}
           title="Toggle Right Side Utilities"
           onClick={toggleBitTool}
         >
           <img
-            src="/images/slider_toggle_icon.png"
+            src="/images/bnx_slider_icon.png"
             alt="Toggle"
-            className="bnx-slider-icon-img"
+            className="h-4 sm:h-5 object-contain opacity-80 hover:opacity-100 bnx-slider-icon-img"
           />
         </button>
       </div>

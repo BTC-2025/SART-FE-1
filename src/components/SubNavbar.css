@@ -8,10 +8,10 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 28px;
-  height: 41.33px;
+  height: 40px;
   position: sticky;
   top: 64px;
-  /* z-index: 90; */
+  z-index: 1000;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -24,7 +24,7 @@ body:not(.light-theme) .subnavbar-container {
 }
 
 /* 1. Left Side: Bike & Custom Shortcuts - ALL BLACK DEFAULT, #B59CDE ON HOVER/ENTER */
-.subnavbar-left-actions {
+.subnavbar-center-actions, .subnavbar-left-actions {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -170,12 +170,7 @@ body:not(.light-theme) .subnav-plus-shortcut-btn:hover {
   border-color: #B59CDE;
 }
 
-/* 2. Center: Customize Dock Pill Button */
-.subnavbar-center-dock {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+
 
 /* 3. Right Side: Help & Support, Settings matching User Image */
 .subnavbar-actions {

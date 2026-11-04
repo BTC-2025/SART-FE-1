@@ -218,11 +218,11 @@ export default function InteractiveRideMap({
   const createCaptainIcon = (driver: any) => {
     const isAuto = mode === 'auto' || driver.serviceType === 'auto';
     const isBike = mode === 'bike' || driver.serviceType === 'bike';
-    
+
     const iconImage = isAuto
-      ? 'https://cdn-icons-png.flaticon.com/512/3063/3063822.png'
+      ? '/images/auto_rickshaw_3d.png'
       : isBike
-        ? '/images/white_bike.png'
+        ? '/images/red_bike_3d.png'
         : 'https://cdn-icons-png.flaticon.com/512/75/75780.png';
 
     return L.divIcon({
@@ -353,7 +353,7 @@ export default function InteractiveRideMap({
         )}
 
         {/* 4. Real Nearby Captains / Autos / Bikes / Cars on the road (matching Screenshot 2) */}
-        {nearbyCaptains && nearbyCaptains.map((driver) => {
+        {nearbyCaptains && nearbyCaptains.filter(d => !mode || mode === 'all' || (mode === 'auto' ? (d.serviceType === 'auto' || !d.serviceType) : (d.serviceType === mode || !d.serviceType))).map((driver) => {
           if (!driver.lat || !driver.lng) return null;
           return (
             <Marker

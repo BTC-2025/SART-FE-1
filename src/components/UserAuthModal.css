@@ -1,7 +1,7 @@
 /* Ixigo-styled Center Auth Modal matching user's uploaded reference image */
 .ixigo-auth-overlay {
   position: fixed;
-  top: 0;
+  top: 105px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -17,16 +17,27 @@
 }
 
 @keyframes ixigoFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .ixigo-auth-modal {
+  max-width: 375px !important;
+  padding: 20px 24px 20px !important;
+  max-height: calc(100vh - 140px) !important;
+  overflow-y: auto !important;
+  scrollbar-width: none !important;
   background: #ffffff;
   border-radius: 20px;
   width: 100%;
   max-width: 440px;
-  padding: 36px 32px 32px;
+  padding: 28px 28px 24px;
+  border: 2px solid #e2e8f0;
   position: relative;
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.16);
   animation: ixigoSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -39,6 +50,7 @@
     transform: translateY(16px) scale(0.98);
     opacity: 0;
   }
+
   to {
     transform: translateY(0) scale(1);
     opacity: 1;
@@ -74,6 +86,8 @@
 }
 
 .ixigo-modal-title {
+  font-size: 19px !important;
+  margin-bottom: 12px !important;
   font-size: 26px;
   font-weight: 800;
   color: #111827;
@@ -83,6 +97,8 @@
 }
 
 .ixigo-modal-sub {
+  font-size: 12px !important;
+  margin: -6px 0 14px !important;
   font-size: 14px;
   color: #6b7280;
   text-align: center;
@@ -92,9 +108,10 @@
 
 /* Reference image phone input wrapper */
 .ixigo-phone-field {
+  height: 42px !important;
   display: flex;
   align-items: center;
-  border: 1.5px solid #d1d5db;
+  border: 1.5px solid #2a1373;
   border-radius: 12px;
   padding: 4px 14px;
   height: 52px;
@@ -103,11 +120,12 @@
 }
 
 .ixigo-phone-field:focus-within {
-  border-color: #f97316;
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+  border-color: #2a1373;
+  box-shadow: 0 0 0 3px rgba(71, 51, 171, 0.12);
 }
 
 .ixigo-country-pill {
+  font-size: 13.5px !important;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -131,6 +149,7 @@
 }
 
 .ixigo-phone-field input {
+  font-size: 13.5px !important;
   flex: 1;
   border: none;
   background: transparent;
@@ -146,6 +165,9 @@
 
 /* Reference Continue button */
 .ixigo-continue-btn {
+  height: 40px !important;
+  font-size: 13.5px !important;
+  margin-top: 12px !important;
   width: 100%;
   height: 50px;
   margin-top: 18px;
@@ -164,19 +186,20 @@
 
 .ixigo-continue-btn.active,
 .ixigo-continue-btn:not(:disabled) {
-  background: #ea580c;
+  background: #2a1373;
   color: #ffffff;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.25);
+  box-shadow: 0 4px 14px rgba(56, 44, 218, 0.25);
 }
 
 .ixigo-continue-btn.active:hover,
 .ixigo-continue-btn:not(:disabled):hover {
-  background: #c2410c;
+  background: #2a1373;
 }
 
 /* Divider with 'Other login options:' */
 .ixigo-divider-row {
+  margin: 16px 0 12px !important;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -197,6 +220,8 @@
 
 /* Google / External login button matching uploaded image */
 .ixigo-google-btn {
+  height: 40px !important;
+  font-size: 13px !important;
   width: 100%;
   height: 50px;
   border-radius: 12px;
@@ -240,11 +265,12 @@
 }
 
 .ixigo-otp-field input:focus {
-  border-color: #ea580c;
+  border-color: #2a1373;
 }
 
 /* Form Groups for Details & Email Login */
 .ixigo-auth-form {
+  gap: 10px !important;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -258,12 +284,14 @@
 }
 
 .ixigo-input-group label {
+  font-size: 11.5px !important;
   font-size: 13px;
   font-weight: 600;
   color: #374151;
 }
 
 .ixigo-simple-input {
+  height: 38px !important;
   display: flex;
   align-items: center;
   border: 1.5px solid #d1d5db;
@@ -275,9 +303,9 @@
 }
 
 .ixigo-simple-input:focus-within {
-  border-color: #f97316;
+  border-color: #2a1373;
   background: #f0f7ff;
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+  box-shadow: 0 0 0 3px rgba(54, 29, 167, 0.15);
 }
 
 .ixigo-simple-input i {
@@ -312,7 +340,7 @@
 
 .ixigo-auth-alert.error {
   background: #fef2f2;
-  color: #dc2626;
+  color: #2a1373;
   border: 1px solid #fee2e2;
 }
 
@@ -330,7 +358,7 @@
 .ixigo-link-btn {
   background: none;
   border: none;
-  color: #ea580c;
+  color: #2a1373;
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;

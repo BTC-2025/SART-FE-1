@@ -1056,7 +1056,6 @@ export default function HomeTab() {
                   />
                 </div>
                 <h3 className="book-title" style={{ textAlign: 'center' }}>Carriers</h3>
-                <div className="book-footer"></div>
               </div>
 
 
@@ -1071,7 +1070,6 @@ export default function HomeTab() {
                   />
                 </div>
                 <h3 className="book-title" style={{ textAlign: 'center' }}>Rentals</h3>
-                <div className="book-footer"></div>
               </div>
 
               {/* 5. Drivers Hire */}
@@ -1084,7 +1082,6 @@ export default function HomeTab() {
                   />
                 </div>
                 <h3 className="book-title" style={{ textAlign: 'center' }}>Drivers</h3>
-                <div className="book-footer"></div>
               </div>
 
               {/* 5. Parking Slots */}
@@ -1097,7 +1094,6 @@ export default function HomeTab() {
                   />
                 </div>
                 <h3 className="book-title" style={{ textAlign: 'center' }}>Parkings</h3>
-                <div className="book-footer"></div>
               </div>
 
               {/* 6. Communities */}
@@ -1110,7 +1106,6 @@ export default function HomeTab() {
                   />
                 </div>
                 <h3 className="book-title" style={{ textAlign: 'center' }}>Communities</h3>
-                <div className="book-footer"></div>
               </div>
             </div>
           </div>

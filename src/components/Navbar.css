@@ -74,6 +74,7 @@
   padding: 1px;
   background: linear-gradient(to right, #556b2f, #ffffff);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   opacity: 0;
@@ -220,12 +221,11 @@
 .expanded-search-container {
   display: flex;
   align-items: center;
-  position: absolute;
-  right: 260px;
-  /* Increased to not hide heart and bag icons */
-  width: 200px;
+  position: relative;
+  width: 175px;
+  max-width: 180px;
   z-index: 100;
-  animation: expandSearch 0.3s ease forwards;
+  animation: expandSearch 0.25s ease forwards;
   transform-origin: right center;
 }
 
@@ -243,7 +243,7 @@
 
 .expanded-search-input {
   width: 100%;
-  padding: 12px 40px;
+  padding: 7px 16px 7px 38px; height: 36px; box-sizing: border-box;
   background: #161b22;
   /* Reverted to dark theme */
   border: 1px solid var(--card-border);
@@ -275,7 +275,7 @@
 
 .search-dropdown {
   position: absolute;
-  top: 50px;
+  top: 44px;
   left: 0;
   width: 100%;
   background: var(--card-bg, #161b22);
@@ -377,6 +377,7 @@
   background: rgba(239, 68, 68, 0.1);
   color: var(--error) !important;
 }
+
 /* ============================================================================
    CAPTAIN ROLE SWITCHER & BIT-TOOL DROPDOWN
    ============================================================================ */
@@ -512,13 +513,14 @@
    USER LOGIN / LOGGED-IN NAVBAR BUTTONS
    ============================================================================ */
 .nav-login-signup-btn {
+
   display: inline-flex;
   align-items: center;
   gap: 10px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 9999px;
-  padding: 6px 16px 6px 6px;
+  padding: 3px 8px 3px 3px;
   font-size: 14.5px;
   font-weight: 600;
   color: #0f172a;
