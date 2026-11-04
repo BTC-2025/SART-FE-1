@@ -493,7 +493,7 @@
   right: 0;
   top: 104px;
   bottom: 0;
-  width: 66px;
+  width: 60px;
   height: 650px;
   background: #ffffff;
   border-left: 1.5px solid #e0edff;
@@ -1066,7 +1066,7 @@
   position: fixed !important;
   top: 104px !important;
   right: 60px !important;
-  width: 410px !important;
+  width: 380px !important;
   height: 580px !important;
   max-height: calc(100vh - 72px) !important;
   bottom: auto !important;

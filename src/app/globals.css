@@ -380,12 +380,12 @@ h6 {
 }
 
 .web-main-content.has-bittool-strip {
-  margin-right: 58px;
+  margin-right: 60px;
 }
 
 .web-main-content.has-bittool-panel {
-  margin-right: 498px;
-  /* 440px dock panel + 58px strip */
+  margin-right: 440px;
+  /* 380px dock panel + 60px strip */
 }
 
 .web-main-content::-webkit-scrollbar {
