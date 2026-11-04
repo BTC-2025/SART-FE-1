@@ -1232,60 +1232,7 @@ export default function RideBookingView({
               )}
             </div>
 
-            {/* ⛽ Dynamic Fuel & Mileage Metrics based on Distance and Location Daily Rate */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              padding: '12px 18px',
-              marginTop: '12px',
-              fontSize: '13px',
-              color: '#334155',
-              flexWrap: 'wrap',
-              gap: '12px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <i className="fa-solid fa-gas-pump" style={{ color: '#ea580c', fontSize: '18px' }}></i>
-                <div>
-                  <div style={{ fontWeight: 800, color: '#0f172a' }}>
-                    Fuel Economy: {mode === 'bike' ? '45 km/L (Petrol)' : mode === 'auto' ? '28 km/kg (CNG)' : '18 km/L (Petrol)'}
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#64748b' }}>
-                    Rate in {backendFuelData?.city || (pickup ? pickup.split(',')[0].trim() : 'Location')}: ₹{backendFuelData?.fuelSpecs?.fuelPricePerUnit ? backendFuelData.fuelSpecs.fuelPricePerUnit.toFixed(2) : (mode === 'auto' ? '99.50' : '107.76')} per {mode === 'auto' ? 'kg' : 'Liter'}
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                <div style={{ fontSize: '12.5px' }}>
-                  Estimated Consumption: <strong style={{ color: '#0f172a' }}>{backendFuelData?.fuelSpecs?.fuelConsumed || `${(routeState.distanceKm / (mode === 'bike' ? 45 : mode === 'auto' ? 28 : 18)).toFixed(2)} ${mode === 'auto' ? 'kgs' : 'Liters'}`}</strong>
-                </div>
-                <div style={{
-                  background: '#dcfce7',
-                  color: '#15803d',
-                  padding: '4px 10px',
-                  borderRadius: '8px',
-                  fontWeight: 800,
-                  fontSize: '13px'
-                }}>
-                  Fuel Cost: {backendFuelData?.fuelSpecs?.fuelCostEstimate || `₹${((routeState.distanceKm / (mode === 'bike' ? 45 : mode === 'auto' ? 28 : 18)) * (mode === 'auto' ? 99.50 : 107.76)).toFixed(1)}`}
-                </div>
-                <div style={{
-                  fontSize: '11.5px',
-                  color: '#475569',
-                  background: '#ffffff',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '6px',
-                  padding: '3px 8px'
-                }}>
-                  ⏱️ Speed: {mode === 'bike' ? '3 to 4 mins' : mode === 'auto' ? '2 to 3 mins' : '2 to 4 mins'} per km
-                </div>
-              </div>
-            </div>
+            
           </>
         ) : (
           <div className="rb-distance-summary-bar empty">
