@@ -347,7 +347,7 @@ export default function InteractiveRideMap({
         )}
 
         {/* 4. Real Nearby Captains / Autos / Bikes / Cars on the road (matching Screenshot 2) */}
-        {nearbyCaptains && nearbyCaptains.map((driver) => {
+        {nearbyCaptains && nearbyCaptains.filter(d => !mode || mode === 'all' || (mode === 'auto' ? (d.serviceType === 'auto' || !d.serviceType) : (d.serviceType === mode || !d.serviceType))).map((driver) => {
           if (!driver.lat || !driver.lng) return null;
           return (
             <Marker
