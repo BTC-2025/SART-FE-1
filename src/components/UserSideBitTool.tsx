@@ -27,8 +27,8 @@ const INITIAL_PINS: PinItem[] = [
   { id: 'calculator', name: 'Calculator', color: '#059669', isPinned: true, iconType: 'calculator' },
   { id: 'contacts', name: 'Contacts', color: '#2563eb', isPinned: true, iconType: 'contacts' },
   { id: 'notes', name: 'Notes', color: '#64748b', isPinned: true, iconType: 'notes' },
-  { id: 'shortcuts', name: 'Keyboard', color: '#6366f1', isPinned: true, iconType: 'keyboard' },
-  { id: 'cloud', name: 'Cloud Storage', color: '#06b6d4', isPinned: true, iconType: 'cloud' },
+  { id: 'keyboard', name: 'Virtual Keyboard', color: '#6366f1', isPinned: true, iconType: 'keyboard' },
+  { id: 'cloud', name: 'Weather', color: '#06b6d4', isPinned: true, iconType: 'cloud' },
 ];
 
 const AVAILABLE_WEBSITE_APPS: { id: string; name: string; iconType: PinItem['iconType']; color: string }[] = [
@@ -789,6 +789,168 @@ export default function UserSideBitTool({
           </div>
         </div>
       )}
+
+      {/* DRAWER 6: VIRTUAL KEYBOARD (Image 1 UI) */}
+      {activeModal === 'keyboard' && (
+        <div className="user-side-dock-panel bnx-vk-panel" style={{ width: '660px', maxWidth: 'calc(100vw - 80px)' }}>
+          <div className="bnx-cal-header" style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb' }}>
+                <i className="fa-solid fa-keyboard" style={{ fontSize: '16px' }}></i>
+              </div>
+              <h3 className="bnx-cal-title" style={{ fontSize: '17px', margin: 0, fontWeight: 700, color: '#0f172a' }}>Virtual Keyboard</h3>
+            </div>
+            <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {/* Row 1 */}
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
+              <button type="button" className="vk-btn vk-btn-sm" style={{ minWidth: '44px' }}>Esc</button>
+              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='].map((k, i) => (
+                <button key={k} type="button" className="vk-btn vk-btn-sm" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4px 0' }}>
+                  <span style={{ fontSize: '10px', color: '#94a3b8', lineHeight: 1 }}>{['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+'][i]}</span>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b' }}>{k}</span>
+                </button>
+              ))}
+              <button type="button" className="vk-btn vk-btn-sm" style={{ minWidth: '70px', fontWeight: 600 }}>Backspace</button>
+            </div>
+
+            {/* Row 2 */}
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
+              <button type="button" className="vk-btn" style={{ minWidth: '54px' }}>Tab</button>
+              {['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'].map((k) => (
+                <button key={k} type="button" className="vk-btn" style={{ flex: 1 }}>{k}</button>
+              ))}
+              <button type="button" className="vk-btn" style={{ width: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }}>
+                <span style={{ fontSize: '10px', color: '#94a3b8' }}>{'{'}</span>
+                <span style={{ fontSize: '12px' }}>[</span>
+              </button>
+              <button type="button" className="vk-btn" style={{ width: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }}>
+                <span style={{ fontSize: '10px', color: '#94a3b8' }}>{'}'}</span>
+                <span style={{ fontSize: '12px' }}>]</span>
+              </button>
+            </div>
+
+            {/* Row 3 */}
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
+              <button type="button" className="vk-btn" style={{ minWidth: '72px' }}>Caps Lock</button>
+              {['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'].map((k) => (
+                <button key={k} type="button" className="vk-btn" style={{ flex: 1 }}>{k}</button>
+              ))}
+              <button type="button" className="vk-btn" style={{ width: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }}>
+                <span style={{ fontSize: '10px', color: '#94a3b8' }}>:</span>
+                <span style={{ fontSize: '12px' }}>;</span>
+              </button>
+              <button type="button" className="vk-btn" style={{ width: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }}>
+                <span style={{ fontSize: '10px', color: '#94a3b8' }}>"</span>
+                <span style={{ fontSize: '12px' }}>'</span>
+              </button>
+              <button type="button" className="vk-btn" style={{ minWidth: '76px', background: '#2563eb', color: '#ffffff', fontWeight: 600, border: 'none' }}>Enter</button>
+            </div>
+
+            {/* Row 4 */}
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
+              <button type="button" className="vk-btn" style={{ minWidth: '86px', background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', fontWeight: 600 }}>↑ Shift</button>
+              {['Z', 'X', 'C', 'V', 'B', 'N', 'M'].map((k) => (
+                <button key={k} type="button" className="vk-btn" style={{ flex: 1 }}>{k}</button>
+              ))}
+              <button type="button" className="vk-btn" style={{ width: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }}>
+                <span style={{ fontSize: '10px', color: '#94a3b8' }}>&lt;</span>
+                <span style={{ fontSize: '12px' }}>,</span>
+              </button>
+              <button type="button" className="vk-btn" style={{ width: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }}>
+                <span style={{ fontSize: '10px', color: '#94a3b8' }}>&gt;</span>
+                <span style={{ fontSize: '12px' }}>.</span>
+              </button>
+              <button type="button" className="vk-btn" style={{ width: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }}>
+                <span style={{ fontSize: '10px', color: '#94a3b8' }}>?</span>
+                <span style={{ fontSize: '12px' }}>/</span>
+              </button>
+              <button type="button" className="vk-btn" style={{ minWidth: '86px', background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', fontWeight: 600 }}>↑ Shift</button>
+            </div>
+
+            {/* Row 5 */}
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button type="button" className="vk-btn" style={{ minWidth: '50px' }}>Ctrl</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '50px' }}>Alt</button>
+              <button type="button" className="vk-btn" style={{ flex: 1, fontWeight: 600 }}>Space</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '50px' }}>Alt</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '50px' }}>Ctrl</button>
+              <button type="button" className="vk-btn" style={{ width: '42px' }}><i className="fa-solid fa-caret-left"></i></button>
+              <button type="button" className="vk-btn" style={{ width: '42px' }}><i className="fa-solid fa-caret-down"></i></button>
+              <button type="button" className="vk-btn" style={{ width: '42px' }}><i className="fa-solid fa-caret-up"></i></button>
+              <button type="button" className="vk-btn" style={{ width: '42px' }}><i className="fa-solid fa-caret-right"></i></button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DRAWER 7: WEATHER (Image 2 UI) */}
+      {activeModal === 'cloud' && (
+        <div className="user-side-dock-panel" style={{ width: '380px' }}>
+          <div className="bnx-cal-header" style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
+            <h3 className="bnx-cal-title" style={{ fontSize: '17px', margin: 0, fontWeight: 700, color: '#0f172a' }}>Weather</h3>
+            <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ flex: 1, border: '1.5px solid #e2e8f0', borderRadius: '24px', padding: '36px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', background: '#ffffff' }}>
+              <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: '#f0fdfa', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#00b4d8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2v2"></path>
+                  <path d="M4.93 4.93l1.41 1.41"></path>
+                  <path d="M20 12h2"></path>
+                  <path d="M19.07 4.93l-1.41 1.41"></path>
+                  <path d="M15.5 12a3.5 3.5 0 0 0-7 0"></path>
+                  <path d="M6 16a4 4 0 0 0 4 4h8a4 4 0 0 0 0-8 4.5 4.5 0 0 0-1.8.38"></path>
+                </svg>
+              </div>
+
+              <h4 style={{ fontSize: '19px', fontWeight: 800, color: '#0f172a', margin: '0 0 10px 0' }}>Local Weather</h4>
+              <p style={{ fontSize: '13.5px', color: '#64748b', lineHeight: 1.5, margin: '0 0 28px 0', maxWidth: '240px' }}>
+                Allow location access to see the current weather in your area.
+              </p>
+
+              <button
+                type="button"
+                style={{
+                  background: '#00b4d8',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '16px',
+                  padding: '13px 28px',
+                  fontSize: '14.5px',
+                  fontWeight: 700,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  boxShadow: '0 6px 18px rgba(0, 180, 216, 0.25)',
+                  transition: 'all 0.2s ease'
+                }}
+                onClick={() => {
+                  alert('Detecting your location weather: 29°C Partly Cloudy in Chennai.');
+                }}
+              >
+                <i className="fa-solid fa-location-dot"></i>
+                <span>Detect Location</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   );
 }
