@@ -613,3 +613,15 @@
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
 }
+
+.bnx-brand-b .bnx-b-logo-img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bnx-brand-b:hover .bnx-b-logo-img {
+  transform: scale(1.12);
+}

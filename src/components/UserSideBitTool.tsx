@@ -116,14 +116,18 @@ export default function UserSideBitTool({
       <aside className="right-tools-sidebar relative w-[60px] flex flex-col items-center pb-4 h-full justify-between select-none shrink-0 user-side-bittool-strip bnx-style" aria-label="SART Side Utilities">
         <div className="flex-1 overflow-y-auto hidden-scrollbar px-3 py-2 flex flex-col justify-between">
           <div className="flex flex-col items-center gap-3 w-full">
-            {/* Top Floating Curve Pill Header with Brand B */}
+            {/* Top Floating Curve Pill Header with Brand B (Exact Image 1 Logo) */}
             <button
               type="button"
               className={`bnx-tool-btn bnx-brand-b ${activeModal === 'portal' ? 'active-tool' : ''}`}
               title="SART Portal & Captain Hub"
               onClick={() => toggleModal('portal')}
             >
-              <span className="bnx-b-letter">B</span>
+              <img
+                src="/images/bnx_brand_b.png"
+                alt="BNX Brand"
+                className="bnx-b-logo-img"
+              />
             </button>
 
             {/* Thin Divider */}
