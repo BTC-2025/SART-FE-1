@@ -2497,7 +2497,7 @@
 .book-service-inner-card {
   max-width: 100%;
   margin: 0 auto;
-  background: linear-gradient(135deg, rgba(113, 213, 203, 0.92) 0%, rgba(112, 194, 194, 0.65) 100%);
+  background: linear-gradient(#ffffff);
   border-radius: 28px;
   padding: 18px 18px 22px;
   box-shadow: 0 16px 45px rgba(21, 127, 138, 0.08), 0 2px 10px rgba(0, 0, 0, 0.03);
@@ -2606,10 +2606,11 @@
 }
 
 .book-title {
+  margin-top: 10px;
   font-size: clamp(12px, 0.95vw, 15px);
   font-size: 15px;
   font-weight: 800;
-  color: #111827;
+  color: #2a1373;
   margin: 0 0 6px 0;
   line-height: 1.25;
   white-space: nowrap;
@@ -2628,9 +2629,7 @@
 
 .book-footer {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-top: auto;
+
   gap: 4px;
 }
 

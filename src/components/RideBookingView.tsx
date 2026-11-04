@@ -822,18 +822,6 @@ export default function RideBookingView({
               </div>
             ))}
 
-            {/* Simple and Easy Add Stop Button */}
-            <div className="rb-add-stop-trigger-row">
-              <button
-                type="button"
-                className="rb-add-stop-simple-btn"
-                onClick={() => setShowAddStopForm(prev => !prev)}
-              >
-                <span className="rb-add-stop-plus-circle">＋</span>
-                <span>{showAddStopForm ? 'Close Add Stop' : 'Add Stopping'}</span>
-              </button>
-            </div>
-
             {/* Simple Add Stop Form */}
             {showAddStopForm && (
               <div className="rb-simple-add-stop-card">
@@ -944,68 +932,79 @@ export default function RideBookingView({
               </div>
             </div>
 
-            {/* Prominent Action Button: Search Route & Show Directions for this Vehicle */}
-            <div className="rb-search-route-trigger-row" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            {/* Action Bar directly below Dropping Point: Add Stopping on left, Search Route on right */}
+            <div className="rb-dropping-action-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginTop: '6px' }}>
               <button
                 type="button"
-                className="rb-search-route-btn"
-                onClick={handleCalculateRoute}
-                disabled={isRouteCalculating}
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '10px',
-                  padding: '11px 18px',
-                  fontSize: '14px',
-                  fontWeight: 800,
-                  cursor: isRouteCalculating ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 12px rgba(234, 88, 12, 0.28)',
-                  transition: 'all 0.2s ease'
-                }}
+                className="rb-add-stop-simple-btn"
+                onClick={() => setShowAddStopForm(prev => !prev)}
+                title="Add a stopping point"
               >
-                <i className={`fa-solid ${isRouteCalculating ? 'fa-spinner fa-spin' : 'fa-magnifying-glass-location'}`}></i>
-                <span>{isRouteCalculating ? 'Calculating Vehicle Route...' : `Search Route for ${mode === 'bike' ? 'Bike' : mode === 'auto' ? 'Auto' : 'Car'}`}</span>
+                <span className="rb-add-stop-plus-circle" style={{ marginRight: '6px' }}>＋</span>
+                <span>{showAddStopForm ? 'Close Add Stop' : 'Add Stopping'}</span>
               </button>
 
-              {(pickup || dropoff) && (
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <button
                   type="button"
-                  onClick={() => {
-                    setPickup('');
-                    setDropoff('');
-                    setPickupCoords(null);
-                    setDropCoords(null);
-                    setStops([]);
-                    setRouteState({
-                      origin: null,
-                      destination: null,
-                      stops: [],
-                      distanceKm: null,
-                      durationMin: null,
-                      durationText: ''
-                    });
-                  }}
+                  className="rb-search-route-btn"
+                  onClick={handleCalculateRoute}
+                  disabled={isRouteCalculating}
                   style={{
-                    background: '#f1f5f9',
-                    border: '1px solid #cbd5e1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+                    color: '#ffffff',
+                    border: 'none',
                     borderRadius: '10px',
-                    padding: '11px 14px',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    color: '#64748b',
-                    cursor: 'pointer'
+                    padding: '10px 16px',
+                    fontSize: '14px',
+                    fontWeight: 800,
+                    cursor: isRouteCalculating ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 4px 12px rgba(234, 88, 12, 0.28)',
+                    transition: 'all 0.2s ease'
                   }}
-                  title="Clear Locations"
                 >
-                  <i className="fa-solid fa-rotate-left"></i>
+                  <i className={`fa-solid ${isRouteCalculating ? 'fa-spinner fa-spin' : 'fa-magnifying-glass-location'}`}></i>
+                  <span>{isRouteCalculating ? 'Calculating...' : `Search Route for ${mode === 'bike' ? 'Bike' : mode === 'auto' ? 'Auto' : 'Car'}`}</span>
                 </button>
-              )}
+
+                {(pickup || dropoff) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPickup('');
+                      setDropoff('');
+                      setPickupCoords(null);
+                      setDropCoords(null);
+                      setStops([]);
+                      setRouteState({
+                        origin: null,
+                        destination: null,
+                        stops: [],
+                        distanceKm: null,
+                        durationMin: null,
+                        durationText: ''
+                      });
+                    }}
+                    style={{
+                      background: '#f1f5f9',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '10px',
+                      padding: '10px 13px',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      color: '#64748b',
+                      cursor: 'pointer'
+                    }}
+                    title="Clear Locations"
+                  >
+                    <i className="fa-solid fa-rotate-left"></i>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>

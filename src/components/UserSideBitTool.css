@@ -1348,3 +1348,34 @@
   transform: translateY(1px);
   background: #f1f5f9;
 }
+
+/* =========================================================================
+   VIRTUAL KEYBOARD BUTTONS (Image 1 UI)
+   ========================================================================= */
+.vk-btn {
+  height: 42px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.vk-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.vk-btn:active {
+  transform: translateY(1px);
+  background: #f1f5f9;
+}

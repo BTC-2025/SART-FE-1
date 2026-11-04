@@ -218,11 +218,11 @@ export default function InteractiveRideMap({
   const createCaptainIcon = (driver: any) => {
     const isAuto = mode === 'auto' || driver.serviceType === 'auto';
     const isBike = mode === 'bike' || driver.serviceType === 'bike';
-    
+
     const iconImage = isAuto
       ? 'https://cdn-icons-png.flaticon.com/512/3063/3063822.png'
       : isBike
-        ? '/images/white_bike.png'
+        ? 'images\red_bike_3d.png'
         : 'https://cdn-icons-png.flaticon.com/512/75/75780.png';
 
     return L.divIcon({
