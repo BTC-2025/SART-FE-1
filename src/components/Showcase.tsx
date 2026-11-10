@@ -1393,7 +1393,7 @@ export default function Showcase() {
                       {/* <div className="operator-price-label">Starting at</div>
                       <div className="operator-price-val">{item.price}</div> */}
                     </div>
-                    <button type="button" className="showcase-operator-hire-btn" style={{ background: '#ea580c' }}>
+                    <button type="button" className="showcase-operator-hire-btn">
                       {item.btnText || 'Book Carrier'}
                     </button>
                   </div>
@@ -1496,7 +1496,7 @@ export default function Showcase() {
                       {/* <div className="operator-price-label">Starting at</div>
                       <div className="operator-price-val">{item.price}</div> */}
                     </div>
-                    <button type="button" className="showcase-operator-hire-btn" style={{ background: '#16a34a' }}>
+                    <button type="button" className="showcase-operator-hire-btn">
                       {item.btnText || 'Book Now'}
                     </button>
                   </div>
@@ -1611,7 +1611,7 @@ export default function Showcase() {
                       {/* <div className="operator-price-label">Starting at</div>
                       <div className="operator-price-val">{rental.price}</div> */}
                     </div>
-                    <button type="button" className="showcase-operator-hire-btn" style={{ background: '#7c3aed' }}>
+                    <button type="button" className="showcase-operator-hire-btn">
                       Rent Now
                     </button>
                   </div>

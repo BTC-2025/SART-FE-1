@@ -2319,9 +2319,9 @@
 .btn-card-yellow-primary {
   width: 100%;
   padding: 10px 14px;
-  background: #facc15;
-  border: 1px solid #eab308;
-  color: #0f172a;
+  background: #6c49d7;
+  border: 1px solid #6c49d7;
+  color: #ffffff;
   font-size: 13px;
   font-weight: 800;
   border-radius: 8px;
@@ -2335,8 +2335,9 @@
 }
 
 .btn-card-yellow-primary:hover {
-  background: #eab308;
-  box-shadow: 0 4px 12px rgba(234, 179, 8, 0.35);
+  background: #5835be;
+  border-color: #5835be;
+  box-shadow: 0 4px 12px rgba(108, 73, 215, 0.35);
   transform: translateY(-1px);
 }
 
