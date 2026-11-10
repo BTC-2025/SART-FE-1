@@ -568,6 +568,29 @@ export default function UserSideBitTool({
               </div>
             </div>
 
+            {/* BETA LABS RELEASE / COMING SOON CARD */}
+            <div className="relative border border-gray-200/90 rounded-[20px] px-6 py-4 mt-6 mb-0.5 bg-white shadow-[0_2px_10px_rgba(0,0,0,0.01)] text-center flex flex-col items-center">
+              {/* Floating top badge icon */}
+              <div className="absolute -top-4 w-9 h-9 rounded-full bg-white border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center">
+                <img src="/images/beta_bnxmail.png" alt="Beta Labs" className="w-5 h-5 object-contain" />
+              </div>
+
+              {/* BETA LABS RELEASE pill tag */}
+              <div className="mt-1 inline-flex items-center justify-center px-3 py-1 rounded-full bg-blue-50/80 text-[10.5px] font-extrabold tracking-wider text-blue-600 uppercase">
+                BETA LABS RELEASE
+              </div>
+
+              {/* COMING SOON title */}
+              <h4 className="mt-2 text-base font-black tracking-wide bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent uppercase">
+                COMING SOON
+              </h4>
+
+              {/* Subtitle */}
+              <p className="mt-1 text-xs font-semibold text-slate-500">
+                Building the next generation of Beta applications.
+              </p>
+            </div>
+
             {/* Footer Tag */}
             <div className="bnx-beta-footer mt-auto pt-6 text-center">
               <span className="text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">
