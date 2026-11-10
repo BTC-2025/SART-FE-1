@@ -582,6 +582,7 @@ export default function RideBookingView({
         </div>
 
         {/* 🏍️🚗🛺 Safety & Captain Badge at the end of header - Click to open Captain Business Portal */}
+        {/* 🏍️🚗🛺 Safety & Captain Badge at the end of header - Click to enter Captain Business Portal */}
         <button
           type="button"
           className="rb-header-vehicle-image-wrapper"
@@ -592,12 +593,24 @@ export default function RideBookingView({
           title="Click to enter Captain Business Portal"
         >
           <div className="rb-header-captain-column">
-            {/* Circular unified image and name */}
+            {/* Circular card with specific vehicle image & Captain pill matching user UI */}
             <div className="rb-header-captain-circle-card">
-              <img
-                src="/images/captain_card_circle.png"
-                alt="Captain Portal"
-              />
+              <div className="rb-circle-hero-img-wrap">
+                <img
+                  src={
+                    mode === 'auto'
+                      ? '/images/auto_rickshaw_3d.png'
+                      : mode === 'car'
+                        ? '/images/seatbelt_safety.png'
+                        : '/images/helmet_safety.jpg'
+                  }
+                  alt={mode === 'auto' ? 'Auto Captain' : mode === 'car' ? 'Seatbelt' : 'Helmet'}
+                  className="rb-circle-hero-img"
+                />
+              </div>
+              <span className="rb-circle-badge-pill">
+                <i className="fa-solid fa-briefcase"></i> Captain
+              </span>
             </div>
           </div>
         </button>

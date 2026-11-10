@@ -70,24 +70,59 @@
 }
 
 .rb-header-captain-circle-card {
-  width: 58px;
-  height: 58px;
+  width: 62px;
+  height: 62px;
   border-radius: 50%;
   overflow: hidden;
-  background: #ffffff;
+  background: #f5f3ff;
   border: 2px solid #fed7aa;
   box-shadow: 0 4px 12px rgba(234, 88, 12, 0.15);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 4px 2px;
+  box-sizing: border-box;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
 }
 
-.rb-header-captain-circle-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+.rb-circle-hero-img-wrap {
+  width: 34px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.rb-circle-hero-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+.rb-circle-badge-pill {
+  margin-top: 2px;
+  font-size: 8px;
+  font-weight: 900;
+  color: #1e1b4b;
+  background: #ffedd5;
+  border: 1px solid #fed7aa;
+  padding: 1px 6px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+  box-shadow: 0 1px 3px rgba(234, 88, 12, 0.12);
+}
+
+.rb-circle-badge-pill i {
+  font-size: 7.5px;
+  color: #1e1b4b;
 }
 
 .rb-header-vehicle-image-wrapper:hover .rb-header-captain-circle-card {
