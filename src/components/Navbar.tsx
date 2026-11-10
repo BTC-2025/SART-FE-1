@@ -369,11 +369,15 @@ export default function Navbar() {
 
         <div ref={profileRef}>
           {!userSession ? (
-            /* Logged-out state: Image 3 */
+            /* Logged-out state: Navigate to /home/login */
             <button
               type="button"
               className="nav-login-signup-btn"
-              onClick={() => setIsLoginModalOpen(true)}
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.location.href = '/home/login';
+                }
+              }}
             >
               <span className="login-circle-avatar">
                 <i className="fa-solid fa-user"></i>
