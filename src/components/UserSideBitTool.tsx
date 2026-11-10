@@ -277,7 +277,7 @@ export default function UserSideBitTool({
               if (!isEditMode && !item.isPinned) return null;
 
               return (
-                <div key={item.id} className="bnx-pin-wrapper relative">
+                <div key={item.id} className="bnx-pin-wrapper relative my-1">
                   <button
                     type="button"
                     className={`bnx-tool-btn bnx-${item.iconType} ${activeModal === item.id ? 'active-tool' : ''} ${!item.isPinned && isEditMode ? 'dashed-unpinned' : ''}`}
@@ -308,7 +308,7 @@ export default function UserSideBitTool({
             {isEditMode && (
               <div className="flex flex-col items-center gap-2.5 w-full">
                 <div className="w-7 h-[1.5px] bg-slate-200 rounded my-0.5"></div>
-                <div className="bnx-pin-wrapper relative">
+                <div className="bnx-pin-wrapper relative my-1">
                   <button
                     type="button"
                     className="bnx-tool-btn dashed-unpinned"
@@ -324,7 +324,7 @@ export default function UserSideBitTool({
 
             {/* In Normal mode, show the shortcut customize pencil right below cloud */}
             {!isEditMode && (
-              <div className="bnx-pin-wrapper relative">
+              <div className="bnx-pin-wrapper relative my-1">
                 <button
                   type="button"
                   className="bnx-tool-btn bnx-pencil"
