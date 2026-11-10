@@ -1,3 +1,21 @@
+/* CitySelectorModal backdrop centered over screen */
+.sart-modal-backdrop.city-selector-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
 .new-city-modal {
   background: #f4f5f7; /* Light grayish/white background from screenshot */
   border-radius: 16px;
@@ -10,6 +28,7 @@
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   font-family: var(--font-sans);
   overflow: hidden;
+  margin: auto;
 }
 
 .new-city-header {

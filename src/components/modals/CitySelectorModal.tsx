@@ -21,6 +21,7 @@ export default function CitySelectorModal({ isOpen, onClose }: CitySelectorModal
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<PlaceSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
 
   // Dynamic place lookup across all of India using live Geocoding API
   React.useEffect(() => {
@@ -77,8 +78,61 @@ export default function CitySelectorModal({ isOpen, onClose }: CitySelectorModal
     onClose();
   };
 
+  const handleUseCurrentLocation = () => {
+    if (typeof window === 'undefined') return;
+
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
+    }
+
+    setIsDetectingLocation(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1`,
+            { headers: { 'Accept-Language': 'en' } }
+          );
+          if (res.ok) {
+            const data = await res.json();
+            const addr = data.address || {};
+            // Pick current district or city
+            const detectedDistrictOrCity =
+              addr.state_district ||
+              addr.county ||
+              addr.city ||
+              addr.town ||
+              addr.suburb ||
+              addr.village ||
+              addr.state ||
+              'Current Location';
+
+            handleCitySelect(detectedDistrictOrCity);
+          } else {
+            handleCitySelect('Current Location');
+          }
+        } catch (e) {
+          handleCitySelect('Current Location');
+        } finally {
+          setIsDetectingLocation(false);
+        }
+      },
+      (err) => {
+        setIsDetectingLocation(false);
+        console.warn('Geolocation error:', err);
+        // Fallback or user prompt
+        alert('Could not access GPS location. Please check your browser location permissions or choose a city from the list.');
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
+  };
+
   return (
-    <div className="sart-modal-backdrop" style={{ display: 'flex', zIndex: 1000 }} onClick={onClose}>
+    <div className="sart-modal-backdrop city-selector-backdrop" onClick={onClose}>
       <div className="new-city-modal" onClick={e => e.stopPropagation()}>
 
         {/* Header Section */}
@@ -102,12 +156,13 @@ export default function CitySelectorModal({ isOpen, onClose }: CitySelectorModal
             />
           </div>
 
-          <div className="use-current-location" onClick={() => {
-            alert('GPS Location requested');
-            onClose();
-          }}>
-            <i className="fa-solid fa-location-crosshairs"></i>
-            <span>Use Current Location</span>
+          <div
+            className="use-current-location"
+            onClick={handleUseCurrentLocation}
+            style={{ cursor: isDetectingLocation ? 'wait' : 'pointer' }}
+          >
+            <i className={`fa-solid ${isDetectingLocation ? 'fa-spinner fa-spin' : 'fa-location-crosshairs'}`}></i>
+            <span>{isDetectingLocation ? 'Detecting current district...' : 'Use Current Location'}</span>
           </div>
 
           {/* Loading indicator */}
