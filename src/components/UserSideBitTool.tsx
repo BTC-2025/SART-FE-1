@@ -481,40 +481,52 @@ export default function UserSideBitTool({
                 </button>
               </div>
 
-              {/* 3-Column Apps Grid */}
-              <div className="bnx-beta-grid">
-                {/* 1. Cliks */}
-                <div className="bnx-app-item">
-                  <div className="bnx-app-icon-wrap">
-                    <img src="/images/beta_cliks.png" alt="Cliks" className="w-10 h-10 object-contain" />
+              {/* Apps Grid for Favorites vs Recent */}
+              {launcherTab === 'favorites' ? (
+                <div className="bnx-beta-grid">
+                  {/* 1. Cliks */}
+                  <div className="bnx-app-item">
+                    <div className="bnx-app-icon-wrap">
+                      <img src="/images/beta_cliks.png" alt="Cliks" className="w-10 h-10 object-contain" />
+                    </div>
+                    <span className="bnx-app-name">Cliks</span>
                   </div>
-                  <span className="bnx-app-name">Cliks</span>
-                </div>
 
-                {/* 2. BNXmail */}
-                <div className="bnx-app-item">
-                  <div className="bnx-app-icon-wrap">
-                    <img src="/images/beta_bnxmail.png" alt="BNXmail" className="w-10 h-10 object-contain" />
+                  {/* 2. BNXmail */}
+                  <div className="bnx-app-item">
+                    <div className="bnx-app-icon-wrap">
+                      <img src="/images/beta_bnxmail.png" alt="BNXmail" className="w-10 h-10 object-contain" />
+                    </div>
+                    <span className="bnx-app-name">BNXmail</span>
                   </div>
-                  <span className="bnx-app-name">BNXmail</span>
-                </div>
 
-                {/* 3. Bit-Tool */}
-                <div className="bnx-app-item">
-                  <div className="bnx-app-icon-wrap">
-                    <img src="/images/beta_bittool.png" alt="Bit-Tool" className="w-10 h-10 object-contain" />
+                  {/* 3. Bit-Tool */}
+                  <div className="bnx-app-item">
+                    <div className="bnx-app-icon-wrap">
+                      <img src="/images/beta_bittool.png" alt="Bit-Tool" className="w-10 h-10 object-contain" />
+                    </div>
+                    <span className="bnx-app-name">Bit-Tool</span>
                   </div>
-                  <span className="bnx-app-name">Bit-Tool</span>
-                </div>
 
-                {/* 4. B2Auth */}
-                <div className="bnx-app-item">
-                  <div className="bnx-app-icon-wrap">
-                    <img src="/images/beta_b2auth.png" alt="B2Auth" className="w-10 h-10 object-contain" />
+                  {/* 4. B2Auth */}
+                  <div className="bnx-app-item">
+                    <div className="bnx-app-icon-wrap">
+                      <img src="/images/beta_b2auth.png" alt="B2Auth" className="w-10 h-10 object-contain" />
+                    </div>
+                    <span className="bnx-app-name">B2Auth</span>
                   </div>
-                  <span className="bnx-app-name">B2Auth</span>
                 </div>
-              </div>
+              ) : (
+                /* RECENT TAB: Only Cliks is shown */
+                <div className="bnx-beta-grid">
+                  <div className="bnx-app-item">
+                    <div className="bnx-app-icon-wrap">
+                      <img src="/images/beta_cliks.png" alt="Cliks" className="w-10 h-10 object-contain" />
+                    </div>
+                    <span className="bnx-app-name">Cliks</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* BASE Section */}
@@ -524,7 +536,7 @@ export default function UserSideBitTool({
                 <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
                   <button
                     type="button"
-                    className={`hover:text-blue-600 transition-colors ${baseCategory === 'public' ? 'text-blue-600' : ''}`}
+                    className={`transition-colors font-extrabold ${baseCategory === 'public' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
                     onClick={() => setBaseCategory('public')}
                   >
                     PUBLIC
@@ -532,7 +544,7 @@ export default function UserSideBitTool({
                   <span>|</span>
                   <button
                     type="button"
-                    className={`hover:text-blue-600 transition-colors ${baseCategory === 'business' ? 'text-blue-600' : ''}`}
+                    className={`transition-colors font-extrabold ${baseCategory === 'business' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
                     onClick={() => setBaseCategory('business')}
                   >
                     BUSINESS
@@ -540,32 +552,44 @@ export default function UserSideBitTool({
                 </div>
               </div>
 
-              {/* Base Apps 4-card row */}
-              <div className="grid grid-cols-4 gap-2">
-                <div className="bnx-card-slot">
-                  <img src="/images/beta_cliks.png" alt="Cliks" className="w-7 h-7 object-contain" />
-                  <span>Cliks</span>
-                </div>
-                <div className="bnx-card-slot">
-                  <img src="/images/beta_bnxmail.png" alt="BNXmail" className="w-7 h-7 object-contain" />
-                  <span>BNXmail</span>
-                </div>
-                <div className="bnx-card-slot">
-                  <img src="/images/beta_bittool.png" alt="Bit-Tool" className="w-7 h-7 object-contain" />
-                  <span>Bit-Tool</span>
-                </div>
-                <div className="bnx-card-slot">
-                  <img src="/images/beta_b2auth.png" alt="B2Auth" className="w-7 h-7 object-contain" />
-                  <span>B2Auth</span>
-                </div>
-              </div>
+              {/* Base Apps View: PUBLIC vs BUSINESS */}
+              {baseCategory === 'public' ? (
+                <>
+                  <div className="grid grid-cols-4 gap-2">
+                    <div className="bnx-card-slot">
+                      <img src="/images/beta_cliks.png" alt="Cliks" className="w-7 h-7 object-contain" />
+                      <span>Cliks</span>
+                    </div>
+                    <div className="bnx-card-slot">
+                      <img src="/images/beta_bnxmail.png" alt="BNXmail" className="w-7 h-7 object-contain" />
+                      <span>BNXmail</span>
+                    </div>
+                    <div className="bnx-card-slot">
+                      <img src="/images/beta_bittool.png" alt="Bit-Tool" className="w-7 h-7 object-contain" />
+                      <span>Bit-Tool</span>
+                    </div>
+                    <div className="bnx-card-slot">
+                      <img src="/images/beta_b2auth.png" alt="B2Auth" className="w-7 h-7 object-contain" />
+                      <span>B2Auth</span>
+                    </div>
+                  </div>
 
-              <div className="mt-2 w-[110px]">
-                <div className="bnx-card-slot">
-                  <img src="/images/beta_cliks.png" alt="CliksBusiness" className="w-7 h-7 object-contain" />
-                  <span>CliksBusine...</span>
+                  <div className="mt-2 w-[110px]">
+                    <div className="bnx-card-slot">
+                      <img src="/images/beta_cliks.png" alt="CliksBusiness" className="w-7 h-7 object-contain" />
+                      <span>CliksBusine...</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* BUSINESS TAB: Only CliksBusiness is shown */
+                <div className="w-[110px]">
+                  <div className="bnx-card-slot">
+                    <img src="/images/beta_cliks.png" alt="CliksBusiness" className="w-7 h-7 object-contain" />
+                    <span>CliksBusin...</span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* BETA LABS RELEASE / COMING SOON CARD */}
