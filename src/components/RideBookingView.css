@@ -46,7 +46,7 @@
 }
 
 .rb-header-vehicle-image-wrapper:hover {
-  background: #fff7ed;
+  background: #f5f3ff;
   transform: translateY(-1px);
 }
 
@@ -67,7 +67,68 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+}
+
+.rb-header-captain-circle-card {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f5f3ff;
+  border: 2px solid #fed7aa;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 2px;
+  box-sizing: border-box;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.rb-circle-hero-img-wrap {
+  width: 34px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.rb-circle-hero-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+.rb-circle-badge-pill {
+  margin-top: 2px;
+  font-size: 8px;
+  font-weight: 900;
+  color: #1e1b4b;
+  background: #ffedd5;
+  border: 1px solid #fed7aa;
+  padding: 1px 6px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+  box-shadow: 0 1px 3px rgba(234, 88, 12, 0.12);
+}
+
+.rb-circle-badge-pill i {
+  font-size: 7.5px;
+  color: #1e1b4b;
+}
+
+.rb-header-vehicle-image-wrapper:hover .rb-header-captain-circle-card {
+  transform: scale(1.08);
+  border-color: #f97316;
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.25);
 }
 
 .rb-header-safety-hero-img {
@@ -86,7 +147,7 @@
 .rb-captain-badge-pill {
   font-size: 11.5px;
   font-weight: 800;
-  color: #ea580c;
+  color: #2a1373;
   background: #ffedd5;
   border: 1px solid #fed7aa;
   padding: 3px 12px;
@@ -173,7 +234,7 @@
 
 .rb-header-route-stat i {
   font-size: 20px;
-  color: #ea580c;
+  color: #2a1373;
 }
 
 .rb-header-route-stat div {
@@ -229,9 +290,9 @@
 }
 
 .rb-input-map-pin-btn.active {
-  background: #ea580c;
+  background: #2a1373;
   color: #ffffff;
-  border-color: #ea580c;
+  border-color: #2a1373;
 }
 
 .rb-added-stop-wrapper {
@@ -256,7 +317,7 @@
 
 .rb-add-stop-simple-btn {
   background: #ffffff;
-  border: 1.5px dashed #ea580c;
+  border: 1.5px dashed #2a1373;
   border-radius: 10px;
   padding: 8px 16px;
   display: inline-flex;
@@ -270,15 +331,15 @@
 }
 
 .rb-add-stop-simple-btn:hover {
-  background: #fff7ed;
-  border-color: #c2410c;
+  background: #f5f3ff;
+  border-color: #1f0d57;
   transform: translateY(-1px);
 }
 
 .rb-add-stop-plus-circle {
   font-size: 15px;
   font-weight: 900;
-  color: #ea580c;
+  color: #2a1373;
 }
 
 .rb-simple-add-stop-card {
@@ -296,7 +357,7 @@
 .rb-simple-stop-header {
   font-size: 12px;
   font-weight: 800;
-  color: #ea580c;
+  color: #2a1373;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -322,7 +383,7 @@
 }
 
 .rb-dropping-hint-pill i {
-  color: #ea580c;
+  color: #2a1373;
   font-size: 13px;
 }
 
@@ -343,7 +404,7 @@
 
 .rb-map-select-prompt {
   margin-top: 12px;
-  background: #fff7ed;
+  background: #f5f3ff;
   border: 1.5px dashed #fdba74;
   border-radius: 12px;
   padding: 12px 18px;
@@ -356,7 +417,7 @@
 }
 
 .rb-map-select-prompt i {
-  color: #ea580c;
+  color: #2a1373;
   font-size: 16px;
 }
 
@@ -371,7 +432,7 @@
 }
 
 .rb-input-box.focus-target {
-  border-color: #ea580c;
+  border-color: #2a1373;
   box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
 }
 
@@ -392,7 +453,7 @@
 }
 
 .rb-box-label.green { color: #16a34a; }
-.rb-box-label.orange { color: #ea580c; }
+.rb-box-label.orange { color: #2a1373; }
 .rb-box-label.red { color: #dc2626; }
 
 .rb-remove-stop-cross {
@@ -502,9 +563,9 @@
 }
 
 .rb-input-map-icon-btn.active {
-  background: #ea580c;
+  background: #2a1373;
   color: white;
-  border-color: #ea580c;
+  border-color: #2a1373;
   box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.2);
 }
 
@@ -568,9 +629,9 @@
 }
 
 .rb-pill-btn.active {
-  background: #fff7ed;
-  border-color: #ea580c;
-  color: #ea580c;
+  background: #f5f3ff;
+  border-color: #2a1373;
+  color: #2a1373;
 }
 
 .rb-pill-diamond {
@@ -600,11 +661,11 @@
 }
 
 .rb-add-stop-badge-title {
-  background: #fff7ed;
-  border: 1.5px dashed #ea580c;
+  background: #f5f3ff;
+  border: 1.5px dashed #2a1373;
   border-radius: 10px;
   padding: 9px 14px;
-  color: #ea580c;
+  color: #2a1373;
   font-weight: 800;
   font-size: 13px;
   display: flex;
@@ -630,7 +691,7 @@
   border: 1px solid #cbd5e1;
   border-radius: 8px;
   padding: 9px 12px;
-  color: #ea580c;
+  color: #2a1373;
   cursor: pointer;
 }
 
@@ -641,7 +702,7 @@
 }
 
 .rb-btn-confirm-stop {
-  background: #ea580c;
+  background: #2a1373;
   color: white;
   border: none;
   border-radius: 8px;
@@ -692,7 +753,7 @@
 }
 
 .rb-active-pin-notice {
-  color: #ea580c;
+  color: #2a1373;
   font-weight: 800;
 }
 
@@ -744,7 +805,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #ea580c;
+  background: #2a1373;
   animation: rbPulseDot 1.2s infinite ease-in-out;
 }
 
@@ -971,7 +1032,7 @@
 }
 
 .rb-pin-bubble.green { background: #16a34a; }
-.rb-pin-bubble.orange { background: #ea580c; }
+.rb-pin-bubble.orange { background: #2a1373; }
 .rb-pin-bubble.red { background: #dc2626; }
 
 .rb-pin-dot-wrap {
@@ -1088,9 +1149,9 @@
 }
 
 .rb-quick-btn.active {
-  border-color: #ea580c;
-  color: #ea580c;
-  background: #fff7ed;
+  border-color: #2a1373;
+  color: #2a1373;
+  background: #f5f3ff;
 }
 
 .rb-quick-btn .bullet {
@@ -1100,7 +1161,7 @@
 }
 
 .rb-quick-btn .bullet.green { background: #16a34a; }
-.rb-quick-btn .bullet.orange { background: #ea580c; }
+.rb-quick-btn .bullet.orange { background: #2a1373; }
 .rb-quick-btn .bullet.red { background: #dc2626; }
 
 .rb-map-brand-footer {
@@ -1180,7 +1241,7 @@
 }
 
 .rb-vehicle-card.active {
-  border-color: #ea580c;
+  border-color: #2a1373;
   background: #fffaf5;
   box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.2), 0 4px 12px rgba(234, 88, 12, 0.06);
 }
@@ -1254,7 +1315,7 @@
 .rb-vehicle-price {
   font-size: 16px;
   font-weight: 900;
-  color: #ea580c;
+  color: #2a1373;
 }
 
 .rb-vehicle-specs-row {
@@ -1293,8 +1354,7 @@
 }
 
 .rb-continue-booking-btn {
-  background: #facc15;
-  color: #000000;
+  background: #2a1373; color: #ffffff;
   border: none;
   border-radius: 10px;
   padding: 10px 22px;
@@ -1306,7 +1366,7 @@
 }
 
 .rb-continue-booking-btn:hover {
-  background: #eab308;
+  background: #1f0d57;
   transform: translateY(-1px);
 }
 
@@ -1422,7 +1482,7 @@
 }
 
 .rb-legend-pill .dot.green { background: #16a34a; }
-.rb-legend-pill .dot.orange { background: #ea580c; }
+.rb-legend-pill .dot.orange { background: #2a1373; }
 .rb-legend-pill .dot.red { background: #dc2626; }
 
 .rb-modal-map-canvas {
@@ -1468,7 +1528,7 @@
 }
 
 .rb-itin-icon.green { background: #16a34a; }
-.rb-itin-icon.orange { background: #ea580c; }
+.rb-itin-icon.orange { background: #2a1373; }
 .rb-itin-icon.red { background: #dc2626; }
 
 .rb-itin-body {
@@ -1484,7 +1544,7 @@
 }
 
 .rb-itin-title.green { color: #16a34a; }
-.rb-itin-title.orange { color: #ea580c; }
+.rb-itin-title.orange { color: #2a1373; }
 .rb-itin-title.red { color: #dc2626; }
 
 .rb-itin-address {
@@ -1497,7 +1557,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #fff7ed;
+  background: #f5f3ff;
   color: #c2410c;
   padding: 3px 8px;
   border-radius: 6px;
@@ -1548,8 +1608,7 @@
 }
 
 .rb-modal-confirm-btn {
-  background: #facc15;
-  color: #000000;
+  background: #2a1373; color: #ffffff;
   border: none;
   border-radius: 10px;
   padding: 12px 24px;
@@ -1560,7 +1619,7 @@
 }
 
 .rb-modal-confirm-btn:hover {
-  background: #eab308;
+  background: #1f0d57;
 }
 
 .rb-modal-confirm-btn.full {
@@ -1643,7 +1702,7 @@
 }
 
 .rb-dist-sum-item i {
-  color: #ea580c;
+  color: #2a1373;
   font-size: 13px;
 }
 
@@ -1706,16 +1765,16 @@
 
 .rb-calculating-spinner {
   font-size: 12px;
-  color: #ea580c;
+  color: #2a1373;
   font-weight: 700;
   margin-left: 8px;
 }
 
 .rb-map-alt-routes-hint {
   font-size: 12px;
-  color: #ea580c;
+  color: #2a1373;
   font-weight: 700;
-  background: #fff7ed;
+  background: #f5f3ff;
   border: 1px solid #fed7aa;
   padding: 4px 10px;
   border-radius: 8px;
@@ -1768,7 +1827,7 @@
 }
 
 .rb-picker-title i {
-  color: #ea580c;
+  color: #2a1373;
 }
 
 .rb-picker-close-btn {
@@ -1828,7 +1887,7 @@
 .rb-picker-pin-head {
   width: 32px;
   height: 32px;
-  background: #ea580c;
+  background: #2a1373;
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
   display: flex;
@@ -1847,7 +1906,7 @@
 .rb-picker-pin-point {
   width: 4px;
   height: 4px;
-  background: #ea580c;
+  background: #2a1373;
   border-radius: 50%;
   margin-top: -2px;
 }
@@ -1912,7 +1971,7 @@
 }
 
 .rb-picker-confirm-btn {
-  background: #ea580c;
+  background: #2a1373;
   color: #ffffff;
   border: none;
   border-radius: 10px;
@@ -1925,7 +1984,7 @@
 }
 
 .rb-picker-confirm-btn:hover {
-  background: #c2410c;
+  background: #1f0d57;
   transform: translateY(-1px);
 }
 

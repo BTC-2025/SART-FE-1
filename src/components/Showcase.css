@@ -473,7 +473,7 @@
    ========================================================================== */
 .showcase-routes-track {
   display: flex;
-  gap: 12px;
+  gap: 15px;
   overflow-x: auto;
   scroll-behavior: smooth;
   padding-bottom: 12px;
@@ -626,9 +626,9 @@
 }
 
 .showcase-route-book-btn {
-  background: #f0f9ff;
-  color: #0284c7;
-  border: 1px solid #bae6fd;
+  background: #6c49d7;
+  color: #ffffff;
+  border: 1px solid #6c49d7;
   border-radius: 8px;
   padding: 7px 14px;
   font-size: 12px;
@@ -641,9 +641,9 @@
 }
 
 .showcase-route-book-btn:hover {
-  background: #0284c7;
+  background: #5835be;
   color: #ffffff;
-  border-color: #0284c7;
+  border-color: #5835be;
   transform: translateX(2px);
 }
 
@@ -838,7 +838,7 @@
 }
 
 .showcase-operator-hire-btn {
-  background: #0f172a;
+  background: #6c49d7;
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -850,7 +850,8 @@
 }
 
 .showcase-operator-hire-btn:hover {
-  background: #16a34a;
+  background: #5835be;
+  color: #ffffff;
   transform: translateY(-1px);
 }
 

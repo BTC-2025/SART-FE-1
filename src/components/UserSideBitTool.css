@@ -15,14 +15,15 @@
 .user-side-bittool-strip {
   position: fixed;
   right: 0;
-  top: 105px;
+  top: 64px;
   /* Below Main Navbar (56px) + SubNavbar (40px) */
-  height: fit-content;
-  max-height: calc(100vh - 120px);
-  bottom: auto;
+  height: calc(100vh - 64px) !important;
+  max-height: none !important;
+  bottom: 0 !important;
+  border-radius: 0 !important;
   width: 58px;
   border-bottom: 1px solid #e2e8f0;
-  border-radius: 0 0 0 16px;
+  border-radius: 0px;
   padding-bottom: 10px;
   background: #ffffff;
   border-left: 1px solid #e2e8f0;
@@ -169,14 +170,14 @@
 
 .user-side-dock-panel {
   position: fixed !important;
-  top: 105px !important;
+  top: 104px !important;
   right: 58px !important;
   width: 380px !important;
-  height: 540px !important;
-  max-height: calc(100vh - 72px) !important;
-  bottom: auto !important;
+  height: calc(100vh - 104px) !important;
+  max-height: none !important;
+  bottom: 0 !important;
   background: #ffffff !important;
-  border-radius: 24px 0 0 24px !important;
+  border-radius: 0 !important;
   border: 1px solid #eef2f6 !important;
   border-right: none !important;
   box-shadow: -8px 8px 30px rgba(0, 0, 0, 0.06) !important;
@@ -491,13 +492,15 @@
 .user-side-bittool-strip.bnx-style {
   position: fixed;
   right: 0;
-  top: 105px;
+  top: 64px;
   bottom: 0;
   width: 60px;
-  height: 680px;
+  height: calc(100vh - 64px) !important;
+  bottom: 0 !important;
+  border-radius: 0 !important;
   background: #ffffff;
   border-left: 1.5px solid #e0edff;
-  border-top-left-radius: 28px;
+  border-top-left-radius: 0px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -544,8 +547,8 @@
 
 /* Circular Pill Action Buttons (Image 1 UI) */
 .bnx-tool-btn {
-  width: 46px;
-  height: 46px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   border: none;
   display: flex;
@@ -670,14 +673,14 @@
 
 .user-side-dock-panel.bnx-cal-panel {
   position: fixed !important;
-  top: 105px !important;
+  top: 104px !important;
   right: 60px !important;
   width: 380px !important;
-  height: 540px !important;
-  max-height: calc(100vh - 72px) !important;
-  bottom: auto !important;
+  height: calc(100vh - 104px) !important;
+  max-height: none !important;
+  bottom: 0 !important;
   background: #ffffff !important;
-  border-radius: 24px 0 0 24px !important;
+  border-radius: 0 !important;
   border: 1px solid #eef2f6 !important;
   border-right: none !important;
   box-shadow: -8px 8px 30px rgba(0, 0, 0, 0.06) !important;
@@ -1042,7 +1045,34 @@
 }
 
 .bnx-tool-btn.bnx-pencil:hover {
-  background: #e2e8f0 !important;
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Image 1 Sliders / Tune Filter Button */
+.bnx-tool-btn.bnx-sliders-btn {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+.bnx-tool-btn.bnx-sliders-btn:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Dashed unpinned slot in edit mode */
+.bnx-tool-btn.dashed-unpinned {
+  border: 2px dashed #2563eb !important;
+  border-radius: 18px !important;
+  background: #f8fafc !important;
+}
+
+.bnx-tool-btn.dashed-unpinned:hover {
+  border-color: #1d4ed8 !important;
+  background: #eff6ff !important;
 }
 
 /* Calendar empty message */
@@ -1064,14 +1094,14 @@
 .user-side-dock-panel.bnx-beta-panel {
   margin-top: 0;
   position: fixed !important;
-  top: 105px !important;
+  top: 104px !important;
   right: 60px !important;
   width: 380px !important;
-  height: 580px !important;
-  max-height: calc(100vh - 72px) !important;
-  bottom: auto !important;
+  height: calc(100vh - 104px) !important;
+  max-height: none !important;
+  bottom: 0 !important;
   background: #ffffff !important;
-  border-radius: 28px 0 0 28px !important;
+  border-radius: 0 !important;
   border: 1px solid #eef2f6 !important;
   border-right: none !important;
   box-shadow: -8px 8px 32px rgba(0, 0, 0, 0.08) !important;
@@ -1257,9 +1287,11 @@
   transform: translateY(-2px);
 }
 
-/* Tooltip on left for Pin Bar icons */
+/* Tooltip on left for Pin Bar icons with top/bottom vertical spacing */
 .bnx-pin-wrapper {
   position: relative;
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
 
 .bnx-tooltip {
@@ -1378,4 +1410,25 @@
 .vk-btn:active {
   transform: translateY(1px);
   background: #f1f5f9;
+}
+
+/* Virtual Keyboard specific wide drawer with ample room */
+.user-side-dock-panel.bnx-vk-panel {
+  width: 780px !important;
+  max-width: calc(100vw - 80px) !important;
+  height: auto !important;
+  max-height: calc(100vh - 120px) !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: -8px 8px 36px rgba(0, 0, 0, 0.12) !important;
+}
+
+.user-side-dock-panel.bnx-vk-panel .vk-btn {
+  height: 46px !important;
+  border-radius: 12px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }

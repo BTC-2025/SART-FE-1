@@ -110,6 +110,11 @@ export default function UserSideBitTool({
   const [contactsList] = useState([
   ]);
 
+  // Virtual Keyboard input dispatcher to search bar
+  const handleVirtualKeyPress = (key: string) => {
+    window.dispatchEvent(new CustomEvent('sart-virtual-keypress', { detail: { key } }));
+  };
+
   if (!isOpen) return null;
 
   const handleCalcClick = (val: string) => {
@@ -251,7 +256,7 @@ export default function UserSideBitTool({
       <aside className="right-tools-sidebar relative w-[58px] hidden-scrollbar flex flex-col items-center select-none shrink-0 user-side-bittool-strip bnx-style overflow-visible" aria-label="SART Side Utilities">
         {/* Icons stack container */}
         <div className="px-2 py-2 flex flex-col items-center w-full overflow-visible">
-          <div className="flex flex-col items-center gap-2.5 w-full">
+          <div className="flex flex-col items-center gap-1.5 w-full">
             {/* Header: EDIT PINS in edit mode or Brand B launcher in normal mode (Consistent 42px width) */}
             {isEditMode ? (
               <div className="bnx-edit-pins-btn active-mode">
@@ -277,7 +282,7 @@ export default function UserSideBitTool({
               if (!isEditMode && !item.isPinned) return null;
 
               return (
-                <div key={item.id} className="bnx-pin-wrapper relative">
+                <div key={item.id} className="bnx-pin-wrapper relative my-0.5">
                   <button
                     type="button"
                     className={`bnx-tool-btn bnx-${item.iconType} ${activeModal === item.id ? 'active-tool' : ''} ${!item.isPinned && isEditMode ? 'dashed-unpinned' : ''}`}
@@ -304,34 +309,34 @@ export default function UserSideBitTool({
               );
             })}
 
-            {/* In Edit mode, show dedicated dashed '+' slot directly below the cloud icon */}
+            {/* In Edit mode, show dedicated dashed '+' slot directly below pins */}
             {isEditMode && (
-              <div className="flex flex-col items-center gap-2.5 w-full">
+              <div className="flex flex-col items-center gap-2 w-full">
                 <div className="w-7 h-[1.5px] bg-slate-200 rounded my-0.5"></div>
-                <div className="bnx-pin-wrapper relative">
+                <div className="bnx-pin-wrapper relative my-0.5">
                   <button
                     type="button"
                     className="bnx-tool-btn dashed-unpinned"
                     title="Add more options"
                     onClick={() => setShowAddOptionsModal(true)}
                   >
-                    <span className="text-gray-500 font-bold text-xl leading-none">+</span>
+                    <span className="text-blue-600 font-bold text-xl leading-none">+</span>
                     <span className="bnx-tooltip">Add More Apps</span>
                   </button>
                 </div>
               </div>
             )}
 
-            {/* In Normal mode, show the shortcut customize pencil right below cloud */}
+            {/* In Normal mode, show the shortcut customize pencil right below pins */}
             {!isEditMode && (
-              <div className="bnx-pin-wrapper relative">
+              <div className="bnx-pin-wrapper relative my-0.5">
                 <button
                   type="button"
                   className="bnx-tool-btn bnx-pencil"
                   title="Customize Pins"
                   onClick={() => setIsEditMode(true)}
                 >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
                   </svg>
                   <span className="bnx-tooltip">Customize Pins</span>
@@ -339,22 +344,47 @@ export default function UserSideBitTool({
               </div>
             )}
 
-            {/* In Edit mode, show the Save Checkmark directly below to end the bar */}
-            {isEditMode && (
-              <div className="bnx-pin-wrapper relative mt-1">
-                <button
-                  type="button"
-                  className="bnx-tool-btn bnx-check"
-                  title="Save Pins"
-                  onClick={() => setIsEditMode(false)}
-                >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                  <span className="bnx-tooltip">Save Pins</span>
-                </button>
-              </div>
-            )}
+            {/* Bottom Controls (Image 1 Sliders / Tune Icon in normal mode, or Checkmark in edit mode) */}
+            <div className="bnx-bottom-controls-container mt-auto flex flex-col items-center pb-[30px] pt-2">
+              {!isEditMode ? (
+                /* Image 1: Sliders / Settings Filter Icon below pencil at bottom with 30px gap below */
+                <div className="bnx-pin-wrapper relative">
+                  <button
+                    type="button"
+                    className="bnx-tool-btn bnx-sliders-btn"
+                    title="Edit and Customize Pins"
+                    onClick={() => setIsEditMode(true)}
+                  >
+                    <svg className="w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      {/* Top slider line with thumb */}
+                      <line x1="4" y1="7" x2="14" y2="7"></line>
+                      <line x1="14" y1="4" x2="14" y2="10"></line>
+                      <line x1="18" y1="7" x2="20" y2="7"></line>
+                      {/* Bottom slider line with thumb */}
+                      <line x1="4" y1="17" x2="6" y2="17"></line>
+                      <line x1="10" y1="14" x2="10" y2="20"></line>
+                      <line x1="10" y1="17" x2="20" y2="17"></line>
+                    </svg>
+                    <span className="bnx-tooltip">Customize Dock</span>
+                  </button>
+                </div>
+              ) : (
+                /* In Edit mode, show Save Checkmark at bottom */
+                <div className="bnx-pin-wrapper relative">
+                  <button
+                    type="button"
+                    className="bnx-tool-btn bnx-check"
+                    title="Save Pins"
+                    onClick={() => setIsEditMode(false)}
+                  >
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span className="bnx-tooltip">Save Pins</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </aside>
@@ -443,7 +473,13 @@ export default function UserSideBitTool({
         <div className="user-side-dock-panel bnx-beta-panel">
           {/* Header with BETA wordmark, EDIT pill and Close button */}
           <div className="bnx-beta-header">
-            <h2 className="bnx-beta-title">BETA</h2>
+            <div className="flex items-center">
+              <img
+                src="/images/beta_logo_header.png"
+                alt="BETA"
+                className="h-8 object-contain"
+              />
+            </div>
             <div className="flex items-center gap-2">
 
               <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
@@ -476,49 +512,52 @@ export default function UserSideBitTool({
                 </button>
               </div>
 
-              {/* 3-Column Apps Grid */}
-              <div className="bnx-beta-grid">
-                {/* 1. Cliks */}
-                <div className="bnx-app-item">
-                  <div className="bnx-app-icon-wrap green-check">
-                    <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="#10b981" strokeWidth="2.5">
-                      <circle cx="12" cy="12" r="9" stroke="#065f46" strokeWidth="2.5"></circle>
-                      <polyline points="8 12 11 15 16 9" stroke="#065f46" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"></polyline>
-                    </svg>
+              {/* Apps Grid for Favorites vs Recent */}
+              {launcherTab === 'favorites' ? (
+                <div className="bnx-beta-grid">
+                  {/* 1. Cliks */}
+                  <div className="bnx-app-item">
+                    <div className="bnx-app-icon-wrap">
+                      <img src="/images/beta_cliks.png" alt="Cliks" className="w-10 h-10 object-contain" />
+                    </div>
+                    <span className="bnx-app-name">Cliks</span>
                   </div>
-                  <span className="bnx-app-name">Cliks</span>
-                </div>
 
-                {/* 2. BNXmail */}
-                <div className="bnx-app-item">
-                  <div className="bnx-app-icon-wrap blue-bird">
-                    <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="#2563eb" strokeWidth="2">
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                      <polyline points="22,6 12,13 2,6"></polyline>
-                    </svg>
+                  {/* 2. BNXmail */}
+                  <div className="bnx-app-item">
+                    <div className="bnx-app-icon-wrap">
+                      <img src="/images/beta_bnxmail.png" alt="BNXmail" className="w-10 h-10 object-contain" />
+                    </div>
+                    <span className="bnx-app-name">BNXmail</span>
                   </div>
-                  <span className="bnx-app-name">BNXmail</span>
-                </div>
 
-                {/* 3. Bit-Tool */}
-                <div className="bnx-app-item">
-                  <div className="bnx-app-icon-wrap blue-eq">
-                    <img src="/images/bnx_slider_icon.png" alt="Bit-Tool" className="w-8 h-8 object-contain" />
+                  {/* 3. Bit-Tool */}
+                  <div className="bnx-app-item">
+                    <div className="bnx-app-icon-wrap">
+                      <img src="/images/beta_bittool.png" alt="Bit-Tool" className="w-10 h-10 object-contain" />
+                    </div>
+                    <span className="bnx-app-name">Bit-Tool</span>
                   </div>
-                  <span className="bnx-app-name">Bit-Tool</span>
-                </div>
 
-                {/* 4. B2Auth */}
-                <div className="bnx-app-item">
-                  <div className="bnx-app-icon-wrap shield-finger">
-                    <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="#0f172a" strokeWidth="2">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                      <path d="M12 8a2 2 0 0 0-2 2c0 2 2 4 2 4s2-2 2-4a2 2 0 0 0-2-2z" fill="#0f172a"></path>
-                    </svg>
+                  {/* 4. B2Auth */}
+                  <div className="bnx-app-item">
+                    <div className="bnx-app-icon-wrap">
+                      <img src="/images/beta_b2auth.png" alt="B2Auth" className="w-10 h-10 object-contain" />
+                    </div>
+                    <span className="bnx-app-name">B2Auth</span>
                   </div>
-                  <span className="bnx-app-name">B2Auth</span>
                 </div>
-              </div>
+              ) : (
+                /* RECENT TAB: Only Cliks is shown */
+                <div className="bnx-beta-grid">
+                  <div className="bnx-app-item">
+                    <div className="bnx-app-icon-wrap">
+                      <img src="/images/beta_cliks.png" alt="Cliks" className="w-10 h-10 object-contain" />
+                    </div>
+                    <span className="bnx-app-name">Cliks</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* BASE Section */}
@@ -528,7 +567,7 @@ export default function UserSideBitTool({
                 <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
                   <button
                     type="button"
-                    className={`hover:text-blue-600 transition-colors ${baseCategory === 'public' ? 'text-blue-600' : ''}`}
+                    className={`transition-colors font-extrabold ${baseCategory === 'public' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
                     onClick={() => setBaseCategory('public')}
                   >
                     PUBLIC
@@ -536,7 +575,7 @@ export default function UserSideBitTool({
                   <span>|</span>
                   <button
                     type="button"
-                    className={`hover:text-blue-600 transition-colors ${baseCategory === 'business' ? 'text-blue-600' : ''}`}
+                    className={`transition-colors font-extrabold ${baseCategory === 'business' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
                     onClick={() => setBaseCategory('business')}
                   >
                     BUSINESS
@@ -544,43 +583,67 @@ export default function UserSideBitTool({
                 </div>
               </div>
 
-              {/* Base Apps 4-card row */}
-              <div className="grid grid-cols-4 gap-2">
-                <div className="bnx-card-slot">
-                  <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none">
-                    <circle cx="12" cy="12" r="9" stroke="#065f46" strokeWidth="2"></circle>
-                    <polyline points="8 12 11 15 16 9" stroke="#065f46" strokeWidth="2"></polyline>
-                  </svg>
-                  <span>Cliks</span>
+              {/* Base Apps View: PUBLIC vs BUSINESS */}
+              {baseCategory === 'public' ? (
+                <>
+                  <div className="grid grid-cols-4 gap-2">
+                    <div className="bnx-card-slot">
+                      <img src="/images/beta_cliks.png" alt="Cliks" className="w-7 h-7 object-contain" />
+                      <span>Cliks</span>
+                    </div>
+                    <div className="bnx-card-slot">
+                      <img src="/images/beta_bnxmail.png" alt="BNXmail" className="w-7 h-7 object-contain" />
+                      <span>BNXmail</span>
+                    </div>
+                    <div className="bnx-card-slot">
+                      <img src="/images/beta_bittool.png" alt="Bit-Tool" className="w-7 h-7 object-contain" />
+                      <span>Bit-Tool</span>
+                    </div>
+                    <div className="bnx-card-slot">
+                      <img src="/images/beta_b2auth.png" alt="B2Auth" className="w-7 h-7 object-contain" />
+                      <span>B2Auth</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-2 w-[110px]">
+                    <div className="bnx-card-slot">
+                      <img src="/images/beta_cliks.png" alt="CliksBusiness" className="w-7 h-7 object-contain" />
+                      <span>CliksBusine...</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* BUSINESS TAB: Only CliksBusiness is shown */
+                <div className="w-[110px]">
+                  <div className="bnx-card-slot">
+                    <img src="/images/beta_cliks.png" alt="CliksBusiness" className="w-7 h-7 object-contain" />
+                    <span>CliksBusin...</span>
+                  </div>
                 </div>
-                <div className="bnx-card-slot">
-                  <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="#2563eb" strokeWidth="1.8">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                    <polyline points="22,6 12,13 2,6"></polyline>
-                  </svg>
-                  <span>BNXmail</span>
-                </div>
-                <div className="bnx-card-slot">
-                  <img src="/images/bnx_slider_icon.png" alt="Bit-Tool" className="w-6 h-6 object-contain" />
-                  <span>Bit-Tool</span>
-                </div>
-                <div className="bnx-card-slot">
-                  <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="#0f172a" strokeWidth="1.8">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                  </svg>
-                  <span>B2Auth</span>
-                </div>
+              )}
+            </div>
+
+            {/* BETA LABS RELEASE / COMING SOON CARD */}
+            <div className="relative border border-gray-200/90 rounded-[20px] px-6 py-4 mt-6 mb-0.5 bg-white shadow-[0_2px_10px_rgba(0,0,0,0.01)] text-center flex flex-col items-center">
+              {/* Floating top badge icon */}
+              <div className="absolute -top-4 w-9 h-9 rounded-full bg-white border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center">
+                <img src="/images/beta_bnxmail.png" alt="Beta Labs" className="w-5 h-5 object-contain" />
               </div>
 
-              <div className="mt-2 w-[110px]">
-                <div className="bnx-card-slot">
-                  <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none">
-                    <circle cx="12" cy="12" r="9" stroke="#065f46" strokeWidth="2"></circle>
-                    <polyline points="8 12 11 15 16 9" stroke="#065f46" strokeWidth="2"></polyline>
-                  </svg>
-                  <span>CliksBusine...</span>
-                </div>
+              {/* BETA LABS RELEASE pill tag */}
+              <div className="mt-1 inline-flex items-center justify-center px-3 py-1 rounded-full bg-blue-50/80 text-[10.5px] font-extrabold tracking-wider text-blue-600 uppercase">
+                BETA LABS RELEASE
               </div>
+
+              {/* COMING SOON title */}
+              <h4 className="mt-2 text-base font-black tracking-wide bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent uppercase">
+                COMING SOON
+              </h4>
+
+              {/* Subtitle */}
+              <p className="mt-1 text-xs font-semibold text-slate-500">
+                Building the next generation of Beta applications.
+              </p>
             </div>
 
             {/* Footer Tag */}
@@ -720,9 +783,10 @@ export default function UserSideBitTool({
 
       {/* DRAWER 4: CONTACTS */}
       {activeModal === 'contacts' && (
-        <div className="user-side-dock-panel">
-          <div className="bnx-cal-header">
-            <h3 className="bnx-cal-title">CONTACTS</h3>
+        <div className="user-side-dock-panel" style={{ width: '400px', display: 'flex', flexDirection: 'column' }}>
+          {/* Top Header: CONTACTS with Close button (Matching Image 2) */}
+          <div className="bnx-cal-header" style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
+            <h3 className="bnx-cal-title" style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '0.3px', margin: 0, color: '#0f172a' }}>CONTACTS</h3>
             <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -730,19 +794,73 @@ export default function UserSideBitTool({
               </svg>
             </button>
           </div>
-          <div className="user-dock-inner">
-            <div className="user-contacts-grid">
-              {contactsList.map((c, i) => (
-                <div key={i} className="user-contact-tile">
-                  <div className="user-contact-avatar">{c.initial}</div>
-                  <div>
-                    <div className="user-contact-name">{c.name}</div>
-                    <div className="user-contact-role">{c.role}</div>
-                    <div style={{ fontSize: '11px', color: '#2563eb', fontWeight: 600, marginTop: '2px' }}>{c.phone}</div>
-                  </div>
-                  <button className="user-contact-call-btn" onClick={() => window.open(`tel:${c.phone}`)}>Call</button>
-                </div>
-              ))}
+
+          {/* Sub Header & Search Section (Matching Image 1) */}
+          <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', flex: 1, gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <h4 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Global Contacts</h4>
+              </div>
+              <button
+                type="button"
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  background: '#eff6ff',
+                  color: '#2563eb',
+                  border: '1px solid #dbeafe',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  transition: 'all 0.15s ease'
+                }}
+                title="Add Contact"
+                onClick={() => { }}
+              >
+                +
+              </button>
+            </div>
+
+            {/* Pill Search Input */}
+            <div style={{ position: 'relative', width: '100%' }}>
+              <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '15px' }}>
+                <i className="fa-solid fa-magnifying-glass"></i>
+              </span>
+              <input
+                type="text"
+                placeholder="Search global contacts..."
+                style={{
+                  width: '100%',
+                  height: '46px',
+                  borderRadius: '24px',
+                  border: '1.5px solid #e2e8f0',
+                  paddingLeft: '44px',
+                  paddingRight: '16px',
+                  fontSize: '14px',
+                  color: '#0f172a',
+                  outline: 'none',
+                  background: '#ffffff'
+                }}
+              />
+            </div>
+
+            {/* Empty State Body (Matching Image 1) */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '180px', gap: '12px' }}>
+              <div style={{ width: '48px', height: '48px', color: '#94a3b8' }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: '100%', height: '100%' }}>
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>No contacts found</span>
             </div>
           </div>
         </div>
@@ -790,15 +908,18 @@ export default function UserSideBitTool({
         </div>
       )}
 
-      {/* DRAWER 6: VIRTUAL KEYBOARD (Image 1 UI) */}
+      {/* DRAWER 6: VIRTUAL KEYBOARD (Full & Interactive) */}
       {activeModal === 'keyboard' && (
-        <div className="user-side-dock-panel bnx-vk-panel" style={{ width: '660px', maxWidth: 'calc(100vw - 80px)' }}>
-          <div className="bnx-cal-header" style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
+        <div className="user-side-dock-panel bnx-vk-panel" style={{ width: '740px', maxWidth: 'calc(100vw - 80px)', height: 'auto', maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
+          <div className="bnx-cal-header" style={{ padding: '16px 22px', borderBottom: '1px solid #f1f5f9' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb' }}>
-                <i className="fa-solid fa-keyboard" style={{ fontSize: '16px' }}></i>
+              <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb' }}>
+                <i className="fa-solid fa-keyboard" style={{ fontSize: '17px' }}></i>
               </div>
-              <h3 className="bnx-cal-title" style={{ fontSize: '17px', margin: 0, fontWeight: 700, color: '#0f172a' }}>Virtual Keyboard</h3>
+              <div>
+                <h3 className="bnx-cal-title" style={{ fontSize: '17px', margin: 0, fontWeight: 700, color: '#0f172a' }}>Virtual Keyboard</h3>
+                <span style={{ fontSize: '11px', color: '#64748b' }}>Types directly into search bar</span>
+              </div>
             </div>
             <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
@@ -808,84 +929,90 @@ export default function UserSideBitTool({
             </button>
           </div>
 
-          <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ padding: '22px', display: 'flex', flexDirection: 'column', gap: '10px', background: '#f8fafc' }}>
             {/* Row 1 */}
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
-              <button type="button" className="vk-btn vk-btn-sm" style={{ minWidth: '44px' }}>Esc</button>
+              <button type="button" className="vk-btn vk-btn-sm" style={{ minWidth: '50px' }} onClick={() => handleVirtualKeyPress('Esc')}>Esc</button>
               {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='].map((k, i) => (
-                <button key={k} type="button" className="vk-btn vk-btn-sm" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4px 0' }}>
+                <button
+                  key={k}
+                  type="button"
+                  className="vk-btn vk-btn-sm"
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4px 0' }}
+                  onClick={() => handleVirtualKeyPress(k)}
+                >
                   <span style={{ fontSize: '10px', color: '#94a3b8', lineHeight: 1 }}>{['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+'][i]}</span>
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b' }}>{k}</span>
+                  <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#1e293b' }}>{k}</span>
                 </button>
               ))}
-              <button type="button" className="vk-btn vk-btn-sm" style={{ minWidth: '70px', fontWeight: 600 }}>Backspace</button>
+              <button type="button" className="vk-btn vk-btn-sm" style={{ minWidth: '80px', fontWeight: 600 }} onClick={() => handleVirtualKeyPress('Backspace')}>Backspace</button>
             </div>
 
             {/* Row 2 */}
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
-              <button type="button" className="vk-btn" style={{ minWidth: '54px' }}>Tab</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '60px' }} onClick={() => handleVirtualKeyPress('Tab')}>Tab</button>
               {['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'].map((k) => (
-                <button key={k} type="button" className="vk-btn" style={{ flex: 1 }}>{k}</button>
+                <button key={k} type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, fontSize: '14px' }} onClick={() => handleVirtualKeyPress(k)}>{k}</button>
               ))}
-              <button type="button" className="vk-btn" style={{ width: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }}>
+              <button type="button" className="vk-btn" style={{ width: '42px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }} onClick={() => handleVirtualKeyPress('[')}>
                 <span style={{ fontSize: '10px', color: '#94a3b8' }}>{'{'}</span>
-                <span style={{ fontSize: '12px' }}>[</span>
+                <span style={{ fontSize: '12px', fontWeight: 600 }}>[</span>
               </button>
-              <button type="button" className="vk-btn" style={{ width: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }}>
+              <button type="button" className="vk-btn" style={{ width: '42px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }} onClick={() => handleVirtualKeyPress(']')}>
                 <span style={{ fontSize: '10px', color: '#94a3b8' }}>{'}'}</span>
-                <span style={{ fontSize: '12px' }}>]</span>
+                <span style={{ fontSize: '12px', fontWeight: 600 }}>]</span>
               </button>
             </div>
 
             {/* Row 3 */}
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
-              <button type="button" className="vk-btn" style={{ minWidth: '72px' }}>Caps Lock</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '78px' }} onClick={() => { }}>Caps Lock</button>
               {['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'].map((k) => (
-                <button key={k} type="button" className="vk-btn" style={{ flex: 1 }}>{k}</button>
+                <button key={k} type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, fontSize: '14px' }} onClick={() => handleVirtualKeyPress(k)}>{k}</button>
               ))}
-              <button type="button" className="vk-btn" style={{ width: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }}>
+              <button type="button" className="vk-btn" style={{ width: '42px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }} onClick={() => handleVirtualKeyPress(';')}>
                 <span style={{ fontSize: '10px', color: '#94a3b8' }}>:</span>
-                <span style={{ fontSize: '12px' }}>;</span>
+                <span style={{ fontSize: '12px', fontWeight: 600 }}>;</span>
               </button>
-              <button type="button" className="vk-btn" style={{ width: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }}>
+              <button type="button" className="vk-btn" style={{ width: '42px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }} onClick={() => handleVirtualKeyPress("'")}>
                 <span style={{ fontSize: '10px', color: '#94a3b8' }}>"</span>
-                <span style={{ fontSize: '12px' }}>'</span>
+                <span style={{ fontSize: '12px', fontWeight: 600 }}>'</span>
               </button>
-              <button type="button" className="vk-btn" style={{ minWidth: '76px', background: '#2563eb', color: '#ffffff', fontWeight: 600, border: 'none' }}>Enter</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '86px', background: '#2563eb', color: '#ffffff', fontWeight: 700, border: 'none' }} onClick={() => handleVirtualKeyPress('Enter')}>Enter</button>
             </div>
 
             {/* Row 4 */}
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
-              <button type="button" className="vk-btn" style={{ minWidth: '86px', background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', fontWeight: 600 }}>↑ Shift</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '92px', background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', fontWeight: 600 }}>↑ Shift</button>
               {['Z', 'X', 'C', 'V', 'B', 'N', 'M'].map((k) => (
-                <button key={k} type="button" className="vk-btn" style={{ flex: 1 }}>{k}</button>
+                <button key={k} type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, fontSize: '14px' }} onClick={() => handleVirtualKeyPress(k)}>{k}</button>
               ))}
-              <button type="button" className="vk-btn" style={{ width: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }}>
+              <button type="button" className="vk-btn" style={{ width: '42px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }} onClick={() => handleVirtualKeyPress(',')}>
                 <span style={{ fontSize: '10px', color: '#94a3b8' }}>&lt;</span>
-                <span style={{ fontSize: '12px' }}>,</span>
+                <span style={{ fontSize: '12px', fontWeight: 600 }}>,</span>
               </button>
-              <button type="button" className="vk-btn" style={{ width: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }}>
+              <button type="button" className="vk-btn" style={{ width: '42px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }} onClick={() => handleVirtualKeyPress('.')}>
                 <span style={{ fontSize: '10px', color: '#94a3b8' }}>&gt;</span>
-                <span style={{ fontSize: '12px' }}>.</span>
+                <span style={{ fontSize: '12px', fontWeight: 600 }}>.</span>
               </button>
-              <button type="button" className="vk-btn" style={{ width: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }}>
+              <button type="button" className="vk-btn" style={{ width: '42px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }} onClick={() => handleVirtualKeyPress('/')}>
                 <span style={{ fontSize: '10px', color: '#94a3b8' }}>?</span>
-                <span style={{ fontSize: '12px' }}>/</span>
+                <span style={{ fontSize: '12px', fontWeight: 600 }}>/</span>
               </button>
-              <button type="button" className="vk-btn" style={{ minWidth: '86px', background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', fontWeight: 600 }}>↑ Shift</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '92px', background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', fontWeight: 600 }}>↑ Shift</button>
             </div>
 
             {/* Row 5 */}
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <button type="button" className="vk-btn" style={{ minWidth: '50px' }}>Ctrl</button>
-              <button type="button" className="vk-btn" style={{ minWidth: '50px' }}>Alt</button>
-              <button type="button" className="vk-btn" style={{ flex: 1, fontWeight: 600 }}>Space</button>
-              <button type="button" className="vk-btn" style={{ minWidth: '50px' }}>Alt</button>
-              <button type="button" className="vk-btn" style={{ minWidth: '50px' }}>Ctrl</button>
-              <button type="button" className="vk-btn" style={{ width: '42px' }}><i className="fa-solid fa-caret-left"></i></button>
-              <button type="button" className="vk-btn" style={{ width: '42px' }}><i className="fa-solid fa-caret-down"></i></button>
-              <button type="button" className="vk-btn" style={{ width: '42px' }}><i className="fa-solid fa-caret-up"></i></button>
-              <button type="button" className="vk-btn" style={{ width: '42px' }}><i className="fa-solid fa-caret-right"></i></button>
+              <button type="button" className="vk-btn" style={{ minWidth: '55px' }}>Ctrl</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '55px' }}>Alt</button>
+              <button type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, letterSpacing: '1px' }} onClick={() => handleVirtualKeyPress('Space')}>Space</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '55px' }}>Alt</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '55px' }}>Ctrl</button>
+              <button type="button" className="vk-btn" style={{ width: '44px' }}><i className="fa-solid fa-caret-left"></i></button>
+              <button type="button" className="vk-btn" style={{ width: '44px' }}><i className="fa-solid fa-caret-down"></i></button>
+              <button type="button" className="vk-btn" style={{ width: '44px' }}><i className="fa-solid fa-caret-up"></i></button>
+              <button type="button" className="vk-btn" style={{ width: '44px' }}><i className="fa-solid fa-caret-right"></i></button>
             </div>
           </div>
         </div>

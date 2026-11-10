@@ -46,10 +46,20 @@ export default function Navbar() {
           if (parsed.phone) qParams.append('phone', parsed.phone);
           if (parsed.email) qParams.append('email', parsed.email);
 
-          fetch(`http://localhost:5000/api/user/profile?${qParams.toString()}`)
-            .then(res => res.json())
+          const headers: HeadersInit = {
+            'Content-Type': 'application/json'
+          };
+          if (parsed.token) {
+            headers['Authorization'] = `Bearer ${parsed.token}`;
+          }
+
+          fetch(`http://localhost:5000/api/user/profile?${qParams.toString()}`, { headers })
+            .then(res => {
+              if (!res.ok) return null;
+              return res.json();
+            })
             .then(data => {
-              if (data && data.success && data.data) {
+              if (data && data.success && data.data && (data.data.name || data.data.email || data.data.phone)) {
                 const merged = { ...parsed, ...data.data };
                 setUserSession(merged);
                 localStorage.setItem('sart_user_session', JSON.stringify(merged));
@@ -106,6 +116,33 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+
+
+  // Listen for virtual keyboard typing from Bit-Tool
+  useEffect(() => {
+    const handleVirtualKey = (e: any) => {
+      const key = e.detail?.key;
+      if (!key) return;
+
+      setIsSearchExpanded(true);
+
+      if (key === 'Backspace') {
+        setSearchQuery(prev => prev.slice(0, -1));
+      } else if (key === 'Enter') {
+        // keep open
+      } else if (key === 'Space') {
+        setSearchQuery(prev => prev + ' ');
+      } else if (key === 'Esc') {
+        setIsSearchExpanded(false);
+        setSearchQuery('');
+      } else if (key.length === 1) {
+        setSearchQuery(prev => prev + key);
+      }
+    };
+
+    window.addEventListener('sart-virtual-keypress', handleVirtualKey);
+    return () => window.removeEventListener('sart-virtual-keypress', handleVirtualKey);
+  }, []);
 
   return (
     <header className="web-navbar">
@@ -166,49 +203,55 @@ export default function Navbar() {
       </nav>
 
       <div className="nav-controls">
-        <div className="search-control-slot" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-          {isSearchExpanded ? (
-            <div className="expanded-search-container">
-              <i className="fa-solid fa-magnifying-glass search-icon-left"></i>
-              <input
-                type="text"
-                className="expanded-search-input"
-                placeholder="Search all features, tools, records..."
-                autoFocus
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onBlur={() => setTimeout(() => { setIsSearchExpanded(false); setSearchQuery(''); }, 200)}
-              />
-              {searchQuery && (
-                <div className="search-dropdown">
-                  {SEARCH_OPTIONS.filter(opt => opt.title.toLowerCase().includes(searchQuery.toLowerCase()) || opt.kw.some(k => k.includes(searchQuery.toLowerCase()))).length > 0 ? (
-                    SEARCH_OPTIONS.filter(opt => opt.title.toLowerCase().includes(searchQuery.toLowerCase()) || opt.kw.some(k => k.includes(searchQuery.toLowerCase()))).map(opt => (
-                      <div key={opt.title} className="booking-card" onClick={() => { (window as any).openModal(opt.modal); setIsSearchExpanded(false); setSearchQuery(''); }}>
-                        <div className="booking-card-left">
-                          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: opt.color }}>
-                            <i className={`fa-solid ${opt.icon}`}></i>
-                          </div>
-                          <div className="booking-card-text">
-                            <h4 style={{ margin: 0, fontSize: '13px', color: '#fff' }}>{opt.title}</h4>
-                            <p style={{ margin: '2px 0 0 0', fontSize: '9px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Shortcut trigger</p>
-                          </div>
+        <div className={`search-control-slot ${isSearchExpanded ? 'search-open' : ''}`}>
+          <div
+            className="ctrl-btn search-trigger-btn"
+            onClick={() => setIsSearchExpanded(prev => !prev)}
+            title="Search"
+          >
+            <i className={`fa-solid ${isSearchExpanded ? 'fa-xmark' : 'fa-magnifying-glass'}`}></i>
+          </div>
+
+          <div className="expanded-search-container">
+            <i className="fa-solid fa-magnifying-glass search-icon-left"></i>
+            <input
+              type="text"
+              className="expanded-search-input"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  setIsSearchExpanded(false);
+                  setSearchQuery('');
+                }
+              }}
+            />
+            {searchQuery && isSearchExpanded && (
+              <div className="search-dropdown">
+                {SEARCH_OPTIONS.filter(opt => opt.title.toLowerCase().includes(searchQuery.toLowerCase()) || opt.kw.some(k => k.includes(searchQuery.toLowerCase()))).length > 0 ? (
+                  SEARCH_OPTIONS.filter(opt => opt.title.toLowerCase().includes(searchQuery.toLowerCase()) || opt.kw.some(k => k.includes(searchQuery.toLowerCase()))).map(opt => (
+                    <div key={opt.title} className="booking-card" onClick={() => { (window as any).openModal(opt.modal); setIsSearchExpanded(false); setSearchQuery(''); }}>
+                      <div className="booking-card-left">
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: opt.color }}>
+                          <i className={`fa-solid ${opt.icon}`}></i>
                         </div>
-                        <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px', color: 'var(--text-secondary)' }}></i>
+                        <div className="booking-card-text">
+                          <h4 style={{ margin: 0, fontSize: '13px', color: '#fff' }}>{opt.title}</h4>
+                          <p style={{ margin: '2px 0 0 0', fontSize: '9px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Shortcut trigger</p>
+                        </div>
                       </div>
-                    ))
-                  ) : (
-                    <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '15px', fontSize: '12px' }}>
-                      No matching modules found in directory.
+                      <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px', color: 'var(--text-secondary)' }}></i>
                     </div>
-                  )}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="ctrl-btn" onClick={() => setIsSearchExpanded(true)} title="Search">
-              <i className="fa-solid fa-magnifying-glass"></i>
-            </div>
-          )}
+                  ))
+                ) : (
+                  <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '15px', fontSize: '12px' }}>
+                    No matching modules found in directory.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
         <div className={`ctrl-btn ${activeTab === "favorites" ? "active" : ""}`}
           title="Favorites & Wishlist"
@@ -222,7 +265,7 @@ export default function Navbar() {
           className="ctrl-btn"
           onClick={() => {
             if (typeof window !== 'undefined') {
-              window.dispatchEvent(new CustomEvent('openReactModal', { detail: 'modal-cart' }));
+              window.location.href = '/home/cart';
             }
           }}
           title="Shopping Cart"
@@ -336,11 +379,15 @@ export default function Navbar() {
 
         <div ref={profileRef}>
           {!userSession ? (
-            /* Logged-out state: Image 3 */
+            /* Logged-out state: Navigate to /home/login */
             <button
               type="button"
               className="nav-login-signup-btn"
-              onClick={() => setIsLoginModalOpen(true)}
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.location.href = '/home/login';
+                }
+              }}
             >
               <span className="login-circle-avatar">
                 <i className="fa-solid fa-user"></i>
@@ -354,14 +401,14 @@ export default function Navbar() {
               onClick={() => setIsProfileOpen(!isProfileOpen)}
             >
               <i className="fa-solid fa-circle-user"></i>
-              <span className="profile-name">{userSession.name || 'Kumar'}</span>
+              <span className="profile-name">{userSession.name || ''}</span>
               <i className="fa-solid fa-chevron-down"></i>
             </div>
           )}
 
           {userSession && isProfileOpen && (
             /* Image 1 Dropdown */
-            <div className="profile-dropdown-menu show" style={{ width: '320px', height: '470px', padding: '14px', borderRadius: '28px', textAlign: 'center', background: '#ffffff', border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', color: '#000000' }}>
+            <div className="profile-dropdown-menu show" style={{ width: '320px', height: '470px', marginTop: '30px', marginRight: '40px', padding: '14px', borderRadius: '28px', textAlign: 'center', background: '#ffffff', border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)', color: '#000000' }}>
               <div style={{ position: 'relative', width: '80px', height: '80px', margin: '0 auto 12px' }}>
                 {userSession.avatar ? (
                   <img
@@ -370,7 +417,7 @@ export default function Navbar() {
                     style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
                   />
                 ) : (
-                  <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#2563eb', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', fontWeight: 500 }}>
+                  <div style={{ width: '100%', height: '100%', borderRadius: '50%', color: 'blue', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', fontWeight: 500 }}>
                     {(userSession.name || 'A').charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -398,17 +445,17 @@ export default function Navbar() {
                   }} />
                 </label>
               </div>
-              <div style={{ display: 'inline-block', background: '#eff6ff', color: '#1d4ed8', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '12px', marginBottom: '8px', border: '1px solid #bfdbfe' }}>
+              <div style={{ display: 'inline-block', background: '#eff6ff', color: '#1d4ed8', fontSize: '11px', fontWeight: 100, padding: '3px 10px', borderRadius: '12px', marginBottom: '8px', border: '1px solid #bfdbfe' }}>
                 USER
               </div>
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#2563eb' }}>
-                {userSession.name || 'Kumar'}
+                {userSession.name || ''}
               </h3>
               <p style={{ margin: '4px 0 16px', fontSize: '14px', color: '#4b5563' }}>
-                {userSession.email || 'kumar@bnxmail.com'}
+                {userSession.email || ''}
               </p>
               <p style={{ margin: '4px 0 16px', fontSize: '14px', color: '#4b5563' }}>
-                Mobile Number : {userSession.phone || '8642097532'}
+                Mobile Number : {userSession.phone || ''}
               </p>
 
               <button onClick={() => { setActiveTab('profile'); router.push('/home/profile', { scroll: false }); setIsProfileOpen(false); }} style={{ background: 'transparent', border: '1px solid #d1d5db', color: '#000000', borderRadius: '24px', padding: '10px 20px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '20px', width: 'auto' }}>
@@ -473,6 +520,6 @@ export default function Navbar() {
           />
         </button>
       </div>
-    </header>
+    </header >
   );
 }

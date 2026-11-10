@@ -59,6 +59,8 @@ interface SartStore extends AppState {
   updateCartQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
   toggleWishlist: (itemId: string) => void;
+  clearWishlist: () => void;
+  cleanExpiredCart: () => void;
   setLocation: (loc: string) => void;
   setActiveBookingId: (id: string | null) => void;
   setActiveTab: (tab: string) => void;
@@ -102,15 +104,19 @@ export const useSartStore = create<SartStore>()(
 
       addToCart: (item) =>
         set((state) => {
+          const itemWithTimestamp = {
+            ...item,
+            savedAt: item.savedAt || Date.now(),
+          };
           const existing = state.cart.find((i) => i.id === item.id);
           if (existing) {
             return {
               cart: state.cart.map((i) =>
-                i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+                i.id === item.id ? { ...i, quantity: i.quantity + 1, savedAt: Date.now() } : i
               ),
             };
           }
-          return { cart: [...state.cart, item] };
+          return { cart: [...state.cart, itemWithTimestamp] };
         }),
 
       removeFromCart: (itemId) =>
@@ -126,6 +132,24 @@ export const useSartStore = create<SartStore>()(
         })),
 
       clearCart: () => set({ cart: [] }),
+
+      clearWishlist: () => set({ wishlist: [] }),
+
+      cleanExpiredCart: () => {
+        // Only expire items after 24h if user is not logged in
+        if (typeof window === 'undefined') return;
+        const userSession = localStorage.getItem('sart_user_session');
+        if (userSession) return; // Logged in user: keep permanently
+
+        const now = Date.now();
+        const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+        set((state) => ({
+          cart: state.cart.filter((item) => {
+            if (!item.savedAt) return true;
+            return now - item.savedAt < TWENTY_FOUR_HOURS_MS;
+          }),
+        }));
+      },
 
       toggleWishlist: (itemId) =>
         set((state) => {

@@ -1787,7 +1787,7 @@ h6 {
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   border-radius: 20px !important;
   color: var(--header-text) !important;
-  font-size: 12px !important;
+  font-size: 13px !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   transition: var(--transition) !important;
@@ -1807,7 +1807,7 @@ h6 {
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   border-radius: 20px !important;
   color: var(--header-text) !important;
-  font-size: 12px !important;
+  font-size: 13px !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   transition: var(--transition) !important;
@@ -2176,7 +2176,7 @@ h6 {
    CENTER NAV CAPSULE MATCHING EXACT IMAGE COLORS
    ========================================================================== */
 .nav-links {
-  width: 310px !important;
+  width: 250px !important;
   height: 42px !important;
   border-radius: 9999px !important;
   display: inline-flex !important;
@@ -2196,7 +2196,7 @@ h6 {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 14px !important;
+  font-size: 13px !important;
   font-weight: 600 !important;
   color: #B59CDE !important;
   /* Before entering / inactive: text color #B59CDE */
@@ -2213,7 +2213,7 @@ h6 {
 }
 
 .nav-link span {
-  color: #B59CDE !important;
+  color: #ffffff !important;
   /* Before entering / inactive: text color #B59CDE */
   font-weight: inherit !important;
   background: transparent !important;

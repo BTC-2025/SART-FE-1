@@ -34,6 +34,7 @@ export interface CartItem {
   icon: string;
   quantity: number;
   category: string;
+  savedAt?: number; // timestamp when added for guest 24h expiration
 }
 
 export interface NotificationItem {

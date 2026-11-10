@@ -43,12 +43,12 @@ export default function Footer() {
 
   return (
     <footer className="sart-universal-footer">
-            {/* Main Footer Body */}
-      <div className="sart-footer-main">
+      {/* Main Footer Body */}
+      <div className="sart-footer">
         <div className="sart-footer-container">
           {/* Column 1: Brand & Bio */}
           <div className="sart-footer-col sart-footer-brand-col">
-            
+
             <h3 className="sart-brand-tagline">
               Your One Stop Solution for<br />
               Rides, Cargo, Rentals & More

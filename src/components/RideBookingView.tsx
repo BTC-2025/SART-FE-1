@@ -582,6 +582,7 @@ export default function RideBookingView({
         </div>
 
         {/* 🏍️🚗🛺 Safety & Captain Badge at the end of header - Click to open Captain Business Portal */}
+        {/* 🏍️🚗🛺 Safety & Captain Badge at the end of header - Click to enter Captain Business Portal */}
         <button
           type="button"
           className="rb-header-vehicle-image-wrapper"
@@ -592,22 +593,25 @@ export default function RideBookingView({
           title="Click to enter Captain Business Portal"
         >
           <div className="rb-header-captain-column">
-            {/* Header image: Auto Driver for Auto, Seatbelt for Car, Helmet for Bike */}
-            <img
-              src={
-                mode === 'auto'
-                  ? '/images/auto_driver_captain.png'
-                  : mode === 'car'
-                    ? '/images/seatbelt_safety.png'
-                    : '/images/helmet_safety.jpg'
-              }
-              alt={mode === 'auto' ? 'Auto Captain' : mode === 'car' ? 'Seatbelt' : 'Helmet'}
-              className="rb-header-safety-hero-img"
-            />
-            {/* Captain Badge below the image */}
-            <span className="rb-captain-badge-pill">
-              <i className="fa-solid fa-briefcase"></i> Captain
-            </span>
+            {/* Circular card with specific vehicle image & Captain pill matching user UI */}
+            <div className="rb-header-captain-circle-card">
+              <div className="rb-circle-hero-img-wrap">
+                <img
+                  src={
+                    mode === 'auto'
+                      ? '/images/auto_rickshaw_3d.png'
+                      : mode === 'car'
+                        ? '/images/seatbelt_safety.png'
+                        : '/images/helmet_safety.jpg'
+                  }
+                  alt={mode === 'auto' ? 'Auto Captain' : mode === 'car' ? 'Seatbelt' : 'Helmet'}
+                  className="rb-circle-hero-img"
+                />
+              </div>
+              <span className="rb-circle-badge-pill">
+                <i className="fa-solid fa-briefcase"></i> Captain
+              </span>
+            </div>
           </div>
         </button>
       </div>
@@ -957,7 +961,7 @@ export default function RideBookingView({
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
-                  background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+                  background: '#2a1373',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '10px',
@@ -965,7 +969,7 @@ export default function RideBookingView({
                   fontSize: '14px',
                   fontWeight: 800,
                   cursor: isRouteCalculating ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 12px rgba(234, 88, 12, 0.28)',
+                  boxShadow: '0 4px 12px rgba(42, 19, 115, 0.28)',
                   transition: 'all 0.2s ease'
                 }}
               >
@@ -1915,7 +1919,7 @@ export default function RideBookingView({
                   onClick={() => setShowChatModal(true)}
                   style={{
                     flex: 1,
-                    background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+                    background: '#2a1373',
                     border: 'none',
                     borderRadius: '24px',
                     padding: '12px 20px',
@@ -1959,7 +1963,7 @@ export default function RideBookingView({
               justifyContent: 'space-between'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#ea580c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#2a1373', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <i className="fa-solid fa-user-shield"></i>
                 </div>
                 <div>
@@ -2044,7 +2048,7 @@ export default function RideBookingView({
                   }
                   setChatInputText('');
                 }}
-                style={{ background: '#ea580c', color: '#ffffff', border: 'none', borderRadius: '50%', width: '38px', height: '38px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                style={{ background: '#2a1373', color: '#ffffff', border: 'none', borderRadius: '50%', width: '38px', height: '38px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
                 <i className="fa-solid fa-paper-plane"></i>
               </button>
