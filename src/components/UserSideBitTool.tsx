@@ -725,9 +725,10 @@ export default function UserSideBitTool({
 
       {/* DRAWER 4: CONTACTS */}
       {activeModal === 'contacts' && (
-        <div className="user-side-dock-panel">
-          <div className="bnx-cal-header">
-            <h3 className="bnx-cal-title">CONTACTS</h3>
+        <div className="user-side-dock-panel" style={{ width: '400px', display: 'flex', flexDirection: 'column' }}>
+          {/* Top Header: CONTACTS with Close button (Matching Image 2) */}
+          <div className="bnx-cal-header" style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
+            <h3 className="bnx-cal-title" style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '0.3px', margin: 0, color: '#0f172a' }}>CONTACTS</h3>
             <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -735,19 +736,73 @@ export default function UserSideBitTool({
               </svg>
             </button>
           </div>
-          <div className="user-dock-inner">
-            <div className="user-contacts-grid">
-              {contactsList.map((c, i) => (
-                <div key={i} className="user-contact-tile">
-                  <div className="user-contact-avatar">{c.initial}</div>
-                  <div>
-                    <div className="user-contact-name">{c.name}</div>
-                    <div className="user-contact-role">{c.role}</div>
-                    <div style={{ fontSize: '11px', color: '#2563eb', fontWeight: 600, marginTop: '2px' }}>{c.phone}</div>
-                  </div>
-                  <button className="user-contact-call-btn" onClick={() => window.open(`tel:${c.phone}`)}>Call</button>
-                </div>
-              ))}
+
+          {/* Sub Header & Search Section (Matching Image 1) */}
+          <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', flex: 1, gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <h4 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Global Contacts</h4>
+              </div>
+              <button
+                type="button"
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  background: '#eff6ff',
+                  color: '#2563eb',
+                  border: '1px solid #dbeafe',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  transition: 'all 0.15s ease'
+                }}
+                title="Add Contact"
+                onClick={() => {}}
+              >
+                +
+              </button>
+            </div>
+
+            {/* Pill Search Input */}
+            <div style={{ position: 'relative', width: '100%' }}>
+              <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '15px' }}>
+                <i className="fa-solid fa-magnifying-glass"></i>
+              </span>
+              <input
+                type="text"
+                placeholder="Search global contacts..."
+                style={{
+                  width: '100%',
+                  height: '46px',
+                  borderRadius: '24px',
+                  border: '1.5px solid #e2e8f0',
+                  paddingLeft: '44px',
+                  paddingRight: '16px',
+                  fontSize: '14px',
+                  color: '#0f172a',
+                  outline: 'none',
+                  background: '#ffffff'
+                }}
+              />
+            </div>
+
+            {/* Empty State Body (Matching Image 1) */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '180px', gap: '12px' }}>
+              <div style={{ width: '48px', height: '48px', color: '#94a3b8' }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: '100%', height: '100%' }}>
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>No contacts found</span>
             </div>
           </div>
         </div>
