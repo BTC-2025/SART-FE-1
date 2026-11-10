@@ -221,8 +221,11 @@
 .expanded-search-container {
   display: flex;
   align-items: center;
-  position: relative;
-  width: 280px; max-width: 320px;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 220px;
   z-index: 100;
   animation: expandSearch 0.25s ease forwards;
   transform-origin: right center;
