@@ -547,8 +547,8 @@
 
 /* Circular Pill Action Buttons (Image 1 UI) */
 .bnx-tool-btn {
-  width: 46px;
-  height: 46px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   border: none;
   display: flex;
@@ -1045,7 +1045,34 @@
 }
 
 .bnx-tool-btn.bnx-pencil:hover {
-  background: #e2e8f0 !important;
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Image 1 Sliders / Tune Filter Button */
+.bnx-tool-btn.bnx-sliders-btn {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+.bnx-tool-btn.bnx-sliders-btn:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Dashed unpinned slot in edit mode */
+.bnx-tool-btn.dashed-unpinned {
+  border: 2px dashed #2563eb !important;
+  border-radius: 18px !important;
+  background: #f8fafc !important;
+}
+
+.bnx-tool-btn.dashed-unpinned:hover {
+  border-color: #1d4ed8 !important;
+  background: #eff6ff !important;
 }
 
 /* Calendar empty message */

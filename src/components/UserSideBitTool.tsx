@@ -282,7 +282,7 @@ export default function UserSideBitTool({
               if (!isEditMode && !item.isPinned) return null;
 
               return (
-                <div key={item.id} className="bnx-pin-wrapper relative my-1">
+                <div key={item.id} className="bnx-pin-wrapper relative my-0.5">
                   <button
                     type="button"
                     className={`bnx-tool-btn bnx-${item.iconType} ${activeModal === item.id ? 'active-tool' : ''} ${!item.isPinned && isEditMode ? 'dashed-unpinned' : ''}`}
@@ -309,34 +309,34 @@ export default function UserSideBitTool({
               );
             })}
 
-            {/* In Edit mode, show dedicated dashed '+' slot directly below the cloud icon */}
+            {/* In Edit mode, show dedicated dashed '+' slot directly below pins */}
             {isEditMode && (
-              <div className="flex flex-col items-center gap-2.5 w-full">
+              <div className="flex flex-col items-center gap-2 w-full">
                 <div className="w-7 h-[1.5px] bg-slate-200 rounded my-0.5"></div>
-                <div className="bnx-pin-wrapper relative my-1">
+                <div className="bnx-pin-wrapper relative my-0.5">
                   <button
                     type="button"
                     className="bnx-tool-btn dashed-unpinned"
                     title="Add more options"
                     onClick={() => setShowAddOptionsModal(true)}
                   >
-                    <span className="text-gray-500 font-bold text-xl leading-none">+</span>
+                    <span className="text-blue-600 font-bold text-xl leading-none">+</span>
                     <span className="bnx-tooltip">Add More Apps</span>
                   </button>
                 </div>
               </div>
             )}
 
-            {/* In Normal mode, show the shortcut customize pencil right below cloud */}
+            {/* In Normal mode, show the shortcut customize pencil right below pins */}
             {!isEditMode && (
-              <div className="bnx-pin-wrapper relative my-1">
+              <div className="bnx-pin-wrapper relative my-0.5">
                 <button
                   type="button"
                   className="bnx-tool-btn bnx-pencil"
                   title="Customize Pins"
                   onClick={() => setIsEditMode(true)}
                 >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
                   </svg>
                   <span className="bnx-tooltip">Customize Pins</span>
@@ -344,22 +344,47 @@ export default function UserSideBitTool({
               </div>
             )}
 
-            {/* In Edit mode, show the Save Checkmark directly below to end the bar */}
-            {isEditMode && (
-              <div className="bnx-pin-wrapper relative mt-1">
-                <button
-                  type="button"
-                  className="bnx-tool-btn bnx-check"
-                  title="Save Pins"
-                  onClick={() => setIsEditMode(false)}
-                >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                  <span className="bnx-tooltip">Save Pins</span>
-                </button>
-              </div>
-            )}
+            {/* Bottom Controls (Image 1 Sliders / Tune Icon in normal mode, or Checkmark in edit mode) */}
+            <div className="bnx-bottom-controls-container mt-auto flex flex-col items-center pb-[30px] pt-2">
+              {!isEditMode ? (
+                /* Image 1: Sliders / Settings Filter Icon below pencil at bottom with 30px gap below */
+                <div className="bnx-pin-wrapper relative">
+                  <button
+                    type="button"
+                    className="bnx-tool-btn bnx-sliders-btn"
+                    title="Edit and Customize Pins"
+                    onClick={() => setIsEditMode(true)}
+                  >
+                    <svg className="w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      {/* Top slider line with thumb */}
+                      <line x1="4" y1="7" x2="14" y2="7"></line>
+                      <line x1="14" y1="4" x2="14" y2="10"></line>
+                      <line x1="18" y1="7" x2="20" y2="7"></line>
+                      {/* Bottom slider line with thumb */}
+                      <line x1="4" y1="17" x2="6" y2="17"></line>
+                      <line x1="10" y1="14" x2="10" y2="20"></line>
+                      <line x1="10" y1="17" x2="20" y2="17"></line>
+                    </svg>
+                    <span className="bnx-tooltip">Customize Dock</span>
+                  </button>
+                </div>
+              ) : (
+                /* In Edit mode, show Save Checkmark at bottom */
+                <div className="bnx-pin-wrapper relative">
+                  <button
+                    type="button"
+                    className="bnx-tool-btn bnx-check"
+                    title="Save Pins"
+                    onClick={() => setIsEditMode(false)}
+                  >
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span className="bnx-tooltip">Save Pins</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </aside>
@@ -798,7 +823,7 @@ export default function UserSideBitTool({
                   transition: 'all 0.15s ease'
                 }}
                 title="Add Contact"
-                onClick={() => {}}
+                onClick={() => { }}
               >
                 +
               </button>
@@ -941,7 +966,7 @@ export default function UserSideBitTool({
 
             {/* Row 3 */}
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
-              <button type="button" className="vk-btn" style={{ minWidth: '78px' }} onClick={() => {}}>Caps Lock</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '78px' }} onClick={() => { }}>Caps Lock</button>
               {['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'].map((k) => (
                 <button key={k} type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, fontSize: '14px' }} onClick={() => handleVirtualKeyPress(k)}>{k}</button>
               ))}
