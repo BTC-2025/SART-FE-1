@@ -2,29 +2,26 @@
 
 .b2auth-page-root {
   min-height: 100vh;
-  height: 100vh;
   background: #f0f4f9;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .b2auth-page-main {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
+  min-height: calc(100vh - 105px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 20px;
+  padding: 40px 20px;
   background: radial-gradient(circle at 50% 20%, #ffffff 0%, #edf3f8 100%);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   box-sizing: border-box;
+  flex: none;
 }
 
 .b2auth-card-container {
   width: 100%;
-  max-width: 530px; /* Increased width */
+  max-width: 530px;
   margin: auto;
 }
 
