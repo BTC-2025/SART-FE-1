@@ -150,38 +150,21 @@ export default function CartPage() {
           <div className="cart-page-header">
             <div className="cart-header-title-box">
               <h1 className="cart-main-title">
-                <i className="fa-solid fa-bag-shopping"></i> My Shopping Cart & Saved Items
+                <i className="fa-solid fa-bag-shopping"></i> My Cart
               </h1>
               <p className="cart-sub-title">
                 {isGuest ? (
-                  <span className="guest-badge-warning">
-                    <i className="fa-solid fa-clock"></i> Guest Mode: Items saved temporarily (auto-expires in 24 hours). Log in to keep permanently.
+                  <span>
                   </span>
                 ) : (
                   <span className="user-badge-success">
-                    <i className="fa-solid fa-shield-check"></i> Logged In as {userSession.name || 'User'}: Items saved permanently to your cloud account.
+                    <i className="fa-solid fa-shield-check"></i> Logged In as {userSession.name || 'User'}
                   </span>
                 )}
               </p>
             </div>
 
-            {/* Quick Action Tabs */}
-            <div className="cart-tabs-switch">
-              <button
-                type="button"
-                className={`cart-tab-btn ${activeTab === 'cart' ? 'active' : ''}`}
-                onClick={() => setActiveTab('cart')}
-              >
-                <i className="fa-solid fa-bag-shopping"></i> Cart ({cart.length})
-              </button>
-              <button
-                type="button"
-                className={`cart-tab-btn ${activeTab === 'wishlist' ? 'active' : ''}`}
-                onClick={() => setActiveTab('wishlist')}
-              >
-                <i className="fa-solid fa-heart"></i> Wishlist ({wishlistItems.length})
-              </button>
-            </div>
+
           </div>
 
           {/* VIEW 1: SHOPPING CART */}
@@ -250,8 +233,7 @@ export default function CartPage() {
                             <span className="cart-item-category">{item.category || 'Automotive & Mobility'}</span>
                             <div className="cart-item-meta">
                               {isGuest ? (
-                                <span className="meta-expire-tag">
-                                  <i className="fa-regular fa-clock"></i> Expires in 24h
+                                <span className="">
                                 </span>
                               ) : (
                                 <span className="meta-saved-tag">
@@ -465,3 +447,4 @@ export default function CartPage() {
     </div>
   );
 }
+

@@ -155,7 +155,7 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: mobileNumber.trim() })
       });
-    } catch (err) {}
+    } catch (err) { }
 
     setView('register_otp');
     setSuccessMsg('OTP sent to +91 ' + mobileNumber);
@@ -181,7 +181,7 @@ export default function LoginPage() {
         setErrorMsg(data.message || 'Invalid verification code');
         return;
       }
-    } catch (err) {}
+    } catch (err) { }
 
     setView('register_account');
     setSuccessMsg('Mobile verified! Set up your BNXmail and password.');
@@ -538,9 +538,7 @@ export default function LoginPage() {
                   ))}
                 </div>
 
-                <div className="text-center mt-2">
-                  <span className="text-xs text-slate-400">Test default OTP: <strong>1234</strong></span>
-                </div>
+
 
                 <button type="submit" className="b2auth-submit-btn mt-4">
                   Verify & Continue

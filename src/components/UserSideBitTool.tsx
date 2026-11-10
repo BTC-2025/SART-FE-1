@@ -256,7 +256,7 @@ export default function UserSideBitTool({
       <aside className="right-tools-sidebar relative w-[58px] hidden-scrollbar flex flex-col items-center select-none shrink-0 user-side-bittool-strip bnx-style overflow-visible" aria-label="SART Side Utilities">
         {/* Icons stack container */}
         <div className="px-2 py-2 flex flex-col items-center w-full overflow-visible">
-          <div className="flex flex-col items-center gap-2.5 w-full">
+          <div className="flex flex-col items-center gap-1.5 w-full">
             {/* Header: EDIT PINS in edit mode or Brand B launcher in normal mode (Consistent 42px width) */}
             {isEditMode ? (
               <div className="bnx-edit-pins-btn active-mode">

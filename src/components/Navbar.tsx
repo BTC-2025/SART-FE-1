@@ -217,7 +217,7 @@ export default function Navbar() {
             <input
               type="text"
               className="expanded-search-input"
-              placeholder="Search all features, tools, records..."
+              placeholder="Search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => {

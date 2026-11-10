@@ -129,7 +129,7 @@
 .tb-date-pill:hover,
 .tb-date-pill.active {
   background: #fecaca;
-  color: #7f1d1d;
+  color: #4726AB;
 }
 
 /* Red Search Button */
@@ -137,7 +137,7 @@
   width: 46px;
   height: 46px;
   border-radius: 50%;
-  background: #dc2626;
+  background: #4726AB;
   color: #ffffff;
   border: none;
   cursor: pointer;
@@ -151,7 +151,7 @@
 }
 
 .tb-search-action-btn:hover {
-  background: #b91c1c;
+  background: #4726AB;
   transform: scale(1.05);
 }
 
@@ -194,7 +194,7 @@
 }
 
 .tb-mode-tab.active {
-  color: #0f172a;
+  color: #4726AB;
 }
 
 .tb-mode-tab.active::after {
@@ -204,7 +204,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: #dc2626;
+  background: #4726AB;
 }
 
 /* Suggestions Dropdown (Matching Image 4 & 5) */
@@ -460,9 +460,9 @@
 }
 
 .tb-quick-chip.active {
-  border-color: #dc2626;
+  border-color: #4726AB;
   background: #fef2f2;
-  color: #dc2626;
+  color: #4726AB;
   font-weight: 700;
 }
 
@@ -982,11 +982,13 @@
 }
 
 .tb-header-avail {
-  background: #a7f3d0; /* Exact mint green from Image 1 & 2 */
+  background: #a7f3d0;
+  /* Exact mint green from Image 1 & 2 */
 }
 
 .tb-header-wl {
-  background: #fed7aa; /* Exact pastel peach/coral from Image 1 */
+  background: #fed7aa;
+  /* Exact pastel peach/coral from Image 1 */
 }
 
 .tb-class-code {
@@ -1111,6 +1113,7 @@
     opacity: 0;
     transform: translateY(-6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1602,6 +1605,7 @@
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -1612,6 +1616,7 @@
     opacity: 0;
     transform: translateY(4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1950,15 +1955,44 @@
   animation: tbFloatVehicle 3s ease-in-out infinite alternate;
 }
 
-.tb-map-vehicle-pin.pin-1 { top: 22%; left: 48%; animation-delay: 0s; }
-.tb-map-vehicle-pin.pin-2 { top: 38%; left: 52%; animation-delay: 0.6s; }
-.tb-map-vehicle-pin.pin-3 { top: 55%; left: 46%; animation-delay: 1.2s; }
-.tb-map-vehicle-pin.pin-4 { top: 70%; left: 54%; animation-delay: 1.8s; }
-.tb-map-vehicle-pin.pin-5 { top: 82%; left: 50%; animation-delay: 0.9s; }
+.tb-map-vehicle-pin.pin-1 {
+  top: 22%;
+  left: 48%;
+  animation-delay: 0s;
+}
+
+.tb-map-vehicle-pin.pin-2 {
+  top: 38%;
+  left: 52%;
+  animation-delay: 0.6s;
+}
+
+.tb-map-vehicle-pin.pin-3 {
+  top: 55%;
+  left: 46%;
+  animation-delay: 1.2s;
+}
+
+.tb-map-vehicle-pin.pin-4 {
+  top: 70%;
+  left: 54%;
+  animation-delay: 1.8s;
+}
+
+.tb-map-vehicle-pin.pin-5 {
+  top: 82%;
+  left: 50%;
+  animation-delay: 0.9s;
+}
 
 @keyframes tbFloatVehicle {
-  0% { transform: translateY(0px) rotate(0deg); }
-  100% { transform: translateY(-4px) rotate(2deg); }
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  100% {
+    transform: translateY(-4px) rotate(2deg);
+  }
 }
 
 .tb-map-brand-footer {
@@ -2192,9 +2226,17 @@
   letter-spacing: 0.5px;
 }
 
-.tb-point-label.green { color: #16a34a; }
-.tb-point-label.orange { color: #ea580c; }
-.tb-point-label.red { color: #dc2626; }
+.tb-point-label.green {
+  color: #16a34a;
+}
+
+.tb-point-label.orange {
+  color: #ea580c;
+}
+
+.tb-point-label.red {
+  color: #dc2626;
+}
 
 .tb-map-pick-btn {
   background: #e0f2fe;
@@ -2624,9 +2666,18 @@
   pointer-events: none;
 }
 
-.tb-map-live-marker.green { color: #16a34a; }
-.tb-map-live-marker.orange { color: #ea580c; font-size: 20px; }
-.tb-map-live-marker.red { color: #dc2626; }
+.tb-map-live-marker.green {
+  color: #16a34a;
+}
+
+.tb-map-live-marker.orange {
+  color: #ea580c;
+  font-size: 20px;
+}
+
+.tb-map-live-marker.red {
+  color: #dc2626;
+}
 
 .tb-marker-tooltip {
   background: rgba(15, 23, 42, 0.92);
@@ -2687,9 +2738,17 @@
   border-radius: 50%;
 }
 
-.tb-map-quick-btn .dot.green { background: #16a34a; }
-.tb-map-quick-btn .dot.orange { background: #ea580c; }
-.tb-map-quick-btn .dot.red { background: #dc2626; }
+.tb-map-quick-btn .dot.green {
+  background: #16a34a;
+}
+
+.tb-map-quick-btn .dot.orange {
+  background: #ea580c;
+}
+
+.tb-map-quick-btn .dot.red {
+  background: #dc2626;
+}
 
 /* Vehicle Cards: 2 cards only */
 .tb-bike-options-section {
@@ -2854,8 +2913,15 @@
 }
 
 @keyframes tbModalFadeIn {
-  from { opacity: 0; transform: scale(0.96); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .tb-bike-modal-header {
@@ -2935,9 +3001,17 @@
   border-radius: 50%;
 }
 
-.tb-dot.green { background: #16a34a; }
-.tb-dot.orange { background: #ea580c; }
-.tb-dot.red { background: #dc2626; }
+.tb-dot.green {
+  background: #16a34a;
+}
+
+.tb-dot.orange {
+  background: #ea580c;
+}
+
+.tb-dot.red {
+  background: #dc2626;
+}
 
 .tb-modal-map-canvas {
   position: relative;
@@ -2962,9 +3036,18 @@
   filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.45));
 }
 
-.tb-modal-pin.green { color: #16a34a; }
-.tb-modal-pin.orange { color: #ea580c; font-size: 20px; }
-.tb-modal-pin.red { color: #dc2626; }
+.tb-modal-pin.green {
+  color: #16a34a;
+}
+
+.tb-modal-pin.orange {
+  color: #ea580c;
+  font-size: 20px;
+}
+
+.tb-modal-pin.red {
+  color: #dc2626;
+}
 
 .tb-modal-pin-label {
   background: rgba(15, 23, 42, 0.95);
@@ -3015,9 +3098,17 @@
   margin-top: 2px;
 }
 
-.tb-itin-icon-col.green { background: #16a34a; }
-.tb-itin-icon-col.orange { background: #ea580c; }
-.tb-itin-icon-col.red { background: #dc2626; }
+.tb-itin-icon-col.green {
+  background: #16a34a;
+}
+
+.tb-itin-icon-col.orange {
+  background: #ea580c;
+}
+
+.tb-itin-icon-col.red {
+  background: #dc2626;
+}
 
 .tb-itin-text-col {
   flex: 1;
@@ -3031,9 +3122,17 @@
   font-weight: 800;
 }
 
-.tb-itin-title.green { color: #16a34a; }
-.tb-itin-title.orange { color: #ea580c; }
-.tb-itin-title.red { color: #dc2626; }
+.tb-itin-title.green {
+  color: #16a34a;
+}
+
+.tb-itin-title.orange {
+  color: #ea580c;
+}
+
+.tb-itin-title.red {
+  color: #dc2626;
+}
 
 .tb-itin-address {
   font-size: 13px;
@@ -3098,4 +3197,4 @@
 
 .tb-modal-confirm-btn {
   max-width: 280px;
-}
+}

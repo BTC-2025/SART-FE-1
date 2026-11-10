@@ -2480,8 +2480,7 @@
 /* Home Content Wrapper for Alignment */
 .home-content-wrapper {
   max-width: 100%;
-  margin: 0 auto;
-  width: 96%;
+  width: 100%;
   padding-top: 24px;
   box-sizing: border-box;
 }
@@ -2500,7 +2499,7 @@
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
-  background: #ffffff;
+  background: #D6E3F9;
   border-radius: 28px;
   padding: 24px 20px 26px;
   box-shadow: 0 16px 45px rgba(21, 127, 138, 0.08), 0 2px 10px rgba(0, 0, 0, 0.03);

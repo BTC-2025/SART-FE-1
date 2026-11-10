@@ -2176,7 +2176,7 @@ h6 {
    CENTER NAV CAPSULE MATCHING EXACT IMAGE COLORS
    ========================================================================== */
 .nav-links {
-  width: 310px !important;
+  width: 250px !important;
   height: 42px !important;
   border-radius: 9999px !important;
   display: inline-flex !important;
