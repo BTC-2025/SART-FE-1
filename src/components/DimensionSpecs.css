@@ -19,7 +19,7 @@
 }
 
 .location-nav-btn {
-  font-size: 14.5px !important;
+  font-size: 13px !important;
   font-weight: 700 !important;
 }
 
@@ -65,7 +65,7 @@
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 14px !important;
+  font-size: 13px !important;
   font-weight: 600 !important;
   color: #ffffff !important;
   background: transparent !important;
@@ -115,6 +115,7 @@
 
 .profile-nav-btn,
 .nav-account-capsule-btn {
+  font-size: 13px !important;
   min-width: 115px !important;
   height: 36px !important;
   border-radius: 9999px !important;

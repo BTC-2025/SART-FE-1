@@ -633,3 +633,15 @@
   color: #000000;
   margin-left: 2px;
 }
+/* ============================================================================
+   EXACT 13px FONT-SIZE FOR ALL NAVBAR TEXT
+   ============================================================================ */
+.web-navbar .location-nav-btn,
+.web-navbar #nav-location-txt,
+.web-navbar .nav-link,
+.web-navbar .nav-link span,
+.web-navbar .profile-nav-btn,
+.web-navbar .profile-nav-btn span,
+.web-navbar .expanded-search-input {
+  font-size: 13px !important;
+}
