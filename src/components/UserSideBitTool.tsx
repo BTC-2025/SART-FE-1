@@ -448,7 +448,13 @@ export default function UserSideBitTool({
         <div className="user-side-dock-panel bnx-beta-panel">
           {/* Header with BETA wordmark, EDIT pill and Close button */}
           <div className="bnx-beta-header">
-            <h2 className="bnx-beta-title">BETA</h2>
+            <div className="flex items-center">
+              <img
+                src="/images/beta_logo_header.png"
+                alt="BETA"
+                className="h-8 object-contain"
+              />
+            </div>
             <div className="flex items-center gap-2">
 
               <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
