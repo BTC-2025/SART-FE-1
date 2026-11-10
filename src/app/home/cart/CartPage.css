@@ -50,8 +50,8 @@
 }
 
 /* Header */
-.cart-page-header {
-  /* display: flex;
+/* .cart-page-header {
+  display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -61,8 +61,8 @@
   padding: 24px 28px;
   border-radius: 20px;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02); */
-}
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+} */
 
 .cart-main-title {
   margin: 0 0 8px;
