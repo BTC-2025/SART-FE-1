@@ -410,7 +410,7 @@ export default function Navbar() {
                     style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
                   />
                 ) : (
-                  <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#2563eb', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', fontWeight: 500 }}>
+                  <div style={{ width: '100%', height: '100%', borderRadius: '50%', color: 'blue', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', fontWeight: 500 }}>
                     {(userSession.name || 'A').charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -438,17 +438,17 @@ export default function Navbar() {
                   }} />
                 </label>
               </div>
-              <div style={{ display: 'inline-block', background: '#eff6ff', color: '#1d4ed8', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '12px', marginBottom: '8px', border: '1px solid #bfdbfe' }}>
+              <div style={{ display: 'inline-block', background: '#eff6ff', color: '#1d4ed8', fontSize: '11px', fontWeight: 100, padding: '3px 10px', borderRadius: '12px', marginBottom: '8px', border: '1px solid #bfdbfe' }}>
                 USER
               </div>
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#2563eb' }}>
-                {userSession.name || 'Kumar'}
+                {userSession.name || ''}
               </h3>
               <p style={{ margin: '4px 0 16px', fontSize: '14px', color: '#4b5563' }}>
-                {userSession.email || 'kumar@bnxmail.com'}
+                {userSession.email || ''}
               </p>
               <p style={{ margin: '4px 0 16px', fontSize: '14px', color: '#4b5563' }}>
-                Mobile Number : {userSession.phone || '8642097532'}
+                Mobile Number : {userSession.phone || ''}
               </p>
 
               <button onClick={() => { setActiveTab('profile'); router.push('/home/profile', { scroll: false }); setIsProfileOpen(false); }} style={{ background: 'transparent', border: '1px solid #d1d5db', color: '#000000', borderRadius: '24px', padding: '10px 20px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '20px', width: 'auto' }}>
