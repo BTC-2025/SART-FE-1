@@ -370,7 +370,7 @@
 
 /* Red Search Button (Matching Abhibus style in Image 2) */
 .hero-h-search-btn {
-  background: linear-gradient(135deg, #d84e55 0%, #b91c1c 100%);
+  background: #2a1373;
   color: #ffffff;
   border: none;
   border-radius: 10px;
@@ -387,9 +387,9 @@
 }
 
 .hero-h-search-btn:hover {
-  background: linear-gradient(135deg, #e11d48 0%, #991b1b 100%);
+  background: #1f0d57;
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(216, 78, 85, 0.45);
+  box-shadow: 0 6px 18px rgba(42, 19, 115, 0.35);
 }
 
 .hero-h-search-btn:active {
@@ -964,7 +964,7 @@
 /* Full-Width Orange Submit CTA Button (Exact match to Image 1) */
 .hero-grid-submit-btn {
   width: 100%;
-  background: #f97316;
+  background: #2a1373;
   color: #ffffff;
   border: none;
   border-radius: 10px;
@@ -981,8 +981,8 @@
 }
 
 .hero-grid-submit-btn:hover {
-  background: #ea580c;
-  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.45);
+  background: #2a1373;
+  box-shadow: 0 6px 18px rgba(42, 19, 115, 0.35);
   transform: translateY(-1px);
 }
 
@@ -1716,7 +1716,7 @@
 
 /* Search CTA Button (Full width at bottom of vertical form) */
 .hero-ff-search-btn {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  background: #2a1373;
   color: #ffffff;
   border: none;
   padding: 13px 20px;
@@ -1737,8 +1737,8 @@
 }
 
 .hero-ff-search-btn:hover {
-  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
-  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.45);
+  background: #1f0d57;
+  box-shadow: 0 6px 18px rgba(42, 19, 115, 0.35);
   transform: translateY(-1px);
 }
 

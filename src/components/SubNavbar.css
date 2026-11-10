@@ -63,8 +63,7 @@ body:not(.light-theme) .subnav-quick-btn {
 /* When hover / enter / active: background becomes #B59CDE with black text & icons */
 .subnav-quick-btn:hover,
 .subnav-quick-btn:focus-visible {
-  background: #B59CDE !important;
-  color: #000000 !important;
+  color: #2a1373 !important;
   border: none;
   transform: translateY(-1px);
 }
@@ -92,7 +91,7 @@ body:not(.light-theme) .subnav-quick-btn {
   gap: 6px;
   background: transparent;
   border: 1.5px dashed #000000;
-  color: #000000;
+  color: #2a1373;
   cursor: pointer;
   padding: 0 12px;
   height: 26px;
@@ -117,14 +116,14 @@ body:not(.light-theme) .subnav-quick-btn {
 
 .subnav-customize-combined-btn:hover,
 .subnav-customize-combined-btn:focus-visible {
-  background: #B59CDE !important;
-  color: #000000 !important;
+  color: #2a1373 !important;
   border-color: #000000;
 }
 
 .subnav-customize-combined-btn:hover .subnav-customize-plus-icon,
 .subnav-customize-combined-btn:hover .subnav-customize-text {
-  color: #000000 !important;
+  color: #2a1373 !important;
+  border-color: #000000;
 }
 
 body:not(.light-theme) .subnav-customize-combined-btn {
@@ -225,7 +224,7 @@ body:not(.light-theme) .subnav-action-icon-circle {
 /* When hover / enter / focus: background becomes #B59CDE */
 .subnav-action-pill-btn:hover,
 .subnav-action-pill-btn:focus-visible {
-  color: #B59CDE !important;
+  color: #2a1373 !important;
   transform: translateY(-1px);
 }
 
@@ -292,6 +291,7 @@ body:not(.light-theme) .subnav-icon-btn:hover {
     font-size: 12px;
   }
 }
+
 .subnavbar-container.has-bittool {
   width: calc(100% - 60px) !important;
   margin-right: 60px !important;
