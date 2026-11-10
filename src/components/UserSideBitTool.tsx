@@ -485,41 +485,32 @@ export default function UserSideBitTool({
               <div className="bnx-beta-grid">
                 {/* 1. Cliks */}
                 <div className="bnx-app-item">
-                  <div className="bnx-app-icon-wrap green-check">
-                    <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="#10b981" strokeWidth="2.5">
-                      <circle cx="12" cy="12" r="9" stroke="#065f46" strokeWidth="2.5"></circle>
-                      <polyline points="8 12 11 15 16 9" stroke="#065f46" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"></polyline>
-                    </svg>
+                  <div className="bnx-app-icon-wrap">
+                    <img src="/images/beta_cliks.png" alt="Cliks" className="w-10 h-10 object-contain" />
                   </div>
                   <span className="bnx-app-name">Cliks</span>
                 </div>
 
                 {/* 2. BNXmail */}
                 <div className="bnx-app-item">
-                  <div className="bnx-app-icon-wrap blue-bird">
-                    <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="#2563eb" strokeWidth="2">
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                      <polyline points="22,6 12,13 2,6"></polyline>
-                    </svg>
+                  <div className="bnx-app-icon-wrap">
+                    <img src="/images/beta_bnxmail.png" alt="BNXmail" className="w-10 h-10 object-contain" />
                   </div>
                   <span className="bnx-app-name">BNXmail</span>
                 </div>
 
                 {/* 3. Bit-Tool */}
                 <div className="bnx-app-item">
-                  <div className="bnx-app-icon-wrap blue-eq">
-                    <img src="/images/bnx_slider_icon.png" alt="Bit-Tool" className="w-8 h-8 object-contain" />
+                  <div className="bnx-app-icon-wrap">
+                    <img src="/images/beta_bittool.png" alt="Bit-Tool" className="w-10 h-10 object-contain" />
                   </div>
                   <span className="bnx-app-name">Bit-Tool</span>
                 </div>
 
                 {/* 4. B2Auth */}
                 <div className="bnx-app-item">
-                  <div className="bnx-app-icon-wrap shield-finger">
-                    <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="#0f172a" strokeWidth="2">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                      <path d="M12 8a2 2 0 0 0-2 2c0 2 2 4 2 4s2-2 2-4a2 2 0 0 0-2-2z" fill="#0f172a"></path>
-                    </svg>
+                  <div className="bnx-app-icon-wrap">
+                    <img src="/images/beta_b2auth.png" alt="B2Auth" className="w-10 h-10 object-contain" />
                   </div>
                   <span className="bnx-app-name">B2Auth</span>
                 </div>
@@ -552,37 +543,26 @@ export default function UserSideBitTool({
               {/* Base Apps 4-card row */}
               <div className="grid grid-cols-4 gap-2">
                 <div className="bnx-card-slot">
-                  <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none">
-                    <circle cx="12" cy="12" r="9" stroke="#065f46" strokeWidth="2"></circle>
-                    <polyline points="8 12 11 15 16 9" stroke="#065f46" strokeWidth="2"></polyline>
-                  </svg>
+                  <img src="/images/beta_cliks.png" alt="Cliks" className="w-7 h-7 object-contain" />
                   <span>Cliks</span>
                 </div>
                 <div className="bnx-card-slot">
-                  <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="#2563eb" strokeWidth="1.8">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                    <polyline points="22,6 12,13 2,6"></polyline>
-                  </svg>
+                  <img src="/images/beta_bnxmail.png" alt="BNXmail" className="w-7 h-7 object-contain" />
                   <span>BNXmail</span>
                 </div>
                 <div className="bnx-card-slot">
-                  <img src="/images/bnx_slider_icon.png" alt="Bit-Tool" className="w-6 h-6 object-contain" />
+                  <img src="/images/beta_bittool.png" alt="Bit-Tool" className="w-7 h-7 object-contain" />
                   <span>Bit-Tool</span>
                 </div>
                 <div className="bnx-card-slot">
-                  <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="#0f172a" strokeWidth="1.8">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                  </svg>
+                  <img src="/images/beta_b2auth.png" alt="B2Auth" className="w-7 h-7 object-contain" />
                   <span>B2Auth</span>
                 </div>
               </div>
 
               <div className="mt-2 w-[110px]">
                 <div className="bnx-card-slot">
-                  <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none">
-                    <circle cx="12" cy="12" r="9" stroke="#065f46" strokeWidth="2"></circle>
-                    <polyline points="8 12 11 15 16 9" stroke="#065f46" strokeWidth="2"></polyline>
-                  </svg>
+                  <img src="/images/beta_cliks.png" alt="CliksBusiness" className="w-7 h-7 object-contain" />
                   <span>CliksBusine...</span>
                 </div>
               </div>
