@@ -24,7 +24,8 @@ body:not(.light-theme) .subnavbar-container {
 }
 
 /* 1. Left Side: Bike & Custom Shortcuts - ALL BLACK DEFAULT, #B59CDE ON HOVER/ENTER */
-.subnavbar-center-actions, .subnavbar-left-actions {
+.subnavbar-center-actions,
+.subnavbar-left-actions {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -224,8 +225,7 @@ body:not(.light-theme) .subnav-action-icon-circle {
 /* When hover / enter / focus: background becomes #B59CDE */
 .subnav-action-pill-btn:hover,
 .subnav-action-pill-btn:focus-visible {
-  background: #B59CDE !important;
-  color: #000000 !important;
+  color: #B59CDE !important;
   transform: translateY(-1px);
 }
 
@@ -291,4 +291,8 @@ body:not(.light-theme) .subnav-icon-btn:hover {
     height: 28px;
     font-size: 12px;
   }
+}
+.subnavbar-container.has-bittool {
+  width: calc(100% - 60px) !important;
+  margin-right: 60px !important;
 }
