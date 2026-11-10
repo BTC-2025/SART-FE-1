@@ -67,7 +67,33 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+}
+
+.rb-header-captain-circle-card {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #ffffff;
+  border: 2px solid #fed7aa;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rb-header-captain-circle-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.rb-header-vehicle-image-wrapper:hover .rb-header-captain-circle-card {
+  transform: scale(1.08);
+  border-color: #f97316;
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.25);
 }
 
 .rb-header-safety-hero-img {

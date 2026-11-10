@@ -592,22 +592,13 @@ export default function RideBookingView({
           title="Click to enter Captain Business Portal"
         >
           <div className="rb-header-captain-column">
-            {/* Header image: Auto Driver for Auto, Seatbelt for Car, Helmet for Bike */}
-            <img
-              src={
-                mode === 'auto'
-                  ? '/images/auto_driver_captain.png'
-                  : mode === 'car'
-                    ? '/images/seatbelt_safety.png'
-                    : '/images/helmet_safety.jpg'
-              }
-              alt={mode === 'auto' ? 'Auto Captain' : mode === 'car' ? 'Seatbelt' : 'Helmet'}
-              className="rb-header-safety-hero-img"
-            />
-            {/* Captain Badge below the image */}
-            <span className="rb-captain-badge-pill">
-              <i className="fa-solid fa-briefcase"></i> Captain
-            </span>
+            {/* Circular unified image and name */}
+            <div className="rb-header-captain-circle-card">
+              <img
+                src="/images/captain_card_circle.png"
+                alt="Captain Portal"
+              />
+            </div>
           </div>
         </button>
       </div>
