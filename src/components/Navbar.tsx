@@ -255,7 +255,7 @@ export default function Navbar() {
           className="ctrl-btn"
           onClick={() => {
             if (typeof window !== 'undefined') {
-              window.dispatchEvent(new CustomEvent('openReactModal', { detail: 'modal-cart' }));
+              window.location.href = '/home/cart';
             }
           }}
           title="Shopping Cart"
