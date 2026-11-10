@@ -46,7 +46,14 @@ export default function Navbar() {
           if (parsed.phone) qParams.append('phone', parsed.phone);
           if (parsed.email) qParams.append('email', parsed.email);
 
-          fetch(`http://localhost:5000/api/user/profile?${qParams.toString()}`)
+          const headers: HeadersInit = {
+            'Content-Type': 'application/json'
+          };
+          if (parsed.token) {
+            headers['Authorization'] = `Bearer ${parsed.token}`;
+          }
+
+          fetch(`http://localhost:5000/api/user/profile?${qParams.toString()}`, { headers })
             .then(res => {
               if (!res.ok) return null;
               return res.json();
