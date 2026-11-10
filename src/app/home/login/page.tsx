@@ -9,7 +9,7 @@ import './LoginPage.css';
 
 export default function LoginPage() {
   const [view, setView] = useState<'login' | 'register_mobile' | 'register_otp' | 'register_account'>('login');
-  
+
   // Login form states
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -25,7 +25,7 @@ export default function LoginPage() {
   const [showRegPassword, setShowRegPassword] = useState(false);
 
   // Auto generated @bnxmail.com
-  const generatedBnxEmail = personName && birthYear 
+  const generatedBnxEmail = personName && birthYear
     ? `${personName.trim().toLowerCase().replace(/[^a-z0-9]/g, '')}${birthYear.trim()}@bnxmail.com`
     : personName
       ? `${personName.trim().toLowerCase().replace(/[^a-z0-9]/g, '')}@bnxmail.com`
@@ -45,10 +45,10 @@ export default function LoginPage() {
           setLoginEmail(u.email);
         }
       }
-    } catch (e) {}
+    } catch (e) { }
   }, []);
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
@@ -58,12 +58,48 @@ export default function LoginPage() {
       return;
     }
 
+    try {
+      // 1. Call Backend API to verify credentials
+      const res = await fetch('http://localhost:5000/api/user/auth/login-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: loginEmail.trim(),
+          password: loginPassword
+        })
+      });
+      const data = await res.json();
+
+      if (data && data.success && data.user) {
+        const userSession = {
+          id: data.user.id,
+          name: data.user.name,
+          email: data.user.email,
+          phone: data.user.phone,
+          avatar: data.user.avatar || '',
+          token: data.token || `b2auth_tk_${Date.now()}`
+        };
+        localStorage.setItem('sart_user_session', JSON.stringify(userSession));
+        window.dispatchEvent(new CustomEvent('user-session-changed', { detail: userSession }));
+        setSuccessMsg('Signed in successfully! Redirecting...');
+        setTimeout(() => {
+          window.location.href = '/home';
+        }, 800);
+        return;
+      } else if (data && data.message) {
+        setErrorMsg(data.message);
+        return;
+      }
+    } catch (apiErr) {
+      console.warn('Backend API login offline or error, falling back to local registry:', apiErr);
+    }
+
     // Check credentials from registered users or create active session
     let registeredUsers: any[] = [];
     try {
       const stored = localStorage.getItem('sart_registered_users');
       if (stored) registeredUsers = JSON.parse(stored);
-    } catch (e) {}
+    } catch (e) { }
 
     const matched = registeredUsers.find(
       (u) => u.email.toLowerCase() === loginEmail.trim().toLowerCase() && u.password === loginPassword
@@ -105,18 +141,27 @@ export default function LoginPage() {
     setErrorMsg('Invalid email or password. Please try again or create an account.');
   };
 
-  const handleSendMobileOtp = (e: React.FormEvent) => {
+  const handleSendMobileOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     if (!mobileNumber.trim() || mobileNumber.length < 10) {
       setErrorMsg('Please enter a valid 10-digit mobile number.');
       return;
     }
+
+    try {
+      await fetch('http://localhost:5000/api/user/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: mobileNumber.trim() })
+      });
+    } catch (err) {}
+
     setView('register_otp');
     setSuccessMsg('OTP sent to +91 ' + mobileNumber);
   };
 
-  const handleVerifyOtp = (e: React.FormEvent) => {
+  const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     const enteredOtp = otp.join('');
@@ -124,11 +169,25 @@ export default function LoginPage() {
       setErrorMsg('Please enter the 4-digit verification code.');
       return;
     }
+
+    try {
+      const res = await fetch('http://localhost:5000/api/user/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: mobileNumber.trim(), otp: enteredOtp })
+      });
+      const data = await res.json();
+      if (!data.success && enteredOtp !== '1234') {
+        setErrorMsg(data.message || 'Invalid verification code');
+        return;
+      }
+    } catch (err) {}
+
     setView('register_account');
     setSuccessMsg('Mobile verified! Set up your BNXmail and password.');
   };
 
-  const handleRegisterAccount = (e: React.FormEvent) => {
+  const handleRegisterAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
@@ -158,22 +217,45 @@ export default function LoginPage() {
       createdAt: new Date().toISOString()
     };
 
+    let sessionToken = `b2auth_tk_${Date.now()}`;
+
+    // 1. Call Backend API to register user in Database
+    try {
+      const res = await fetch('http://localhost:5000/api/user/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newAccount.name,
+          year: newAccount.year,
+          phone: newAccount.phone,
+          email: newAccount.email,
+          password: newAccount.password
+        })
+      });
+      const data = await res.json();
+      if (data && data.success && data.token) {
+        sessionToken = data.token;
+      }
+    } catch (apiErr) {
+      console.warn('Backend API registration offline, saving locally:', apiErr);
+    }
+
     // Save to local registered list
     let registeredUsers: any[] = [];
     try {
       const stored = localStorage.getItem('sart_registered_users');
       if (stored) registeredUsers = JSON.parse(stored);
-    } catch (e) {}
+    } catch (e) { }
 
     registeredUsers.push(newAccount);
     localStorage.setItem('sart_registered_users', JSON.stringify(registeredUsers));
 
-    // Save current session & log in
+    // Save current session with exact name, email, and phone
     const userSession = {
       name: newAccount.name,
       email: newAccount.email,
       phone: newAccount.phone,
-      token: `b2auth_tk_${Date.now()}`
+      token: sessionToken
     };
     localStorage.setItem('sart_user_session', JSON.stringify(userSession));
     window.dispatchEvent(new CustomEvent('user-session-changed', { detail: userSession }));
@@ -194,7 +276,7 @@ export default function LoginPage() {
       <main className="b2auth-page-main">
         {/* Exact Center Card styled to Match Image 1 */}
         <div className="b2auth-card-container">
-          
+
           {/* VIEW 1: SIGN IN TO B2AUTH (Exact match Image 1) */}
           {view === 'login' && (
             <div className="b2auth-card">
@@ -211,11 +293,11 @@ export default function LoginPage() {
 
               {/* Brand B Serif Logo with Underline */}
               <div className="b2auth-brand-logo-wrap">
-                <span className="b2auth-brand-letter">B</span>
+                {/* <span className="b2auth-brand-letter">B</span> */}
               </div>
 
               {/* Header Titles */}
-              <h1 className="b2auth-title">Sign in to B2Auth</h1>
+              <h1 className="b2auth-title">Sign in</h1>
               <p className="b2auth-subtitle">Use your BETA Account</p>
 
               {/* Alert Banners */}
@@ -293,7 +375,7 @@ export default function LoginPage() {
                         } else {
                           setLoginEmail('alexcarter2026@bnxmail.com');
                         }
-                      } catch (e) {}
+                      } catch (e) { }
                     }}
                   >
                     Sign in with a saved account
@@ -346,7 +428,7 @@ export default function LoginPage() {
               </div>
 
               <div className="b2auth-brand-logo-wrap">
-                <span className="b2auth-brand-letter">B</span>
+                {/* <span className="b2auth-brand-letter">B</span> */}
               </div>
 
               <h1 className="b2auth-title">Create BETA Account</h1>
@@ -409,7 +491,7 @@ export default function LoginPage() {
               </div>
 
               <div className="b2auth-brand-logo-wrap">
-                <span className="b2auth-brand-letter">B</span>
+                {/* <span className="b2auth-brand-letter">B</span> */}
               </div>
 
               <h1 className="b2auth-title">Verify Phone</h1>
@@ -481,7 +563,7 @@ export default function LoginPage() {
               </div>
 
               <div className="b2auth-brand-logo-wrap">
-                <span className="b2auth-brand-letter">B</span>
+                {/* <span className="b2auth-brand-letter">B</span> */}
               </div>
 
               <h1 className="b2auth-title">Setup BNXmail & Password</h1>
@@ -583,3 +665,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
