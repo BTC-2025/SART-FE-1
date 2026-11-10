@@ -107,6 +107,33 @@ export default function Navbar() {
   }, []);
 
 
+
+  // Listen for virtual keyboard typing from Bit-Tool
+  useEffect(() => {
+    const handleVirtualKey = (e: any) => {
+      const key = e.detail?.key;
+      if (!key) return;
+
+      setIsSearchExpanded(true);
+
+      if (key === 'Backspace') {
+        setSearchQuery(prev => prev.slice(0, -1));
+      } else if (key === 'Enter') {
+        // keep open
+      } else if (key === 'Space') {
+        setSearchQuery(prev => prev + ' ');
+      } else if (key === 'Esc') {
+        setIsSearchExpanded(false);
+        setSearchQuery('');
+      } else if (key.length === 1) {
+        setSearchQuery(prev => prev + key);
+      }
+    };
+
+    window.addEventListener('sart-virtual-keypress', handleVirtualKey);
+    return () => window.removeEventListener('sart-virtual-keypress', handleVirtualKey);
+  }, []);
+
   return (
     <header className="web-navbar">
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
