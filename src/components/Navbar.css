@@ -216,26 +216,74 @@
 }
 
 /* ============================================================================
-   EXPANDING SEARCH BAR
+   CENTER CONTAINER FIXED POSITION (NEVER SHIFTS ON SEARCH EXPAND)
    ============================================================================ */
-.expanded-search-container {
-  display: flex;
-  align-items: center;
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 220px;
-  z-index: 100;
-  animation: expandSearch 0.25s ease forwards;
-  transform-origin: right center;
+.web-navbar {
+  position: relative !important;
 }
 
-@keyframes expandSearch {
-  from {
-    opacity: 0;
-    transform: scaleX(0.5);
+.web-navbar .nav-links {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 50 !important;
+}
+
+.nav-controls {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ============================================================================
+   EXPANDING SEARCH BAR (OVERLAY WITHOUT PUSHING CENTER CONTAINER)
+   ============================================================================ */
+.search-control-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.expanded-search-container {
+  position: absolute;
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  max-width: 0;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, visibility 0.25s ease;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+}
+
+.search-control-slot.search-open .expanded-search-container {
+  width: 250px;
+  max-width: 260px;
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+@media (max-width: 768px) {
+  .search-control-slot.search-open .expanded-search-container {
+    position: fixed;
+    inset: 0 10px 0 10px;
+    width: auto;
+    max-width: none;
+    top: 50%;
+    transform: translateY(-50%);
+    right: auto;
+    left: 10px;
+    z-index: 999;
   }
+}
+
 
   to {
     opacity: 1;
