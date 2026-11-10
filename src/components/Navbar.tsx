@@ -47,9 +47,12 @@ export default function Navbar() {
           if (parsed.email) qParams.append('email', parsed.email);
 
           fetch(`http://localhost:5000/api/user/profile?${qParams.toString()}`)
-            .then(res => res.json())
+            .then(res => {
+              if (!res.ok) return null;
+              return res.json();
+            })
             .then(data => {
-              if (data && data.success && data.data) {
+              if (data && data.success && data.data && (data.data.name || data.data.email || data.data.phone)) {
                 const merged = { ...parsed, ...data.data };
                 setUserSession(merged);
                 localStorage.setItem('sart_user_session', JSON.stringify(merged));
@@ -391,14 +394,14 @@ export default function Navbar() {
               onClick={() => setIsProfileOpen(!isProfileOpen)}
             >
               <i className="fa-solid fa-circle-user"></i>
-              <span className="profile-name">{userSession.name || 'Kumar'}</span>
+              <span className="profile-name">{userSession.name || ''}</span>
               <i className="fa-solid fa-chevron-down"></i>
             </div>
           )}
 
           {userSession && isProfileOpen && (
             /* Image 1 Dropdown */
-            <div className="profile-dropdown-menu show" style={{ width: '320px', height: '470px', padding: '14px', borderRadius: '28px', textAlign: 'center', background: '#ffffff', border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', color: '#000000' }}>
+            <div className="profile-dropdown-menu show" style={{ width: '320px', height: '470px', marginTop: '30px', marginRight: '40px', padding: '14px', borderRadius: '28px', textAlign: 'center', background: '#ffffff', border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)', color: '#000000' }}>
               <div style={{ position: 'relative', width: '80px', height: '80px', margin: '0 auto 12px' }}>
                 {userSession.avatar ? (
                   <img
@@ -510,6 +513,6 @@ export default function Navbar() {
           />
         </button>
       </div>
-    </header>
+    </header >
   );
 }
