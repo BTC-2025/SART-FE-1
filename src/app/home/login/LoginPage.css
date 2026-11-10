@@ -12,7 +12,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
+  padding: 10px 10px;
   background: radial-gradient(circle at 50% 20%, #ffffff 0%, #edf3f8 100%);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   box-sizing: border-box;
@@ -28,9 +28,9 @@
 /* Floating Card matching Image 1 - reduced height, wider layout */
 .b2auth-card {
   background: #ffffff;
-  border-radius: 28px;
+  border-radius: 24px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
-  padding: 22px 36px 22px; /* Reduced vertical padding */
+  padding: 14px 24px 14px;
   border: 1px solid rgba(226, 232, 240, 0.8);
   position: relative;
   display: flex;
@@ -41,20 +41,20 @@
 
 /* Top Back Navigation */
 .b2auth-card-top-nav {
-  margin-bottom: 2px;
+  margin-bottom: 0px;
 }
 
 .b2auth-back-link {
   background: none;
   border: none;
   color: #64748b;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 0;
+  gap: 5px;
+  padding: 0;
   transition: color 0.15s;
 }
 
@@ -67,24 +67,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 6px;
-}
-
-.b2auth-brand-letter {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 46px; /* Slightly reduced */
-  font-weight: 800;
-  color: #0d5bb5;
-  text-decoration: underline;
-  text-underline-offset: 6px;
-  text-decoration-thickness: 3.5px;
-  line-height: 1;
+  margin-bottom: 2px;
 }
 
 /* Heading & Subtitle */
 .b2auth-title {
-  margin: 0 0 4px;
-  font-size: 24px;
+  margin: 0 0 2px;
+  font-size: 21px;
   font-weight: 800;
   color: #1e293b;
   text-align: center;
@@ -92,8 +81,8 @@
 }
 
 .b2auth-subtitle {
-  margin: 0 0 18px; /* Reduced gap */
-  font-size: 13.5px;
+  margin: 0 0 10px;
+  font-size: 12.5px;
   font-weight: 500;
   color: #64748b;
   text-align: center;
@@ -101,14 +90,14 @@
 
 /* Alerts */
 .b2auth-alert {
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-size: 12.5px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 600;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .b2auth-alert.error {
@@ -127,29 +116,29 @@
 .b2auth-form {
   display: flex;
   flex-direction: column;
-  gap: 14px; /* Reduced vertical spacing */
+  gap: 6px;
 }
 
 .b2auth-field-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .b2auth-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: #1e293b;
 }
 
 .b2auth-input {
   width: 100%;
-  height: 44px; /* Reduced input height */
+  height: 38px;
   background: #eef4fc;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 0 16px;
-  font-size: 14px;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 13.5px;
   color: #1e293b;
   outline: none;
   box-sizing: border-box;
@@ -158,7 +147,7 @@
 
 .b2auth-input::placeholder {
   color: #94a3b8;
-  font-size: 13.5px;
+  font-size: 13px;
 }
 
 .b2auth-input:focus {
@@ -175,18 +164,18 @@
 }
 
 .b2auth-password-wrapper .password-input {
-  padding-right: 44px;
+  padding-right: 40px;
 }
 
 .b2auth-pwd-toggle-btn {
   position: absolute;
-  right: 12px;
+  right: 10px;
   background: none;
   border: none;
   color: #64748b;
-  font-size: 16px;
+  font-size: 15px;
   cursor: pointer;
-  padding: 6px;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -205,31 +194,31 @@
 
 .b2auth-country-code {
   position: absolute;
-  left: 14px;
-  font-size: 14px;
+  left: 12px;
+  font-size: 13.5px;
   font-weight: 700;
   color: #475569;
 }
 
 .b2auth-mobile-input-wrapper .b2auth-input {
-  padding-left: 48px;
+  padding-left: 44px;
 }
 
 /* Links */
 .b2auth-forgot-link-wrap {
   text-align: right;
-  margin-top: -6px;
+  margin-top: -3px;
 }
 
 .b2auth-saved-account-wrap {
   text-align: center;
-  margin: 2px 0 4px;
+  margin: 1px 0 2px;
 }
 
 .b2auth-text-link {
   background: none;
   border: none;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   color: #2563eb;
   cursor: pointer;
@@ -243,31 +232,32 @@
 
 .b2auth-text-link.primary {
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 /* Login Button */
 .b2auth-submit-btn {
   width: 100%;
-  height: 44px; /* Reduced button height */
+  height: 40px;
   background: linear-gradient(180deg, #1d72fe 0%, #0059e6 100%);
   color: #ffffff;
   border: none;
-  border-radius: 14px;
-  font-size: 15px;
+  border-radius: 12px;
+  font-size: 14.5px;
   font-weight: 800;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px rgba(29, 114, 254, 0.35);
+  box-shadow: 0 3px 12px rgba(29, 114, 254, 0.35);
   transition: all 0.2s;
+  margin-top: 4px;
 }
 
 .b2auth-submit-btn:hover {
   background: linear-gradient(180deg, #1865e6 0%, #004dcc 100%);
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(29, 114, 254, 0.45);
+  box-shadow: 0 5px 16px rgba(29, 114, 254, 0.45);
 }
 
 .b2auth-submit-btn:active {
@@ -279,20 +269,20 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 22px; /* Reduced gap */
-  padding-top: 12px;
+  margin-top: 10px;
+  padding-top: 8px;
   border-top: 1px solid #f1f5f9;
 }
 
 .b2auth-footer-links-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .b2auth-footer-links-left a {
   color: #64748b;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 500;
   text-decoration: none;
   transition: color 0.15s;
@@ -306,7 +296,7 @@
   background: none;
   border: none;
   color: #2563eb;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
   padding: 0;
@@ -320,20 +310,20 @@
 .b2auth-otp-row {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin: 12px 0 8px;
+  gap: 10px;
+  margin: 8px 0 6px;
 }
 
 .b2auth-otp-digit {
-  width: 54px;
-  height: 56px;
+  width: 48px;
+  height: 50px;
   text-align: center;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 800;
   color: #0f172a;
   background: #f8fafc;
   border: 1.5px solid #cbd5e1;
-  border-radius: 12px;
+  border-radius: 10px;
   outline: none;
   transition: all 0.2s;
 }
@@ -348,13 +338,13 @@
 .b2auth-generated-email-box {
   background: #f8fafc;
   border: 1.5px dashed #cbd5e1;
-  border-radius: 14px;
-  padding: 12px 16px;
-  margin: 4px 0 6px;
+  border-radius: 12px;
+  padding: 5px 12px;
+  margin: 2px 0 4px;
 }
 
 .b2auth-assigned-email-display {
-  font-size: 14px;
+  font-size: 13.5px;
   color: #1e293b;
   word-break: break-all;
 }
@@ -364,10 +354,10 @@
     padding: 24px 20px 28px;
     border-radius: 20px;
   }
+
   .b2auth-card-footer {
     flex-direction: column;
     gap: 14px;
     align-items: flex-start;
   }
 }
-
