@@ -75,8 +75,9 @@ export default function UserSideBitTool({
   };
 
   // Dynamic Calendar state
-  const [currentDate, setCurrentDate] = useState(() => new Date(2026, 10, 4)); // Nov 4, 2026
-  const [selectedDay, setSelectedDay] = useState(4);
+  const today = new Date();
+  const [currentDate, setCurrentDate] = useState(() => new Date()); // Exact today's date
+  const [selectedDay, setSelectedDay] = useState(today.getDate());
 
   const currentYear = currentDate.getFullYear();
   const currentMonthIdx = currentDate.getMonth();
@@ -99,22 +100,26 @@ export default function UserSideBitTool({
   const [calcDisplay, setCalcDisplay] = useState('0');
   const [calcFormula, setCalcFormula] = useState('');
 
-  // Calendar Item Modal State (Image 1)
+  // Calendar Item Modal State (Image 1 & 2)
   const [showAddCalendarItem, setShowAddCalendarItem] = useState(false);
-  const [calendarItemType, setCalendarItemType] = useState<'Event' | 'Note' | 'Reminder'>('Event');
+  const [calendarItemType, setCalendarItemType] = useState<'Event' | 'Note' | 'Reminder'>('Note');
   const [calItemTitle, setCalItemTitle] = useState('');
   const [calItemStartTime, setCalItemStartTime] = useState('10:00 AM');
   const [calItemEndTime, setCalItemEndTime] = useState('11:00 AM');
+  const [calItemTime, setCalItemTime] = useState('10:00 AM'); // Note & Reminder time
   const [calItemDesc, setCalItemDesc] = useState('');
+  const [calItemEmail, setCalItemEmail] = useState(''); // Reminder email
   const [calendarItems, setCalendarItems] = useState<Array<{
     day: number;
     month: number;
     year: number;
     type: 'Event' | 'Note' | 'Reminder';
     title: string;
-    startTime: string;
-    endTime: string;
+    startTime?: string;
+    endTime?: string;
+    time?: string;
     desc: string;
+    email?: string;
   }>>([]);
 
   // Contacts state (Image 2)
@@ -771,18 +776,18 @@ export default function UserSideBitTool({
               </div>
             </div>
 
-            {/* Weekday headers matching inspector: grid grid-cols-7 gap-1 text-[10px] text-center font-bold opacity-60 mb-2 */}
-            <div className="grid grid-cols-7 gap-1 text-[10px] text-center font-bold opacity-60 mb-2">
-              <span>Su</span>
-              <span>Mo</span>
-              <span>Tu</span>
-              <span>We</span>
-              <span>Th</span>
-              <span>Fr</span>
-              <span>Sa</span>
+            {/* Weekday headers: Su in Red, others standard */}
+            <div className="grid grid-cols-7 gap-1 text-[11px] text-center font-bold mb-2">
+              <span className="text-red-500 font-extrabold">Su</span>
+              <span className="opacity-60 text-slate-700">Mo</span>
+              <span className="opacity-60 text-slate-700">Tu</span>
+              <span className="opacity-60 text-slate-700">We</span>
+              <span className="opacity-60 text-slate-700">Th</span>
+              <span className="opacity-60 text-slate-700">Fr</span>
+              <span className="opacity-60 text-slate-700">Sa</span>
             </div>
 
-            {/* Days Matrix matching inspector: grid grid-cols-7 gap-1 text-center text-xs mb-6 min-h-[140px] */}
+            {/* Days Matrix: Sunday marked as red, exact today highlighted with subtle circle, selected day filled golden amber */}
             <div className="grid grid-cols-7 gap-1 text-center text-xs mb-6 min-h-[140px]">
               {Array.from({ length: firstDayWeekday }).map((_, idx) => (
                 <div key={`empty-${idx}`} className="h-8 flex items-center justify-center"></div>
@@ -790,14 +795,26 @@ export default function UserSideBitTool({
 
               {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
                 const isSelected = selectedDay === day;
+                const dayWeekday = (firstDayWeekday + day - 1) % 7;
+                const isSunday = dayWeekday === 0;
+                const isToday =
+                  day === today.getDate() &&
+                  currentMonthIdx === today.getMonth() &&
+                  currentYear === today.getFullYear();
+
                 return (
                   <button
                     key={day}
                     type="button"
-                    className={`h-8 w-8 mx-auto flex items-center justify-center rounded-xl font-medium transition-all cursor-pointer ${isSelected
-                      ? 'bg-[#eab308] text-white font-bold shadow-md shadow-yellow-500/30'
-                      : 'text-slate-800 hover:bg-black/5'
-                      }`}
+                    className={`h-8 w-8 mx-auto flex items-center justify-center rounded-xl font-medium transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#eab308] text-white font-bold shadow-md shadow-yellow-500/30'
+                        : isToday
+                        ? 'bg-slate-100 text-slate-900 font-bold'
+                        : isSunday
+                        ? 'text-red-500 font-bold hover:bg-red-50'
+                        : 'text-slate-800 hover:bg-black/5'
+                    }`}
                     onClick={() => setSelectedDay(day)}
                   >
                     {day}
@@ -806,7 +823,7 @@ export default function UserSideBitTool({
               })}
             </div>
 
-            {/* Schedule Section matching inspector: flex-1 flex flex-col min-h-0 border-t border-gray-100 dark:border-gray-800 pt-4 */}
+            {/* Schedule Section */}
             <div className="flex-1 flex flex-col min-h-0 border-t border-gray-100 dark:border-gray-800 pt-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[10px] font-bold text-slate-400 tracking-wider uppercase">
@@ -831,14 +848,35 @@ export default function UserSideBitTool({
                   {calendarItems
                     .filter(item => item.day === selectedDay && item.month === currentMonthIdx && item.year === currentYear)
                     .map((it, idx) => (
-                      <div key={idx} className="p-2.5 bg-slate-50 border border-slate-200/70 rounded-xl flex justify-between items-center text-xs">
-                        <div>
-                          <div className="font-semibold text-slate-900">{it.title}</div>
-                          <div className="text-[11px] text-slate-500">{it.startTime} - {it.endTime}</div>
+                      <div key={idx} className="p-2.5 bg-slate-50 border border-slate-200/70 rounded-xl flex flex-col gap-1 text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-900 text-[13px]">{it.title}</span>
+                          <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded ${
+                            it.type === 'Note' ? 'bg-amber-100 text-amber-800' : it.type === 'Reminder' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800'
+                          }`}>
+                            {it.type}
+                          </span>
                         </div>
-                        {/* <span className="">
-                          {it.type}
-                        </span> */}
+                        {it.time && (
+                          <div className="text-[11px] text-slate-500 font-medium">
+                            🕒 Time: {it.time}
+                          </div>
+                        )}
+                        {it.startTime && !it.time && (
+                          <div className="text-[11px] text-slate-500 font-medium">
+                            🕒 {it.startTime} - {it.endTime}
+                          </div>
+                        )}
+                        {it.desc && (
+                          <div className="text-[11.5px] text-slate-600 mt-0.5 whitespace-pre-wrap">
+                            {it.desc}
+                          </div>
+                        )}
+                        {it.email && (
+                          <div className="text-[11px] text-blue-600 font-medium mt-0.5">
+                            ✉️ {it.email}
+                          </div>
+                        )}
                       </div>
                     ))}
                 </div>
@@ -850,7 +888,7 @@ export default function UserSideBitTool({
           {showAddCalendarItem && (
             <div className="absolute inset-0 z-50 bg-black/40 backdrop-blur-[2px] flex flex-col justify-end">
               <div className="relative bg-white dark:bg-gray-900 flex flex-col rounded-t-2xl p-4 max-h-[85%] overflow-y-auto hidden-scrollbar shadow-2xl pointer-events-auto border-t border-gray-200 dark:border-gray-800 animate-in slide-in-from-bottom duration-200">
-                {/* Header: Add Item for 11 November + Close */}
+                {/* Header: Add Item for [Day] [Month] + Close */}
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-bold text-sm text-slate-900 dark:text-white">
                     Add Item for {selectedDay} {currentMonthName}
@@ -888,74 +926,161 @@ export default function UserSideBitTool({
                   className="flex flex-col gap-3 text-xs flex-1"
                   onSubmit={(e) => {
                     e.preventDefault();
-                    if (calItemTitle.trim()) {
+                    const titleToSave = calendarItemType === 'Note' ? (calItemDesc.trim().slice(0, 30) || 'Note') : calItemTitle.trim();
+                    if (titleToSave || calItemDesc.trim()) {
                       setCalendarItems(prev => [...prev, {
                         day: selectedDay,
                         month: currentMonthIdx,
                         year: currentYear,
                         type: calendarItemType,
-                        title: calItemTitle.trim(),
-                        startTime: calItemStartTime,
-                        endTime: calItemEndTime,
-                        desc: calItemDesc
+                        title: titleToSave,
+                        time: (calendarItemType === 'Note' || calendarItemType === 'Reminder') ? calItemTime : undefined,
+                        startTime: calendarItemType === 'Event' ? calItemStartTime : undefined,
+                        endTime: calendarItemType === 'Event' ? calItemEndTime : undefined,
+                        desc: calItemDesc.trim(),
+                        email: calendarItemType === 'Reminder' ? calItemEmail.trim() : undefined
                       }]);
                       setCalItemTitle('');
                       setCalItemDesc('');
+                      setCalItemEmail('');
                     }
                     setShowAddCalendarItem(false);
                   }}
                 >
-                  {/* Title */}
-                  <div>
-                    <label className="block mb-1 opacity-70">Title</label>
-                    <input
-                      type="text"
-                      required
-                      value={calItemTitle}
-                      onChange={(e) => setCalItemTitle(e.target.value)}
-                      className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
-                    />
-                  </div>
+                  {/* Note: Only Time and Content (Description) */}
+                  {calendarItemType === 'Note' && (
+                    <>
+                      <div>
+                        <label className="block mb-1 opacity-70 font-semibold">Time</label>
+                        <input
+                          type="time"
+                          required
+                          value={calItemTime}
+                          onChange={(e) => setCalItemTime(e.target.value)}
+                          className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                        />
+                      </div>
 
-                  {/* Start Time & End Time */}
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <label className="block mb-1 opacity-70">Start Time</label>
-                      <input
-                        type="time"
-                        required
-                        value={calItemStartTime}
-                        onChange={(e) => setCalItemStartTime(e.target.value)}
-                        className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="block mb-1 opacity-70">End Time</label>
-                      <input
-                        type="time"
-                        required
-                        value={calItemEndTime}
-                        onChange={(e) => setCalItemEndTime(e.target.value)}
-                        className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
-                      />
-                    </div>
-                  </div>
+                      <div className="flex-1 flex flex-col">
+                        <label className="block mb-1 opacity-70 font-semibold">Content (Note)</label>
+                        <textarea
+                          rows={4}
+                          required
+                          placeholder="Write your note content here..."
+                          value={calItemDesc}
+                          onChange={(e) => setCalItemDesc(e.target.value)}
+                          className="w-full flex-1 bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600 resize-none min-h-[90px]"
+                        />
+                      </div>
+                    </>
+                  )}
 
-                  {/* Description */}
-                  <div className="flex-1 flex flex-col">
-                    <label className="block mb-1 opacity-70">Description</label>
-                    <textarea
-                      rows={2}
-                      value={calItemDesc}
-                      onChange={(e) => setCalItemDesc(e.target.value)}
-                      className="w-full flex-1 bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600 resize-none min-h-[60px]"
-                    />
-                  </div>
+                  {/* Reminder: Title, Description, Time, Email */}
+                  {calendarItemType === 'Reminder' && (
+                    <>
+                      <div>
+                        <label className="block mb-1 opacity-70 font-semibold">Title</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Reminder Title"
+                          value={calItemTitle}
+                          onChange={(e) => setCalItemTitle(e.target.value)}
+                          className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block mb-1 opacity-70 font-semibold">Time</label>
+                        <input
+                          type="time"
+                          required
+                          value={calItemTime}
+                          onChange={(e) => setCalItemTime(e.target.value)}
+                          className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block mb-1 opacity-70 font-semibold">Email for Notification</label>
+                        <input
+                          type="email"
+                          required
+                          placeholder="example@gmail.com"
+                          value={calItemEmail}
+                          onChange={(e) => setCalItemEmail(e.target.value)}
+                          className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                        />
+                      </div>
+
+                      <div className="flex-1 flex flex-col">
+                        <label className="block mb-1 opacity-70 font-semibold">Description</label>
+                        <textarea
+                          rows={2}
+                          placeholder="Reminder description..."
+                          value={calItemDesc}
+                          onChange={(e) => setCalItemDesc(e.target.value)}
+                          className="w-full flex-1 bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600 resize-none min-h-[60px]"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Event: Title, Start Time, End Time, Description */}
+                  {calendarItemType === 'Event' && (
+                    <>
+                      <div>
+                        <label className="block mb-1 opacity-70 font-semibold">Title</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Event Title"
+                          value={calItemTitle}
+                          onChange={(e) => setCalItemTitle(e.target.value)}
+                          className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                        />
+                      </div>
+
+                      <div className="flex gap-2">
+                        <div className="flex-1">
+                          <label className="block mb-1 opacity-70 font-semibold">Start Time</label>
+                          <input
+                            type="time"
+                            required
+                            value={calItemStartTime}
+                            onChange={(e) => setCalItemStartTime(e.target.value)}
+                            className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <label className="block mb-1 opacity-70 font-semibold">End Time</label>
+                          <input
+                            type="time"
+                            required
+                            value={calItemEndTime}
+                            onChange={(e) => setCalItemEndTime(e.target.value)}
+                            className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex-1 flex flex-col">
+                        <label className="block mb-1 opacity-70 font-semibold">Description</label>
+                        <textarea
+                          rows={2}
+                          placeholder="Event details..."
+                          value={calItemDesc}
+                          onChange={(e) => setCalItemDesc(e.target.value)}
+                          className="w-full flex-1 bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600 resize-none min-h-[60px]"
+                        />
+                      </div>
+                    </>
+                  )}
 
                   {/* Submit Button */}
                   <button
                     type="submit"
-                    className="mt-auto py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded shadow-sm disabled:opacity-50 transition-colors"
+                    className="mt-2 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded shadow-sm disabled:opacity-50 transition-colors"
                   >
                     Save Item
                   </button>
