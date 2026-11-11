@@ -3,14 +3,24 @@
 .cart-page-main {
   min-height: calc(100vh - 120px);
   background: #f4f6fa;
-  padding: 24px 24px 60px;
+  padding: 20px 24px 60px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   color: #0f172a;
   box-sizing: border-box;
+  transition: margin-right 0.22s ease;
+}
+
+.cart-page-main.has-bittool-strip {
+  margin-right: 60px;
+}
+
+.cart-page-main.has-bittool-panel {
+  margin-right: 440px;
 }
 
 .cart-page-container {
-  max-width: 1300px;
+  max-width: 1360px;
+  width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -45,6 +55,7 @@
     transform: translateY(20px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -112,8 +123,8 @@
 /* Main Grid Layout */
 .cart-layout-grid {
   display: grid;
-  grid-template-columns: 1fr 390px;
-  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 20px;
   align-items: start;
 }
 
@@ -202,12 +213,16 @@
 .cart-items-section {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .cart-items-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
+  max-height: calc(100vh - 210px);
+  overflow-y: auto;
+  padding-right: 8px;
 }
 
 /* Custom smooth thin scrollbar for left side */
@@ -216,7 +231,7 @@
 }
 
 .cart-items-list::-webkit-scrollbar-track {
-  background: #edf2f7;
+  background: #f1f5f9;
   border-radius: 6px;
 }
 

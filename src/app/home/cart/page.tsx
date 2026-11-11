@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import SubNavbar from '@/components/SubNavbar';
 import Footer from '@/components/Footer';
 import UserSideBitTool from '@/components/UserSideBitTool';
+import CitySelectorModal from '@/components/modals/CitySelectorModal';
 import { useSartStore } from '@/store/useSartStore';
 import { ALL_STORE_PRODUCTS } from '@/components/tabs/StoreTab';
 import { DEFAULT_CART_ITEMS } from './defaultCartData';
@@ -23,9 +24,12 @@ export default function CartPage() {
     addToCart,
     wallet,
     updateBalance,
-    addTransaction
+    addTransaction,
+    isBitToolOpen
   } = useSartStore();
 
+  const [isCityModalOpen, setIsCityModalOpen] = useState(false);
+  const [activeBitToolPanel, setActiveBitToolPanel] = useState<string | null>(null);
   const [userSession, setUserSession] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'cart' | 'wishlist'>('cart');
   const [toastMsg, setToastMsg] = useState<string | null>(null);
@@ -47,6 +51,17 @@ export default function CartPage() {
       setHasInitializedDefault(true);
     }
   }, [cart.length, hasInitializedDefault, addToCart]);
+
+  // Listen for city selector modal event (e.g. from location button in Navbar)
+  useEffect(() => {
+    const handleOpenModal = (e: any) => {
+      if (e.detail === 'modal-city-selector') {
+        setIsCityModalOpen(true);
+      }
+    };
+    window.addEventListener('openReactModal', handleOpenModal);
+    return () => window.removeEventListener('openReactModal', handleOpenModal);
+  }, []);
 
   // Check login and clean expired guest items
   useEffect(() => {
@@ -205,9 +220,12 @@ export default function CartPage() {
     <div className="web-app-layout">
       <Navbar />
       <SubNavbar />
-      <UserSideBitTool isOpen={false} />
+      <UserSideBitTool
+        isOpen={isBitToolOpen}
+        onActivePanelChange={(panel) => setActiveBitToolPanel(panel)}
+      />
 
-      <main className="cart-page-main">
+      <main className={`cart-page-main ${isBitToolOpen ? (activeBitToolPanel ? 'has-bittool-panel' : 'has-bittool-strip') : ''}`}>
         {/* Toast Alert */}
         {toastMsg && (
           <div className="cart-page-toast">
@@ -710,6 +728,7 @@ export default function CartPage() {
       </main>
 
       <Footer />
+      <CitySelectorModal isOpen={isCityModalOpen} onClose={() => setIsCityModalOpen(false)} />
     </div>
   );
 }
