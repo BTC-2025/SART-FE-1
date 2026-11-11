@@ -98,6 +98,7 @@ export default function UserSideBitTool({
 
   // Calculator states
   const [calcDisplay, setCalcDisplay] = useState('0');
+  const [pendingOp, setPendingOp] = useState<'+' | '-' | '×' | '÷'>('+');
   const [calcFormula, setCalcFormula] = useState('');
   const [calcCurrency, setCalcCurrency] = useState<'INR' | 'USD' | 'EUR' | 'GBP' | 'AED'>('INR');
   const [activeCalcDropdown, setActiveCalcDropdown] = useState<'gst' | 'discount' | 'region' | null>(null);
@@ -375,21 +376,47 @@ export default function UserSideBitTool({
 
   const handleCalcClick = (val: string) => {
     if (val === 'C' || val === 'AC') {
+      // Clear All: clears everything (display, tape items, formula)
       setCalcDisplay('0');
       setCalcFormula('');
+      setTapeItems([]);
     } else if (val === 'backspace') {
       if (calcDisplay.length <= 1) setCalcDisplay('0');
       else setCalcDisplay(calcDisplay.slice(0, -1));
     } else if (val === '=') {
       const num = parseFloat(calcDisplay);
       if (!isNaN(num) && num !== 0) {
-        handleApplyOperation('ADD');
+        if (pendingOp === '+') handleApplyOperation('ADD');
+        else if (pendingOp === '-') handleApplyOperation('SUB');
+        else if (pendingOp === '×') handleApplyOperation('MUL');
+        else if (pendingOp === '÷') handleApplyOperation('DIV');
       }
     } else if (['+', '-', 'x', '÷'].includes(val)) {
-      if (val === '+') handleApplyOperation('ADD');
-      else if (val === '-') handleApplyOperation('SUB');
-      else if (val === 'x') handleApplyOperation('MUL');
-      else if (val === '÷') handleApplyOperation('DIV');
+      const num = parseFloat(calcDisplay);
+      const symbolMap: Record<string, '+' | '-' | '×' | '÷'> = { '+': '+', '-': '-', 'x': '×', '÷': '÷' };
+      const opToApply: Record<string, 'ADD' | 'SUB' | 'MUL' | 'DIV'> = { '+': 'ADD', '-': 'SUB', 'x': 'MUL', '÷': 'DIV' };
+
+      if (!isNaN(num) && num !== 0) {
+        if (tapeItems.length === 0) {
+          // Commit base amount first
+          setTapeItems([
+            {
+              id: `t-${Date.now()}`,
+              type: 'BASE',
+              label: 'Base Amount',
+              value: num,
+              runningTotal: num
+            }
+          ]);
+        } else {
+          // Commit previous pending operation with the current number
+          const prevOpType = pendingOp === '+' ? 'ADD' : pendingOp === '-' ? 'SUB' : pendingOp === '×' ? 'MUL' : 'DIV';
+          handleApplyOperation(prevOpType);
+        }
+      }
+      // Update pending operator without showing 0 or replacing the current typed number until next digit
+      setPendingOp(symbolMap[val] || '+');
+      setCalcDisplay(''); // Clear for next number entry
     } else {
       if (calcDisplay === '0' && !['.', '+', '-', '*', '/', 'x', '÷'].includes(val)) {
         setCalcDisplay(val);
@@ -1568,13 +1595,13 @@ export default function UserSideBitTool({
                   </div>
                 )}
 
-                {/* CONTINUE Input Screen: CONTINUE label + large number display */}
+                {/* CONTINUE Input Screen: CONTINUE label + current operator (+, -, ×, ÷) + large number display (shows typed digits, never forces 0) */}
                 <div className="bg-gray-100/60 dark:bg-gray-800 py-1.5 px-3 border-t border-gray-200 dark:border-gray-700">
                   <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">CONTINUE</div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-400 font-bold text-sm">+</span>
+                    <span className="text-gray-500 font-extrabold text-sm">{pendingOp}</span>
                     <div className="text-xl font-black text-right text-slate-900 dark:text-white truncate">
-                      {calcDisplay || '0'}
+                      {calcDisplay !== '' ? calcDisplay : (tapeItems.length > 0 ? '' : '0')}
                     </div>
                   </div>
                 </div>
@@ -1673,9 +1700,9 @@ export default function UserSideBitTool({
                           </button>
                         </div>
 
-                        {/* 4 columns in one row for Discount percentages */}
+                        {/* Only ONE row of 4 columns for Discount percentages */}
                         <div className="grid grid-cols-4 gap-1">
-                          {[5, 10, 15, 20, 25, 30, 40, 50].map(p => (
+                          {[5, 10, 15, 20].map(p => (
                             <button
                               key={p}
                               type="button"
