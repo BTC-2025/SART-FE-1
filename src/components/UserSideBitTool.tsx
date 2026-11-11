@@ -227,22 +227,35 @@ export default function UserSideBitTool({
     return tapeItems[tapeItems.length - 1].runningTotal;
   };
 
+  const logToHistory = (itemLabel: string, finalTotal: number, details?: string) => {
+    setCalcHistory(prev => [
+      {
+        id: `hist-${Date.now()}-${Math.random()}`,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        tape: [...tapeItems],
+        total: finalTotal,
+        currency: calcCurrency,
+        summary: details || itemLabel
+      },
+      ...prev
+    ]);
+  };
+
   const handleApplyDiscount = (percent: number) => {
     const currentBase = getRunningTotal();
     const discountAmount = +(currentBase * (percent / 100)).toFixed(2);
     const newTotal = +(currentBase - discountAmount).toFixed(2);
-    setTapeItems(prev => [
-      ...prev,
-      {
-        id: `t-${Date.now()}`,
-        type: 'DISCOUNT',
-        label: `${percent}% Disc`,
-        percent: percent,
-        value: percent,
-        runningTotal: newTotal,
-        diff: -discountAmount
-      }
-    ]);
+    const newTapeItem: TapeItem = {
+      id: `t-${Date.now()}`,
+      type: 'DISCOUNT',
+      label: `${percent}% Disc`,
+      percent: percent,
+      value: percent,
+      runningTotal: newTotal,
+      diff: -discountAmount
+    };
+    setTapeItems(prev => [...prev, newTapeItem]);
+    logToHistory(`${percent}% Discount`, newTotal, `${currencyRates[calcCurrency]?.symbol || '₹'}${currentBase} − ${percent}% = ${currencyRates[calcCurrency]?.symbol || '₹'}${newTotal}`);
     setActiveCalcDropdown(null);
     setCustomDiscountInput('');
   };
@@ -251,18 +264,17 @@ export default function UserSideBitTool({
     const currentBase = getRunningTotal();
     const gstAmount = +(currentBase * (percent / 100)).toFixed(2);
     const newTotal = +(currentBase + gstAmount).toFixed(2);
-    setTapeItems(prev => [
-      ...prev,
-      {
-        id: `t-${Date.now()}`,
-        type: 'GST',
-        label: `${percent}% GST`,
-        percent: percent,
-        value: percent,
-        runningTotal: newTotal,
-        diff: +gstAmount
-      }
-    ]);
+    const newTapeItem: TapeItem = {
+      id: `t-${Date.now()}`,
+      type: 'GST',
+      label: `${percent}% GST`,
+      percent: percent,
+      value: percent,
+      runningTotal: newTotal,
+      diff: +gstAmount
+    };
+    setTapeItems(prev => [...prev, newTapeItem]);
+    logToHistory(`${percent}% GST`, newTotal, `${currencyRates[calcCurrency]?.symbol || '₹'}${currentBase} + ${percent}% GST = ${currencyRates[calcCurrency]?.symbol || '₹'}${newTotal}`);
     setActiveCalcDropdown(null);
     setCustomGstInput('');
   };
@@ -284,6 +296,7 @@ export default function UserSideBitTool({
           runningTotal: entered
         }
       ]);
+      logToHistory('Base Amount', entered, `Initial Base: ${currencyRates[calcCurrency]?.symbol || '₹'}${entered}`);
       setCalcDisplay('0');
       return;
     }
@@ -302,6 +315,7 @@ export default function UserSideBitTool({
       diffVal = +(newTotal - currentBase).toFixed(2);
     }
 
+    const opSymbol = op === 'ADD' ? '+' : op === 'SUB' ? '−' : op === 'MUL' ? '×' : '÷';
     setTapeItems(prev => [
       ...prev,
       {
@@ -313,22 +327,12 @@ export default function UserSideBitTool({
         diff: diffVal
       }
     ]);
+    logToHistory(`Calculated ${opSymbol} ${entered}`, newTotal, `${currencyRates[calcCurrency]?.symbol || '₹'}${currentBase} ${opSymbol} ${entered} = ${currencyRates[calcCurrency]?.symbol || '₹'}${newTotal}`);
     setCalcDisplay('0');
   };
 
   const handleClearTape = () => {
-    if (tapeItems.length > 0) {
-      setCalcHistory(prev => [
-        {
-          id: `hist-${Date.now()}`,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          tape: [...tapeItems],
-          total: getRunningTotal(),
-          currency: calcCurrency
-        },
-        ...prev
-      ]);
-    }
+    // Trash icon in top bar clears the active working tape only without wiping the History logs
     setTapeItems([]);
     setCalcDisplay('0');
     setCalcFormula('');
@@ -1911,7 +1915,7 @@ export default function UserSideBitTool({
 
                       {calcHistory.length === 0 ? (
                         <div className="py-8 text-center text-xs text-slate-400 font-medium">
-                          No saved calculation history yet. Clear tape to archive sessions here.
+                          No saved calculation history yet. Calculations will appear here as you calculate.
                         </div>
                       ) : (
                         <div className="space-y-2">
@@ -1923,8 +1927,8 @@ export default function UserSideBitTool({
                                   {currencyRates[h.currency]?.symbol || '₹'}{h.total.toFixed(2)}
                                 </span>
                               </div>
-                              <div className="text-slate-600 text-[11px]">
-                                {h.tape.map(t => `${t.label}: ${t.runningTotal}`).join(' → ')}
+                              <div className="text-slate-700 font-medium text-[11.5px]">
+                                {h.summary || (h.tape && h.tape.map(t => `${t.label}: ${t.runningTotal}`).join(' → '))}
                               </div>
                             </div>
                           ))}
