@@ -1554,28 +1554,39 @@ export default function RideBookingView({
           alignItems: 'center',
           backdropFilter: 'blur(3px)'
         }}>
-          {/* Bottom Sheet Card */}
+          {/* Dynamic Interactive Container: Two-column layout on desktop (Left: Content, Right: Live Captain Map) */}
           <div style={{
             background: '#ffffff',
             borderTopLeftRadius: '24px',
             borderTopRightRadius: '24px',
+            borderRadius: '24px',
             width: '100%',
-            maxWidth: '540px',
+            maxWidth: '1060px',
             maxHeight: '92vh',
-            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'row',
+            overflow: 'hidden',
             boxShadow: '0 -10px 40px rgba(0,0,0,0.22)',
-            padding: '16px 20px 24px 20px',
             position: 'relative',
-            animation: 'rbSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+            animation: 'rbSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            margin: 'auto 20px'
           }}>
-            {/* Grab Handle */}
+            {/* Left Content Column */}
             <div style={{
-              width: '40px',
-              height: '4px',
-              background: '#cbd5e1',
-              borderRadius: '2px',
-              margin: '0 auto 14px auto'
-            }}></div>
+              flex: '1 1 520px',
+              maxWidth: '540px',
+              overflowY: 'auto',
+              padding: '16px 20px 24px 20px',
+              borderRight: '1px solid #f1f5f9'
+            }}>
+              {/* Grab Handle */}
+              <div style={{
+                width: '40px',
+                height: '4px',
+                background: '#cbd5e1',
+                borderRadius: '2px',
+                margin: '0 auto 14px auto'
+              }}></div>
 
             {/* OTP & Ride Lifecycle Status Header Section */}
             <div style={{
@@ -2018,8 +2029,69 @@ export default function RideBookingView({
               )}
             </div>
           </div>
+
+          {/* Right Column: Live Captain Radar & Route Map (Image 2 Right Side) */}
+          <div style={{
+            flex: '1 1 480px',
+            minWidth: '380px',
+            position: 'relative',
+            background: '#e2e8f0',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            {/* Live Map Top Pill Header */}
+            <div style={{
+              position: 'absolute',
+              top: '12px',
+              left: '12px',
+              right: '12px',
+              zIndex: 1000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              background: 'rgba(15, 23, 42, 0.88)',
+              backdropFilter: 'blur(8px)',
+              padding: '8px 14px',
+              borderRadius: '14px',
+              color: '#ffffff',
+              fontSize: '12px',
+              fontWeight: 800,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.25)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 0 3px rgba(34, 197, 94, 0.4)' }}></span>
+                <span>Live Captain: <strong>{rideBookedModal.captain}</strong></span>
+              </div>
+              <span style={{ color: '#facc15', fontSize: '11px' }}>
+                {rideBookedModal.status === 'In-Trip' ? 'En Route to Destination' : 'En Route to Pickup'}
+              </span>
+            </div>
+
+            <InteractiveRideMap
+              mode={mode}
+              pickupCoords={pickupCoords}
+              dropCoords={dropCoords}
+              stops={stops}
+              pickupAddress={pickup}
+              dropAddress={dropoff}
+              selectionMode="idle"
+              onSelectLocation={() => { }}
+              nearbyCaptains={[{
+                id: 'active-captain',
+                driverName: rideBookedModal.captain || 'Captain',
+                serviceType: mode,
+                lat: (pickupCoords ? (pickupCoords.lat + (dropCoords ? (dropCoords.lat - pickupCoords.lat) * (captainProgress / 100) : 0.004)) : 13.0827),
+                lng: (pickupCoords ? (pickupCoords.lng + (dropCoords ? (dropCoords.lng - pickupCoords.lng) * (captainProgress / 100) : 0.005)) : 80.2755),
+                rating: 4.9,
+                vehicleModel: rideBookedModal.type || 'Standard',
+                plateNumber: rideBookedModal.plate || 'TN 09 EQ 4421'
+              }]}
+              routeGeometry={routeGeometry}
+            />
+          </div>
         </div>
-      )}
+      </div>
+    )}
 
       {/* 💬 Live Communication Chat Modal with Captain */}
       {showChatModal && rideBookedModal && (
