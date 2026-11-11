@@ -951,48 +951,48 @@
   background: #ffffff !important;
 }
 
-/* Default Inactive: clean white background, square border */
+/* Inactive States: Soft tinted full color background with matching pastel border matching the uploaded image */
 .bnx-tool-btn.bnx-brand-b {
   border-radius: 8px !important;
   border: 1px solid #dbeafe !important;
-  background: #ffffff !important;
+  background: #eff6ff !important;
 }
 
 .bnx-tool-btn.bnx-calendar {
   border-radius: 8px !important;
-  border: 1px solid #fed7aa !important;
-  background: #ffffff !important;
+  border: 1.5px solid #fed7aa !important;
+  background: #fff7ed !important;
 }
 
 .bnx-tool-btn.bnx-calculator {
   border-radius: 8px !important;
-  border: 1px solid #a7f3d0 !important;
-  background: #ffffff !important;
+  border: 1.5px solid #a7f3d0 !important;
+  background: #ecfdf5 !important;
 }
 
 .bnx-tool-btn.bnx-contacts,
 .bnx-tool-btn.bnx-people {
   border-radius: 8px !important;
-  border: 1px solid #bfdbfe !important;
-  background: #ffffff !important;
+  border: 1.5px solid #bfdbfe !important;
+  background: #eff6ff !important;
 }
 
 .bnx-tool-btn.bnx-notes {
   border-radius: 8px !important;
-  border: 1px solid #fef08a !important;
-  background: #ffffff !important;
+  border: 1.5px solid #fef08a !important;
+  background: #fefce8 !important;
 }
 
 .bnx-tool-btn.bnx-keyboard {
   border-radius: 8px !important;
-  border: 1px solid #c7d2fe !important;
-  background: #ffffff !important;
+  border: 1.5px solid #c7d2fe !important;
+  background: #eef2ff !important;
 }
 
 .bnx-tool-btn.bnx-cloud {
   border-radius: 8px !important;
-  border: 1px solid #a5f3fc !important;
-  background: #ffffff !important;
+  border: 1.5px solid #a5f3fc !important;
+  background: #ecfeff !important;
 }
 
 .bnx-tool-btn.bnx-pencil {
@@ -1001,49 +1001,55 @@
   background: #ffffff !important;
 }
 
-/* Active Selected Tool: Square with 1.5px colored border */
+/* Active Selected Tool: Square with full matching tinted background and solid 2px colored border */
 .bnx-tool-btn.active-tool {
   border-radius: 8px !important;
-  border: 1.5px solid #2563eb !important;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12) !important;
-  background: #ffffff !important;
+  border: 2px solid #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16) !important;
+  background: #dbeafe !important;
 }
 
 .bnx-tool-btn.bnx-calendar.active-tool {
   border-radius: 8px !important;
-  border: 1.5px solid #ea580c !important;
-  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.12) !important;
+  border: 2px solid #ea580c !important;
+  background: #ffedd5 !important;
+  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.18) !important;
 }
 
 .bnx-tool-btn.bnx-calculator.active-tool {
   border-radius: 8px !important;
-  border: 1.5px solid #059669 !important;
-  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.12) !important;
+  border: 2px solid #059669 !important;
+  background: #d1fae5 !important;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.18) !important;
 }
 
 .bnx-tool-btn.bnx-contacts.active-tool,
 .bnx-tool-btn.bnx-people.active-tool {
   border-radius: 8px !important;
-  border: 1.5px solid #2563eb !important;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12) !important;
+  border: 2px solid #2563eb !important;
+  background: #dbeafe !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18) !important;
 }
 
 .bnx-tool-btn.bnx-notes.active-tool {
   border-radius: 8px !important;
-  border: 1.5px solid #eab308 !important;
-  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.12) !important;
+  border: 2px solid #eab308 !important;
+  background: #fef9c3 !important;
+  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.18) !important;
 }
 
 .bnx-tool-btn.bnx-keyboard.active-tool {
   border-radius: 8px !important;
-  border: 1.5px solid #6366f1 !important;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.12) !important;
+  border: 2px solid #6366f1 !important;
+  background: #e0e7ff !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.18) !important;
 }
 
 .bnx-tool-btn.bnx-cloud.active-tool {
   border-radius: 8px !important;
-  border: 1.5px solid #06b6d4 !important;
-  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.12) !important;
+  border: 2px solid #06b6d4 !important;
+  background: #cffafe !important;
+  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.18) !important;
 }
 
 /* Solid Green Checkmark Circle Button */

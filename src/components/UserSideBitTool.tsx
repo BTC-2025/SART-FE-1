@@ -210,24 +210,33 @@ export default function UserSideBitTool({
     switch (type) {
       case 'calendar':
         return (
-          <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="4" ry="4"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
+          <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none">
+            {/* Outline calendar matching 1st image icon */}
+            <rect x="3.5" y="4" width="17" height="16.5" rx="4.5" stroke="#ea580c" strokeWidth="2.4" fill="none"></rect>
+            <path d="M7 2.5v3" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round"></path>
+            <path d="M17 2.5v3" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round"></path>
+            <path d="M3.5 9h17" stroke="#ea580c" strokeWidth="2.2" strokeLinecap="round"></path>
           </svg>
         );
       case 'calculator':
         return (
           <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="3" width="18" height="18" rx="4" fill="#059669"></rect>
-            <line x1="6.5" y1="8" x2="10.5" y2="8" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
-            <line x1="8.5" y1="6" x2="8.5" y2="10" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
-            <line x1="13.5" y1="8" x2="17.5" y2="8" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
-            <line x1="13.5" y1="14" x2="17.5" y2="14" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
-            <line x1="13.5" y1="17" x2="17.5" y2="17" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
-            <line x1="6.5" y1="14" x2="10.5" y2="17" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round"></line>
-            <line x1="10.5" y1="14" x2="6.5" y2="17" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round"></line>
+            {/* Outer calculator body matching the first image icon */}
+            <rect x="3.5" y="2.5" width="17" height="19" rx="4.5" stroke="#059669" strokeWidth="2.4" fill="none"></rect>
+            {/* Screen bar */}
+            <rect x="6.5" y="5.5" width="11" height="2" rx="1" fill="#059669"></rect>
+            {/* Row 1 dots */}
+            <circle cx="7.5" cy="11" r="1.3" fill="#059669"></circle>
+            <circle cx="12" cy="11" r="1.3" fill="#059669"></circle>
+            <circle cx="16.5" cy="11" r="1.3" fill="#059669"></circle>
+            {/* Row 2 dots */}
+            <circle cx="7.5" cy="14.5" r="1.3" fill="#059669"></circle>
+            <circle cx="12" cy="14.5" r="1.3" fill="#059669"></circle>
+            {/* Tall action key */}
+            <rect x="15.2" y="13.5" width="2.6" height="5.5" rx="1.3" fill="#059669"></rect>
+            {/* Row 3 dots */}
+            <circle cx="7.5" cy="18" r="1.3" fill="#059669"></circle>
+            <circle cx="12" cy="18" r="1.3" fill="#059669"></circle>
           </svg>
         );
       case 'contacts':
