@@ -28,7 +28,6 @@ const INITIAL_PINS: PinItem[] = [
   { id: 'contacts', name: 'Contacts', color: '#2563eb', isPinned: true, iconType: 'contacts' },
   { id: 'notes', name: 'Notes', color: '#64748b', isPinned: true, iconType: 'notes' },
   { id: 'keyboard', name: 'Virtual Keyboard', color: '#6366f1', isPinned: true, iconType: 'keyboard' },
-  { id: 'cloud', name: 'Weather', color: '#06b6d4', isPinned: true, iconType: 'cloud' },
 ];
 
 const AVAILABLE_WEBSITE_APPS: { id: string; name: string; iconType: PinItem['iconType']; color: string }[] = [
@@ -251,12 +250,7 @@ export default function UserSideBitTool({
             <rect x="7" y="15" width="10" height="1.8" rx="0.8" fill="#ffffff"></rect>
           </svg>
         );
-      case 'cloud':
-        return (
-          <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
-          </svg>
-        );
+
       case 'custom_edit':
         return (
           <img src="/images/bnx_edit_pencil.png" alt="Edit Notes" className="w-80 h-80 object-contain rounded" />
@@ -773,11 +767,10 @@ export default function UserSideBitTool({
                   <button
                     key={day}
                     type="button"
-                    className={`h-8 w-8 mx-auto flex items-center justify-center rounded-xl font-medium transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-[#eab308] text-white font-bold shadow-md shadow-yellow-500/30'
-                        : 'text-slate-800 hover:bg-black/5'
-                    }`}
+                    className={`h-8 w-8 mx-auto flex items-center justify-center rounded-xl font-medium transition-all cursor-pointer ${isSelected
+                      ? 'bg-[#eab308] text-white font-bold shadow-md shadow-yellow-500/30'
+                      : 'text-slate-800 hover:bg-black/5'
+                      }`}
                     onClick={() => setSelectedDay(day)}
                   >
                     {day}
@@ -816,9 +809,9 @@ export default function UserSideBitTool({
                           <div className="font-semibold text-slate-900">{it.title}</div>
                           <div className="text-[11px] text-slate-500">{it.startTime} - {it.endTime}</div>
                         </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 uppercase">
+                        {/* <span className="">
                           {it.type}
-                        </span>
+                        </span> */}
                       </div>
                     ))}
                 </div>
@@ -854,11 +847,10 @@ export default function UserSideBitTool({
                       key={tab}
                       type="button"
                       onClick={() => setCalendarItemType(tab)}
-                      className={`flex-1 py-1 rounded text-center font-semibold transition-colors ${
-                        calendarItemType === tab
-                          ? 'bg-white dark:bg-gray-700 shadow-sm text-slate-900 dark:text-white'
-                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                      }`}
+                      className={`flex-1 py-1 rounded text-center font-semibold transition-colors ${calendarItemType === tab
+                        ? 'bg-white dark:bg-gray-700 shadow-sm text-slate-900 dark:text-white'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                        }`}
                     >
                       {tab}
                     </button>
@@ -1260,26 +1252,100 @@ export default function UserSideBitTool({
                 <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>No contacts found</span>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {contactsList
                   .filter(c => c.fullName.toLowerCase().includes(contactSearch.toLowerCase()) || c.email.toLowerCase().includes(contactSearch.toLowerCase()))
                   .map(c => (
-                    <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px' }}>
-                      <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#dbeafe', color: '#1d4ed8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '14px' }}>
-                        {c.fullName.charAt(0).toUpperCase()}
+                    <div
+                      key={c.id}
+                      style={{
+                        background: '#ffffff',
+                        border: '1.5px solid #edf2f7',
+                        borderRadius: '20px',
+                        padding: '16px 18px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                        position: 'relative',
+                        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
+                      }}
+                    >
+                      {/* Top Row: Name on Left, Badge & Edit Pencil on Right */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a' }}>
+                          {c.fullName}
+                        </span>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span
+                            style={{
+                              background: '#eff6ff',
+                              color: '#2563eb',
+                              fontSize: '11px',
+                              fontWeight: 800,
+                              padding: '4px 10px',
+                              borderRadius: '14px',
+                              letterSpacing: '0.4px',
+                              textTransform: 'uppercase'
+                            }}
+                          >
+                            {c.role || 'BNX MAIL'}
+                          </span>
+
+                          <button
+                            type="button"
+                            title="Edit / Delete"
+                            onClick={() => setContactsList(prev => prev.filter(item => item.id !== c.id))}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#94a3b8',
+                              cursor: 'pointer',
+                              padding: '2px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'color 0.15s ease'
+                            }}
+                            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#2563eb')}
+                            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = '#94a3b8')}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                            </svg>
+                          </button>
+                        </div>
                       </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.fullName}</div>
-                        <div style={{ fontSize: '11.5px', color: '#64748b' }}>{c.email}</div>
-                        {c.phone && <div style={{ fontSize: '11px', color: '#94a3b8' }}>{c.phone} {c.role ? `• ${c.role}` : ''}</div>}
+
+                      {/* Detail 1: Email Row */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#64748b', fontSize: '13.5px', marginTop: '2px' }}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                          <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                        </svg>
+                        <span style={{ color: '#475569', fontWeight: 500 }}>{c.email}</span>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setContactsList(prev => prev.filter(item => item.id !== c.id))}
-                        style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' }}
-                      >
-                        <i className="fa-solid fa-trash-can"></i>
-                      </button>
+
+                      {/* Detail 2: Phone Row */}
+                      {c.phone && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#64748b', fontSize: '13.5px' }}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                          </svg>
+                          <span style={{ color: '#475569', fontWeight: 500 }}>{c.phone}</span>
+                        </div>
+                      )}
+
+                      {/* Detail 3: Role / Work Bag Row */}
+                      {c.role && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#64748b', fontSize: '13.5px' }}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                          </svg>
+                          <span style={{ color: '#475569', fontWeight: 500 }}>{c.role}</span>
+                        </div>
+                      )}
                     </div>
                   ))}
               </div>
