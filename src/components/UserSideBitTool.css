@@ -898,11 +898,11 @@
   opacity: 0.7;
 }
 
-/* Sidebar Circles: Compact 34px x 34px with thin 1px border matching screenshot */
+/* Sidebar Icons: Compact 34px x 34px Square shape with subtle rounded corners (8px) */
 .bnx-tool-btn {
   width: 34px !important;
   height: 34px !important;
-  border-radius: 50% !important;
+  border-radius: 8px !important;
   border: 1px solid transparent !important;
   background: #ffffff !important;
   display: flex !important;
@@ -916,112 +916,132 @@
 }
 
 .bnx-tool-btn.bnx-square-shape {
-  border-radius: 10px !important;
+  border-radius: 8px !important;
   border: 1px solid #dbeafe !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-custom_edit {
+  border-radius: 8px !important;
   border: 1px solid #cbd5e1 !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-rides {
+  border-radius: 8px !important;
   border: 1px solid #2563eb !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-rentals {
+  border-radius: 8px !important;
   border: 1px solid #10b981 !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-logistics {
+  border-radius: 8px !important;
   border: 1px solid #f59e0b !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-parking {
+  border-radius: 8px !important;
   border: 1px solid #8b5cf6 !important;
   background: #ffffff !important;
 }
 
-/* Default Inactive: clean white background, thin 1px circular border */
+/* Default Inactive: clean white background, square border */
 .bnx-tool-btn.bnx-brand-b {
+  border-radius: 8px !important;
   border: 1px solid #dbeafe !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-calendar {
+  border-radius: 8px !important;
   border: 1px solid #fed7aa !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-calculator {
+  border-radius: 8px !important;
   border: 1px solid #a7f3d0 !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-contacts,
 .bnx-tool-btn.bnx-people {
+  border-radius: 8px !important;
   border: 1px solid #bfdbfe !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-notes {
+  border-radius: 8px !important;
   border: 1px solid #fef08a !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-keyboard {
+  border-radius: 8px !important;
   border: 1px solid #c7d2fe !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-cloud {
+  border-radius: 8px !important;
   border: 1px solid #a5f3fc !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-pencil {
+  border-radius: 8px !important;
   border: 1px solid #e2e8f0 !important;
   background: #ffffff !important;
 }
 
-/* Active Selected Tool: 1.5px colored border matching screenshot */
+/* Active Selected Tool: Square with 1.5px colored border */
 .bnx-tool-btn.active-tool {
+  border-radius: 8px !important;
   border: 1.5px solid #2563eb !important;
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12) !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-calendar.active-tool {
+  border-radius: 8px !important;
   border: 1.5px solid #ea580c !important;
   box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.12) !important;
 }
 
 .bnx-tool-btn.bnx-calculator.active-tool {
+  border-radius: 8px !important;
   border: 1.5px solid #059669 !important;
   box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.12) !important;
 }
 
 .bnx-tool-btn.bnx-contacts.active-tool,
 .bnx-tool-btn.bnx-people.active-tool {
+  border-radius: 8px !important;
   border: 1.5px solid #2563eb !important;
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12) !important;
 }
 
 .bnx-tool-btn.bnx-notes.active-tool {
-  border: 1.5px solid #2563eb !important;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12) !important;
+  border-radius: 8px !important;
+  border: 1.5px solid #eab308 !important;
+  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.12) !important;
 }
 
 .bnx-tool-btn.bnx-keyboard.active-tool {
+  border-radius: 8px !important;
   border: 1.5px solid #6366f1 !important;
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.12) !important;
 }
 
 .bnx-tool-btn.bnx-cloud.active-tool {
+  border-radius: 8px !important;
   border: 1.5px solid #06b6d4 !important;
   box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.12) !important;
 }
