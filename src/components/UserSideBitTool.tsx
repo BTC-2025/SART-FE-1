@@ -1618,7 +1618,7 @@ export default function UserSideBitTool({
                       <span>GST</span>
                     </button>
                     {activeCalcDropdown === 'gst' && (
-                      <div className="absolute bottom-full left-0 mb-1 w-[320px] bg-white border border-emerald-300 rounded-2xl shadow-2xl p-2 z-30 animate-in fade-in flex flex-col gap-1.5">
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[335px] max-w-[92vw] bg-white border border-emerald-300 rounded-2xl shadow-2xl p-2.5 z-40 animate-in fade-in flex flex-col gap-1.5">
                         <div className="flex items-center justify-between px-1">
                           <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">SELECT GST</span>
                           <button
@@ -1630,47 +1630,47 @@ export default function UserSideBitTool({
                           </button>
                         </div>
 
-                        {/* Single Horizontal Row: 4 percentage buttons + compact custom input beside them */}
-                        <div className="flex items-center gap-1.5">
-                          <div className="flex items-center gap-1">
-                            {[5, 12, 18, 28].map(p => (
-                              <button
-                                key={p}
-                                type="button"
-                                onClick={() => handleApplyGst(p)}
-                                className="px-2 py-1 text-center text-xs font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-colors shrink-0"
-                              >
-                                +{p}%
-                              </button>
-                            ))}
-                          </div>
+                        {/* Single Horizontal Row Centered: 4 percentage pills + % input + Add button matching Image 2 */}
+                        <div className="flex items-center justify-between gap-1 w-full">
+                          {[5, 12, 18, 28].map(p => (
+                            <button
+                              key={p}
+                              type="button"
+                              onClick={() => handleApplyGst(p)}
+                              className="flex-1 py-1 text-center text-xs font-extrabold text-emerald-800 bg-[#ecfdf5] hover:bg-emerald-100 rounded-xl border border-emerald-200 transition-colors"
+                            >
+                              +{p}%
+                            </button>
+                          ))}
 
-                          {/* Compact user percentage input beside buttons */}
-                          <div className="flex items-center gap-1 flex-1 min-w-0">
+                          {/* Compact % Number Input */}
+                          <div className="relative w-12 shrink-0">
                             <input
                               type="number"
                               placeholder="%"
                               value={customGstInput}
                               onChange={(e) => setCustomGstInput(e.target.value)}
-                              className="w-12 bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-1 text-xs font-bold outline-none text-slate-800 text-center"
+                              className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-1 py-1 text-xs font-bold text-slate-700 outline-none text-center"
                             />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const val = parseFloat(customGstInput);
-                                if (!isNaN(val) && val > 0) handleApplyGst(val);
-                              }}
-                              className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2 py-1 rounded-lg shrink-0"
-                            >
-                              Add
-                            </button>
                           </div>
+
+                          {/* Rounded Add Button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const val = parseFloat(customGstInput);
+                              if (!isNaN(val) && val > 0) handleApplyGst(val);
+                            }}
+                            className="bg-[#059669] hover:bg-emerald-700 text-white text-xs font-black px-3 py-1 rounded-xl shrink-0 transition-colors shadow-xs"
+                          >
+                            Add
+                          </button>
                         </div>
                       </div>
                     )}
                   </div>
 
-                  {/* 2. Discount Dropdown Pill (Opens only when clicked, horizontal row layout) */}
+                  {/* 2. Discount Dropdown Pill (Opens only when clicked, centered in row) */}
                   <div className="relative">
                     <button
                       type="button"
@@ -1684,7 +1684,7 @@ export default function UserSideBitTool({
                       <span>Discount</span>
                     </button>
                     {activeCalcDropdown === 'discount' && (
-                      <div className="absolute bottom-full left-0 mb-1 w-[320px] bg-white border border-amber-300 rounded-2xl shadow-2xl p-2 z-30 animate-in fade-in flex flex-col gap-1.5">
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[335px] max-w-[92vw] bg-white border border-amber-300 rounded-2xl shadow-2xl p-2.5 z-40 animate-in fade-in flex flex-col gap-1.5">
                         <div className="flex items-center justify-between px-1">
                           <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">SELECT DISCOUNT</span>
                           <button
@@ -1696,41 +1696,41 @@ export default function UserSideBitTool({
                           </button>
                         </div>
 
-                        {/* Single Horizontal Row: 4 percentage buttons + compact custom input beside them */}
-                        <div className="flex items-center gap-1.5">
-                          <div className="flex items-center gap-1">
-                            {[5, 10, 15, 20].map(p => (
-                              <button
-                                key={p}
-                                type="button"
-                                onClick={() => handleApplyDiscount(p)}
-                                className="px-2 py-1 text-center text-xs font-black text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-200 transition-colors shrink-0"
-                              >
-                                −{p}%
-                              </button>
-                            ))}
-                          </div>
+                        {/* Single Horizontal Row Centered: 4 percentage pills + % input + Add button matching Image 2 */}
+                        <div className="flex items-center justify-between gap-1 w-full">
+                          {[5, 10, 15, 20].map(p => (
+                            <button
+                              key={p}
+                              type="button"
+                              onClick={() => handleApplyDiscount(p)}
+                              className="flex-1 py-1 text-center text-xs font-extrabold text-amber-900 bg-[#fffbeb] hover:bg-amber-100 rounded-xl border border-amber-200 transition-colors"
+                            >
+                              −{p}%
+                            </button>
+                          ))}
 
-                          {/* Compact user discount percentage input beside buttons */}
-                          <div className="flex items-center gap-1 flex-1 min-w-0">
+                          {/* Compact % Number Input */}
+                          <div className="relative w-12 shrink-0">
                             <input
                               type="number"
                               placeholder="%"
                               value={customDiscountInput}
                               onChange={(e) => setCustomDiscountInput(e.target.value)}
-                              className="w-12 bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-1 text-xs font-bold outline-none text-slate-800 text-center"
+                              className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-1 py-1 text-xs font-bold text-slate-700 outline-none text-center"
                             />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const val = parseFloat(customDiscountInput);
-                                if (!isNaN(val) && val > 0) handleApplyDiscount(val);
-                              }}
-                              className="bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold px-2 py-1 rounded-lg shrink-0"
-                            >
-                              Add
-                            </button>
                           </div>
+
+                          {/* Rounded Add Button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const val = parseFloat(customDiscountInput);
+                              if (!isNaN(val) && val > 0) handleApplyDiscount(val);
+                            }}
+                            className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-black px-3 py-1 rounded-xl shrink-0 transition-colors shadow-xs"
+                          >
+                            Add
+                          </button>
                         </div>
                       </div>
                     )}
