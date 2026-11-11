@@ -26,6 +26,7 @@
   border-radius: 0px;
   padding-bottom: 10px;
   background: #ffffff;
+  border-left: none !important;
   border-right: 2px solid #2a1373 !important;
   display: flex;
   flex-direction: column;
@@ -179,7 +180,8 @@
   background: #ffffff !important;
   border-radius: 0 !important;
   border: 1px solid #eef2f6 !important;
-  border-left: 2px solid #2a1373 !important;
+  border-left: none !important;
+  border-right: 2px solid #2a1373 !important;
   box-shadow: -8px 8px 30px rgba(0, 0, 0, 0.06) !important;
   display: flex !important;
   flex-direction: column !important;
@@ -682,7 +684,8 @@
   background: #ffffff !important;
   border-radius: 0 !important;
   border: 1px solid #eef2f6 !important;
-  border-left: 2px solid #2a1373 !important;
+  border-left: none !important;
+  border-right: 2px solid #2a1373 !important;
   box-shadow: -8px 8px 30px rgba(0, 0, 0, 0.06) !important;
   display: flex !important;
   flex-direction: column !important;
@@ -1130,7 +1133,8 @@
   background: #ffffff !important;
   border-radius: 0 !important;
   border: 1px solid #eef2f6 !important;
-  border-left: 2px solid #2a1373 !important;
+  border-left: none !important;
+  border-right: 2px solid #2a1373 !important;
   box-shadow: -8px 8px 32px rgba(0, 0, 0, 0.08) !important;
   display: flex !important;
   flex-direction: column !important;

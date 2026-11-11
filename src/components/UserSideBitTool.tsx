@@ -1022,94 +1022,85 @@ export default function UserSideBitTool({
             </button>
           </div>
 
-          <div className="p-4 flex-1 flex flex-col min-h-0 overflow-y-auto">
-            {/* Month Header with Right Aligned Arrows matching inspector: flex items-center justify-between mb-4 */}
-            <div className="flex items-center justify-between mb-4">
-              <span className="font-bold text-sm text-slate-900">
+          <div className="p-4 flex-1 flex flex-col min-h-0 overflow-y-auto gap-4">
+            {/* Box 1: Month Header & Navigation in its own bordered card box */}
+            <div className="flex items-center justify-between p-3 bg-white border border-slate-200/80 rounded-2xl shadow-sm">
+              <button
+                type="button"
+                className="w-8 h-8 flex items-center justify-center bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors text-slate-600"
+                onClick={handlePrevMonth}
+                title="Previous Month"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+              <span className="font-extrabold text-sm text-[#0f172a] tracking-tight">
                 {currentMonthName} {currentYear}
               </span>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded transition-colors text-slate-600"
-                  onClick={handlePrevMonth}
-                  title="Previous Month"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded transition-colors text-slate-600"
-                  onClick={handleNextMonth}
-                  title="Next Month"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                  </svg>
-                </button>
+              <button
+                type="button"
+                className="w-8 h-8 flex items-center justify-center bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors text-slate-600"
+                onClick={handleNextMonth}
+                title="Next Month"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </div>
+
+            {/* Box 2: Calendar Dates Grid in its own rounded bordered card box */}
+            <div className="p-4 bg-white border border-slate-200/80 rounded-2xl shadow-sm flex flex-col">
+              {/* Weekday headers */}
+              <div className="grid grid-cols-7 gap-1 text-[11px] text-center font-bold mb-3">
+                <span className="text-slate-600">Su</span>
+                <span className="text-slate-600">Mo</span>
+                <span className="text-slate-600">Tu</span>
+                <span className="text-slate-600">We</span>
+                <span className="text-slate-600">Th</span>
+                <span className="text-slate-600">Fr</span>
+                <span className="text-slate-600">Sa</span>
+              </div>
+
+              {/* Days Matrix */}
+              <div className="grid grid-cols-7 gap-1 text-center text-xs">
+                {Array.from({ length: firstDayWeekday }).map((_, idx) => (
+                  <div key={`empty-${idx}`} className="h-8 flex items-center justify-center"></div>
+                ))}
+
+                {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
+                  const isSelected = selectedDay === day;
+
+                  return (
+                    <button
+                      key={day}
+                      type="button"
+                      className={`h-8 w-8 mx-auto flex items-center justify-center rounded-full font-semibold transition-all cursor-pointer ${isSelected
+                        ? 'bg-[#1d4ed8] text-white font-bold shadow-sm'
+                        : 'text-slate-700 hover:bg-slate-100'
+                        }`}
+                      onClick={() => setSelectedDay(day)}
+                    >
+                      {day}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Weekday headers: Su in Red, others standard */}
-            <div className="grid grid-cols-7 gap-1 text-[11px] text-center font-bold mb-2">
-              <span className="text-red-500 font-extrabold">Su</span>
-              <span className="opacity-60 text-slate-700">Mo</span>
-              <span className="opacity-60 text-slate-700">Tu</span>
-              <span className="opacity-60 text-slate-700">We</span>
-              <span className="opacity-60 text-slate-700">Th</span>
-              <span className="opacity-60 text-slate-700">Fr</span>
-              <span className="opacity-60 text-slate-700">Sa</span>
-            </div>
-
-            {/* Days Matrix: Sunday marked as red, exact today highlighted with subtle circle, selected day filled golden amber */}
-            <div className="grid grid-cols-7 gap-1 text-center text-xs mb-6 min-h-[140px]">
-              {Array.from({ length: firstDayWeekday }).map((_, idx) => (
-                <div key={`empty-${idx}`} className="h-8 flex items-center justify-center"></div>
-              ))}
-
-              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
-                const isSelected = selectedDay === day;
-                const dayWeekday = (firstDayWeekday + day - 1) % 7;
-                const isSunday = dayWeekday === 0;
-                const isToday =
-                  day === today.getDate() &&
-                  currentMonthIdx === today.getMonth() &&
-                  currentYear === today.getFullYear();
-
-                return (
-                  <button
-                    key={day}
-                    type="button"
-                    className={`h-8 w-8 mx-auto flex items-center justify-center rounded-xl font-medium transition-all cursor-pointer ${isSelected
-                      ? 'bg-[#eab308] text-white font-bold shadow-md shadow-yellow-500/30'
-                      : isToday
-                        ? 'bg-slate-100 text-slate-900 font-bold'
-                        : isSunday
-                          ? 'text-red-500 font-bold hover:bg-red-50'
-                          : 'text-slate-800 hover:bg-black/5'
-                      }`}
-                    onClick={() => setSelectedDay(day)}
-                  >
-                    {day}
-                  </button>
-                );
-              })}
-            </div>
-
             {/* Schedule Section */}
-            <div className="flex-1 flex flex-col min-h-0 border-t border-gray-100 dark:border-gray-800 pt-4">
+            <div className="flex-1 flex flex-col min-h-0 pt-1">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-bold text-slate-400 tracking-wider uppercase">
-                  {currentMonthName} {selectedDay} Schedule
+                <span className="text-[11px] font-black text-slate-500 tracking-wider uppercase">
+                  SCHEDULE FOR {currentMonthName.toUpperCase().slice(0, 3)} {selectedDay}, {currentYear}
                 </span>
                 <button
                   type="button"
-                  className="text-xs font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 px-2.5 py-1 rounded-lg transition-colors"
+                  className="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-lg transition-colors flex items-center gap-1"
                   onClick={() => setShowAddCalendarItem(true)}
                 >
-                  + Add
+                  <span>+</span> Add
                 </button>
               </div>
 
@@ -1123,34 +1114,33 @@ export default function UserSideBitTool({
                   {calendarItems
                     .filter(item => item.day === selectedDay && item.month === currentMonthIdx && item.year === currentYear)
                     .map((it, idx) => (
-                      <div key={idx} className="p-2.5 bg-slate-50 border border-slate-200/70 rounded-xl flex flex-col gap-1 text-xs">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-900 text-[13px]">{it.title}</span>
-                          <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded ${it.type === 'Note' ? 'bg-amber-100 text-amber-800' : it.type === 'Reminder' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800'
-                            }`}>
-                            {it.type}
-                          </span>
+                      <div key={idx} className="p-3 bg-white border border-slate-200/80 rounded-2xl flex items-start gap-3 text-xs shadow-sm">
+                        <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                          </svg>
                         </div>
-                        {it.time && (
-                          <div className="text-[11px] text-slate-500 font-medium">
-                            🕒 Time: {it.time}
-                          </div>
-                        )}
-                        {it.startTime && !it.time && (
-                          <div className="text-[11px] text-slate-500 font-medium">
-                            🕒 {it.startTime} - {it.endTime}
-                          </div>
-                        )}
-                        {it.desc && (
-                          <div className="text-[11.5px] text-slate-600 mt-0.5 whitespace-pre-wrap">
-                            {it.desc}
-                          </div>
-                        )}
-                        {it.email && (
-                          <div className="text-[11px] text-blue-600 font-medium mt-0.5">
-                            ✉️ {it.email}
-                          </div>
-                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-slate-900 text-sm leading-tight">{it.title}</div>
+                          {(it.time || it.startTime) && (
+                            <div className="text-[11px] text-slate-500 font-medium mt-1">
+                              {it.time || `${it.startTime} - ${it.endTime}`}
+                            </div>
+                          )}
+                          {it.desc && (
+                            <div className="text-[11.5px] text-slate-600 mt-1 whitespace-pre-wrap">
+                              {it.desc}
+                            </div>
+                          )}
+                          {it.email && (
+                            <div className="text-[11px] text-blue-600 font-medium mt-1">
+                              ✉️ {it.email}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))}
                 </div>
