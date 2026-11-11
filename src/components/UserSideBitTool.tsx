@@ -601,7 +601,7 @@ export default function UserSideBitTool({
   return (
     <>
       {/* 1. Vertical Bit-Tool Strip on the Right Hand Edge */}
-      <aside className="right-tools-sidebar relative w-[58px] hidden-scrollbar flex flex-col items-center select-none shrink-0 user-side-bittool-strip bnx-style overflow-visible" aria-label="SART Side Utilities">
+      <aside className="right-tools-sidebar relative w-[60px] hidden-scrollbar flex flex-col items-center select-none shrink-0 user-side-bittool-strip bnx-style overflow-visible" aria-label="SART Side Utilities">
         {/* Icons stack container */}
         <div className="px-2 py-2 flex flex-col items-center w-full overflow-visible">
           <div className="flex flex-col items-center gap-1.5 w-full">
@@ -1990,10 +1990,10 @@ export default function UserSideBitTool({
       {activeModal === 'contacts' && (
         <div className="user-side-dock-panel" style={{ width: '400px', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
           {/* Top Header: CONTACTS with Close button (Matching Image 2) */}
-          <div className="bnx-cal-header" style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
-            <h3 className="bnx-cal-title" style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '0.3px', margin: 0, color: '#0f172a' }}>CONTACTS</h3>
-            <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          <div className="px-4 h-14 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-black/[0.01] dark:bg-white/[0.01] shrink-0">
+            <span className="font-bold text-sm tracking-wide text-slate-800 dark:text-slate-100">CONTACTS</span>
+            <button className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-full text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors" onClick={closeModal} title="Close">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
@@ -2008,7 +2008,7 @@ export default function UserSideBitTool({
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
-                <h4 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Global Contacts</h4>
+                <h4 style={{ fontSize: '0.85rem', fontWeight: 750, color: '#0f172a', margin: 0 }}>Global Contacts</h4>
               </div>
               <button
                 type="button"
@@ -2379,10 +2379,10 @@ export default function UserSideBitTool({
       {activeModal === 'notes' && (
         <div className="user-side-dock-panel" style={{ width: '480px', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
           {/* Header */}
-          <div className="bnx-cal-header" style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
-            <h3 className="bnx-cal-title" style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '0.3px', margin: 0, color: '#0f172a' }}>NOTES</h3>
-            <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          <div className="px-4 h-14 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-black/[0.01] dark:bg-white/[0.01] shrink-0">
+            <span className="font-bold text-sm tracking-wide text-slate-800 dark:text-slate-100">NOTES</span>
+            <button className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-full text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors" onClick={closeModal} title="Close">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
@@ -2393,7 +2393,7 @@ export default function UserSideBitTool({
             {/* Global Notes Title & Rounded Blue New Note Button (Matching user image) */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h4 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: 0 }}>My Notes</h4>
+                <h4 className="font-bold text-sm tracking-wide text-slate-800 dark:text-slate-100" style={{ margin: 0 }}>My Notes</h4>
               </div>
               <button
                 type="button"

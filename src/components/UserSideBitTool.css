@@ -21,7 +21,7 @@
   max-height: none !important;
   bottom: 0 !important;
   border-radius: 0 !important;
-  width: 58px;
+  width: 60px;
   border-bottom: 1px solid #e2e8f0;
   border-radius: 0px;
   padding-bottom: 10px;
@@ -172,7 +172,7 @@
 .user-side-dock-panel {
   position: fixed !important;
   top: 104px !important;
-  right: 58px !important;
+  right: 60px !important;
   width: 380px !important;
   height: calc(100vh - 104px) !important;
   max-height: none !important;
@@ -676,7 +676,7 @@
 .user-side-dock-panel.bnx-cal-panel {
   position: fixed !important;
   top: 104px !important;
-  right: 58px !important;
+  right: 60px !important;
   width: 380px !important;
   height: calc(100vh - 104px) !important;
   max-height: none !important;
@@ -1125,7 +1125,7 @@
   margin-top: 0;
   position: fixed !important;
   top: 104px !important;
-  right: 58px !important;
+  right: 60px !important;
   width: 380px !important;
   height: calc(100vh - 104px) !important;
   max-height: none !important;
