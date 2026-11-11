@@ -825,51 +825,22 @@ export default function UserSideBitTool({
               )}
             </div>
           </div>
-                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>{it.title}</div>
-                        <div style={{ fontSize: '11px', color: '#64748b' }}>{it.type} • {it.startTime} - {it.endTime}</div>
-                      </div>
-                      <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 6px', borderRadius: '6px', background: '#fef3c7', color: '#b45309' }}>{it.type}</span>
-                    </div>
-                  ))}
-              </div>
-            )}
-          </div>
 
-          {/* BOTTOM SHEET: Add Item for [Day] [Month] (Image 1) */}
+          {/* BOTTOM SHEET: Add Item for [Day] [Month] (Matching exact inspector classes) */}
           {showAddCalendarItem && (
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'rgba(15, 23, 42, 0.45)',
-              backdropFilter: 'blur(3px)',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end',
-              zIndex: 50,
-              borderRadius: '20px',
-              overflow: 'hidden'
-            }}>
-              <div style={{
-                background: '#ffffff',
-                borderTopLeftRadius: '24px',
-                borderTopRightRadius: '24px',
-                padding: '22px 24px 26px',
-                boxShadow: '0 -10px 30px rgba(0,0,0,0.12)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '14px'
-              }}>
+            <div className="absolute inset-0 z-50 bg-black/40 backdrop-blur-[2px] flex flex-col justify-end">
+              <div className="relative bg-white dark:bg-gray-900 flex flex-col rounded-t-2xl p-4 max-h-[85%] overflow-y-auto hidden-scrollbar shadow-2xl pointer-events-auto border-t border-gray-200 dark:border-gray-800 animate-in slide-in-from-bottom duration-200">
                 {/* Header: Add Item for 11 November + Close */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">
                     Add Item for {selectedDay} {currentMonthName}
-                  </h4>
+                  </h3>
                   <button
                     type="button"
                     onClick={() => setShowAddCalendarItem(false)}
-                    style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    className="p-1 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
                   >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="18" y1="6" x2="6" y2="18"></line>
                       <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
@@ -877,125 +848,27 @@ export default function UserSideBitTool({
                 </div>
 
                 {/* Switcher Pill: Event | Note | Reminder */}
-                <div style={{ display: 'flex', background: '#f1f5f9', padding: '4px', borderRadius: '14px', gap: '4px' }}>
+                <div className="flex gap-1 p-1 bg-black/5 dark:bg-white/5 rounded-lg mb-4 text-xs shrink-0">
                   {(['Event', 'Note', 'Reminder'] as const).map(tab => (
                     <button
                       key={tab}
                       type="button"
                       onClick={() => setCalendarItemType(tab)}
-                      style={{
-                        flex: 1,
-                        padding: '8px 0',
-                        border: 'none',
-                        borderRadius: '10px',
-                        background: calendarItemType === tab ? '#ffffff' : 'transparent',
-                        color: calendarItemType === tab ? '#0f172a' : '#64748b',
-                        fontWeight: 800,
-                        fontSize: '13px',
-                        cursor: 'pointer',
-                        boxShadow: calendarItemType === tab ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
-                        transition: 'all 0.15s ease'
-                      }}
+                      className={`flex-1 py-1 rounded text-center font-semibold transition-colors ${
+                        calendarItemType === tab
+                          ? 'bg-white dark:bg-gray-700 shadow-sm text-slate-900 dark:text-white'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                      }`}
                     >
                       {tab}
                     </button>
                   ))}
                 </div>
 
-                {/* Title Input */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>Title</label>
-                  <input
-                    type="text"
-                    value={calItemTitle}
-                    onChange={(e) => setCalItemTitle(e.target.value)}
-                    placeholder=""
-                    style={{
-                      height: '42px',
-                      background: '#f1f5f9',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '10px',
-                      padding: '0 14px',
-                      fontSize: '14px',
-                      color: '#0f172a',
-                      outline: 'none'
-                    }}
-                  />
-                </div>
-
-                {/* Start Time & End Time */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>Start Time</label>
-                    <div style={{ position: 'relative' }}>
-                      <input
-                        type="text"
-                        value={calItemStartTime}
-                        onChange={(e) => setCalItemStartTime(e.target.value)}
-                        style={{
-                          width: '100%',
-                          height: '42px',
-                          background: '#f1f5f9',
-                          border: '1px solid #e2e8f0',
-                          borderRadius: '10px',
-                          padding: '0 36px 0 14px',
-                          fontSize: '14px',
-                          color: '#0f172a',
-                          outline: 'none'
-                        }}
-                      />
-                      <i className="fa-regular fa-clock" style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', fontSize: '13px', pointerEvents: 'none' }}></i>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>End Time</label>
-                    <div style={{ position: 'relative' }}>
-                      <input
-                        type="text"
-                        value={calItemEndTime}
-                        onChange={(e) => setCalItemEndTime(e.target.value)}
-                        style={{
-                          width: '100%',
-                          height: '42px',
-                          background: '#f1f5f9',
-                          border: '1px solid #e2e8f0',
-                          borderRadius: '10px',
-                          padding: '0 36px 0 14px',
-                          fontSize: '14px',
-                          color: '#0f172a',
-                          outline: 'none'
-                        }}
-                      />
-                      <i className="fa-regular fa-clock" style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', fontSize: '13px', pointerEvents: 'none' }}></i>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Description */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>Description</label>
-                  <textarea
-                    rows={3}
-                    value={calItemDesc}
-                    onChange={(e) => setCalItemDesc(e.target.value)}
-                    style={{
-                      background: '#f1f5f9',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '10px',
-                      padding: '10px 14px',
-                      fontSize: '14px',
-                      color: '#0f172a',
-                      outline: 'none',
-                      resize: 'none'
-                    }}
-                  />
-                </div>
-
-                {/* Save Item Button (Exact Orange matching Image 1) */}
-                <button
-                  type="button"
-                  onClick={() => {
+                <form
+                  className="flex flex-col gap-3 text-xs flex-1"
+                  onSubmit={(e) => {
+                    e.preventDefault();
                     if (calItemTitle.trim()) {
                       setCalendarItems(prev => [...prev, {
                         day: selectedDay,
@@ -1012,21 +885,62 @@ export default function UserSideBitTool({
                     }
                     setShowAddCalendarItem(false);
                   }}
-                  style={{
-                    height: '46px',
-                    background: '#f59e0b',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '12px',
-                    fontSize: '15px',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.35)',
-                    marginTop: '4px'
-                  }}
                 >
-                  Save Item
-                </button>
+                  {/* Title */}
+                  <div>
+                    <label className="block mb-1 opacity-70">Title</label>
+                    <input
+                      type="text"
+                      required
+                      value={calItemTitle}
+                      onChange={(e) => setCalItemTitle(e.target.value)}
+                      className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                    />
+                  </div>
+
+                  {/* Start Time & End Time */}
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <label className="block mb-1 opacity-70">Start Time</label>
+                      <input
+                        type="time"
+                        required
+                        value={calItemStartTime}
+                        onChange={(e) => setCalItemStartTime(e.target.value)}
+                        className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block mb-1 opacity-70">End Time</label>
+                      <input
+                        type="time"
+                        required
+                        value={calItemEndTime}
+                        onChange={(e) => setCalItemEndTime(e.target.value)}
+                        className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="flex-1 flex flex-col">
+                    <label className="block mb-1 opacity-70">Description</label>
+                    <textarea
+                      rows={2}
+                      value={calItemDesc}
+                      onChange={(e) => setCalItemDesc(e.target.value)}
+                      className="w-full flex-1 bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600 resize-none min-h-[60px]"
+                    />
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    className="mt-auto py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded shadow-sm disabled:opacity-50 transition-colors"
+                  >
+                    Save Item
+                  </button>
+                </form>
               </div>
             </div>
           )}
