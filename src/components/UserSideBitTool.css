@@ -1443,8 +1443,8 @@
 .user-side-dock-panel.bnx-vk-panel {
   width: 680px !important;
   max-width: calc(100vw - 80px) !important;
-  height: 250px !important;
-  max-height: 270px !important;
+  height: 215px !important;
+  max-height: 220px !important;
   border-radius: 18px !important;
   overflow: hidden !important;
   display: flex !important;
@@ -1454,8 +1454,8 @@
 }
 
 .user-side-dock-panel.bnx-vk-panel .vk-btn {
-  height: 28px !important;
-  border-radius: 7px !important;
+  height: 25px !important;
+  border-radius: 6px !important;
   font-size: 11px !important;
   font-weight: 600 !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;

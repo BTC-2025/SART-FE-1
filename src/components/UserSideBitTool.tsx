@@ -213,24 +213,16 @@ export default function UserSideBitTool({
     // 1. Dispatch custom event for Navbar & other components
     window.dispatchEvent(new CustomEvent('sart-virtual-keypress', { detail: { key } }));
 
-    // 2. Also directly type into any actively focused input or main search bar
+    // 2. Also directly type into any actively focused input (excluding navbar search which is handled by event)
     try {
-      // Find candidate input: active input first, or search input
-      let targetInput: HTMLInputElement | HTMLTextAreaElement | null = null;
       const activeEl = document.activeElement;
       if (
         activeEl &&
         (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA') &&
-        !(activeEl as HTMLElement).closest('.bnx-vk-panel')
+        !(activeEl as HTMLElement).closest('.bnx-vk-panel') &&
+        !activeEl.classList.contains('expanded-search-input')
       ) {
-        targetInput = activeEl as HTMLInputElement | HTMLTextAreaElement;
-      } else {
-        targetInput = document.querySelector<HTMLInputElement>(
-          '.expanded-search-input, input[type="search"], input[placeholder*="Search"], input[placeholder*="search"], input[placeholder*="location"]'
-        );
-      }
-
-      if (targetInput) {
+        const targetInput = activeEl as HTMLInputElement | HTMLTextAreaElement;
         const start = targetInput.selectionStart ?? targetInput.value.length;
         const end = targetInput.selectionEnd ?? targetInput.value.length;
         const currentVal = targetInput.value;
@@ -255,7 +247,6 @@ export default function UserSideBitTool({
           targetInput.selectionStart = targetInput.selectionEnd = start + 1;
         }
 
-        // Trigger react-compatible input events so state updates immediately
         targetInput.dispatchEvent(new Event('input', { bubbles: true }));
         targetInput.dispatchEvent(new Event('change', { bubbles: true }));
       }
@@ -2647,111 +2638,111 @@ export default function UserSideBitTool({
         </div>
       )}
 
-      {/* DRAWER 6: VIRTUAL KEYBOARD (Full & Interactive - Compact Height: 240px) */}
+      {/* DRAWER 6: VIRTUAL KEYBOARD (Full & Interactive - Compact Height: 215px) */}
       {activeModal === 'keyboard' && (
-        <div className="user-side-dock-panel bnx-vk-panel" style={{ width: '680px', maxWidth: 'calc(100vw - 80px)', height: '240px', maxHeight: '250px', overflow: 'hidden' }}>
-          <div className="bnx-cal-header" style={{ padding: '8px 16px', borderBottom: '1px solid #f1f5f9' }}>
+        <div className="user-side-dock-panel bnx-vk-panel" style={{ width: '680px', maxWidth: 'calc(100vw - 80px)', height: '215px', maxHeight: '220px', overflow: 'hidden' }}>
+          <div className="bnx-cal-header" style={{ padding: '6px 14px', borderBottom: '1px solid #f1f5f9' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '26px', height: '26px', borderRadius: '8px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb' }}>
-                <i className="fa-solid fa-keyboard" style={{ fontSize: '13px' }}></i>
+              <div style={{ width: '22px', height: '22px', borderRadius: '6px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb' }}>
+                <i className="fa-solid fa-keyboard" style={{ fontSize: '12px' }}></i>
               </div>
               <div>
-                <h3 className="bnx-cal-title" style={{ fontSize: '14px', margin: 0, fontWeight: 700, color: '#0f172a', lineHeight: 1.2 }}>Virtual Keyboard</h3>
-                <span style={{ fontSize: '10px', color: '#64748b' }}>Types directly into search bar</span>
+                <h3 className="bnx-cal-title" style={{ fontSize: '13px', margin: 0, fontWeight: 700, color: '#0f172a', lineHeight: 1.1 }}>Virtual Keyboard</h3>
+                <span style={{ fontSize: '9.5px', color: '#64748b' }}>Types directly into search bar</span>
               </div>
             </div>
-            <button className="bnx-cal-close-btn" onClick={closeModal} title="Close" style={{ padding: '4px' }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+            <button className="bnx-cal-close-btn" onClick={closeModal} title="Close" style={{ padding: '2px' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </button>
           </div>
 
-          <div style={{ padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: '5px', background: '#f8fafc', flex: 1, justifyContent: 'center' }}>
+          <div style={{ padding: '6px 12px', display: 'flex', flexDirection: 'column', gap: '4px', background: '#f8fafc', flex: 1, justifyContent: 'center' }}>
             {/* Row 1 */}
-            <div style={{ display: 'flex', gap: '5px', justifyContent: 'space-between' }}>
-              <button type="button" className="vk-btn vk-btn-sm" style={{ minWidth: '42px', height: '28px' }} onClick={() => handleVirtualKeyPress('Esc')}>Esc</button>
+            <div style={{ display: 'flex', gap: '4px', justifyContent: 'space-between' }}>
+              <button type="button" className="vk-btn vk-btn-sm" style={{ minWidth: '38px', height: '25px', fontSize: '10.5px' }} onClick={() => handleVirtualKeyPress('Esc')}>Esc</button>
               {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='].map((k, i) => (
                 <button
                   key={k}
                   type="button"
                   className="vk-btn vk-btn-sm"
-                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1px 0', height: '28px' }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0', height: '25px' }}
                   onClick={() => handleVirtualKeyPress(k)}
                 >
-                  <span style={{ fontSize: '8px', color: '#94a3b8', lineHeight: 1 }}>{['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+'][i]}</span>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#1e293b', lineHeight: 1.1 }}>{k}</span>
+                  <span style={{ fontSize: '7.5px', color: '#94a3b8', lineHeight: 1 }}>{['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+'][i]}</span>
+                  <span style={{ fontSize: '10.5px', fontWeight: 700, color: '#1e293b', lineHeight: 1 }}>{k}</span>
                 </button>
               ))}
-              <button type="button" className="vk-btn vk-btn-sm" style={{ minWidth: '70px', fontWeight: 600, height: '28px', fontSize: '11px' }} onClick={() => handleVirtualKeyPress('Backspace')}>Backspace</button>
+              <button type="button" className="vk-btn vk-btn-sm" style={{ minWidth: '66px', fontWeight: 600, height: '25px', fontSize: '10.5px' }} onClick={() => handleVirtualKeyPress('Backspace')}>Backspace</button>
             </div>
 
             {/* Row 2 */}
-            <div style={{ display: 'flex', gap: '5px', justifyContent: 'space-between' }}>
-              <button type="button" className="vk-btn" style={{ minWidth: '50px', height: '28px', fontSize: '11px' }} onClick={() => handleVirtualKeyPress('Tab')}>Tab</button>
+            <div style={{ display: 'flex', gap: '4px', justifyContent: 'space-between' }}>
+              <button type="button" className="vk-btn" style={{ minWidth: '46px', height: '25px', fontSize: '10.5px' }} onClick={() => handleVirtualKeyPress('Tab')}>Tab</button>
               {['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'].map((k) => (
-                <button key={k} type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, fontSize: '11.5px', height: '28px' }} onClick={() => handleVirtualKeyPress(k)}>{k}</button>
+                <button key={k} type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, fontSize: '11px', height: '25px' }} onClick={() => handleVirtualKeyPress(k)}>{k}</button>
               ))}
-              <button type="button" className="vk-btn" style={{ width: '34px', height: '28px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1px 0' }} onClick={() => handleVirtualKeyPress('[')}>
-                <span style={{ fontSize: '8px', color: '#94a3b8', lineHeight: 1 }}>{'{'}</span>
-                <span style={{ fontSize: '11px', fontWeight: 600, lineHeight: 1 }}>[</span>
+              <button type="button" className="vk-btn" style={{ width: '32px', height: '25px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0' }} onClick={() => handleVirtualKeyPress('[')}>
+                <span style={{ fontSize: '7.5px', color: '#94a3b8', lineHeight: 1 }}>{'{'}</span>
+                <span style={{ fontSize: '10.5px', fontWeight: 600, lineHeight: 1 }}>[</span>
               </button>
-              <button type="button" className="vk-btn" style={{ width: '34px', height: '28px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1px 0' }} onClick={() => handleVirtualKeyPress(']')}>
-                <span style={{ fontSize: '8px', color: '#94a3b8', lineHeight: 1 }}>{'}'}</span>
-                <span style={{ fontSize: '11px', fontWeight: 600, lineHeight: 1 }}>]</span>
+              <button type="button" className="vk-btn" style={{ width: '32px', height: '25px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0' }} onClick={() => handleVirtualKeyPress(']')}>
+                <span style={{ fontSize: '7.5px', color: '#94a3b8', lineHeight: 1 }}>{'}'}</span>
+                <span style={{ fontSize: '10.5px', fontWeight: 600, lineHeight: 1 }}>]</span>
               </button>
             </div>
 
             {/* Row 3 */}
-            <div style={{ display: 'flex', gap: '5px', justifyContent: 'space-between' }}>
-              <button type="button" className="vk-btn" style={{ minWidth: '66px', height: '28px', fontSize: '11px' }} onClick={() => { }}>Caps</button>
+            <div style={{ display: 'flex', gap: '4px', justifyContent: 'space-between' }}>
+              <button type="button" className="vk-btn" style={{ minWidth: '62px', height: '25px', fontSize: '10.5px' }} onClick={() => { }}>Caps</button>
               {['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'].map((k) => (
-                <button key={k} type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, fontSize: '11.5px', height: '28px' }} onClick={() => handleVirtualKeyPress(k)}>{k}</button>
+                <button key={k} type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, fontSize: '11px', height: '25px' }} onClick={() => handleVirtualKeyPress(k)}>{k}</button>
               ))}
-              <button type="button" className="vk-btn" style={{ width: '34px', height: '28px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1px 0' }} onClick={() => handleVirtualKeyPress(';')}>
-                <span style={{ fontSize: '8px', color: '#94a3b8', lineHeight: 1 }}>:</span>
-                <span style={{ fontSize: '11px', fontWeight: 600, lineHeight: 1 }}>;</span>
+              <button type="button" className="vk-btn" style={{ width: '32px', height: '25px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0' }} onClick={() => handleVirtualKeyPress(';')}>
+                <span style={{ fontSize: '7.5px', color: '#94a3b8', lineHeight: 1 }}>:</span>
+                <span style={{ fontSize: '10.5px', fontWeight: 600, lineHeight: 1 }}>;</span>
               </button>
-              <button type="button" className="vk-btn" style={{ width: '34px', height: '28px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1px 0' }} onClick={() => handleVirtualKeyPress("'")}>
-                <span style={{ fontSize: '8px', color: '#94a3b8', lineHeight: 1 }}>"</span>
-                <span style={{ fontSize: '11px', fontWeight: 600, lineHeight: 1 }}>'</span>
+              <button type="button" className="vk-btn" style={{ width: '32px', height: '25px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0' }} onClick={() => handleVirtualKeyPress("'")}>
+                <span style={{ fontSize: '7.5px', color: '#94a3b8', lineHeight: 1 }}>"</span>
+                <span style={{ fontSize: '10.5px', fontWeight: 600, lineHeight: 1 }}>'</span>
               </button>
-              <button type="button" className="vk-btn" style={{ minWidth: '72px', height: '28px', background: '#2563eb', color: '#ffffff', fontWeight: 700, border: 'none', fontSize: '11px' }} onClick={() => handleVirtualKeyPress('Enter')}>Enter</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '68px', height: '25px', background: '#2563eb', color: '#ffffff', fontWeight: 700, border: 'none', fontSize: '10.5px' }} onClick={() => handleVirtualKeyPress('Enter')}>Enter</button>
             </div>
 
             {/* Row 4 */}
-            <div style={{ display: 'flex', gap: '5px', justifyContent: 'space-between' }}>
-              <button type="button" className="vk-btn" style={{ minWidth: '76px', height: '28px', background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', fontWeight: 600, fontSize: '11px' }}>↑ Shift</button>
+            <div style={{ display: 'flex', gap: '4px', justifyContent: 'space-between' }}>
+              <button type="button" className="vk-btn" style={{ minWidth: '70px', height: '25px', background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', fontWeight: 600, fontSize: '10.5px' }}>↑ Shift</button>
               {['Z', 'X', 'C', 'V', 'B', 'N', 'M'].map((k) => (
-                <button key={k} type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, fontSize: '11.5px', height: '28px' }} onClick={() => handleVirtualKeyPress(k)}>{k}</button>
+                <button key={k} type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, fontSize: '11px', height: '25px' }} onClick={() => handleVirtualKeyPress(k)}>{k}</button>
               ))}
-              <button type="button" className="vk-btn" style={{ width: '34px', height: '28px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1px 0' }} onClick={() => handleVirtualKeyPress(',')}>
-                <span style={{ fontSize: '8px', color: '#94a3b8', lineHeight: 1 }}>&lt;</span>
-                <span style={{ fontSize: '11px', fontWeight: 600, lineHeight: 1 }}>,</span>
+              <button type="button" className="vk-btn" style={{ width: '32px', height: '25px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0' }} onClick={() => handleVirtualKeyPress(',')}>
+                <span style={{ fontSize: '7.5px', color: '#94a3b8', lineHeight: 1 }}>&lt;</span>
+                <span style={{ fontSize: '10.5px', fontWeight: 600, lineHeight: 1 }}>,</span>
               </button>
-              <button type="button" className="vk-btn" style={{ width: '34px', height: '28px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1px 0' }} onClick={() => handleVirtualKeyPress('.')}>
-                <span style={{ fontSize: '8px', color: '#94a3b8', lineHeight: 1 }}>&gt;</span>
-                <span style={{ fontSize: '11px', fontWeight: 600, lineHeight: 1 }}>.</span>
+              <button type="button" className="vk-btn" style={{ width: '32px', height: '25px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0' }} onClick={() => handleVirtualKeyPress('.')}>
+                <span style={{ fontSize: '7.5px', color: '#94a3b8', lineHeight: 1 }}>&gt;</span>
+                <span style={{ fontSize: '10.5px', fontWeight: 600, lineHeight: 1 }}>.</span>
               </button>
-              <button type="button" className="vk-btn" style={{ width: '34px', height: '28px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1px 0' }} onClick={() => handleVirtualKeyPress('/')}>
-                <span style={{ fontSize: '8px', color: '#94a3b8', lineHeight: 1 }}>?</span>
-                <span style={{ fontSize: '11px', fontWeight: 600, lineHeight: 1 }}>/</span>
+              <button type="button" className="vk-btn" style={{ width: '32px', height: '25px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0' }} onClick={() => handleVirtualKeyPress('/')}>
+                <span style={{ fontSize: '7.5px', color: '#94a3b8', lineHeight: 1 }}>?</span>
+                <span style={{ fontSize: '10.5px', fontWeight: 600, lineHeight: 1 }}>/</span>
               </button>
-              <button type="button" className="vk-btn" style={{ minWidth: '76px', height: '28px', background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', fontWeight: 600, fontSize: '11px' }}>↑ Shift</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '70px', height: '25px', background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', fontWeight: 600, fontSize: '10.5px' }}>↑ Shift</button>
             </div>
 
             {/* Row 5 */}
-            <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-              <button type="button" className="vk-btn" style={{ minWidth: '44px', height: '28px', fontSize: '11px' }}>Ctrl</button>
-              <button type="button" className="vk-btn" style={{ minWidth: '44px', height: '28px', fontSize: '11px' }}>Alt</button>
-              <button type="button" className="vk-btn" style={{ flex: 1, height: '28px', fontWeight: 700, letterSpacing: '1px', fontSize: '11px' }} onClick={() => handleVirtualKeyPress('Space')}>Space</button>
-              <button type="button" className="vk-btn" style={{ minWidth: '44px', height: '28px', fontSize: '11px' }}>Alt</button>
-              <button type="button" className="vk-btn" style={{ minWidth: '44px', height: '28px', fontSize: '11px' }}>Ctrl</button>
-              <button type="button" className="vk-btn" style={{ width: '34px', height: '28px', fontSize: '10px' }}><i className="fa-solid fa-caret-left"></i></button>
-              <button type="button" className="vk-btn" style={{ width: '34px', height: '28px', fontSize: '10px' }}><i className="fa-solid fa-caret-down"></i></button>
-              <button type="button" className="vk-btn" style={{ width: '34px', height: '28px', fontSize: '10px' }}><i className="fa-solid fa-caret-up"></i></button>
-              <button type="button" className="vk-btn" style={{ width: '34px', height: '28px', fontSize: '10px' }}><i className="fa-solid fa-caret-right"></i></button>
+            <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+              <button type="button" className="vk-btn" style={{ minWidth: '40px', height: '25px', fontSize: '10.5px' }} onClick={(e) => { e.preventDefault(); }}>Ctrl</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '40px', height: '25px', fontSize: '10.5px' }} onClick={(e) => { e.preventDefault(); }}>Alt</button>
+              <button type="button" className="vk-btn" style={{ flex: 1, height: '25px', fontWeight: 700, letterSpacing: '1px', fontSize: '10.5px' }} onClick={() => handleVirtualKeyPress('Space')}>Space</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '40px', height: '25px', fontSize: '10.5px' }} onClick={(e) => { e.preventDefault(); }}>Alt</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '40px', height: '25px', fontSize: '10.5px' }} onClick={(e) => { e.preventDefault(); }}>Ctrl</button>
+              <button type="button" className="vk-btn" style={{ width: '30px', height: '25px', fontSize: '9px' }}><i className="fa-solid fa-caret-left"></i></button>
+              <button type="button" className="vk-btn" style={{ width: '30px', height: '25px', fontSize: '9px' }}><i className="fa-solid fa-caret-down"></i></button>
+              <button type="button" className="vk-btn" style={{ width: '30px', height: '25px', fontSize: '9px' }}><i className="fa-solid fa-caret-up"></i></button>
+              <button type="button" className="vk-btn" style={{ width: '30px', height: '25px', fontSize: '9px' }}><i className="fa-solid fa-caret-right"></i></button>
             </div>
           </div>
         </div>

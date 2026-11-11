@@ -113,8 +113,12 @@ export default function Navbar() {
         setIsBittoolOpen(false);
       }
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setIsSearchExpanded(false);
-        setSearchQuery('');
+        // Don't close or clear search if user is interacting with the Virtual Keyboard panel
+        const isClickInsideVk = (event.target as HTMLElement)?.closest('.bnx-vk-panel');
+        if (!isClickInsideVk) {
+          setIsSearchExpanded(false);
+          setSearchQuery('');
+        }
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
