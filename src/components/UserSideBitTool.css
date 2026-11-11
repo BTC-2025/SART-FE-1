@@ -1441,6 +1441,7 @@
 
 /* Virtual Keyboard specific compact drawer with height between 200px and 300px */
 .user-side-dock-panel.bnx-vk-panel {
+  top: 400px !important;
   width: 680px !important;
   max-width: calc(100vw - 80px) !important;
   height: 215px !important;

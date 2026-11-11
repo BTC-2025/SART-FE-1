@@ -2638,9 +2638,9 @@ export default function UserSideBitTool({
         </div>
       )}
 
-      {/* DRAWER 6: VIRTUAL KEYBOARD (Full & Interactive - Compact Height: 215px) */}
+      {/* DRAWER 6: VIRTUAL KEYBOARD (Full & Interactive - Compact Height: 215px, Top: 400px) */}
       {activeModal === 'keyboard' && (
-        <div className="user-side-dock-panel bnx-vk-panel" style={{ width: '680px', maxWidth: 'calc(100vw - 80px)', height: '215px', maxHeight: '220px', overflow: 'hidden' }}>
+        <div className="user-side-dock-panel bnx-vk-panel" style={{ top: '400px', width: '680px', maxWidth: 'calc(100vw - 80px)', height: '215px', maxHeight: '220px', overflow: 'hidden' }}>
           <div className="bnx-cal-header" style={{ padding: '6px 14px', borderBottom: '1px solid #f1f5f9' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ width: '22px', height: '22px', borderRadius: '6px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb' }}>
