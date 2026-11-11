@@ -1057,11 +1057,11 @@
   background: #059669 !important;
 }
 
-/* Subtle Pencil / Edit Button */
+/* Subtle Pencil / Edit Button - Square */
 .bnx-tool-btn.bnx-pencil {
   background: #ffffff !important;
-  border: 1.5px solid #e2e8f0 !important;
-  border-radius: 18px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
 }
 
 .bnx-tool-btn.bnx-pencil:hover {
@@ -1069,11 +1069,11 @@
   border-color: #cbd5e1 !important;
 }
 
-/* Image 1 Sliders / Tune Filter Button */
+/* Image 1 Sliders / Tune Filter Button - Square */
 .bnx-tool-btn.bnx-sliders-btn {
   background: #ffffff !important;
-  border: 1.5px solid #e2e8f0 !important;
-  border-radius: 18px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
 }
 
@@ -1083,10 +1083,10 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
 }
 
-/* Dashed unpinned slot in edit mode */
+/* Dashed unpinned slot in edit mode - Square */
 .bnx-tool-btn.dashed-unpinned {
-  border: 2px dashed #2563eb !important;
-  border-radius: 18px !important;
+  border: 1.5px dashed #2563eb !important;
+  border-radius: 8px !important;
   background: #f8fafc !important;
 }
 
