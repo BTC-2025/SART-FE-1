@@ -31,9 +31,18 @@ export interface CartItem {
   id: string;
   name: string;
   price: number;
+  originalPrice?: number;
   icon: string;
+  image?: string;
   quantity: number;
   category: string;
+  description?: string;
+  brand?: string;
+  rating?: number;
+  reviewsCount?: number;
+  inStock?: boolean;
+  deliveryEstimate?: string;
+  badge?: string;
   savedAt?: number; // timestamp when added for guest 24h expiration
 }
 

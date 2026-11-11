@@ -100,15 +100,54 @@ export default function UserSideBitTool({
   const [calcDisplay, setCalcDisplay] = useState('0');
   const [calcFormula, setCalcFormula] = useState('');
 
-  // Notes state
-  const [notesList, setNotesList] = useState<string[]>([
+  // Calendar Item Modal State (Image 1)
+  const [showAddCalendarItem, setShowAddCalendarItem] = useState(false);
+  const [calendarItemType, setCalendarItemType] = useState<'Event' | 'Note' | 'Reminder'>('Event');
+  const [calItemTitle, setCalItemTitle] = useState('');
+  const [calItemStartTime, setCalItemStartTime] = useState('10:00 AM');
+  const [calItemEndTime, setCalItemEndTime] = useState('11:00 AM');
+  const [calItemDesc, setCalItemDesc] = useState('');
+  const [calendarItems, setCalendarItems] = useState<Array<{
+    day: number;
+    month: number;
+    year: number;
+    type: 'Event' | 'Note' | 'Reminder';
+    title: string;
+    startTime: string;
+    endTime: string;
+    desc: string;
+  }>>([]);
 
-  ]);
+  // Contacts state (Image 2)
+  const [showAddContact, setShowAddContact] = useState(false);
+  const [contactSearch, setContactSearch] = useState('');
+  const [contactFullName, setContactFullName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [contactRole, setContactRole] = useState('');
+  const [contactsList, setContactsList] = useState<Array<{
+    id: string;
+    fullName: string;
+    email: string;
+    phone?: string;
+    role?: string;
+  }>>([]);
+
+  // Global Notes state (Image 3 & 4)
+  const [showAddNote, setShowAddNote] = useState(false);
+  const [noteTitle, setNoteTitle] = useState('');
+  const [noteContent, setNoteContent] = useState('');
+  const [isNotePinned, setIsNotePinned] = useState(false);
+  const [noteColor, setNoteColor] = useState('#fff9c4');
+  const [notesList, setNotesList] = useState<Array<{
+    id: string;
+    title: string;
+    content: string;
+    color: string;
+    isPinned: boolean;
+    date: string;
+  }>>([]);
   const [noteInput, setNoteInput] = useState('');
-
-  // Contacts state
-  const [contactsList] = useState([
-  ]);
 
   // Virtual Keyboard input dispatcher to search bar
   const handleVirtualKeyPress = (key: string) => {
@@ -146,7 +185,14 @@ export default function UserSideBitTool({
 
   const handleAddNote = () => {
     if (noteInput.trim()) {
-      setNotesList(prev => [noteInput.trim(), ...prev]);
+      setNotesList(prev => [{
+        id: `note-${Date.now()}`,
+        title: noteInput.trim(),
+        content: '',
+        color: '#fff9c4',
+        isPinned: false,
+        date: 'Just now'
+      }, ...prev]);
       setNoteInput('');
     }
   };
@@ -724,17 +770,229 @@ export default function UserSideBitTool({
               <button
                 type="button"
                 className="bnx-add-btn"
-                onClick={() => { closeModal(); setActiveTab('ride'); }}
+                onClick={() => setShowAddCalendarItem(true)}
               >
                 + Add
               </button>
             </div>
 
-            {/* Empty items message matching user screenshot */}
-            <div className="bnx-cal-empty-msg">
-              No items scheduled
-            </div>
+            {/* Empty or List items */}
+            {calendarItems.filter(item => item.day === selectedDay && item.month === currentMonthIdx && item.year === currentYear).length === 0 ? (
+              <div className="bnx-cal-empty-msg">
+                No items scheduled
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px', maxHeight: '140px', overflowY: 'auto' }}>
+                {calendarItems
+                  .filter(item => item.day === selectedDay && item.month === currentMonthIdx && item.year === currentYear)
+                  .map((it, idx) => (
+                    <div key={idx} style={{ padding: '8px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>{it.title}</div>
+                        <div style={{ fontSize: '11px', color: '#64748b' }}>{it.type} • {it.startTime} - {it.endTime}</div>
+                      </div>
+                      <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 6px', borderRadius: '6px', background: '#fef3c7', color: '#b45309' }}>{it.type}</span>
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
+
+          {/* BOTTOM SHEET: Add Item for [Day] [Month] (Image 1) */}
+          {showAddCalendarItem && (
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'rgba(15, 23, 42, 0.45)',
+              backdropFilter: 'blur(3px)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+              zIndex: 50,
+              borderRadius: '20px',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                background: '#ffffff',
+                borderTopLeftRadius: '24px',
+                borderTopRightRadius: '24px',
+                padding: '22px 24px 26px',
+                boxShadow: '0 -10px 30px rgba(0,0,0,0.12)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px'
+              }}>
+                {/* Header: Add Item for 11 November + Close */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>
+                    Add Item for {selectedDay} {currentMonthName}
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddCalendarItem(false)}
+                    style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Switcher Pill: Event | Note | Reminder */}
+                <div style={{ display: 'flex', background: '#f1f5f9', padding: '4px', borderRadius: '14px', gap: '4px' }}>
+                  {(['Event', 'Note', 'Reminder'] as const).map(tab => (
+                    <button
+                      key={tab}
+                      type="button"
+                      onClick={() => setCalendarItemType(tab)}
+                      style={{
+                        flex: 1,
+                        padding: '8px 0',
+                        border: 'none',
+                        borderRadius: '10px',
+                        background: calendarItemType === tab ? '#ffffff' : 'transparent',
+                        color: calendarItemType === tab ? '#0f172a' : '#64748b',
+                        fontWeight: 800,
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                        boxShadow: calendarItemType === tab ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Title Input */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>Title</label>
+                  <input
+                    type="text"
+                    value={calItemTitle}
+                    onChange={(e) => setCalItemTitle(e.target.value)}
+                    placeholder=""
+                    style={{
+                      height: '42px',
+                      background: '#f1f5f9',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '10px',
+                      padding: '0 14px',
+                      fontSize: '14px',
+                      color: '#0f172a',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+
+                {/* Start Time & End Time */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>Start Time</label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type="text"
+                        value={calItemStartTime}
+                        onChange={(e) => setCalItemStartTime(e.target.value)}
+                        style={{
+                          width: '100%',
+                          height: '42px',
+                          background: '#f1f5f9',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '10px',
+                          padding: '0 36px 0 14px',
+                          fontSize: '14px',
+                          color: '#0f172a',
+                          outline: 'none'
+                        }}
+                      />
+                      <i className="fa-regular fa-clock" style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', fontSize: '13px', pointerEvents: 'none' }}></i>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>End Time</label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type="text"
+                        value={calItemEndTime}
+                        onChange={(e) => setCalItemEndTime(e.target.value)}
+                        style={{
+                          width: '100%',
+                          height: '42px',
+                          background: '#f1f5f9',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '10px',
+                          padding: '0 36px 0 14px',
+                          fontSize: '14px',
+                          color: '#0f172a',
+                          outline: 'none'
+                        }}
+                      />
+                      <i className="fa-regular fa-clock" style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', fontSize: '13px', pointerEvents: 'none' }}></i>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>Description</label>
+                  <textarea
+                    rows={3}
+                    value={calItemDesc}
+                    onChange={(e) => setCalItemDesc(e.target.value)}
+                    style={{
+                      background: '#f1f5f9',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '10px',
+                      padding: '10px 14px',
+                      fontSize: '14px',
+                      color: '#0f172a',
+                      outline: 'none',
+                      resize: 'none'
+                    }}
+                  />
+                </div>
+
+                {/* Save Item Button (Exact Orange matching Image 1) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (calItemTitle.trim()) {
+                      setCalendarItems(prev => [...prev, {
+                        day: selectedDay,
+                        month: currentMonthIdx,
+                        year: currentYear,
+                        type: calendarItemType,
+                        title: calItemTitle.trim(),
+                        startTime: calItemStartTime,
+                        endTime: calItemEndTime,
+                        desc: calItemDesc
+                      }]);
+                      setCalItemTitle('');
+                      setCalItemDesc('');
+                    }
+                    setShowAddCalendarItem(false);
+                  }}
+                  style={{
+                    height: '46px',
+                    background: '#f59e0b',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '15px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.35)',
+                    marginTop: '4px'
+                  }}
+                >
+                  Save Item
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -783,7 +1041,7 @@ export default function UserSideBitTool({
 
       {/* DRAWER 4: CONTACTS */}
       {activeModal === 'contacts' && (
-        <div className="user-side-dock-panel" style={{ width: '400px', display: 'flex', flexDirection: 'column' }}>
+        <div className="user-side-dock-panel" style={{ width: '400px', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
           {/* Top Header: CONTACTS with Close button (Matching Image 2) */}
           <div className="bnx-cal-header" style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
             <h3 className="bnx-cal-title" style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '0.3px', margin: 0, color: '#0f172a' }}>CONTACTS</h3>
@@ -796,7 +1054,7 @@ export default function UserSideBitTool({
           </div>
 
           {/* Sub Header & Search Section (Matching Image 1) */}
-          <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', flex: 1, gap: '16px' }}>
+          <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', flex: 1, gap: '16px', overflowY: 'auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -817,13 +1075,13 @@ export default function UserSideBitTool({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '18px',
+                  fontSize: '20px',
                   cursor: 'pointer',
                   fontWeight: 600,
                   transition: 'all 0.15s ease'
                 }}
                 title="Add Contact"
-                onClick={() => { }}
+                onClick={() => setShowAddContact(true)}
               >
                 +
               </button>
@@ -836,6 +1094,8 @@ export default function UserSideBitTool({
               </span>
               <input
                 type="text"
+                value={contactSearch}
+                onChange={(e) => setContactSearch(e.target.value)}
                 placeholder="Search global contacts..."
                 style={{
                   width: '100%',
@@ -852,25 +1112,217 @@ export default function UserSideBitTool({
               />
             </div>
 
-            {/* Empty State Body (Matching Image 1) */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '180px', gap: '12px' }}>
-              <div style={{ width: '48px', height: '48px', color: '#94a3b8' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: '100%', height: '100%' }}>
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
+            {/* Empty State or List */}
+            {contactsList.filter(c => c.fullName.toLowerCase().includes(contactSearch.toLowerCase()) || c.email.toLowerCase().includes(contactSearch.toLowerCase())).length === 0 ? (
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '180px', gap: '12px' }}>
+                <div style={{ width: '48px', height: '48px', color: '#94a3b8' }}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: '100%', height: '100%' }}>
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </div>
+                <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>No contacts found</span>
               </div>
-              <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>No contacts found</span>
-            </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {contactsList
+                  .filter(c => c.fullName.toLowerCase().includes(contactSearch.toLowerCase()) || c.email.toLowerCase().includes(contactSearch.toLowerCase()))
+                  .map(c => (
+                    <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px' }}>
+                      <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#dbeafe', color: '#1d4ed8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '14px' }}>
+                        {c.fullName.charAt(0).toUpperCase()}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.fullName}</div>
+                        <div style={{ fontSize: '11.5px', color: '#64748b' }}>{c.email}</div>
+                        {c.phone && <div style={{ fontSize: '11px', color: '#94a3b8' }}>{c.phone} {c.role ? `• ${c.role}` : ''}</div>}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setContactsList(prev => prev.filter(item => item.id !== c.id))}
+                        style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' }}
+                      >
+                        <i className="fa-solid fa-trash-can"></i>
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
+
+          {/* BOTTOM SHEET: Add Contact (Image 2) */}
+          {showAddContact && (
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'rgba(15, 23, 42, 0.45)',
+              backdropFilter: 'blur(3px)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+              zIndex: 50,
+              borderRadius: '20px',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                background: '#ffffff',
+                borderTopLeftRadius: '24px',
+                borderTopRightRadius: '24px',
+                padding: '22px 24px 26px',
+                boxShadow: '0 -10px 30px rgba(0,0,0,0.12)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px'
+              }}>
+                {/* Header: + Add Contact + Close */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#2563eb' }}>+</span>
+                    <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>Add Contact</h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddContact(false)}
+                    style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Full Name * */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>Full Name *</label>
+                  <input
+                    type="text"
+                    value={contactFullName}
+                    onChange={(e) => setContactFullName(e.target.value)}
+                    placeholder="Jane Smith"
+                    style={{
+                      height: '44px',
+                      background: '#f8fafc',
+                      border: '1.5px solid #e2e8f0',
+                      borderRadius: '12px',
+                      padding: '0 14px',
+                      fontSize: '14px',
+                      color: '#0f172a',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+
+                {/* Email Address * */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>Email Address *</label>
+                  <input
+                    type="email"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    placeholder="jane@example.com"
+                    style={{
+                      height: '44px',
+                      background: '#f8fafc',
+                      border: '1.5px solid #e2e8f0',
+                      borderRadius: '12px',
+                      padding: '0 14px',
+                      fontSize: '14px',
+                      color: '#0f172a',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+
+                {/* Phone & Role */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>Phone</label>
+                    <input
+                      type="text"
+                      value={contactPhone}
+                      onChange={(e) => setContactPhone(e.target.value)}
+                      placeholder="+1 234 567 890"
+                      style={{
+                        height: '44px',
+                        background: '#f8fafc',
+                        border: '1.5px solid #e2e8f0',
+                        borderRadius: '12px',
+                        padding: '0 14px',
+                        fontSize: '14px',
+                        color: '#0f172a',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>Role</label>
+                    <input
+                      type="text"
+                      value={contactRole}
+                      onChange={(e) => setContactRole(e.target.value)}
+                      placeholder="e.g. Supplier"
+                      style={{
+                        height: '44px',
+                        background: '#f8fafc',
+                        border: '1.5px solid #e2e8f0',
+                        borderRadius: '12px',
+                        padding: '0 14px',
+                        fontSize: '14px',
+                        color: '#0f172a',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Save Contact Button (Exact Solid Royal Blue matching Image 2) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (contactFullName.trim() && contactEmail.trim()) {
+                      setContactsList(prev => [...prev, {
+                        id: `cnt-${Date.now()}`,
+                        fullName: contactFullName.trim(),
+                        email: contactEmail.trim(),
+                        phone: contactPhone.trim(),
+                        role: contactRole.trim()
+                      }]);
+                      setContactFullName('');
+                      setContactEmail('');
+                      setContactPhone('');
+                      setContactRole('');
+                    }
+                    setShowAddContact(false);
+                  }}
+                  style={{
+                    height: '48px',
+                    background: '#1d63ed',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '14px',
+                    fontSize: '15px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(29, 99, 237, 0.35)',
+                    marginTop: '8px'
+                  }}
+                >
+                  Save Contact
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* DRAWER 5: NOTES */}
+      {/* DRAWER 5: GLOBAL NOTES (Matching Image 3 & 4) */}
       {activeModal === 'notes' && (
-        <div className="user-side-dock-panel">
-          <div className="bnx-cal-header">
-            <h3 className="bnx-cal-title">NOTES</h3>
+        <div className="user-side-dock-panel" style={{ width: '400px', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+          {/* Header */}
+          <div className="bnx-cal-header" style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
+            <h3 className="bnx-cal-title" style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '0.3px', margin: 0, color: '#0f172a' }}>NOTES</h3>
             <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -878,33 +1330,254 @@ export default function UserSideBitTool({
               </svg>
             </button>
           </div>
-          <div className="user-dock-inner">
-            <div className="user-note-input-row">
-              <input
-                type="text"
-                className="user-note-input"
-                placeholder="Write a new note or memo..."
-                value={noteInput}
-                onChange={(e) => setNoteInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleAddNote(); }}
-              />
-              <button className="user-note-add-btn" onClick={handleAddNote}>Add</button>
+
+          <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', flex: 1, gap: '16px', overflowY: 'auto' }}>
+            {/* Global Notes Title & Rounded Yellow Plus Button (Image 3 & 4) */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <h4 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Global Notes</h4>
+              </div>
+              <button
+                type="button"
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  background: '#fef9c3',
+                  color: '#ca8a04',
+                  border: '1px solid #fef08a',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  transition: 'all 0.15s ease'
+                }}
+                title="Add Note"
+                onClick={() => {
+                  setNoteColor('#fff9c4');
+                  setShowAddNote(true);
+                }}
+              >
+                +
+              </button>
             </div>
-            <div className="user-notes-list">
-              {notesList.map((n, i) => (
-                <div key={i} className="user-note-card">
-                  <span style={{ fontSize: '13px', color: '#1e293b' }}>{n}</span>
-                  <button
-                    className="user-note-delete-btn"
-                    onClick={() => setNotesList(prev => prev.filter((_, idx) => idx !== i))}
-                    title="Delete"
-                  >
-                    <i className="fa-regular fa-trash-can"></i>
-                  </button>
+
+            {/* Notes List or Empty State */}
+            {notesList.length === 0 ? (
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '180px', gap: '12px' }}>
+                <div style={{ width: '52px', height: '52px', color: '#94a3b8' }}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: '100%', height: '100%' }}>
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
                 </div>
-              ))}
-            </div>
+                <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>No notes found</span>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '12px' }}>
+                {notesList.map((n) => (
+                  <div
+                    key={n.id}
+                    style={{
+                      background: n.color || '#fff9c4',
+                      borderRadius: '16px',
+                      padding: '14px',
+                      minHeight: '110px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      position: 'relative',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                      border: '1px solid rgba(0,0,0,0.06)'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '6px' }}>
+                      <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#1e293b', wordBreak: 'break-word' }}>{n.title || n.content.slice(0, 20)}</span>
+                      <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '6px', background: 'rgba(255,255,255,0.7)', color: '#2563eb' }}>BNX MAIL</span>
+                    </div>
+                    {n.content && (
+                      <p style={{ margin: '6px 0', fontSize: '12px', color: '#334155', wordBreak: 'break-word' }}>{n.content}</p>
+                    )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                      <span style={{ fontSize: '10px', color: '#64748b' }}>{n.date}</span>
+                      <button
+                        type="button"
+                        onClick={() => setNotesList(prev => prev.filter(item => item.id !== n.id))}
+                        style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '2px' }}
+                      >
+                        <i className="fa-regular fa-trash-can" style={{ fontSize: '11px' }}></i>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+
+          {/* BOTTOM SHEET: Add Note (Image 3 & 4) */}
+          {showAddNote && (
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'rgba(15, 23, 42, 0.45)',
+              backdropFilter: 'blur(3px)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+              zIndex: 50,
+              borderRadius: '20px',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                background: noteColor || '#fff9c4',
+                borderTopLeftRadius: '24px',
+                borderTopRightRadius: '24px',
+                padding: '22px 24px 26px',
+                boxShadow: '0 -10px 30px rgba(0,0,0,0.12)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px'
+              }}>
+                {/* Header: + Add Note + Pin Icon + Close Icon */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>+</span>
+                    <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>Add Note</h4>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setIsNotePinned(prev => !prev)}
+                      style={{ background: 'none', border: 'none', color: isNotePinned ? '#2563eb' : '#334155', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}
+                      title="Pin note"
+                    >
+                      <i className={`fa-solid fa-thumbtack ${isNotePinned ? 'rotate-45' : ''}`} style={{ fontSize: '16px' }}></i>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddNote(false)}
+                      style={{ background: 'none', border: 'none', color: '#334155', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}
+                      title="Close"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Title Input */}
+                <input
+                  type="text"
+                  value={noteTitle}
+                  onChange={(e) => setNoteTitle(e.target.value)}
+                  placeholder="Title"
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    fontSize: '20px',
+                    fontWeight: 800,
+                    color: '#1e293b',
+                    outline: 'none',
+                    padding: '4px 0'
+                  }}
+                />
+
+                {/* Take a note... Textarea */}
+                <textarea
+                  rows={4}
+                  value={noteContent}
+                  onChange={(e) => setNoteContent(e.target.value)}
+                  placeholder="Take a note..."
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    fontSize: '15px',
+                    color: '#334155',
+                    outline: 'none',
+                    resize: 'none',
+                    lineHeight: '1.5'
+                  }}
+                />
+
+                {/* Color Palette Bubbles (Exact Image 3 & 4) */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', marginTop: '4px' }}>
+                  {[
+                    '#ffffff', // White
+                    '#f87171', // Coral red
+                    '#f59e0b', // Deep Amber / Orange
+                    '#fef08a', // Pastel Yellow
+                    '#bbf7d0', // Pastel Green
+                    '#a7f3d0', // Mint Cyan
+                    '#bae6fd', // Light Sky Blue
+                    '#bfdbfe', // Soft Periwinkle
+                    '#d8b4fe', // Light Purple
+                    '#fbcfe8', // Soft Pink
+                    '#fed7aa', // Light Peach
+                    '#e2e8f0', // Cool Grey
+                  ].map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setNoteColor(c)}
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '50%',
+                        background: c,
+                        border: noteColor === c ? '3px solid #2563eb' : '1.5px solid rgba(0,0,0,0.12)',
+                        cursor: 'pointer',
+                        padding: 0,
+                        transform: noteColor === c ? 'scale(1.15)' : 'scale(1)',
+                        transition: 'all 0.15s ease'
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Save Note Button (Exact Dark Charcoal button matching Image 3 & 4) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (noteTitle.trim() || noteContent.trim()) {
+                      setNotesList(prev => [{
+                        id: `note-${Date.now()}`,
+                        title: noteTitle.trim(),
+                        content: noteContent.trim(),
+                        color: noteColor,
+                        isPinned: isNotePinned,
+                        date: 'Just now'
+                      }, ...prev]);
+                      setNoteTitle('');
+                      setNoteContent('');
+                    }
+                    setShowAddNote(false);
+                  }}
+                  style={{
+                    height: '48px',
+                    background: '#2b2b2b',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '14px',
+                    fontSize: '15px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
+                    marginTop: '8px'
+                  }}
+                >
+                  Save Note
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
