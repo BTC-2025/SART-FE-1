@@ -100,12 +100,14 @@ export default function UserSideBitTool({
   const [calcDisplay, setCalcDisplay] = useState('0');
   const [calcFormula, setCalcFormula] = useState('');
   const [calcCurrency, setCalcCurrency] = useState<'INR' | 'USD' | 'EUR' | 'GBP' | 'AED'>('INR');
-  const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
+  const [activeCalcDropdown, setActiveCalcDropdown] = useState<'gst' | 'discount' | 'region' | null>(null);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showCompareMode, setShowCompareMode] = useState(false);
-  const [showGstDropdown, setShowGstDropdown] = useState(false);
-  const [showDiscountDropdown, setShowDiscountDropdown] = useState(false);
   const [copiedShareAlert, setCopiedShareAlert] = useState(false);
+
+  // Custom user percentage input states
+  const [customGstInput, setCustomGstInput] = useState('');
+  const [customDiscountInput, setCustomDiscountInput] = useState('');
 
   // Price comparison items (Side A vs Side B)
   const [compareItems, setCompareItems] = useState<Array<{ id: string; desc: string; valA: number; valB: number }>>([
@@ -242,7 +244,8 @@ export default function UserSideBitTool({
         diff: -discountAmount
       }
     ]);
-    setShowDiscountDropdown(false);
+    setActiveCalcDropdown(null);
+    setCustomDiscountInput('');
   };
 
   const handleApplyGst = (percent: number) => {
@@ -261,7 +264,8 @@ export default function UserSideBitTool({
         diff: +gstAmount
       }
     ]);
-    setShowGstDropdown(false);
+    setActiveCalcDropdown(null);
+    setCustomGstInput('');
   };
 
   const handleApplyOperation = (op: 'ADD' | 'SUB' | 'MUL' | 'DIV') => {
@@ -1575,91 +1579,179 @@ export default function UserSideBitTool({
                   </div>
                 </div>
 
-                {/* Quick Action Preset Pills matching Image 2 & 3: % GST | Discount | Currency/Region | Compare */}
+                {/* Quick Action Preset Pills: % GST | Discount | Currency/Region | Compare */}
                 <div className="grid grid-cols-4 gap-1.5 p-1.5 border-t border-gray-100 dark:border-gray-800 relative bg-white">
-                  {/* 1. GST Dropdown Pill */}
+                  {/* 1. GST Dropdown Pill (Opens only when clicked, 4 columns inside or custom input) */}
                   <div className="relative">
                     <button
                       type="button"
-                      onClick={() => setShowGstDropdown(prev => !prev)}
-                      className="w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold text-emerald-600 bg-emerald-50 rounded-xl border border-emerald-200 hover:bg-emerald-100 transition-colors"
+                      onClick={() => setActiveCalcDropdown(prev => prev === 'gst' ? null : 'gst')}
+                      className={`w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${
+                        activeCalcDropdown === 'gst'
+                          ? 'bg-emerald-600 text-white border-emerald-600'
+                          : 'text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
+                      }`}
                     >
                       <span>%</span>
                       <span>GST</span>
                     </button>
-                    {showGstDropdown && (
-                      <div className="absolute bottom-full left-0 mb-1 w-28 bg-white border border-emerald-200 rounded-xl shadow-xl p-1 z-30 animate-in fade-in flex flex-col gap-0.5">
-                        <div className="text-[9.5px] font-bold text-slate-400 px-2 py-0.5 uppercase">Select GST</div>
-                        {[5, 12, 18, 28].map(p => (
+                    {activeCalcDropdown === 'gst' && (
+                      <div className="absolute bottom-full left-0 mb-1 w-60 bg-white border border-emerald-300 rounded-2xl shadow-2xl p-2 z-30 animate-in fade-in flex flex-col gap-1.5">
+                        <div className="flex items-center justify-between px-1">
+                          <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">SELECT GST</span>
                           <button
-                            key={p}
                             type="button"
-                            onClick={() => handleApplyGst(p)}
-                            className="text-left px-2 py-1 text-xs font-bold text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors flex justify-between"
+                            onClick={() => setActiveCalcDropdown(null)}
+                            className="text-slate-400 hover:text-slate-700 text-xs font-bold"
                           >
-                            <span>+{p}%</span>
-                            <span className="text-[10px] opacity-60">GST</span>
+                            ✕
                           </button>
-                        ))}
+                        </div>
+
+                        {/* 4 columns in one row for GST percentages */}
+                        <div className="grid grid-cols-4 gap-1">
+                          {[5, 12, 18, 28].map(p => (
+                            <button
+                              key={p}
+                              type="button"
+                              onClick={() => handleApplyGst(p)}
+                              className="py-1.5 text-center text-xs font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-colors"
+                            >
+                              +{p}%
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Custom user percentage input */}
+                        <div className="flex items-center gap-1 pt-1 border-t border-slate-100">
+                          <input
+                            type="number"
+                            placeholder="Custom %"
+                            value={customGstInput}
+                            onChange={(e) => setCustomGstInput(e.target.value)}
+                            className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-bold outline-none text-slate-800"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const val = parseFloat(customGstInput);
+                              if (!isNaN(val) && val > 0) handleApplyGst(val);
+                            }}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-2 py-1 rounded-lg"
+                          >
+                            Add
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
 
-                  {/* 2. Discount Dropdown Pill */}
+                  {/* 2. Discount Dropdown Pill (Opens only when clicked, 4 columns inside or custom input) */}
                   <div className="relative">
                     <button
                       type="button"
-                      onClick={() => setShowDiscountDropdown(prev => !prev)}
-                      className="w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold text-amber-600 bg-amber-50 rounded-xl border border-amber-200 hover:bg-amber-100 transition-colors"
+                      onClick={() => setActiveCalcDropdown(prev => prev === 'discount' ? null : 'discount')}
+                      className={`w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${
+                        activeCalcDropdown === 'discount'
+                          ? 'bg-amber-600 text-white border-amber-600'
+                          : 'text-amber-600 bg-amber-50 border-amber-200 hover:bg-amber-100'
+                      }`}
                     >
                       <span>🏷️</span>
                       <span>Discount</span>
                     </button>
-                    {showDiscountDropdown && (
-                      <div className="absolute bottom-full left-0 mb-1 w-32 bg-white border border-amber-200 rounded-xl shadow-xl p-1 z-30 animate-in fade-in flex flex-col gap-0.5">
-                        <div className="text-[9.5px] font-bold text-slate-400 px-2 py-0.5 uppercase">Select Discount</div>
-                        {[5, 10, 15, 20, 25, 50].map(p => (
+                    {activeCalcDropdown === 'discount' && (
+                      <div className="absolute bottom-full left-0 mb-1 w-64 bg-white border border-amber-300 rounded-2xl shadow-2xl p-2 z-30 animate-in fade-in flex flex-col gap-1.5">
+                        <div className="flex items-center justify-between px-1">
+                          <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">SELECT DISCOUNT</span>
                           <button
-                            key={p}
                             type="button"
-                            onClick={() => handleApplyDiscount(p)}
-                            className="text-left px-2 py-1 text-xs font-bold text-amber-700 hover:bg-amber-50 rounded-lg transition-colors flex justify-between"
+                            onClick={() => setActiveCalcDropdown(null)}
+                            className="text-slate-400 hover:text-slate-700 text-xs font-bold"
                           >
-                            <span>−{p}%</span>
-                            <span className="text-[10px] opacity-60">OFF</span>
+                            ✕
                           </button>
-                        ))}
+                        </div>
+
+                        {/* 4 columns in one row for Discount percentages */}
+                        <div className="grid grid-cols-4 gap-1">
+                          {[5, 10, 15, 20, 25, 30, 40, 50].map(p => (
+                            <button
+                              key={p}
+                              type="button"
+                              onClick={() => handleApplyDiscount(p)}
+                              className="py-1.5 text-center text-xs font-black text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-200 transition-colors"
+                            >
+                              −{p}%
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Custom user discount percentage input */}
+                        <div className="flex items-center gap-1 pt-1 border-t border-slate-100">
+                          <input
+                            type="number"
+                            placeholder="Custom %"
+                            value={customDiscountInput}
+                            onChange={(e) => setCustomDiscountInput(e.target.value)}
+                            className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-bold outline-none text-slate-800"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const val = parseFloat(customDiscountInput);
+                              if (!isNaN(val) && val > 0) handleApplyDiscount(val);
+                            }}
+                            className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-2 py-1 rounded-lg"
+                          >
+                            Add
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
 
-                  {/* 3. Currency / Region Dropdown Pill (India, USA, Europe, etc.) */}
+                  {/* 3. Currency / Region Dropdown Pill (Opens only when clicked) */}
                   <div className="relative">
                     <button
                       type="button"
-                      onClick={() => setShowCurrencyDropdown(prev => !prev)}
-                      className="w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold text-indigo-600 bg-indigo-50 rounded-xl border border-indigo-200 hover:bg-indigo-100 transition-colors"
+                      onClick={() => setActiveCalcDropdown(prev => prev === 'region' ? null : 'region')}
+                      className={`w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${
+                        activeCalcDropdown === 'region'
+                          ? 'bg-indigo-600 text-white border-indigo-600'
+                          : 'text-indigo-600 bg-indigo-50 border-indigo-200 hover:bg-indigo-100'
+                      }`}
                     >
                       <span>🌐</span>
                       <span>{calcCurrency}</span>
                     </button>
-                    {showCurrencyDropdown && (
-                      <div className="absolute bottom-full left-0 mb-1 w-36 bg-white border border-indigo-200 rounded-xl shadow-xl p-1 z-30 animate-in fade-in flex flex-col gap-0.5">
-                        <div className="text-[9.5px] font-bold text-slate-400 px-2 py-0.5 uppercase">Select Region</div>
+                    {activeCalcDropdown === 'region' && (
+                      <div className="absolute bottom-full right-0 mb-1 w-44 bg-white border border-indigo-300 rounded-2xl shadow-2xl p-2 z-30 animate-in fade-in flex flex-col gap-1">
+                        <div className="flex items-center justify-between px-1">
+                          <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">SELECT REGION</span>
+                          <button
+                            type="button"
+                            onClick={() => setActiveCalcDropdown(null)}
+                            className="text-slate-400 hover:text-slate-700 text-xs font-bold"
+                          >
+                            ✕
+                          </button>
+                        </div>
+
                         {(['INR', 'USD', 'EUR', 'GBP', 'AED'] as const).map(cur => (
                           <button
                             key={cur}
                             type="button"
                             onClick={() => {
                               setCalcCurrency(cur);
-                              setShowCurrencyDropdown(false);
+                              setActiveCalcDropdown(null);
                             }}
-                            className={`text-left px-2 py-1 text-xs font-bold rounded-lg transition-colors flex justify-between ${
+                            className={`text-left px-2 py-1.5 text-xs font-extrabold rounded-xl transition-colors flex justify-between items-center ${
                               calcCurrency === cur ? 'bg-indigo-600 text-white' : 'text-slate-700 hover:bg-indigo-50'
                             }`}
                           >
                             <span>{cur}</span>
-                            <span className="text-[10px] opacity-75">{currencyRates[cur]?.symbol}</span>
+                            <span className="text-[11px] opacity-80">{currencyRates[cur]?.symbol}</span>
                           </button>
                         ))}
                       </div>
@@ -1669,7 +1761,10 @@ export default function UserSideBitTool({
                   {/* 4. Compare Toggle Pill */}
                   <button
                     type="button"
-                    onClick={() => setShowCompareMode(prev => !prev)}
+                    onClick={() => {
+                      setActiveCalcDropdown(null);
+                      setShowCompareMode(prev => !prev);
+                    }}
                     className={`flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${
                       showCompareMode ? 'bg-indigo-600 text-white border-indigo-600' : 'text-blue-600 bg-blue-50 border-blue-200 hover:bg-blue-100'
                     }`}
