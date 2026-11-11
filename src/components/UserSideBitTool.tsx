@@ -704,90 +704,127 @@ export default function UserSideBitTool({
 
       {/* DRAWER 2: EXACT MATCH BNX CALENDAR MODAL (Image 2 UI) */}
       {activeModal === 'calendar' && (
-        <div className="user-side-dock-panel bnx-cal-panel">
+        <div className="user-side-dock-panel bnx-cal-panel flex flex-col h-full bg-white text-slate-800">
           {/* Header */}
-          <div className="bnx-cal-header">
-            <h3 className="bnx-cal-title">Calendar</h3>
-            <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0">
+            <h3 className="font-bold text-base text-slate-900">Calendar</h3>
+            <button
+              className="p-1 hover:bg-black/5 rounded-full text-slate-400 hover:text-slate-700 transition-colors"
+              onClick={closeModal}
+              title="Close"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </button>
           </div>
 
-          <div className="bnx-cal-body">
-            {/* Month Header with Right Aligned Arrows */}
-            <div className="bnx-month-row">
-              <h4 className="bnx-month-name">{currentMonthName} {currentYear}</h4>
-              <div className="bnx-month-arrows">
-                <button type="button" className="bnx-arrow-btn" onClick={handlePrevMonth} title="Previous Month">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <div className="p-4 flex-1 flex flex-col min-h-0 overflow-y-auto">
+            {/* Month Header with Right Aligned Arrows matching inspector: flex items-center justify-between mb-4 */}
+            <div className="flex items-center justify-between mb-4">
+              <span className="font-bold text-sm text-slate-900">
+                {currentMonthName} {currentYear}
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded transition-colors text-slate-600"
+                  onClick={handlePrevMonth}
+                  title="Previous Month"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="15 18 9 12 15 6"></polyline>
                   </svg>
                 </button>
-                <button type="button" className="bnx-arrow-btn" onClick={handleNextMonth} title="Next Month">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <button
+                  type="button"
+                  className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded transition-colors text-slate-600"
+                  onClick={handleNextMonth}
+                  title="Next Month"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="9 18 15 12 9 6"></polyline>
                   </svg>
                 </button>
               </div>
             </div>
 
-            {/* Days Matrix */}
-            <div className="bnx-days-grid">
-              <span className="bnx-day-wk">Su</span>
-              <span className="bnx-day-wk">Mo</span>
-              <span className="bnx-day-wk">Tu</span>
-              <span className="bnx-day-wk">We</span>
-              <span className="bnx-day-wk">Th</span>
-              <span className="bnx-day-wk">Fr</span>
-              <span className="bnx-day-wk">Sa</span>
+            {/* Weekday headers matching inspector: grid grid-cols-7 gap-1 text-[10px] text-center font-bold opacity-60 mb-2 */}
+            <div className="grid grid-cols-7 gap-1 text-[10px] text-center font-bold opacity-60 mb-2">
+              <span>Su</span>
+              <span>Mo</span>
+              <span>Tu</span>
+              <span>We</span>
+              <span>Th</span>
+              <span>Fr</span>
+              <span>Sa</span>
+            </div>
 
+            {/* Days Matrix matching inspector: grid grid-cols-7 gap-1 text-center text-xs mb-6 min-h-[140px] */}
+            <div className="grid grid-cols-7 gap-1 text-center text-xs mb-6 min-h-[140px]">
               {Array.from({ length: firstDayWeekday }).map((_, idx) => (
-                <div key={`empty-${idx}`} className="bnx-day-cell empty"></div>
+                <div key={`empty-${idx}`} className="h-8 flex items-center justify-center"></div>
               ))}
 
-              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => (
-                <div
-                  key={day}
-                  className={`bnx-day-cell ${selectedDay === day ? 'active-orange' : ''}`}
-                  onClick={() => setSelectedDay(day)}
+              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
+                const isSelected = selectedDay === day;
+                return (
+                  <button
+                    key={day}
+                    type="button"
+                    className={`h-8 w-8 mx-auto flex items-center justify-center rounded-xl font-medium transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#eab308] text-white font-bold shadow-md shadow-yellow-500/30'
+                        : 'text-slate-800 hover:bg-black/5'
+                    }`}
+                    onClick={() => setSelectedDay(day)}
+                  >
+                    {day}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Schedule Section matching inspector: flex-1 flex flex-col min-h-0 border-t border-gray-100 dark:border-gray-800 pt-4 */}
+            <div className="flex-1 flex flex-col min-h-0 border-t border-gray-100 dark:border-gray-800 pt-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-bold text-slate-400 tracking-wider uppercase">
+                  {currentMonthName} {selectedDay} Schedule
+                </span>
+                <button
+                  type="button"
+                  className="text-xs font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 px-2.5 py-1 rounded-lg transition-colors"
+                  onClick={() => setShowAddCalendarItem(true)}
                 >
-                  {day}
-                </div>
-              ))}
-            </div>
-
-            {/* Divider line before schedule footer */}
-            <div className="bnx-cal-footer-divider"></div>
-
-            {/* Footer Row: e.g. "NOVEMBER 4 SCHEDULE" and "+ Add" button */}
-            <div className="bnx-schedule-row">
-              <span className="bnx-schedule-label">
-                {currentMonthName.toUpperCase()} {selectedDay} SCHEDULE
-              </span>
-              <button
-                type="button"
-                className="bnx-add-btn"
-                onClick={() => setShowAddCalendarItem(true)}
-              >
-                + Add
-              </button>
-            </div>
-
-            {/* Empty or List items */}
-            {calendarItems.filter(item => item.day === selectedDay && item.month === currentMonthIdx && item.year === currentYear).length === 0 ? (
-              <div className="bnx-cal-empty-msg">
-                No items scheduled
+                  + Add
+                </button>
               </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px', maxHeight: '140px', overflowY: 'auto' }}>
-                {calendarItems
-                  .filter(item => item.day === selectedDay && item.month === currentMonthIdx && item.year === currentYear)
-                  .map((it, idx) => (
-                    <div key={idx} style={{ padding: '8px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
+
+              {/* Empty or List items */}
+              {calendarItems.filter(item => item.day === selectedDay && item.month === currentMonthIdx && item.year === currentYear).length === 0 ? (
+                <div className="flex-1 flex items-center justify-center text-xs text-slate-400 font-medium py-6">
+                  No items scheduled
+                </div>
+              ) : (
+                <div className="space-y-2 overflow-y-auto max-h-[160px] pr-1">
+                  {calendarItems
+                    .filter(item => item.day === selectedDay && item.month === currentMonthIdx && item.year === currentYear)
+                    .map((it, idx) => (
+                      <div key={idx} className="p-2.5 bg-slate-50 border border-slate-200/70 rounded-xl flex justify-between items-center text-xs">
+                        <div>
+                          <div className="font-semibold text-slate-900">{it.title}</div>
+                          <div className="text-[11px] text-slate-500">{it.startTime} - {it.endTime}</div>
+                        </div>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 uppercase">
+                          {it.type}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          </div>
                         <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>{it.title}</div>
                         <div style={{ fontSize: '11px', color: '#64748b' }}>{it.type} • {it.startTime} - {it.endTime}</div>
                       </div>
