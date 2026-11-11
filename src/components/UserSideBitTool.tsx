@@ -247,9 +247,18 @@ export default function UserSideBitTool({
         );
       case 'notes':
         return (
-          <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="4" y="3" width="16" height="18" rx="3"></rect>
-            <path d="M9 13.5l4-4 2 2-4 4H9v-2z"></path>
+          <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none">
+            {/* Outer notepad/document frame matching user image */}
+            <rect x="4" y="2.5" width="16" height="19" rx="4.5" stroke="#eab308" strokeWidth="2.4" fill="none"></rect>
+            {/* Diagonal pencil inside notepad */}
+            <path
+              d="M14.8 7.2l2 2-6.2 6.2c-.3.3-.7.5-1.1.6l-2 .5.5-2c.1-.4.3-.8.6-1.1l6.2-6.2z"
+              stroke="#eab308"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="#eab308"
+            ></path>
           </svg>
         );
       case 'keyboard':

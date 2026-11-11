@@ -951,105 +951,105 @@
   background: #ffffff !important;
 }
 
-/* Inactive States: Soft tinted full color background with matching pastel border matching the uploaded image */
+/* Inactive States: Soft tinted full color background with NO border */
 .bnx-tool-btn.bnx-brand-b {
   border-radius: 8px !important;
-  border: 1px solid #dbeafe !important;
+  border: none !important;
   background: #eff6ff !important;
 }
 
 .bnx-tool-btn.bnx-calendar {
   border-radius: 8px !important;
-  border: 1.5px solid #fed7aa !important;
+  border: none !important;
   background: #fff7ed !important;
 }
 
 .bnx-tool-btn.bnx-calculator {
   border-radius: 8px !important;
-  border: 1.5px solid #a7f3d0 !important;
+  border: none !important;
   background: #ecfdf5 !important;
 }
 
 .bnx-tool-btn.bnx-contacts,
 .bnx-tool-btn.bnx-people {
   border-radius: 8px !important;
-  border: 1.5px solid #bfdbfe !important;
+  border: none !important;
   background: #eff6ff !important;
 }
 
 .bnx-tool-btn.bnx-notes {
   border-radius: 8px !important;
-  border: 1.5px solid #fef08a !important;
+  border: none !important;
   background: #fefce8 !important;
 }
 
 .bnx-tool-btn.bnx-keyboard {
   border-radius: 8px !important;
-  border: 1.5px solid #c7d2fe !important;
+  border: none !important;
   background: #eef2ff !important;
 }
 
 .bnx-tool-btn.bnx-cloud {
   border-radius: 8px !important;
-  border: 1.5px solid #a5f3fc !important;
+  border: none !important;
   background: #ecfeff !important;
 }
 
 .bnx-tool-btn.bnx-pencil {
   border-radius: 8px !important;
-  border: 1px solid #e2e8f0 !important;
-  background: #ffffff !important;
+  border: none !important;
+  background: #f1f5f9 !important;
 }
 
-/* Active Selected Tool: Square with full matching tinted background and solid 2px colored border */
+/* Active Selected Tool: Square with full matching tinted background and NO harsh border */
 .bnx-tool-btn.active-tool {
   border-radius: 8px !important;
-  border: 2px solid #2563eb !important;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16) !important;
+  border: none !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25) !important;
   background: #dbeafe !important;
 }
 
 .bnx-tool-btn.bnx-calendar.active-tool {
   border-radius: 8px !important;
-  border: 2px solid #ea580c !important;
+  border: none !important;
   background: #ffedd5 !important;
-  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.18) !important;
+  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.25) !important;
 }
 
 .bnx-tool-btn.bnx-calculator.active-tool {
   border-radius: 8px !important;
-  border: 2px solid #059669 !important;
+  border: none !important;
   background: #d1fae5 !important;
-  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.18) !important;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.25) !important;
 }
 
 .bnx-tool-btn.bnx-contacts.active-tool,
 .bnx-tool-btn.bnx-people.active-tool {
   border-radius: 8px !important;
-  border: 2px solid #2563eb !important;
+  border: none !important;
   background: #dbeafe !important;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18) !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25) !important;
 }
 
 .bnx-tool-btn.bnx-notes.active-tool {
   border-radius: 8px !important;
-  border: 2px solid #eab308 !important;
+  border: none !important;
   background: #fef9c3 !important;
-  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.18) !important;
+  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.25) !important;
 }
 
 .bnx-tool-btn.bnx-keyboard.active-tool {
   border-radius: 8px !important;
-  border: 2px solid #6366f1 !important;
+  border: none !important;
   background: #e0e7ff !important;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.18) !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25) !important;
 }
 
 .bnx-tool-btn.bnx-cloud.active-tool {
   border-radius: 8px !important;
-  border: 2px solid #06b6d4 !important;
+  border: none !important;
   background: #cffafe !important;
-  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.18) !important;
+  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.25) !important;
 }
 
 /* Solid Green Checkmark Circle Button */
