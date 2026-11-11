@@ -194,6 +194,7 @@ export default function UserSideBitTool({
 
   // Global Notes state (Image 3 & 4)
   const [showAddNote, setShowAddNote] = useState(false);
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [noteTitle, setNoteTitle] = useState('');
   const [noteContent, setNoteContent] = useState('');
   const [isNotePinned, setIsNotePinned] = useState(false);
@@ -2376,7 +2377,7 @@ export default function UserSideBitTool({
 
       {/* DRAWER 5: GLOBAL NOTES (Matching Image 3 & 4) */}
       {activeModal === 'notes' && (
-        <div className="user-side-dock-panel" style={{ width: '400px', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+        <div className="user-side-dock-panel" style={{ width: '480px', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
           {/* Header */}
           <div className="bnx-cal-header" style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
             <h3 className="bnx-cal-title" style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '0.3px', margin: 0, color: '#0f172a' }}>NOTES</h3>
@@ -2389,40 +2390,45 @@ export default function UserSideBitTool({
           </div>
 
           <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', flex: 1, gap: '16px', overflowY: 'auto' }}>
-            {/* Global Notes Title & Rounded Yellow Plus Button (Image 3 & 4) */}
+            {/* Global Notes Title & Rounded Blue New Note Button (Matching user image) */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                </svg>
-                <h4 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Global Notes</h4>
+                <h4 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: 0 }}>My Notes</h4>
               </div>
               <button
                 type="button"
                 style={{
-                  width: '38px',
                   height: '38px',
-                  borderRadius: '50%',
-                  background: '#fef9c3',
-                  color: '#ca8a04',
-                  border: '1px solid #fef08a',
+                  padding: '0 16px',
+                  borderRadius: '10px',
+                  background: '#2563eb',
+                  color: '#ffffff',
+                  border: 'none',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '20px',
+                  gap: '6px',
+                  fontSize: '14px',
                   cursor: 'pointer',
-                  fontWeight: 600,
+                  fontWeight: 700,
+                  boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
                   transition: 'all 0.15s ease'
                 }}
-                title="Add Note"
+                title="New Note"
                 onClick={() => {
-                  setNoteColor('#fff9c4');
+                  setEditingNoteId(null);
+                  setNoteTitle('');
+                  setNoteContent('');
+                  setIsNotePinned(false);
+                  setNoteColor('#bfdbfe');
                   setShowAddNote(true);
                 }}
               >
-                +
+                <span>+</span> New Note
               </button>
+            </div>
+
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', letterSpacing: '0.6px', textTransform: 'uppercase' }}>
+              ALL NOTES
             </div>
 
             {/* Notes List or Empty State */}
@@ -2437,39 +2443,64 @@ export default function UserSideBitTool({
                 <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>No notes found</span>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '12px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {notesList.map((n) => (
                   <div
                     key={n.id}
                     style={{
-                      background: n.color || '#fff9c4',
+                      background: n.color || '#bfdbfe',
                       borderRadius: '16px',
-                      padding: '14px',
-                      minHeight: '110px',
+                      padding: '16px 18px',
                       display: 'flex',
                       flexDirection: 'column',
-                      justifyContent: 'space-between',
+                      gap: '8px',
                       position: 'relative',
                       boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                       border: '1px solid rgba(0,0,0,0.06)'
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '6px' }}>
-                      <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#1e293b', wordBreak: 'break-word' }}>{n.title || n.content.slice(0, 20)}</span>
-                      <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '6px', background: 'rgba(255,255,255,0.7)', color: '#2563eb' }}>BNX MAIL</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', wordBreak: 'break-word' }}>
+                        {n.title || 'Untitled Note'}
+                      </span>
+                      {n.isPinned && (
+                        <i className="fa-solid fa-thumbtack" style={{ fontSize: '14px', color: '#64748b' }}></i>
+                      )}
                     </div>
                     {n.content && (
-                      <p style={{ margin: '6px 0', fontSize: '12px', color: '#334155', wordBreak: 'break-word' }}>{n.content}</p>
+                      <p style={{ margin: '4px 0 8px', fontSize: '13.5px', color: '#1e293b', wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>
+                        {n.content}
+                      </p>
                     )}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
-                      <span style={{ fontSize: '10px', color: '#64748b' }}>{n.date}</span>
-                      <button
-                        type="button"
-                        onClick={() => setNotesList(prev => prev.filter(item => item.id !== n.id))}
-                        style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '2px' }}
-                      >
-                        <i className="fa-regular fa-trash-can" style={{ fontSize: '11px' }}></i>
-                      </button>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px solid rgba(0, 0, 0, 0.06)' }}>
+                      <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: '#ffffff', color: '#0f172a' }}>
+                        BNX MAIL
+                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingNoteId(n.id);
+                            setNoteTitle(n.title);
+                            setNoteContent(n.content);
+                            setIsNotePinned(n.isPinned);
+                            setNoteColor(n.color || '#bfdbfe');
+                            setShowAddNote(true);
+                          }}
+                          style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', padding: '3px', fontSize: '13px' }}
+                          title="Edit Note"
+                        >
+                          <i className="fa-regular fa-pen-to-square"></i>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setNotesList(prev => prev.filter(item => item.id !== n.id))}
+                          style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '3px', fontSize: '13px' }}
+                          title="Delete Note"
+                        >
+                          <i className="fa-regular fa-trash-can"></i>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -2477,7 +2508,7 @@ export default function UserSideBitTool({
             )}
           </div>
 
-          {/* BOTTOM SHEET: Add Note (Image 3 & 4) */}
+          {/* BOTTOM SHEET / MODAL: Edit Note / Add Note (Matching user images 1 & 2) */}
           {showAddNote && (
             <div style={{
               position: 'absolute',
@@ -2486,48 +2517,45 @@ export default function UserSideBitTool({
               backdropFilter: 'blur(3px)',
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'flex-end',
+              justifyContent: 'center',
+              alignItems: 'center',
               zIndex: 50,
-              borderRadius: '20px',
+              padding: '16px',
               overflow: 'hidden'
             }}>
               <div style={{
-                background: noteColor || '#fff9c4',
-                borderTopLeftRadius: '24px',
-                borderTopRightRadius: '24px',
-                padding: '22px 24px 26px',
-                boxShadow: '0 -10px 30px rgba(0,0,0,0.12)',
+                background: noteColor || '#bfdbfe',
+                borderRadius: '24px',
+                padding: '24px',
+                width: '100%',
+                maxWidth: '420px',
+                boxShadow: '0 12px 36px rgba(0,0,0,0.2)',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '14px'
+                gap: '14px',
+                position: 'relative'
               }}>
-                {/* Header: + Add Note + Pin Icon + Close Icon */}
+                {/* Header: Edit Note / Add Note with Close Icon */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>+</span>
-                    <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>Add Note</h4>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    <button
-                      type="button"
-                      onClick={() => setIsNotePinned(prev => !prev)}
-                      style={{ background: 'none', border: 'none', color: isNotePinned ? '#2563eb' : '#334155', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}
-                      title="Pin note"
-                    >
-                      <i className={`fa-solid fa-thumbtack ${isNotePinned ? 'rotate-45' : ''}`} style={{ fontSize: '16px' }}></i>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowAddNote(false)}
-                      style={{ background: 'none', border: 'none', color: '#334155', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}
-                      title="Close"
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                      </svg>
-                    </button>
-                  </div>
+                  <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>
+                    {editingNoteId ? 'Edit Note' : 'Add Note'}
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddNote(false);
+                      setEditingNoteId(null);
+                      setNoteTitle('');
+                      setNoteContent('');
+                    }}
+                    style={{ background: 'none', border: 'none', color: '#334155', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}
+                    title="Close"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
                 </div>
 
                 {/* Title Input */}
@@ -2539,17 +2567,17 @@ export default function UserSideBitTool({
                   style={{
                     background: 'transparent',
                     border: 'none',
-                    fontSize: '20px',
-                    fontWeight: 800,
+                    fontSize: '18px',
+                    fontWeight: 700,
                     color: '#1e293b',
                     outline: 'none',
-                    padding: '4px 0'
+                    padding: '2px 0'
                   }}
                 />
 
-                {/* Take a note... Textarea */}
+                {/* Content Textarea */}
                 <textarea
-                  rows={4}
+                  rows={5}
                   value={noteContent}
                   onChange={(e) => setNoteContent(e.target.value)}
                   placeholder="Take a note..."
@@ -2564,73 +2592,108 @@ export default function UserSideBitTool({
                   }}
                 />
 
-                {/* Color Palette Bubbles (Exact Image 3 & 4) */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', marginTop: '4px' }}>
-                  {[
-                    '#ffffff', // White
-                    '#f87171', // Coral red
-                    '#f59e0b', // Deep Amber / Orange
-                    '#fef08a', // Pastel Yellow
-                    '#bbf7d0', // Pastel Green
-                    '#a7f3d0', // Mint Cyan
-                    '#bae6fd', // Light Sky Blue
-                    '#bfdbfe', // Soft Periwinkle
-                    '#d8b4fe', // Light Purple
-                    '#fbcfe8', // Soft Pink
-                    '#fed7aa', // Light Peach
-                    '#e2e8f0', // Cool Grey
-                  ].map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => setNoteColor(c)}
-                      style={{
-                        width: '28px',
-                        height: '28px',
-                        borderRadius: '50%',
-                        background: c,
-                        border: noteColor === c ? '3px solid #2563eb' : '1.5px solid rgba(0,0,0,0.12)',
-                        cursor: 'pointer',
-                        padding: 0,
-                        transform: noteColor === c ? 'scale(1.15)' : 'scale(1)',
-                        transition: 'all 0.15s ease'
-                      }}
-                    />
-                  ))}
+                {/* Color Palette Bubbles + Pinned indicator */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+                    {[
+                      '#ffffff', // White
+                      '#fed7aa', // Peach
+                      '#fef08a', // Pastel Yellow
+                      '#d9f99d', // Pastel Lime
+                      '#ccfbf1', // Mint Teal
+                      '#bae6fd', // Sky Blue
+                      '#e2e8f0', // Slate Grey
+                      '#fecdd3', // Soft Pink
+                      '#fef9c3', // Pale Yellow
+                      '#bfdbfe', // Periwinkle Blue
+                    ].map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setNoteColor(c)}
+                        style={{
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '50%',
+                          background: c,
+                          border: noteColor === c ? '2.5px solid #2563eb' : '1px solid rgba(0,0,0,0.15)',
+                          cursor: 'pointer',
+                          padding: 0,
+                          transform: noteColor === c ? 'scale(1.15)' : 'scale(1)',
+                          transition: 'all 0.15s ease'
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsNotePinned(prev => !prev)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: isNotePinned ? '#2563eb' : '#64748b',
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                    title="Toggle pin"
+                  >
+                    <i className="fa-solid fa-thumbtack"></i>
+                    <span>{isNotePinned ? 'Pinned' : 'Pin'}</span>
+                  </button>
                 </div>
 
-                {/* Save Note Button (Exact Dark Charcoal button matching Image 3 & 4) */}
+                {/* Save Changes / Save Note Button (Matching user image 2) */}
                 <button
                   type="button"
                   onClick={() => {
                     if (noteTitle.trim() || noteContent.trim()) {
-                      setNotesList(prev => [{
-                        id: `note-${Date.now()}`,
-                        title: noteTitle.trim(),
-                        content: noteContent.trim(),
-                        color: noteColor,
-                        isPinned: isNotePinned,
-                        date: 'Just now'
-                      }, ...prev]);
+                      if (editingNoteId) {
+                        // Update existing note
+                        setNotesList(prev => prev.map(item => item.id === editingNoteId ? {
+                          ...item,
+                          title: noteTitle.trim(),
+                          content: noteContent.trim(),
+                          color: noteColor,
+                          isPinned: isNotePinned,
+                          date: 'Edited just now'
+                        } : item));
+                      } else {
+                        // Create new note
+                        setNotesList(prev => [{
+                          id: `note-${Date.now()}`,
+                          title: noteTitle.trim(),
+                          content: noteContent.trim(),
+                          color: noteColor,
+                          isPinned: isNotePinned,
+                          date: 'Just now'
+                        }, ...prev]);
+                      }
                       setNoteTitle('');
                       setNoteContent('');
+                      setEditingNoteId(null);
                     }
                     setShowAddNote(false);
                   }}
                   style={{
-                    height: '48px',
-                    background: '#2b2b2b',
+                    height: '46px',
+                    background: '#2563eb',
                     color: '#ffffff',
                     border: 'none',
-                    borderRadius: '14px',
+                    borderRadius: '12px',
                     fontSize: '15px',
-                    fontWeight: 800,
+                    fontWeight: 700,
                     cursor: 'pointer',
-                    boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
-                    marginTop: '8px'
+                    boxShadow: '0 4px 14px rgba(37, 99, 235, 0.3)',
+                    marginTop: '8px',
+                    transition: 'all 0.15s ease'
                   }}
                 >
-                  Save Note
+                  {editingNoteId ? 'Save Changes' : 'Save Note'}
                 </button>
               </div>
             </div>
