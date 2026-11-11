@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import './Navbar.css';
 import './UserSideBitTool.css';
 import UserAuthModal from './UserAuthModal';
+import CitySelectorModal from './modals/CitySelectorModal';
 import { useSartStore } from '../store/useSartStore';
 
 export default function Navbar() {
@@ -34,6 +35,7 @@ export default function Navbar() {
   const [captainProfile, setCaptainProfile] = useState<{ name?: string; email?: string; phone?: string } | null>(null);
   const [userSession, setUserSession] = useState<{ id?: string; name?: string; email?: string; phone?: string; avatar?: string; token?: string } | null>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isCityModalOpen, setIsCityModalOpen] = useState(false);
 
   useEffect(() => {
     const loadSession = () => {
@@ -167,10 +169,8 @@ export default function Navbar() {
           <span className="brand-badge">UNIVERSAL</span>
         </div>
 
-        <div className="location-nav-btn" style={{ flexShrink: 0, alignSelf: 'center' }} onClick={() => {
-          if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('openReactModal', { detail: 'modal-city-selector' }));
-          }
+        <div className="location-nav-btn" style={{ flexShrink: 0, alignSelf: 'center', cursor: 'pointer' }} onClick={() => {
+          setIsCityModalOpen(true);
         }}>
           <i className="fa-solid fa-location-dot"></i>
           <span id="nav-location-txt" >{currentLocation}</span>
@@ -516,6 +516,12 @@ export default function Navbar() {
             setUserSession(u);
             setIsLoginModalOpen(false);
           }}
+        />
+
+        {/* Global City Selector Modal available on all pages from Navbar */}
+        <CitySelectorModal
+          isOpen={isCityModalOpen}
+          onClose={() => setIsCityModalOpen(false)}
         />
 
         {/* 4. Bit-tool / Sliders Toggle Button matching Image 1 & 4 (Circular White Button with BNX blue logo) */}
