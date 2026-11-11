@@ -817,14 +817,7 @@ export default function RideBookingView({
                       }}
                       placeholder="Enter stop location"
                     />
-                    <button
-                      type="button"
-                      className="rb-input-map-icon-btn"
-                      onClick={() => handleOpenMapPicker(st.id)}
-                      title="Pick stop on map"
-                    >
-                      <i className="fa-solid fa-map-location-dot"></i>
-                    </button>
+
                   </div>
 
                 </div>
@@ -1469,6 +1462,9 @@ export default function RideBookingView({
                       dropLoc: dropoff || 'Drop Point',
                       userLat: pickupCoords?.lat || 13.0827,
                       userLng: pickupCoords?.lng || 80.2755,
+                      dropLat: dropCoords?.lat || 13.0600,
+                      dropLng: dropCoords?.lng || 80.2200,
+                      stops: stops || [],
                       otp: otpCode,
                       customerName: bookingFor === 'others' && otherRiderName.trim() ? otherRiderName.trim() : 'Alex Carter',
                       customerPhone: bookingFor === 'others' && otherRiderPhone.trim() ? otherRiderPhone.trim() : '+91 98765 43210'
@@ -1789,6 +1785,44 @@ export default function RideBookingView({
                   <span style={{ cursor: 'pointer' }}><i className="fa-regular fa-heart"></i> Add as Favorite</span>
                 </div>
               </div>
+
+              {/* Intermediate Stops (Orange diamond badge) */}
+              {stops && stops.length > 0 && stops.map((st, idx) => (
+                <div key={st.id || `modal-stop-${idx}`} style={{
+                  background: '#fff7ed',
+                  border: '1.5px solid #fed7aa',
+                  borderRadius: '12px',
+                  padding: '12px 14px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ fontSize: '11.5px', color: '#ea580c', fontWeight: 800, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '20px',
+                        height: '20px',
+                        borderRadius: '50%',
+                        background: '#ea580c',
+                        color: '#ffffff',
+                        fontSize: '11px',
+                        fontWeight: 900
+                      }}>
+                        {idx + 1}
+                      </span>
+                      Stopping #{idx + 1}
+                    </div>
+                    {st.purpose && (
+                      <span style={{ fontSize: '11px', color: '#9a3412', fontWeight: 700, background: '#ffedd5', padding: '2px 8px', borderRadius: '10px' }}>
+                        {st.purpose}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
+                    {st.name}
+                  </div>
+                </div>
+              ))}
 
               {/* Drop details box */}
               <div style={{

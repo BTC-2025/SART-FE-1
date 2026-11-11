@@ -463,8 +463,8 @@ export default function InteractiveRideMap({
           );
         })}
 
-        {/* 5. Pending New Stop Marker (Orange Pin) */}
-        {newStopCoords && (
+        {/* 5. Pending New Stop Marker (Orange Pin) - Only appear when user actively selects a stop */}
+        {newStopCoords && selectionMode === 'stop' && (
           <Marker
             position={[newStopCoords.lat, newStopCoords.lng]}
             icon={pendingStopMarkerIcon}
