@@ -14,6 +14,7 @@ export default function Navbar() {
   const bittoolRef = useRef<HTMLDivElement>(null);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const searchRef = useRef<HTMLDivElement>(null);
   const [currentLocation, setCurrentLocation] = useState('Chennai');
   const profileRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -111,6 +112,10 @@ export default function Navbar() {
       if (bittoolRef.current && !bittoolRef.current.contains(event.target as Node)) {
         setIsBittoolOpen(false);
       }
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchExpanded(false);
+        setSearchQuery('');
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -203,7 +208,7 @@ export default function Navbar() {
       </nav>
 
       <div className="nav-controls">
-        <div className={`search-control-slot ${isSearchExpanded ? 'search-open' : ''}`}>
+        <div ref={searchRef} className={`search-control-slot ${isSearchExpanded ? 'search-open' : ''}`}>
           <div
             className="ctrl-btn search-trigger-btn"
             onClick={() => setIsSearchExpanded(prev => !prev)}

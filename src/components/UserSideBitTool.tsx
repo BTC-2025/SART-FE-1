@@ -1192,9 +1192,9 @@ export default function UserSideBitTool({
                   </button>
                 </div>
 
-                {/* Full Name * */}
+                {/* Full Name */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>Full Name *</label>
+                  <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>Full Name</label>
                   <input
                     type="text"
                     value={contactFullName}
@@ -1213,9 +1213,9 @@ export default function UserSideBitTool({
                   />
                 </div>
 
-                {/* Email Address * */}
+                {/* Email Address */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>Email Address *</label>
+                  <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>Email Address</label>
                   <input
                     type="email"
                     value={contactEmail}
