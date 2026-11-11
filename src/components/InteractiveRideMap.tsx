@@ -69,7 +69,7 @@ export interface InteractiveRideMapProps {
   mode: 'bike' | 'auto' | 'car';
   pickupCoords: { lat: number; lng: number } | null;
   dropCoords: { lat: number; lng: number } | null;
-  stops?: Array<{ id: string; name: string; lat: number; lng: number; purpose?: string }>;
+  stops?: Array<{ id: string; name: string; lat?: number; lng?: number; purpose?: string }>;
   newStopCoords?: { lat: number; lng: number } | null;
   newStopName?: string;
   pickupAddress: string;

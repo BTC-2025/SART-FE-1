@@ -144,6 +144,7 @@ export default function UserSideBitTool({
     tape: TapeItem[];
     total: number;
     currency: string;
+    summary?: string;
   }>>([]);
 
   // Calendar Item Modal State (Image 1 & 2)
@@ -1896,7 +1897,6 @@ export default function UserSideBitTool({
 
                   <button
                     type="button"
-                    rowSpan={2}
                     onClick={() => handleCalcClick('=')}
                     className="row-span-2 rounded-xl text-xl font-black text-white bg-emerald-500 hover:bg-emerald-600 shadow-md shadow-emerald-500/30 transition-all flex items-center justify-center cursor-pointer"
                   >
