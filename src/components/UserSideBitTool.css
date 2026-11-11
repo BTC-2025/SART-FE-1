@@ -547,8 +547,8 @@
 
 /* Circular Pill Action Buttons (Image 1 UI) */
 .bnx-tool-btn {
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   border: none;
   display: flex;

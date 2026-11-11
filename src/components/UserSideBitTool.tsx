@@ -119,6 +119,7 @@ export default function UserSideBitTool({
 
   // Contacts state (Image 2)
   const [showAddContact, setShowAddContact] = useState(false);
+  const [editingContactId, setEditingContactId] = useState<string | null>(null);
   const [contactSearch, setContactSearch] = useState('');
   const [contactFullName, setContactFullName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
@@ -130,7 +131,15 @@ export default function UserSideBitTool({
     email: string;
     phone?: string;
     role?: string;
-  }>>([]);
+  }>>([
+    {
+      id: 'cnt-default-1',
+      fullName: 'c',
+      email: 'b@gmail.com',
+      phone: '87908756789',
+      role: 'c'
+    }
+  ]);
 
   // Global Notes state (Image 3 & 4)
   const [showAddNote, setShowAddNote] = useState(false);
@@ -1209,7 +1218,14 @@ export default function UserSideBitTool({
                   transition: 'all 0.15s ease'
                 }}
                 title="Add Contact"
-                onClick={() => setShowAddContact(true)}
+                onClick={() => {
+                  setEditingContactId(null);
+                  setContactFullName('');
+                  setContactEmail('');
+                  setContactPhone('');
+                  setContactRole('');
+                  setShowAddContact(true);
+                }}
               >
                 +
               </button>
@@ -1294,8 +1310,15 @@ export default function UserSideBitTool({
 
                           <button
                             type="button"
-                            title="Edit / Delete"
-                            onClick={() => setContactsList(prev => prev.filter(item => item.id !== c.id))}
+                            title="Edit Contact"
+                            onClick={() => {
+                              setEditingContactId(c.id);
+                              setContactFullName(c.fullName);
+                              setContactEmail(c.email);
+                              setContactPhone(c.phone || '');
+                              setContactRole(c.role || '');
+                              setShowAddContact(true);
+                            }}
                             style={{
                               background: 'none',
                               border: 'none',
@@ -1352,7 +1375,7 @@ export default function UserSideBitTool({
             )}
           </div>
 
-          {/* BOTTOM SHEET: Add Contact (Image 2) */}
+          {/* BOTTOM SHEET: Add / Edit Contact (Image 2) */}
           {showAddContact && (
             <div style={{
               position: 'absolute',
@@ -1376,15 +1399,22 @@ export default function UserSideBitTool({
                 flexDirection: 'column',
                 gap: '14px'
               }}>
-                {/* Header: + Add Contact + Close */}
+                {/* Header: + Add Contact or Edit Contact + Close */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#2563eb' }}>+</span>
-                    <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>Add Contact</h4>
+                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#2563eb' }}>
+                      {editingContactId ? '✎' : '+'}
+                    </span>
+                    <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>
+                      {editingContactId ? 'Edit Contact' : 'Add Contact'}
+                    </h4>
                   </div>
                   <button
                     type="button"
-                    onClick={() => setShowAddContact(false)}
+                    onClick={() => {
+                      setShowAddContact(false);
+                      setEditingContactId(null);
+                    }}
                     style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1484,19 +1514,35 @@ export default function UserSideBitTool({
                   type="button"
                   onClick={() => {
                     if (contactFullName.trim() && contactEmail.trim()) {
-                      setContactsList(prev => [...prev, {
-                        id: `cnt-${Date.now()}`,
-                        fullName: contactFullName.trim(),
-                        email: contactEmail.trim(),
-                        phone: contactPhone.trim(),
-                        role: contactRole.trim()
-                      }]);
+                      if (editingContactId) {
+                        setContactsList(prev => prev.map(item => {
+                          if (item.id === editingContactId) {
+                            return {
+                              ...item,
+                              fullName: contactFullName.trim(),
+                              email: contactEmail.trim(),
+                              phone: contactPhone.trim(),
+                              role: contactRole.trim()
+                            };
+                          }
+                          return item;
+                        }));
+                      } else {
+                        setContactsList(prev => [...prev, {
+                          id: `cnt-${Date.now()}`,
+                          fullName: contactFullName.trim(),
+                          email: contactEmail.trim(),
+                          phone: contactPhone.trim(),
+                          role: contactRole.trim()
+                        }]);
+                      }
                       setContactFullName('');
                       setContactEmail('');
                       setContactPhone('');
                       setContactRole('');
+                      setEditingContactId(null);
+                      setShowAddContact(false);
                     }
-                    setShowAddContact(false);
                   }}
                   style={{
                     height: '48px',
@@ -1511,7 +1557,7 @@ export default function UserSideBitTool({
                     marginTop: '8px'
                   }}
                 >
-                  Save Contact
+                  {editingContactId ? 'Save Changes' : 'Save Contact'}
                 </button>
               </div>
             </div>
