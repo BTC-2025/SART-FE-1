@@ -1618,7 +1618,7 @@ export default function UserSideBitTool({
                       <span>GST</span>
                     </button>
                     {activeCalcDropdown === 'gst' && (
-                      <div className="absolute bottom-full left-0 mb-1.5 w-[290px] bg-white border border-emerald-300 rounded-2xl shadow-xl px-2 py-1.5 z-30 animate-in fade-in flex flex-col gap-1">
+                      <div className="absolute bottom-full left-[-4px] mb-1.5 w-[284px] bg-white border border-emerald-300 rounded-2xl shadow-xl px-2.5 py-1.5 z-30 animate-in fade-in flex flex-col gap-1">
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">SELECT GST</span>
                           <button
@@ -1630,7 +1630,7 @@ export default function UserSideBitTool({
                           </button>
                         </div>
 
-                        {/* All elements neatly contained within 290px width (< 300px) */}
+                        {/* All elements neatly contained without overflowing on the right */}
                         <div className="flex items-center gap-1">
                           {[5, 12, 18, 28].map(p => (
                             <button
@@ -1668,7 +1668,7 @@ export default function UserSideBitTool({
                     )}
                   </div>
 
-                  {/* 2. Discount Dropdown Pill (Opens only when clicked, identical 290px width & height) */}
+                  {/* 2. Discount Dropdown Pill (Shifted left so it doesn't overflow right) */}
                   <div className="relative">
                     <button
                       type="button"
@@ -1682,7 +1682,7 @@ export default function UserSideBitTool({
                       <span>Discount</span>
                     </button>
                     {activeCalcDropdown === 'discount' && (
-                      <div className="absolute bottom-full left-0 mb-1.5 w-[290px] bg-white border border-amber-300 rounded-2xl shadow-xl px-2 py-1.5 z-30 animate-in fade-in flex flex-col gap-1">
+                      <div className="absolute bottom-full left-[-70px] mb-1.5 w-[284px] bg-white border border-amber-300 rounded-2xl shadow-xl px-2.5 py-1.5 z-30 animate-in fade-in flex flex-col gap-1">
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">SELECT DISCOUNT</span>
                           <button
