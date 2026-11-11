@@ -100,7 +100,7 @@ export default function UserSideBitTool({
   const [calcDisplay, setCalcDisplay] = useState('0');
   const [pendingOp, setPendingOp] = useState<'+' | '-' | '×' | '÷'>('+');
   const [calcFormula, setCalcFormula] = useState('');
-  const [calcCurrency, setCalcCurrency] = useState<'INR' | 'USD' | 'EUR' | 'GBP' | 'AED'>('INR');
+  const [calcCurrency, setCalcCurrency] = useState<'INR' | 'USD' | 'EUR'>('INR');
   const [activeCalcDropdown, setActiveCalcDropdown] = useState<'gst' | 'discount' | 'region' | null>(null);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showCompareMode, setShowCompareMode] = useState(false);
@@ -220,8 +220,6 @@ export default function UserSideBitTool({
     INR: { symbol: '₹', rate: 1, name: 'India (INR)' },
     USD: { symbol: '$', rate: 0.012, name: 'USA (USD)' },
     EUR: { symbol: '€', rate: 0.011, name: 'Europe (EUR)' },
-    GBP: { symbol: '£', rate: 0.0094, name: 'UK (GBP)' },
-    AED: { symbol: 'AED', rate: 0.044, name: 'UAE (AED)' }
   };
 
   const getRunningTotal = () => {
@@ -1036,15 +1034,14 @@ export default function UserSideBitTool({
                   <button
                     key={day}
                     type="button"
-                    className={`h-8 w-8 mx-auto flex items-center justify-center rounded-xl font-medium transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-[#eab308] text-white font-bold shadow-md shadow-yellow-500/30'
-                        : isToday
+                    className={`h-8 w-8 mx-auto flex items-center justify-center rounded-xl font-medium transition-all cursor-pointer ${isSelected
+                      ? 'bg-[#eab308] text-white font-bold shadow-md shadow-yellow-500/30'
+                      : isToday
                         ? 'bg-slate-100 text-slate-900 font-bold'
                         : isSunday
-                        ? 'text-red-500 font-bold hover:bg-red-50'
-                        : 'text-slate-800 hover:bg-black/5'
-                    }`}
+                          ? 'text-red-500 font-bold hover:bg-red-50'
+                          : 'text-slate-800 hover:bg-black/5'
+                      }`}
                     onClick={() => setSelectedDay(day)}
                   >
                     {day}
@@ -1081,9 +1078,8 @@ export default function UserSideBitTool({
                       <div key={idx} className="p-2.5 bg-slate-50 border border-slate-200/70 rounded-xl flex flex-col gap-1 text-xs">
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-slate-900 text-[13px]">{it.title}</span>
-                          <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded ${
-                            it.type === 'Note' ? 'bg-amber-100 text-amber-800' : it.type === 'Reminder' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800'
-                          }`}>
+                          <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded ${it.type === 'Note' ? 'bg-amber-100 text-amber-800' : it.type === 'Reminder' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800'
+                            }`}>
                             {it.type}
                           </span>
                         </div>
@@ -1613,126 +1609,128 @@ export default function UserSideBitTool({
                     <button
                       type="button"
                       onClick={() => setActiveCalcDropdown(prev => prev === 'gst' ? null : 'gst')}
-                      className={`w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${
-                        activeCalcDropdown === 'gst'
-                          ? 'bg-emerald-600 text-white border-emerald-600'
-                          : 'text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
-                      }`}
+                      className={`w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${activeCalcDropdown === 'gst'
+                        ? 'bg-emerald-600 text-white border-emerald-600'
+                        : 'text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
+                        }`}
                     >
                       <span>%</span>
                       <span>GST</span>
                     </button>
                     {activeCalcDropdown === 'gst' && (
-                      <div className="absolute bottom-full left-0 mb-1 w-60 bg-white border border-emerald-300 rounded-2xl shadow-2xl p-2 z-30 animate-in fade-in flex flex-col gap-1.5">
+                      <div className="absolute bottom-full left-0 mb-1 w-[320px] bg-white border border-emerald-300 rounded-2xl shadow-2xl p-2 z-30 animate-in fade-in flex flex-col gap-1.5">
                         <div className="flex items-center justify-between px-1">
                           <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">SELECT GST</span>
                           <button
                             type="button"
                             onClick={() => setActiveCalcDropdown(null)}
-                            className="text-slate-400 hover:text-slate-700 text-xs font-bold"
+                            className="text-slate-400 hover:text-slate-700 text-xs font-bold p-0.5"
                           >
                             ✕
                           </button>
                         </div>
 
-                        {/* 4 columns in one row for GST percentages */}
-                        <div className="grid grid-cols-4 gap-1">
-                          {[5, 12, 18, 28].map(p => (
-                            <button
-                              key={p}
-                              type="button"
-                              onClick={() => handleApplyGst(p)}
-                              className="py-1.5 text-center text-xs font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-colors"
-                            >
-                              +{p}%
-                            </button>
-                          ))}
-                        </div>
+                        {/* Single Horizontal Row: 4 percentage buttons + compact custom input beside them */}
+                        <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1">
+                            {[5, 12, 18, 28].map(p => (
+                              <button
+                                key={p}
+                                type="button"
+                                onClick={() => handleApplyGst(p)}
+                                className="px-2 py-1 text-center text-xs font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-colors shrink-0"
+                              >
+                                +{p}%
+                              </button>
+                            ))}
+                          </div>
 
-                        {/* Custom user percentage input */}
-                        <div className="flex items-center gap-1 pt-1 border-t border-slate-100">
-                          <input
-                            type="number"
-                            placeholder="Custom %"
-                            value={customGstInput}
-                            onChange={(e) => setCustomGstInput(e.target.value)}
-                            className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-bold outline-none text-slate-800"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const val = parseFloat(customGstInput);
-                              if (!isNaN(val) && val > 0) handleApplyGst(val);
-                            }}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-2 py-1 rounded-lg"
-                          >
-                            Add
-                          </button>
+                          {/* Compact user percentage input beside buttons */}
+                          <div className="flex items-center gap-1 flex-1 min-w-0">
+                            <input
+                              type="number"
+                              placeholder="%"
+                              value={customGstInput}
+                              onChange={(e) => setCustomGstInput(e.target.value)}
+                              className="w-12 bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-1 text-xs font-bold outline-none text-slate-800 text-center"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const val = parseFloat(customGstInput);
+                                if (!isNaN(val) && val > 0) handleApplyGst(val);
+                              }}
+                              className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2 py-1 rounded-lg shrink-0"
+                            >
+                              Add
+                            </button>
+                          </div>
                         </div>
                       </div>
                     )}
                   </div>
 
-                  {/* 2. Discount Dropdown Pill (Opens only when clicked, 4 columns inside or custom input) */}
+                  {/* 2. Discount Dropdown Pill (Opens only when clicked, horizontal row layout) */}
                   <div className="relative">
                     <button
                       type="button"
                       onClick={() => setActiveCalcDropdown(prev => prev === 'discount' ? null : 'discount')}
-                      className={`w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${
-                        activeCalcDropdown === 'discount'
-                          ? 'bg-amber-600 text-white border-amber-600'
-                          : 'text-amber-600 bg-amber-50 border-amber-200 hover:bg-amber-100'
-                      }`}
+                      className={`w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${activeCalcDropdown === 'discount'
+                        ? 'bg-amber-600 text-white border-amber-600'
+                        : 'text-amber-600 bg-amber-50 border-amber-200 hover:bg-amber-100'
+                        }`}
                     >
                       <span>🏷️</span>
                       <span>Discount</span>
                     </button>
                     {activeCalcDropdown === 'discount' && (
-                      <div className="absolute bottom-full left-0 mb-1 w-64 bg-white border border-amber-300 rounded-2xl shadow-2xl p-2 z-30 animate-in fade-in flex flex-col gap-1.5">
+                      <div className="absolute bottom-full left-0 mb-1 w-[320px] bg-white border border-amber-300 rounded-2xl shadow-2xl p-2 z-30 animate-in fade-in flex flex-col gap-1.5">
                         <div className="flex items-center justify-between px-1">
                           <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">SELECT DISCOUNT</span>
                           <button
                             type="button"
                             onClick={() => setActiveCalcDropdown(null)}
-                            className="text-slate-400 hover:text-slate-700 text-xs font-bold"
+                            className="text-slate-400 hover:text-slate-700 text-xs font-bold p-0.5"
                           >
                             ✕
                           </button>
                         </div>
 
-                        {/* Only ONE row of 4 columns for Discount percentages */}
-                        <div className="grid grid-cols-4 gap-1">
-                          {[5, 10, 15, 20].map(p => (
-                            <button
-                              key={p}
-                              type="button"
-                              onClick={() => handleApplyDiscount(p)}
-                              className="py-1.5 text-center text-xs font-black text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-200 transition-colors"
-                            >
-                              −{p}%
-                            </button>
-                          ))}
-                        </div>
+                        {/* Single Horizontal Row: 4 percentage buttons + compact custom input beside them */}
+                        <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1">
+                            {[5, 10, 15, 20].map(p => (
+                              <button
+                                key={p}
+                                type="button"
+                                onClick={() => handleApplyDiscount(p)}
+                                className="px-2 py-1 text-center text-xs font-black text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-200 transition-colors shrink-0"
+                              >
+                                −{p}%
+                              </button>
+                            ))}
+                          </div>
 
-                        {/* Custom user discount percentage input */}
-                        <div className="flex items-center gap-1 pt-1 border-t border-slate-100">
-                          <input
-                            type="number"
-                            placeholder="Custom %"
-                            value={customDiscountInput}
-                            onChange={(e) => setCustomDiscountInput(e.target.value)}
-                            className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-bold outline-none text-slate-800"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const val = parseFloat(customDiscountInput);
-                              if (!isNaN(val) && val > 0) handleApplyDiscount(val);
-                            }}
-                            className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-2 py-1 rounded-lg"
-                          >
-                            Add
-                          </button>
+                          {/* Compact user discount percentage input beside buttons */}
+                          <div className="flex items-center gap-1 flex-1 min-w-0">
+                            <input
+                              type="number"
+                              placeholder="%"
+                              value={customDiscountInput}
+                              onChange={(e) => setCustomDiscountInput(e.target.value)}
+                              className="w-12 bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-1 text-xs font-bold outline-none text-slate-800 text-center"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const val = parseFloat(customDiscountInput);
+                                if (!isNaN(val) && val > 0) handleApplyDiscount(val);
+                              }}
+                              className="bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold px-2 py-1 rounded-lg shrink-0"
+                            >
+                              Add
+                            </button>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -1743,11 +1741,10 @@ export default function UserSideBitTool({
                     <button
                       type="button"
                       onClick={() => setActiveCalcDropdown(prev => prev === 'region' ? null : 'region')}
-                      className={`w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${
-                        activeCalcDropdown === 'region'
-                          ? 'bg-indigo-600 text-white border-indigo-600'
-                          : 'text-indigo-600 bg-indigo-50 border-indigo-200 hover:bg-indigo-100'
-                      }`}
+                      className={`w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${activeCalcDropdown === 'region'
+                        ? 'bg-indigo-600 text-white border-indigo-600'
+                        : 'text-indigo-600 bg-indigo-50 border-indigo-200 hover:bg-indigo-100'
+                        }`}
                     >
                       <span>🌐</span>
                       <span>{calcCurrency}</span>
@@ -1765,7 +1762,7 @@ export default function UserSideBitTool({
                           </button>
                         </div>
 
-                        {(['INR', 'USD', 'EUR', 'GBP', 'AED'] as const).map(cur => (
+                        {(['INR', 'USD', 'EUR'] as const).map(cur => (
                           <button
                             key={cur}
                             type="button"
@@ -1773,9 +1770,8 @@ export default function UserSideBitTool({
                               setCalcCurrency(cur);
                               setActiveCalcDropdown(null);
                             }}
-                            className={`text-left px-2 py-1.5 text-xs font-extrabold rounded-xl transition-colors flex justify-between items-center ${
-                              calcCurrency === cur ? 'bg-indigo-600 text-white' : 'text-slate-700 hover:bg-indigo-50'
-                            }`}
+                            className={`text-left px-2 py-1.5 text-xs font-extrabold rounded-xl transition-colors flex justify-between items-center ${calcCurrency === cur ? 'bg-indigo-600 text-white' : 'text-slate-700 hover:bg-indigo-50'
+                              }`}
                           >
                             <span>{cur}</span>
                             <span className="text-[11px] opacity-80">{currencyRates[cur]?.symbol}</span>
@@ -1792,9 +1788,8 @@ export default function UserSideBitTool({
                       setActiveCalcDropdown(null);
                       setShowCompareMode(prev => !prev);
                     }}
-                    className={`flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${
-                      showCompareMode ? 'bg-indigo-600 text-white border-indigo-600' : 'text-blue-600 bg-blue-50 border-blue-200 hover:bg-blue-100'
-                    }`}
+                    className={`flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${showCompareMode ? 'bg-indigo-600 text-white border-indigo-600' : 'text-blue-600 bg-blue-50 border-blue-200 hover:bg-blue-100'
+                      }`}
                   >
                     <span>⇅</span>
                     <span>Compare</span>
