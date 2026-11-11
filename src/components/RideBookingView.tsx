@@ -170,7 +170,7 @@ export default function RideBookingView({
   const [otherRiderPhone, setOtherRiderPhone] = useState('');
 
   // Interactive Direct Map Selection Mode: 'pickup' | 'drop' | 'idle'
-  const [mapSelectionMode, setMapSelectionMode] = useState<'pickup' | 'drop' | 'idle'>('idle');
+  const [mapSelectionMode, setMapSelectionMode] = useState<'pickup' | 'drop' | 'stop' | 'idle'>('idle');
   const [routeGeometry, setRouteGeometry] = useState<[number, number][]>([]);
 
   // Auto-search suggestions for input fields
@@ -486,7 +486,7 @@ export default function RideBookingView({
 
 
   // Direct Map Click Handler: Only triggered on explicit mouse click on the map
-  const handleDirectMapLocationSelect = async (type: 'pickup' | 'drop', lat: number, lng: number) => {
+  const handleDirectMapLocationSelect = async (type: 'pickup' | 'drop' | 'stop', lat: number, lng: number) => {
     const coords = { lat: +lat.toFixed(5), lng: +lng.toFixed(5) };
     const addr = await reverseGeocode(coords.lat, coords.lng);
 
@@ -496,10 +496,15 @@ export default function RideBookingView({
       if (onSourceChange) onSourceChange(addr);
       // Auto toggle to 'drop' mode so next click easily selects the Red dropping pin!
       setMapSelectionMode('drop');
-    } else {
+    } else if (type === 'drop') {
       setDropoff(addr);
       setDropCoords(coords);
       if (onDestinationChange) onDestinationChange(addr);
+      setMapSelectionMode('idle');
+    } else if (type === 'stop') {
+      setNewStopName(addr);
+      setNewStopCoords(coords);
+      setShowAddStopForm(true);
       setMapSelectionMode('idle');
     }
   };
@@ -841,27 +846,53 @@ export default function RideBookingView({
             {/* Simple Add Stop Form */}
             {showAddStopForm && (
               <div className="rb-simple-add-stop-card">
-                <div className="rb-simple-stop-header">
-                  <span><i className="fa-solid fa-plus-circle"></i> New Stopping Point</span>
+                <div className="rb-simple-stop-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span><i className="fa-solid fa-plus-circle" style={{ color: '#ea580c' }}></i> New Stopping Point (Orange Pin)</span>
                 </div>
                 <div className="rb-field-with-icon">
-                  <input
-                    type="text"
-                    className="rb-input-element standard"
-                    placeholder="Enter stop location name"
-                    value={newStopName}
-                    onChange={(e) => setNewStopName(e.target.value)}
-                  />
                   <button
                     type="button"
-                    className="rb-field-map-btn"
-                    onClick={() => handleOpenMapPicker('new-stop')}
-                    title="Pick stop on map"
+                    onClick={() => setMapSelectionMode(prev => prev === 'stop' ? 'idle' : 'stop')}
+                    style={{
+                      width: '100%',
+                      padding: '11px 16px',
+                      borderRadius: '12px',
+                      border: '1.8px solid #ea580c',
+                      background: mapSelectionMode === 'stop' ? '#fff7ed' : '#ffffff',
+                      color: '#ea580c',
+                      fontWeight: 800,
+                      fontSize: '13.5px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      boxShadow: '0 2px 10px rgba(234, 88, 12, 0.12)'
+                    }}
+                    title="Click here, then click on the map below to place Orange Stop Pin"
                   >
-                    <i className="fa-solid fa-map-location-dot"></i>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <i className="fa-solid fa-location-dot" style={{ fontSize: '15px' }}></i>
+                      {newStopName ? (
+                        <span style={{ color: '#0f172a', fontWeight: 700 }}>{newStopName}</span>
+                      ) : (
+                        <span>Select on Map (Orange Pin)</span>
+                      )}
+                    </span>
+                    <span style={{
+                      fontSize: '11px',
+                      padding: '3px 9px',
+                      borderRadius: '12px',
+                      background: mapSelectionMode === 'stop' ? '#ea580c' : '#ffedd5',
+                      color: mapSelectionMode === 'stop' ? '#ffffff' : '#9a3412',
+                      fontWeight: 800
+                    }}>
+                      {mapSelectionMode === 'stop' ? 'Click Map Below' : newStopName ? 'Selected' : 'Pick on Map'}
+                    </span>
                   </button>
                 </div>
-                <div className="rb-field-with-icon" style={{ marginTop: '6px' }}>
+
+                <div className="rb-field-with-icon" style={{ marginTop: '8px' }}>
                   <input
                     type="text"
                     className="rb-input-element standard"
@@ -870,10 +901,16 @@ export default function RideBookingView({
                     onChange={(e) => setNewStopPurpose(e.target.value)}
                   />
                 </div>
+
                 <div className="rb-simple-stop-actions">
                   <button
                     type="button"
                     className="rb-btn-confirm-stop"
+                    disabled={!newStopName.trim()}
+                    style={{
+                      background: newStopName.trim() ? '#ea580c' : '#cbd5e1',
+                      cursor: newStopName.trim() ? 'pointer' : 'not-allowed'
+                    }}
                     onClick={() => {
                       if (!newStopName.trim()) return;
                       setStops(prev => [
@@ -890,6 +927,7 @@ export default function RideBookingView({
                       setNewStopCoords(null);
                       setNewStopPurpose('');
                       setShowAddStopForm(false);
+                      setMapSelectionMode('idle');
                     }}
                   >
                     Add Stop
@@ -897,7 +935,10 @@ export default function RideBookingView({
                   <button
                     type="button"
                     className="rb-btn-cancel-stop"
-                    onClick={() => setShowAddStopForm(false)}
+                    onClick={() => {
+                      setShowAddStopForm(false);
+                      setMapSelectionMode('idle');
+                    }}
                   >
                     Cancel
                   </button>
@@ -1061,6 +1102,9 @@ export default function RideBookingView({
               mode={mode as 'bike' | 'auto' | 'car'}
               pickupCoords={pickupCoords}
               dropCoords={dropCoords}
+              stops={stops}
+              newStopCoords={newStopCoords}
+              newStopName={newStopName}
               pickupAddress={pickup}
               dropAddress={dropoff}
               selectionMode={mapSelectionMode}
@@ -1236,7 +1280,7 @@ export default function RideBookingView({
               )}
             </div>
 
-            
+
           </>
         ) : (
           <div className="rb-distance-summary-bar empty">

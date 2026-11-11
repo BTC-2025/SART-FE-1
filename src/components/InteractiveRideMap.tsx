@@ -69,10 +69,13 @@ export interface InteractiveRideMapProps {
   mode: 'bike' | 'auto' | 'car';
   pickupCoords: { lat: number; lng: number } | null;
   dropCoords: { lat: number; lng: number } | null;
+  stops?: Array<{ id: string; name: string; lat: number; lng: number; purpose?: string }>;
+  newStopCoords?: { lat: number; lng: number } | null;
+  newStopName?: string;
   pickupAddress: string;
   dropAddress: string;
-  selectionMode: 'pickup' | 'drop' | 'idle';
-  onSelectLocation: (type: 'pickup' | 'drop', lat: number, lng: number) => void;
+  selectionMode: 'pickup' | 'drop' | 'stop' | 'idle';
+  onSelectLocation: (type: 'pickup' | 'drop' | 'stop', lat: number, lng: number) => void;
   nearbyCaptains?: Array<{
     id: string;
     driverName: string;
@@ -90,6 +93,9 @@ export default function InteractiveRideMap({
   mode = 'bike',
   pickupCoords,
   dropCoords,
+  stops = [],
+  newStopCoords = null,
+  newStopName = '',
   pickupAddress,
   dropAddress,
   selectionMode,
@@ -112,8 +118,10 @@ export default function InteractiveRideMap({
     // Determine which point to select:
     // If user clicked explicitly 'pickup' mode -> set pickup
     // If user clicked explicitly 'drop' mode -> set drop
-    // If idle: if no pickup -> set pickup, otherwise set drop
-    if (selectionMode === 'pickup') {
+    // If user clicked explicitly 'stop' mode -> set stop
+    if (selectionMode === 'stop') {
+      onSelectLocation('stop', lat, lng);
+    } else if (selectionMode === 'pickup') {
       onSelectLocation('pickup', lat, lng);
     } else if (selectionMode === 'drop') {
       onSelectLocation('drop', lat, lng);
@@ -213,6 +221,97 @@ export default function InteractiveRideMap({
       iconAnchor: [16, 52]
     });
   }, [dropAddress]);
+
+  // Custom Orange Pin Marker for Intermediate Stops & Stop Selection
+  const createStopMarkerIcon = (stopName: string, index: number) => {
+    return L.divIcon({
+      className: 'sart-stop-orange-pin',
+      html: `
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -100%);">
+          <div style="
+            background: #ffffff;
+            color: #c2410c;
+            padding: 3px 9px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+            border: 1.5px solid #f97316;
+            margin-bottom: 4px;
+            max-width: 170px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          ">
+            🟠 Stop ${index + 1}: ${stopName || 'Stopping Point'}
+          </div>
+          <div style="
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #f97316;
+            border: 3.5px solid #ffffff;
+            box-shadow: 0 0 0 5px rgba(249, 115, 22, 0.35), 0 4px 8px rgba(0,0,0,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 900;
+          ">
+            ${index + 1}
+          </div>
+        </div>
+      `,
+      iconSize: [30, 50],
+      iconAnchor: [15, 50]
+    });
+  };
+
+  // Pending Stop Orange Pin Marker before confirmation
+  const pendingStopMarkerIcon = useMemo(() => {
+    return L.divIcon({
+      className: 'sart-pending-stop-pin',
+      html: `
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -100%);">
+          <div style="
+            background: #fff7ed;
+            color: #ea580c;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 800;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+            border: 1.5px solid #ea580c;
+            margin-bottom: 4px;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          ">
+            🟠 Selected Stop: ${newStopName || 'Stopping Point'}
+          </div>
+          <div style="
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ea580c;
+            border: 3.5px solid #ffffff;
+            box-shadow: 0 0 0 5px rgba(234, 88, 12, 0.35), 0 4px 8px rgba(0,0,0,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 14px;
+          ">
+            <i class="fa-solid fa-location-dot"></i>
+          </div>
+        </div>
+      `,
+      iconSize: [32, 52],
+      iconAnchor: [16, 52]
+    });
+  }, [newStopName]);
 
   // Real vehicle icons for nearby live captains (matching Screenshot 2 Auto / Bike / Cab icons)
   const createCaptainIcon = (driver: any) => {
@@ -352,6 +451,26 @@ export default function InteractiveRideMap({
           <Marker position={[dropCoords.lat, dropCoords.lng]} icon={dropMarkerIcon} />
         )}
 
+        {/* 4. Confirmed Intermediate Stops (Orange Pins) */}
+        {stops && stops.map((st, idx) => {
+          if (!st.lat || !st.lng) return null;
+          return (
+            <Marker
+              key={st.id || `stop-${idx}`}
+              position={[st.lat, st.lng]}
+              icon={createStopMarkerIcon(st.name, idx)}
+            />
+          );
+        })}
+
+        {/* 5. Pending New Stop Marker (Orange Pin) */}
+        {newStopCoords && (
+          <Marker
+            position={[newStopCoords.lat, newStopCoords.lng]}
+            icon={pendingStopMarkerIcon}
+          />
+        )}
+
         {/* 4. Real Nearby Captains / Autos / Bikes / Cars on the road (matching Screenshot 2) */}
         {nearbyCaptains && nearbyCaptains.filter(d => !mode || mode === 'all' || (mode === 'auto' ? (d.serviceType === 'auto' || !d.serviceType) : (d.serviceType === mode || !d.serviceType))).map((driver) => {
           if (!driver.lat || !driver.lng) return null;
@@ -469,6 +588,12 @@ export default function InteractiveRideMap({
           <>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }}></span>
             <span>Click map to set <strong>Dropping Point (Red Pin)</strong></span>
+          </>
+        )}
+        {selectionMode === 'stop' && (
+          <>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f97316' }}></span>
+            <span>Click map to set <strong>Stopping Point (Orange Pin)</strong></span>
           </>
         )}
         {selectionMode === 'idle' && (
