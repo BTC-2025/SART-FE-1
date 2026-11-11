@@ -1439,23 +1439,24 @@
   background: #f1f5f9;
 }
 
-/* Virtual Keyboard specific wide drawer with ample room */
+/* Virtual Keyboard specific compact drawer with height between 200px and 300px */
 .user-side-dock-panel.bnx-vk-panel {
-  width: 780px !important;
+  width: 680px !important;
   max-width: calc(100vw - 80px) !important;
-  height: auto !important;
-  max-height: calc(100vh - 120px) !important;
-  border-radius: 0 !important;
+  height: 250px !important;
+  max-height: 270px !important;
+  border-radius: 18px !important;
   overflow: hidden !important;
   display: flex !important;
   flex-direction: column !important;
-  box-shadow: -8px 8px 36px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
 .user-side-dock-panel.bnx-vk-panel .vk-btn {
-  height: 46px !important;
-  border-radius: 12px !important;
-  font-size: 14px !important;
+  height: 28px !important;
+  border-radius: 7px !important;
+  font-size: 11px !important;
   font-weight: 600 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
 }
