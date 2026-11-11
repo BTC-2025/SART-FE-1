@@ -301,8 +301,6 @@
   font-size: 14px;
   pointer-events: none;
 }
-  pointer-events: none;
-}
 
 .search-dropdown {
   position: absolute;
