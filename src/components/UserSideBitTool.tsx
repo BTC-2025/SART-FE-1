@@ -1622,7 +1622,7 @@ export default function UserSideBitTool({
                       <span>GST</span>
                     </button>
                     {activeCalcDropdown === 'gst' && (
-                      <div className="absolute bottom-full left-[-4px] mb-1.5 w-[284px] bg-white border border-emerald-300 rounded-2xl shadow-xl px-2.5 py-1.5 z-30 animate-in fade-in flex flex-col gap-1">
+                      <div className="absolute bottom-full left-[-4px] mb-1.5 w-[288px] bg-white border border-emerald-300 rounded-2xl shadow-xl px-3.5 py-2.5 z-30 animate-in fade-in flex flex-col gap-1.5">
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">SELECT GST</span>
                           <button
@@ -1635,7 +1635,7 @@ export default function UserSideBitTool({
                         </div>
 
                         {/* All elements neatly contained without overflowing on the right */}
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5">
                           {[5, 12, 18, 28].map(p => (
                             <button
                               key={p}
@@ -1686,7 +1686,7 @@ export default function UserSideBitTool({
                       <span>Discount</span>
                     </button>
                     {activeCalcDropdown === 'discount' && (
-                      <div className="absolute bottom-full left-[-70px] mb-1.5 w-[284px] bg-white border border-amber-300 rounded-2xl shadow-xl px-2.5 py-1.5 z-30 animate-in fade-in flex flex-col gap-1">
+                      <div className="absolute bottom-full left-[-72px] mb-1.5 w-[288px] bg-white border border-amber-300 rounded-2xl shadow-xl px-3.5 py-2.5 z-30 animate-in fade-in flex flex-col gap-1.5">
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">SELECT DISCOUNT</span>
                           <button
@@ -1699,7 +1699,7 @@ export default function UserSideBitTool({
                         </div>
 
                         {/* Identical layout matching GST */}
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5">
                           {[5, 10, 15, 20].map(p => (
                             <button
                               key={p}
