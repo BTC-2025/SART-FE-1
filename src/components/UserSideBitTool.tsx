@@ -28,7 +28,6 @@ const INITIAL_PINS: PinItem[] = [
   { id: 'contacts', name: 'Contacts', color: '#2563eb', isPinned: true, iconType: 'contacts' },
   { id: 'notes', name: 'Notes', color: '#64748b', isPinned: true, iconType: 'notes' },
   { id: 'keyboard', name: 'Virtual Keyboard', color: '#6366f1', isPinned: true, iconType: 'keyboard' },
-  { id: 'cloud', name: 'Weather', color: '#06b6d4', isPinned: true, iconType: 'cloud' },
 ];
 
 const AVAILABLE_WEBSITE_APPS: { id: string; name: string; iconType: PinItem['iconType']; color: string }[] = [
@@ -76,8 +75,9 @@ export default function UserSideBitTool({
   };
 
   // Dynamic Calendar state
-  const [currentDate, setCurrentDate] = useState(() => new Date(2026, 10, 4)); // Nov 4, 2026
-  const [selectedDay, setSelectedDay] = useState(4);
+  const today = new Date();
+  const [currentDate, setCurrentDate] = useState(() => new Date()); // Exact today's date
+  const [selectedDay, setSelectedDay] = useState(today.getDate());
 
   const currentYear = currentDate.getFullYear();
   const currentMonthIdx = currentDate.getMonth();
@@ -98,45 +98,373 @@ export default function UserSideBitTool({
 
   // Calculator states
   const [calcDisplay, setCalcDisplay] = useState('0');
+  const [pendingOp, setPendingOp] = useState<'+' | '-' | '×' | '÷'>('+');
   const [calcFormula, setCalcFormula] = useState('');
+  const [calcCurrency, setCalcCurrency] = useState<'INR' | 'USD' | 'EUR'>('INR');
+  const [activeCalcDropdown, setActiveCalcDropdown] = useState<'gst' | 'discount' | 'region' | null>(null);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showCompareMode, setShowCompareMode] = useState(false);
+  const [copiedShareAlert, setCopiedShareAlert] = useState(false);
 
-  // Notes state
-  const [notesList, setNotesList] = useState<string[]>([
+  // Custom user percentage input states
+  const [customGstInput, setCustomGstInput] = useState('');
+  const [customDiscountInput, setCustomDiscountInput] = useState('');
 
+  // Price comparison items (Side A vs Side B)
+  const [compareItems, setCompareItems] = useState<Array<{ id: string; desc: string; valA: number; valB: number }>>([
+    { id: 'cmp-1', desc: 'Item 1', valA: 91, valB: 92 },
+    { id: 'cmp-2', desc: 'Item 1', valA: 91, valB: 92 }
   ]);
+  const [cmpInputDesc, setCmpInputDesc] = useState('');
+  const [cmpInputValA, setCmpInputValA] = useState('');
+  const [cmpInputValB, setCmpInputValB] = useState('');
+
+  // Interactive Tape Entries (Base, Discount, GST, Addition, etc.)
+  interface TapeItem {
+    id: string;
+    type: 'BASE' | 'DISCOUNT' | 'GST' | 'ADD' | 'SUB' | 'MUL' | 'DIV';
+    label: string;
+    percent?: number;
+    value: number;
+    runningTotal: number;
+    diff?: number;
+  }
+
+  const [tapeItems, setTapeItems] = useState<TapeItem[]>([
+    { id: 't-1', type: 'BASE', label: 'Base Amount', value: 8, runningTotal: 8 },
+    { id: 't-2', type: 'DISCOUNT', label: '10% Disc', percent: 10, value: 10, runningTotal: 7.2, diff: -0.8 },
+    { id: 't-3', type: 'GST', label: '5% GST', percent: 5, value: 5, runningTotal: 7.56, diff: 0.36 },
+    { id: 't-4', type: 'ADD', label: 'Extra Add', value: 8, runningTotal: 15.56, diff: 8 }
+  ]);
+
+  // Tape history logs
+  const [calcHistory, setCalcHistory] = useState<Array<{
+    id: string;
+    timestamp: string;
+    tape: TapeItem[];
+    total: number;
+    currency: string;
+    summary?: string;
+  }>>([]);
+
+  // Calendar Item Modal State (Image 1 & 2)
+  const [showAddCalendarItem, setShowAddCalendarItem] = useState(false);
+  const [calendarItemType, setCalendarItemType] = useState<'Event' | 'Note' | 'Reminder'>('Note');
+  const [calItemTitle, setCalItemTitle] = useState('');
+  const [calItemStartTime, setCalItemStartTime] = useState('10:00 AM');
+  const [calItemEndTime, setCalItemEndTime] = useState('11:00 AM');
+  const [calItemTime, setCalItemTime] = useState('10:00 AM'); // Note & Reminder time
+  const [calItemDesc, setCalItemDesc] = useState('');
+  const [calItemEmail, setCalItemEmail] = useState(''); // Reminder email
+  const [calendarItems, setCalendarItems] = useState<Array<{
+    day: number;
+    month: number;
+    year: number;
+    type: 'Event' | 'Note' | 'Reminder';
+    title: string;
+    startTime?: string;
+    endTime?: string;
+    time?: string;
+    desc: string;
+    email?: string;
+  }>>([]);
+
+  // Contacts state (Image 2)
+  const [showAddContact, setShowAddContact] = useState(false);
+  const [editingContactId, setEditingContactId] = useState<string | null>(null);
+  const [contactSearch, setContactSearch] = useState('');
+  const [contactFullName, setContactFullName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [contactRole, setContactRole] = useState('');
+  const [contactsList, setContactsList] = useState<Array<{
+    id: string;
+    fullName: string;
+    email: string;
+    phone?: string;
+    role?: string;
+  }>>([
+    {
+      id: 'cnt-default-1',
+      fullName: 'c',
+      email: 'b@gmail.com',
+      phone: '87908756789',
+      role: 'c'
+    }
+  ]);
+
+  // Global Notes state (Image 3 & 4)
+  const [showAddNote, setShowAddNote] = useState(false);
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [noteTitle, setNoteTitle] = useState('');
+  const [noteContent, setNoteContent] = useState('');
+  const [isNotePinned, setIsNotePinned] = useState(false);
+  const [noteColor, setNoteColor] = useState('#fff9c4');
+  const [notesList, setNotesList] = useState<Array<{
+    id: string;
+    title: string;
+    content: string;
+    color: string;
+    isPinned: boolean;
+    date: string;
+  }>>([]);
   const [noteInput, setNoteInput] = useState('');
 
-  // Contacts state
-  const [contactsList] = useState([
-  ]);
-
-  // Virtual Keyboard input dispatcher to search bar
+  // Virtual Keyboard input dispatcher to search bar & active inputs
   const handleVirtualKeyPress = (key: string) => {
+    // 1. Dispatch custom event for Navbar & other components
     window.dispatchEvent(new CustomEvent('sart-virtual-keypress', { detail: { key } }));
+
+    // 2. Also directly type into any actively focused input (excluding navbar search which is handled by event)
+    try {
+      const activeEl = document.activeElement;
+      if (
+        activeEl &&
+        (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA') &&
+        !(activeEl as HTMLElement).closest('.bnx-vk-panel') &&
+        !activeEl.classList.contains('expanded-search-input')
+      ) {
+        const targetInput = activeEl as HTMLInputElement | HTMLTextAreaElement;
+        const start = targetInput.selectionStart ?? targetInput.value.length;
+        const end = targetInput.selectionEnd ?? targetInput.value.length;
+        const currentVal = targetInput.value;
+
+        if (key === 'Backspace') {
+          if (start === end && start > 0) {
+            targetInput.value = currentVal.slice(0, start - 1) + currentVal.slice(end);
+            targetInput.selectionStart = targetInput.selectionEnd = start - 1;
+          } else if (start !== end) {
+            targetInput.value = currentVal.slice(0, start) + currentVal.slice(end);
+            targetInput.selectionStart = targetInput.selectionEnd = start;
+          }
+        } else if (key === 'Space') {
+          targetInput.value = currentVal.slice(0, start) + ' ' + currentVal.slice(end);
+          targetInput.selectionStart = targetInput.selectionEnd = start + 1;
+        } else if (key === 'Enter') {
+          targetInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        } else if (key === 'Esc') {
+          targetInput.blur();
+        } else if (key.length === 1) {
+          targetInput.value = currentVal.slice(0, start) + key + currentVal.slice(end);
+          targetInput.selectionStart = targetInput.selectionEnd = start + 1;
+        }
+
+        targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+        targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    } catch (err) {
+      console.error('Virtual keyboard direct input error:', err);
+    }
   };
 
   if (!isOpen) return null;
 
+  // Exchange rates relative to INR (1 INR = x Currency)
+  const currencyRates: Record<string, { symbol: string; rate: number; name: string }> = {
+    INR: { symbol: '₹', rate: 1, name: 'India (INR)' },
+    USD: { symbol: '$', rate: 0.012, name: 'USA (USD)' },
+    EUR: { symbol: '€', rate: 0.011, name: 'Europe (EUR)' },
+  };
+
+  const getRunningTotal = () => {
+    if (tapeItems.length === 0) return parseFloat(calcDisplay) || 0;
+    return tapeItems[tapeItems.length - 1].runningTotal;
+  };
+
+  const logToHistory = (itemLabel: string, finalTotal: number, details?: string) => {
+    setCalcHistory(prev => [
+      {
+        id: `hist-${Date.now()}-${Math.random()}`,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        tape: [...tapeItems],
+        total: finalTotal,
+        currency: calcCurrency,
+        summary: details || itemLabel
+      },
+      ...prev
+    ]);
+  };
+
+  const handleApplyDiscount = (percent: number) => {
+    const currentBase = getRunningTotal();
+    const discountAmount = +(currentBase * (percent / 100)).toFixed(2);
+    const newTotal = +(currentBase - discountAmount).toFixed(2);
+    const newTapeItem: TapeItem = {
+      id: `t-${Date.now()}`,
+      type: 'DISCOUNT',
+      label: `${percent}% Disc`,
+      percent: percent,
+      value: percent,
+      runningTotal: newTotal,
+      diff: -discountAmount
+    };
+    setTapeItems(prev => [...prev, newTapeItem]);
+    logToHistory(`${percent}% Discount`, newTotal, `${currencyRates[calcCurrency]?.symbol || '₹'}${currentBase} − ${percent}% = ${currencyRates[calcCurrency]?.symbol || '₹'}${newTotal}`);
+    setActiveCalcDropdown(null);
+    setCustomDiscountInput('');
+  };
+
+  const handleApplyGst = (percent: number) => {
+    const currentBase = getRunningTotal();
+    const gstAmount = +(currentBase * (percent / 100)).toFixed(2);
+    const newTotal = +(currentBase + gstAmount).toFixed(2);
+    const newTapeItem: TapeItem = {
+      id: `t-${Date.now()}`,
+      type: 'GST',
+      label: `${percent}% GST`,
+      percent: percent,
+      value: percent,
+      runningTotal: newTotal,
+      diff: +gstAmount
+    };
+    setTapeItems(prev => [...prev, newTapeItem]);
+    logToHistory(`${percent}% GST`, newTotal, `${currencyRates[calcCurrency]?.symbol || '₹'}${currentBase} + ${percent}% GST = ${currencyRates[calcCurrency]?.symbol || '₹'}${newTotal}`);
+    setActiveCalcDropdown(null);
+    setCustomGstInput('');
+  };
+
+  const handleApplyOperation = (op: 'ADD' | 'SUB' | 'MUL' | 'DIV') => {
+    const entered = parseFloat(calcDisplay) || 0;
+    if (entered === 0 && tapeItems.length === 0) return;
+    const currentBase = getRunningTotal();
+    let newTotal = currentBase;
+    let diffVal = entered;
+
+    if (tapeItems.length === 0) {
+      setTapeItems([
+        {
+          id: `t-${Date.now()}`,
+          type: 'BASE',
+          label: 'Base Amount',
+          value: entered,
+          runningTotal: entered
+        }
+      ]);
+      logToHistory('Base Amount', entered, `Initial Base: ${currencyRates[calcCurrency]?.symbol || '₹'}${entered}`);
+      setCalcDisplay('0');
+      return;
+    }
+
+    if (op === 'ADD') {
+      newTotal = +(currentBase + entered).toFixed(2);
+      diffVal = entered;
+    } else if (op === 'SUB') {
+      newTotal = +(currentBase - entered).toFixed(2);
+      diffVal = -entered;
+    } else if (op === 'MUL') {
+      newTotal = +(currentBase * entered).toFixed(2);
+      diffVal = +(newTotal - currentBase).toFixed(2);
+    } else if (op === 'DIV') {
+      newTotal = entered !== 0 ? +(currentBase / entered).toFixed(2) : currentBase;
+      diffVal = +(newTotal - currentBase).toFixed(2);
+    }
+
+    const opSymbol = op === 'ADD' ? '+' : op === 'SUB' ? '−' : op === 'MUL' ? '×' : '÷';
+    setTapeItems(prev => [
+      ...prev,
+      {
+        id: `t-${Date.now()}`,
+        type: op,
+        label: 'Add label...',
+        value: entered,
+        runningTotal: newTotal,
+        diff: diffVal
+      }
+    ]);
+    logToHistory(`Calculated ${opSymbol} ${entered}`, newTotal, `${currencyRates[calcCurrency]?.symbol || '₹'}${currentBase} ${opSymbol} ${entered} = ${currencyRates[calcCurrency]?.symbol || '₹'}${newTotal}`);
+    setCalcDisplay('0');
+  };
+
+  const handleClearTape = () => {
+    // Trash icon in top bar clears the active working tape only without wiping the History logs
+    setTapeItems([]);
+    setCalcDisplay('0');
+    setCalcFormula('');
+  };
+
+  const handleShareTape = () => {
+    const symbol = currencyRates[calcCurrency]?.symbol || '₹';
+    const total = getRunningTotal();
+    const lines = tapeItems.map(item => {
+      if (item.type === 'DISCOUNT') return `• Discount ${item.percent}%: -${symbol}${Math.abs(item.diff || 0)} (Total: ${symbol}${item.runningTotal})`;
+      if (item.type === 'GST') return `• GST ${item.percent}%: +${symbol}${item.diff || 0} (Total: ${symbol}${item.runningTotal})`;
+      if (item.type === 'BASE') return `• Base Amount: ${symbol}${item.value}`;
+      return `• + ${item.value} = ${symbol}${item.runningTotal}`;
+    });
+
+    const shareText = `*BETA CALC SUMMARY*\n` + lines.join('\n') + `\n*TOTAL: ${symbol}${total}*\n(Calculated via SART Beta Calc)`;
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(shareText);
+      setCopiedShareAlert(true);
+      setTimeout(() => setCopiedShareAlert(false), 2500);
+    }
+  };
+
+  const handleAddCompareItem = () => {
+    const vA = parseFloat(cmpInputValA) || 0;
+    const vB = parseFloat(cmpInputValB) || 0;
+    if (cmpInputDesc.trim() || vA || vB) {
+      setCompareItems(prev => [
+        ...prev,
+        {
+          id: `cmp-${Date.now()}`,
+          desc: cmpInputDesc.trim() || `Item ${prev.length + 1}`,
+          valA: vA,
+          valB: vB
+        }
+      ]);
+      setCmpInputDesc('');
+      setCmpInputValA('');
+      setCmpInputValB('');
+    }
+  };
+
   const handleCalcClick = (val: string) => {
     if (val === 'C' || val === 'AC') {
+      // Clear All: clears everything (display, tape items, formula)
       setCalcDisplay('0');
       setCalcFormula('');
+      setTapeItems([]);
     } else if (val === 'backspace') {
       if (calcDisplay.length <= 1) setCalcDisplay('0');
       else setCalcDisplay(calcDisplay.slice(0, -1));
     } else if (val === '=') {
-      try {
-        const sanitized = calcDisplay.replace(/x/g, '*').replace(/÷/g, '/');
-        if (/^[0-9+\-*/. ()]+$/.test(sanitized)) {
-          const res = Function(`'use strict'; return (${sanitized})`)();
-          setCalcDisplay(String(res));
-          setCalcFormula(calcDisplay + ' =');
-        }
-      } catch (e) {
-        setCalcDisplay('Error');
+      const num = parseFloat(calcDisplay);
+      if (!isNaN(num) && num !== 0) {
+        if (pendingOp === '+') handleApplyOperation('ADD');
+        else if (pendingOp === '-') handleApplyOperation('SUB');
+        else if (pendingOp === '×') handleApplyOperation('MUL');
+        else if (pendingOp === '÷') handleApplyOperation('DIV');
       }
+    } else if (['+', '-', 'x', '÷'].includes(val)) {
+      const num = parseFloat(calcDisplay);
+      const symbolMap: Record<string, '+' | '-' | '×' | '÷'> = { '+': '+', '-': '-', 'x': '×', '÷': '÷' };
+      const opToApply: Record<string, 'ADD' | 'SUB' | 'MUL' | 'DIV'> = { '+': 'ADD', '-': 'SUB', 'x': 'MUL', '÷': 'DIV' };
+
+      if (!isNaN(num) && num !== 0) {
+        if (tapeItems.length === 0) {
+          // Commit base amount first
+          setTapeItems([
+            {
+              id: `t-${Date.now()}`,
+              type: 'BASE',
+              label: 'Base Amount',
+              value: num,
+              runningTotal: num
+            }
+          ]);
+        } else {
+          // Commit previous pending operation with the current number
+          const prevOpType = pendingOp === '+' ? 'ADD' : pendingOp === '-' ? 'SUB' : pendingOp === '×' ? 'MUL' : 'DIV';
+          handleApplyOperation(prevOpType);
+        }
+      }
+      // Update pending operator without showing 0 or replacing the current typed number until next digit
+      setPendingOp(symbolMap[val] || '+');
+      setCalcDisplay(''); // Clear for next number entry
     } else {
-      if (calcDisplay === '0' && !['+', '-', '*', '/', '.', 'x', '÷'].includes(val)) {
+      if (calcDisplay === '0' && !['.', '+', '-', '*', '/', 'x', '÷'].includes(val)) {
         setCalcDisplay(val);
       } else {
         setCalcDisplay(prev => prev + val);
@@ -146,7 +474,14 @@ export default function UserSideBitTool({
 
   const handleAddNote = () => {
     if (noteInput.trim()) {
-      setNotesList(prev => [noteInput.trim(), ...prev]);
+      setNotesList(prev => [{
+        id: `note-${Date.now()}`,
+        title: noteInput.trim(),
+        content: '',
+        color: '#fff9c4',
+        isPinned: false,
+        date: 'Just now'
+      }, ...prev]);
       setNoteInput('');
     }
   };
@@ -156,24 +491,33 @@ export default function UserSideBitTool({
     switch (type) {
       case 'calendar':
         return (
-          <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="4" ry="4"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
+          <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none">
+            {/* Outline calendar matching 1st image icon */}
+            <rect x="3.5" y="4" width="17" height="16.5" rx="4.5" stroke="#ea580c" strokeWidth="2.4" fill="none"></rect>
+            <path d="M7 2.5v3" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round"></path>
+            <path d="M17 2.5v3" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round"></path>
+            <path d="M3.5 9h17" stroke="#ea580c" strokeWidth="2.2" strokeLinecap="round"></path>
           </svg>
         );
       case 'calculator':
         return (
           <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="3" width="18" height="18" rx="4" fill="#059669"></rect>
-            <line x1="6.5" y1="8" x2="10.5" y2="8" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
-            <line x1="8.5" y1="6" x2="8.5" y2="10" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
-            <line x1="13.5" y1="8" x2="17.5" y2="8" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
-            <line x1="13.5" y1="14" x2="17.5" y2="14" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
-            <line x1="13.5" y1="17" x2="17.5" y2="17" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"></line>
-            <line x1="6.5" y1="14" x2="10.5" y2="17" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round"></line>
-            <line x1="10.5" y1="14" x2="6.5" y2="17" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round"></line>
+            {/* Outer calculator body matching the first image icon */}
+            <rect x="3.5" y="2.5" width="17" height="19" rx="4.5" stroke="#059669" strokeWidth="2.4" fill="none"></rect>
+            {/* Screen bar */}
+            <rect x="6.5" y="5.5" width="11" height="2" rx="1" fill="#059669"></rect>
+            {/* Row 1 dots */}
+            <circle cx="7.5" cy="11" r="1.3" fill="#059669"></circle>
+            <circle cx="12" cy="11" r="1.3" fill="#059669"></circle>
+            <circle cx="16.5" cy="11" r="1.3" fill="#059669"></circle>
+            {/* Row 2 dots */}
+            <circle cx="7.5" cy="14.5" r="1.3" fill="#059669"></circle>
+            <circle cx="12" cy="14.5" r="1.3" fill="#059669"></circle>
+            {/* Tall action key */}
+            <rect x="15.2" y="13.5" width="2.6" height="5.5" rx="1.3" fill="#059669"></rect>
+            {/* Row 3 dots */}
+            <circle cx="7.5" cy="18" r="1.3" fill="#059669"></circle>
+            <circle cx="12" cy="18" r="1.3" fill="#059669"></circle>
           </svg>
         );
       case 'contacts':
@@ -184,9 +528,18 @@ export default function UserSideBitTool({
         );
       case 'notes':
         return (
-          <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="4" y="3" width="16" height="18" rx="3"></rect>
-            <path d="M9 13.5l4-4 2 2-4 4H9v-2z"></path>
+          <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none">
+            {/* Outer notepad/document frame matching user image */}
+            <rect x="4" y="2.5" width="16" height="19" rx="4.5" stroke="#eab308" strokeWidth="2.4" fill="none"></rect>
+            {/* Diagonal pencil inside notepad */}
+            <path
+              d="M14.8 7.2l2 2-6.2 6.2c-.3.3-.7.5-1.1.6l-2 .5.5-2c.1-.4.3-.8.6-1.1l6.2-6.2z"
+              stroke="#eab308"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="#eab308"
+            ></path>
           </svg>
         );
       case 'keyboard':
@@ -205,12 +558,7 @@ export default function UserSideBitTool({
             <rect x="7" y="15" width="10" height="1.8" rx="0.8" fill="#ffffff"></rect>
           </svg>
         );
-      case 'cloud':
-        return (
-          <svg className="w-5 h-5 object-contain" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
-          </svg>
-        );
+
       case 'custom_edit':
         return (
           <img src="/images/bnx_edit_pencil.png" alt="Edit Notes" className="w-80 h-80 object-contain rounded" />
@@ -253,7 +601,7 @@ export default function UserSideBitTool({
   return (
     <>
       {/* 1. Vertical Bit-Tool Strip on the Right Hand Edge */}
-      <aside className="right-tools-sidebar relative w-[58px] hidden-scrollbar flex flex-col items-center select-none shrink-0 user-side-bittool-strip bnx-style overflow-visible" aria-label="SART Side Utilities">
+      <aside className="right-tools-sidebar relative w-[60px] hidden-scrollbar flex flex-col items-center select-none shrink-0 user-side-bittool-strip bnx-style overflow-visible" aria-label="SART Side Utilities">
         {/* Icons stack container */}
         <div className="px-2 py-2 flex flex-col items-center w-full overflow-visible">
           <div className="flex flex-col items-center gap-1.5 w-full">
@@ -658,124 +1006,971 @@ export default function UserSideBitTool({
 
       {/* DRAWER 2: EXACT MATCH BNX CALENDAR MODAL (Image 2 UI) */}
       {activeModal === 'calendar' && (
-        <div className="user-side-dock-panel bnx-cal-panel">
+        <div className="user-side-dock-panel bnx-cal-panel flex flex-col h-full bg-white text-slate-800">
           {/* Header */}
-          <div className="bnx-cal-header">
-            <h3 className="bnx-cal-title">Calendar</h3>
-            <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0">
+            <h3 className="font-bold text-base text-slate-900">Calendar</h3>
+            <button
+              className="p-1 hover:bg-black/5 rounded-full text-slate-400 hover:text-slate-700 transition-colors"
+              onClick={closeModal}
+              title="Close"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </button>
           </div>
 
-          <div className="bnx-cal-body">
-            {/* Month Header with Right Aligned Arrows */}
-            <div className="bnx-month-row">
-              <h4 className="bnx-month-name">{currentMonthName} {currentYear}</h4>
-              <div className="bnx-month-arrows">
-                <button type="button" className="bnx-arrow-btn" onClick={handlePrevMonth} title="Previous Month">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                  </svg>
-                </button>
-                <button type="button" className="bnx-arrow-btn" onClick={handleNextMonth} title="Next Month">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            {/* Days Matrix */}
-            <div className="bnx-days-grid">
-              <span className="bnx-day-wk">Su</span>
-              <span className="bnx-day-wk">Mo</span>
-              <span className="bnx-day-wk">Tu</span>
-              <span className="bnx-day-wk">We</span>
-              <span className="bnx-day-wk">Th</span>
-              <span className="bnx-day-wk">Fr</span>
-              <span className="bnx-day-wk">Sa</span>
-
-              {Array.from({ length: firstDayWeekday }).map((_, idx) => (
-                <div key={`empty-${idx}`} className="bnx-day-cell empty"></div>
-              ))}
-
-              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => (
-                <div
-                  key={day}
-                  className={`bnx-day-cell ${selectedDay === day ? 'active-orange' : ''}`}
-                  onClick={() => setSelectedDay(day)}
-                >
-                  {day}
-                </div>
-              ))}
-            </div>
-
-            {/* Divider line before schedule footer */}
-            <div className="bnx-cal-footer-divider"></div>
-
-            {/* Footer Row: e.g. "NOVEMBER 4 SCHEDULE" and "+ Add" button */}
-            <div className="bnx-schedule-row">
-              <span className="bnx-schedule-label">
-                {currentMonthName.toUpperCase()} {selectedDay} SCHEDULE
+          <div className="p-4 flex-1 flex flex-col min-h-0 overflow-y-auto gap-4">
+            {/* Box 1: Month Header & Navigation in its own bordered card box */}
+            <div className="flex items-center justify-between p-3 bg-white border border-slate-200/80 rounded-2xl shadow-sm">
+              <button
+                type="button"
+                className="w-8 h-8 flex items-center justify-center bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors text-slate-600"
+                onClick={handlePrevMonth}
+                title="Previous Month"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+              <span className="font-extrabold text-sm text-[#0f172a] tracking-tight">
+                {currentMonthName} {currentYear}
               </span>
               <button
                 type="button"
-                className="bnx-add-btn"
-                onClick={() => { closeModal(); setActiveTab('ride'); }}
+                className="w-8 h-8 flex items-center justify-center bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors text-slate-600"
+                onClick={handleNextMonth}
+                title="Next Month"
               >
-                + Add
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
               </button>
             </div>
 
-            {/* Empty items message matching user screenshot */}
-            <div className="bnx-cal-empty-msg">
-              No items scheduled
+            {/* Box 2: Calendar Dates Grid in its own rounded bordered card box */}
+            <div className="p-4 bg-white border border-slate-200/80 rounded-2xl shadow-sm flex flex-col">
+              {/* Weekday headers */}
+              <div className="grid grid-cols-7 gap-1 text-[11px] text-center font-bold mb-3">
+                <span className="text-slate-600">Su</span>
+                <span className="text-slate-600">Mo</span>
+                <span className="text-slate-600">Tu</span>
+                <span className="text-slate-600">We</span>
+                <span className="text-slate-600">Th</span>
+                <span className="text-slate-600">Fr</span>
+                <span className="text-slate-600">Sa</span>
+              </div>
+
+              {/* Days Matrix */}
+              <div className="grid grid-cols-7 gap-1 text-center text-xs">
+                {Array.from({ length: firstDayWeekday }).map((_, idx) => (
+                  <div key={`empty-${idx}`} className="h-8 flex items-center justify-center"></div>
+                ))}
+
+                {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
+                  const isSelected = selectedDay === day;
+
+                  return (
+                    <button
+                      key={day}
+                      type="button"
+                      className={`h-8 w-8 mx-auto flex items-center justify-center rounded-full font-semibold transition-all cursor-pointer ${isSelected
+                        ? 'bg-[#1d4ed8] text-white font-bold shadow-sm'
+                        : 'text-slate-700 hover:bg-slate-100'
+                        }`}
+                      onClick={() => setSelectedDay(day)}
+                    >
+                      {day}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Schedule Section */}
+            <div className="flex-1 flex flex-col min-h-0 pt-1">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-black text-slate-500 tracking-wider uppercase">
+                  SCHEDULE FOR {currentMonthName.toUpperCase().slice(0, 3)} {selectedDay}, {currentYear}
+                </span>
+                <button
+                  type="button"
+                  className="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-lg transition-colors flex items-center gap-1"
+                  onClick={() => setShowAddCalendarItem(true)}
+                >
+                  <span>+</span> Add
+                </button>
+              </div>
+
+              {/* Empty or List items */}
+              {calendarItems.filter(item => item.day === selectedDay && item.month === currentMonthIdx && item.year === currentYear).length === 0 ? (
+                <div className="flex-1 flex items-center justify-center text-xs text-slate-400 font-medium py-6">
+                  No items scheduled
+                </div>
+              ) : (
+                <div className="space-y-2 overflow-y-auto max-h-[160px] pr-1">
+                  {calendarItems
+                    .filter(item => item.day === selectedDay && item.month === currentMonthIdx && item.year === currentYear)
+                    .map((it, idx) => (
+                      <div key={idx} className="p-3 bg-white border border-slate-200/80 rounded-2xl flex items-start gap-3 text-xs shadow-sm">
+                        <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                          </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-slate-900 text-sm leading-tight">{it.title}</div>
+                          {(it.time || it.startTime) && (
+                            <div className="text-[11px] text-slate-500 font-medium mt-1">
+                              {it.time || `${it.startTime} - ${it.endTime}`}
+                            </div>
+                          )}
+                          {it.desc && (
+                            <div className="text-[11.5px] text-slate-600 mt-1 whitespace-pre-wrap">
+                              {it.desc}
+                            </div>
+                          )}
+                          {it.email && (
+                            <div className="text-[11px] text-blue-600 font-medium mt-1">
+                              ✉️ {it.email}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
             </div>
           </div>
+
+          {/* BOTTOM SHEET: Add Item for [Day] [Month] (Matching exact inspector classes) */}
+          {showAddCalendarItem && (
+            <div className="absolute inset-0 z-50 bg-black/40 backdrop-blur-[2px] flex flex-col justify-end">
+              <div className="relative bg-white dark:bg-gray-900 flex flex-col rounded-t-2xl p-4 max-h-[85%] overflow-y-auto hidden-scrollbar shadow-2xl pointer-events-auto border-t border-gray-200 dark:border-gray-800 animate-in slide-in-from-bottom duration-200">
+                {/* Header: Add Item for [Day] [Month] + Close */}
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                    Add Item for {selectedDay} {currentMonthName}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddCalendarItem(false)}
+                    className="p-1 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Switcher Pill: Event | Note | Reminder */}
+                <div className="flex gap-1 p-1 bg-black/5 dark:bg-white/5 rounded-lg mb-4 text-xs shrink-0">
+                  {(['Event', 'Note', 'Reminder'] as const).map(tab => (
+                    <button
+                      key={tab}
+                      type="button"
+                      onClick={() => setCalendarItemType(tab)}
+                      className={`flex-1 py-1 rounded text-center font-semibold transition-colors ${calendarItemType === tab
+                        ? 'bg-white dark:bg-gray-700 shadow-sm text-slate-900 dark:text-white'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                        }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+
+                <form
+                  className="flex flex-col gap-3 text-xs flex-1"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const titleToSave = calendarItemType === 'Note' ? (calItemDesc.trim().slice(0, 30) || 'Note') : calItemTitle.trim();
+                    if (titleToSave || calItemDesc.trim()) {
+                      setCalendarItems(prev => [...prev, {
+                        day: selectedDay,
+                        month: currentMonthIdx,
+                        year: currentYear,
+                        type: calendarItemType,
+                        title: titleToSave,
+                        time: (calendarItemType === 'Note' || calendarItemType === 'Reminder') ? calItemTime : undefined,
+                        startTime: calendarItemType === 'Event' ? calItemStartTime : undefined,
+                        endTime: calendarItemType === 'Event' ? calItemEndTime : undefined,
+                        desc: calItemDesc.trim(),
+                        email: calendarItemType === 'Reminder' ? calItemEmail.trim() : undefined
+                      }]);
+                      setCalItemTitle('');
+                      setCalItemDesc('');
+                      setCalItemEmail('');
+                    }
+                    setShowAddCalendarItem(false);
+                  }}
+                >
+                  {/* Note: Only Time and Content (Description) */}
+                  {calendarItemType === 'Note' && (
+                    <>
+                      <div>
+                        <label className="block mb-1 opacity-70 font-semibold">Time</label>
+                        <input
+                          type="time"
+                          required
+                          value={calItemTime}
+                          onChange={(e) => setCalItemTime(e.target.value)}
+                          className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                        />
+                      </div>
+
+                      <div className="flex-1 flex flex-col">
+                        <label className="block mb-1 opacity-70 font-semibold">Content (Note)</label>
+                        <textarea
+                          rows={4}
+                          required
+                          placeholder="Write your note content here..."
+                          value={calItemDesc}
+                          onChange={(e) => setCalItemDesc(e.target.value)}
+                          className="w-full flex-1 bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600 resize-none min-h-[90px]"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Reminder: Title, Description, Time, Email */}
+                  {calendarItemType === 'Reminder' && (
+                    <>
+                      <div>
+                        <label className="block mb-1 opacity-70 font-semibold">Title</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Reminder Title"
+                          value={calItemTitle}
+                          onChange={(e) => setCalItemTitle(e.target.value)}
+                          className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block mb-1 opacity-70 font-semibold">Time</label>
+                        <input
+                          type="time"
+                          required
+                          value={calItemTime}
+                          onChange={(e) => setCalItemTime(e.target.value)}
+                          className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block mb-1 opacity-70 font-semibold">Email for Notification</label>
+                        <input
+                          type="email"
+                          required
+                          placeholder="example@gmail.com"
+                          value={calItemEmail}
+                          onChange={(e) => setCalItemEmail(e.target.value)}
+                          className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                        />
+                      </div>
+
+                      <div className="flex-1 flex flex-col">
+                        <label className="block mb-1 opacity-70 font-semibold">Description</label>
+                        <textarea
+                          rows={2}
+                          placeholder="Reminder description..."
+                          value={calItemDesc}
+                          onChange={(e) => setCalItemDesc(e.target.value)}
+                          className="w-full flex-1 bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600 resize-none min-h-[60px]"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Event: Title, Start Time, End Time, Description */}
+                  {calendarItemType === 'Event' && (
+                    <>
+                      <div>
+                        <label className="block mb-1 opacity-70 font-semibold">Title</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Event Title"
+                          value={calItemTitle}
+                          onChange={(e) => setCalItemTitle(e.target.value)}
+                          className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                        />
+                      </div>
+
+                      <div className="flex gap-2">
+                        <div className="flex-1">
+                          <label className="block mb-1 opacity-70 font-semibold">Start Time</label>
+                          <input
+                            type="time"
+                            required
+                            value={calItemStartTime}
+                            onChange={(e) => setCalItemStartTime(e.target.value)}
+                            className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <label className="block mb-1 opacity-70 font-semibold">End Time</label>
+                          <input
+                            type="time"
+                            required
+                            value={calItemEndTime}
+                            onChange={(e) => setCalItemEndTime(e.target.value)}
+                            className="w-full bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex-1 flex flex-col">
+                        <label className="block mb-1 opacity-70 font-semibold">Description</label>
+                        <textarea
+                          rows={2}
+                          placeholder="Event details..."
+                          value={calItemDesc}
+                          onChange={(e) => setCalItemDesc(e.target.value)}
+                          className="w-full flex-1 bg-black/5 dark:bg-white/5 p-2 rounded outline-none border border-transparent focus:border-gray-300 dark:focus:border-gray-600 resize-none min-h-[60px]"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    className="mt-2 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded shadow-sm disabled:opacity-50 transition-colors"
+                  >
+                    Save Item
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* DRAWER 3: CALCULATOR */}
+      {/* DRAWER 3: CALCULATOR (Exact Match to Inspector Classes & Uploaded UI) */}
       {activeModal === 'calculator' && (
-        <div className="user-side-dock-panel">
-          <div className="user-dock-header">
-            <span className="user-dock-title">CALCULATOR</span>
-            <button className="user-dock-close-btn" onClick={closeModal} title="Close">
-              <i className="fa-solid fa-xmark"></i>
+        <div className="user-side-dock-panel flex flex-col h-full bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-2xl relative">
+          {/* Top Panel Header */}
+          <div className="px-4 h-14 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-black/[0.01] dark:bg-white/[0.01] shrink-0">
+            <span className="font-bold text-sm tracking-wide text-slate-800 dark:text-slate-100">Calculator</span>
+            <button
+              className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-full text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+              onClick={closeModal}
+              title="Close"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
             </button>
           </div>
-          <div className="user-dock-inner">
-            <div className="user-calc-screen">
-              <div className="user-calc-formula">{calcFormula}</div>
-              <div className="user-calc-display">{calcDisplay}</div>
-            </div>
-            <div className="user-calc-pad">
-              <button className="user-calc-key clear" onClick={() => handleCalcClick('AC')}>AC</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('backspace')}>⌫</button>
-              <button className="user-calc-key op" onClick={() => handleCalcClick('%')}>%</button>
-              <button className="user-calc-key op" onClick={() => handleCalcClick('÷')}>÷</button>
 
-              <button className="user-calc-key" onClick={() => handleCalcClick('7')}>7</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('8')}>8</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('9')}>9</button>
-              <button className="user-calc-key op" onClick={() => handleCalcClick('x')}>×</button>
+          <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col p-0 relative">
+            <div className="h-full w-full overflow-hidden flex flex-col relative min-h-[520px]">
+              <div className="flex flex-col h-full bg-white dark:bg-gray-900">
+                {/* Beta Calc Title & Action Buttons Row matching uploaded Image 3 */}
+                <div className="flex items-center justify-between p-2.5 border-b border-gray-100 dark:border-gray-800">
+                  <div className="flex items-center gap-2 font-bold text-gray-800 dark:text-gray-100 tracking-wide text-xs">
+                    <span className="text-emerald-500 font-black">#</span>
+                    <span>BETA CALC</span>
+                  </div>
 
-              <button className="user-calc-key" onClick={() => handleCalcClick('4')}>4</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('5')}>5</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('6')}>6</button>
-              <button className="user-calc-key op" onClick={() => handleCalcClick('-')}>−</button>
+                  <div className="flex items-center gap-1 text-gray-500">
+                    {/* History button */}
+                    <button
+                      type="button"
+                      onClick={() => setShowHistoryModal(prev => !prev)}
+                      className={`p-1.5 rounded-lg transition-colors ${showHistoryModal ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                      title="Tape History"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                        <path d="M3 3v5h5"></path>
+                        <path d="M12 7v5l4 2"></path>
+                      </svg>
+                    </button>
 
-              <button className="user-calc-key" onClick={() => handleCalcClick('1')}>1</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('2')}>2</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('3')}>3</button>
-              <button className="user-calc-key op" onClick={() => handleCalcClick('+')}>+</button>
+                    {/* Share button */}
+                    <button
+                      type="button"
+                      onClick={handleShareTape}
+                      className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                      title="Share Tape"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="18" cy="5" r="3"></circle>
+                        <circle cx="6" cy="12" r="3"></circle>
+                        <circle cx="18" cy="19" r="3"></circle>
+                        <line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line>
+                        <line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line>
+                      </svg>
+                    </button>
 
-              <button className="user-calc-key" onClick={() => handleCalcClick('0')}>0</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('.')}>.</button>
-              <button className="user-calc-key equal" style={{ gridColumn: 'span 2' }} onClick={() => handleCalcClick('=')}>=</button>
+                    {/* Trash/Clear Tape button */}
+                    <button
+                      type="button"
+                      onClick={handleClearTape}
+                      className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 rounded-lg transition-colors"
+                      title="Clear Tape"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 6h18"></path>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                        <line x1="10" x2="10" y1="11" y2="17"></line>
+                        <line x1="14" x2="14" y1="11" y2="17"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Copied alert toast */}
+                {copiedShareAlert && (
+                  <div className="bg-emerald-600 text-white text-[11px] font-bold text-center py-1 animate-in fade-in">
+                    ✓ Full Calculation Summary Copied to Clipboard!
+                  </div>
+                )}
+
+                {/* Tape Content Container / Cards Stack matching Image 2 & 3 */}
+                {!showCompareMode ? (
+                  <div className="flex-1 overflow-y-auto p-3 space-y-2.5 bg-gray-50/50 dark:bg-gray-900/50 hidden-scrollbar max-h-[220px]">
+                    {tapeItems.length === 0 ? (
+                      <div className="h-full flex flex-col items-center justify-center opacity-40 py-8">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-2">
+                          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                          <path d="M3 3v5h5"></path>
+                          <path d="M12 7v5l4 2"></path>
+                        </svg>
+                        <p className="text-xs">Enter numbers and select GST / Discount / Operations</p>
+                      </div>
+                    ) : (
+                      tapeItems.map((item) => {
+                        const curSymbol = currencyRates[calcCurrency]?.symbol || '₹';
+                        const curRate = currencyRates[calcCurrency]?.rate || 1;
+                        const dispTotal = (item.runningTotal * curRate).toFixed(2);
+                        const dispDiff = item.diff !== undefined ? (item.diff * curRate).toFixed(2) : undefined;
+
+                        return (
+                          <div
+                            key={item.id}
+                            className="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-xs relative flex flex-col gap-1 text-xs"
+                          >
+                            {/* Top badge & label & close button */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1.5">
+                                {item.type === 'BASE' && (
+                                  <span className="bg-indigo-600 text-white font-black text-[9.5px] px-2 py-0.5 rounded-md uppercase tracking-wider">
+                                    BASE
+                                  </span>
+                                )}
+                                {item.type === 'DISCOUNT' && (
+                                  <span className="bg-amber-500 text-white font-black text-[9.5px] px-2 py-0.5 rounded-md uppercase tracking-wider">
+                                    DISCOUNT
+                                  </span>
+                                )}
+                                {item.type === 'GST' && (
+                                  <span className="bg-emerald-500 text-white font-black text-[9.5px] px-2 py-0.5 rounded-md uppercase tracking-wider">
+                                    GST
+                                  </span>
+                                )}
+                                {['ADD', 'SUB', 'MUL', 'DIV'].includes(item.type) && (
+                                  <span className="bg-slate-600 text-white font-black text-[10px] w-5 h-5 rounded-md flex items-center justify-center">
+                                    {item.type === 'ADD' ? '+' : item.type === 'SUB' ? '−' : item.type === 'MUL' ? '×' : '÷'}
+                                  </span>
+                                )}
+                                <span className="font-semibold text-slate-500 text-[11px]">{item.label}</span>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => setTapeItems(prev => prev.filter(t => t.id !== item.id))}
+                                className="text-slate-300 hover:text-red-500 transition-colors text-xs font-bold"
+                              >
+                                ×
+                              </button>
+                            </div>
+
+                            {/* Middle & Right: Input value & Running Total */}
+                            <div className="flex items-center justify-between mt-1">
+                              <div className="font-extrabold text-slate-900 text-sm flex items-center gap-1">
+                                {item.type === 'BASE' && <span>= {item.value}</span>}
+                                {item.type === 'DISCOUNT' && <span>% {item.percent}</span>}
+                                {item.type === 'GST' && <span>% {item.percent}</span>}
+                                {item.type === 'ADD' && <span>+ {item.value}</span>}
+                                {item.type === 'SUB' && <span>− {item.value}</span>}
+                                {item.type === 'MUL' && <span>× {item.value}</span>}
+                                {item.type === 'DIV' && <span>÷ {item.value}</span>}
+                              </div>
+
+                              <div className="text-right">
+                                <div className="font-extrabold text-emerald-600 text-sm">
+                                  {curSymbol}{dispTotal}
+                                </div>
+                                {dispDiff && (
+                                  <div className={`text-[10px] font-bold ${parseFloat(dispDiff) < 0 ? 'text-amber-600' : 'text-emerald-500'}`}>
+                                    {parseFloat(dispDiff) < 0 ? `${curSymbol}${dispDiff}` : `+${curSymbol}${dispDiff}`}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                ) : (
+                  /* PRICE COMPARISON MODE (Matching Image 1) */
+                  <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50/70 border-b border-gray-200">
+                    <div className="flex items-center justify-between pb-1.5 border-b border-indigo-100">
+                      <div className="flex items-center gap-1.5 text-indigo-700 font-extrabold text-[11px] tracking-wider uppercase">
+                        <span>⚖️ PRICE COMPARISON</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setCompareItems([])}
+                          className="text-[10px] font-bold text-red-500 hover:underline uppercase"
+                        >
+                          CLEAR ALL
+                        </button>
+                        <span className="bg-red-50 border border-red-200 text-red-600 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full">
+                          {compareItems.reduce((acc, c) => acc + c.valB, 0) > compareItems.reduce((acc, c) => acc + c.valA, 0) ? 'B Wins ▲' : 'A Wins ▲'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Table Header */}
+                    <div className="grid grid-cols-12 text-[10px] font-bold text-slate-500 uppercase px-1 pt-1">
+                      <span className="col-span-6">Description</span>
+                      <span className="col-span-3 text-right text-indigo-600 font-bold">Side A</span>
+                      <span className="col-span-3 text-right text-indigo-600 font-bold">Side B</span>
+                    </div>
+
+                    {/* Compare Rows */}
+                    <div className="space-y-1.5 max-h-[110px] overflow-y-auto pr-0.5">
+                      {compareItems.map((ci) => (
+                        <div key={ci.id} className="grid grid-cols-12 text-xs font-semibold items-center bg-white p-2 rounded-xl border border-slate-200/80">
+                          <span className="col-span-6 text-slate-800 truncate">{ci.desc}</span>
+                          <span className="col-span-3 text-right font-bold text-indigo-600">₹{ci.valA}</span>
+                          <span className="col-span-3 text-right font-bold text-indigo-600 flex items-center justify-end gap-1">
+                            ₹{ci.valB}
+                            <button
+                              type="button"
+                              onClick={() => setCompareItems(prev => prev.filter(c => c.id !== ci.id))}
+                              className="text-slate-300 hover:text-red-500 text-[10px] ml-1"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Total Row */}
+                    <div className="grid grid-cols-12 text-xs font-black pt-1.5 border-t border-slate-200 border-dashed px-1">
+                      <span className="col-span-6 uppercase text-slate-600 text-[11px]">TOTAL</span>
+                      <span className="col-span-3 text-right text-indigo-600">
+                        ₹{compareItems.reduce((acc, c) => acc + c.valA, 0)}
+                      </span>
+                      <span className="col-span-3 text-right text-indigo-600">
+                        ₹{compareItems.reduce((acc, c) => acc + c.valB, 0)}
+                      </span>
+                    </div>
+
+                    {/* Add Compare Inputs */}
+                    <div className="grid grid-cols-12 gap-1 pt-1">
+                      <input
+                        type="text"
+                        placeholder="Description"
+                        value={cmpInputDesc}
+                        onChange={(e) => setCmpInputDesc(e.target.value)}
+                        className="col-span-5 bg-white border border-slate-300 rounded-lg p-1.5 text-xs outline-none"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Val A"
+                        value={cmpInputValA}
+                        onChange={(e) => setCmpInputValA(e.target.value)}
+                        className="col-span-3 bg-white border border-slate-300 rounded-lg p-1.5 text-xs outline-none text-right"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Val B"
+                        value={cmpInputValB}
+                        onChange={(e) => setCmpInputValB(e.target.value)}
+                        className="col-span-3 bg-white border border-slate-300 rounded-lg p-1.5 text-xs outline-none text-right"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddCompareItem}
+                        className="col-span-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-xs"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    {/* Diff & Ratio Footer Pills */}
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <div className="bg-white border border-slate-200 rounded-xl p-1.5 text-center text-[11px] font-bold text-slate-600">
+                        Diff <span className="text-indigo-600 font-extrabold">₹{Math.abs(compareItems.reduce((acc, c) => acc + c.valA, 0) - compareItems.reduce((acc, c) => acc + c.valB, 0))}</span>
+                      </div>
+                      <div className="bg-white border border-slate-200 rounded-xl p-1.5 text-center text-[11px] font-bold text-slate-600">
+                        Ratio <span className="text-indigo-600 font-extrabold">{compareItems.reduce((acc, c) => acc + c.valB, 0) > 0 ? (compareItems.reduce((acc, c) => acc + c.valA, 0) / compareItems.reduce((acc, c) => acc + c.valB, 0)).toFixed(2) : '1.00'}x</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* CONTINUE Input Screen: CONTINUE label + current operator (+, -, ×, ÷) + large number display (shows typed digits, never forces 0) */}
+                <div className="bg-gray-100/60 dark:bg-gray-800 py-1.5 px-3 border-t border-gray-200 dark:border-gray-700">
+                  <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">CONTINUE</div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-500 font-extrabold text-sm">{pendingOp}</span>
+                    <div className="text-xl font-black text-right text-slate-900 dark:text-white truncate">
+                      {calcDisplay !== '' ? calcDisplay : (tapeItems.length > 0 ? '' : '0')}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Action Preset Pills: % GST | Discount | Currency/Region | Compare */}
+                <div className="grid grid-cols-4 gap-1.5 p-1.5 border-t border-gray-100 dark:border-gray-800 relative bg-white">
+                  {/* 1. GST Dropdown Pill (Opens only when clicked, 4 columns inside or custom input) */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setActiveCalcDropdown(prev => prev === 'gst' ? null : 'gst')}
+                      className={`w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${activeCalcDropdown === 'gst'
+                        ? 'bg-emerald-600 text-white border-emerald-600'
+                        : 'text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
+                        }`}
+                    >
+                      <span>%</span>
+                      <span>GST</span>
+                    </button>
+                    {activeCalcDropdown === 'gst' && (
+                      <div className="absolute bottom-full left-[-4px] mb-1.5 w-[320px] bg-white border border-emerald-300 rounded-2xl shadow-xl px-3.5 py-2.5 z-30 animate-in fade-in flex flex-col gap-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">SELECT GST</span>
+                          <button
+                            type="button"
+                            onClick={() => setActiveCalcDropdown(null)}
+                            className="text-slate-400 hover:text-slate-700 text-xs font-bold leading-none p-0.5"
+                          >
+                            ✕
+                          </button>
+                        </div>
+
+                        {/* All elements neatly contained without overflowing on the right */}
+                        <div className="flex items-center gap-1.5">
+                          {[5, 12, 18, 28].map(p => (
+                            <button
+                              key={p}
+                              type="button"
+                              onClick={() => handleApplyGst(p)}
+                              className="px-2 py-1 text-center text-[11px] font-black text-emerald-800 bg-emerald-50/90 hover:bg-emerald-100 rounded-xl border border-emerald-200 transition-colors shrink-0"
+                            >
+                              +{p}%
+                            </button>
+                          ))}
+
+                          {/* Compact % input */}
+                          <input
+                            type="number"
+                            placeholder="%"
+                            value={customGstInput}
+                            onChange={(e) => setCustomGstInput(e.target.value)}
+                            className="w-10 h-6 bg-slate-50 border border-slate-200 rounded-lg text-center text-xs font-bold outline-none text-slate-700 placeholder:text-slate-400 shrink-0"
+                          />
+
+                          {/* Compact Add button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const val = parseFloat(customGstInput);
+                              if (!isNaN(val) && val > 0) handleApplyGst(val);
+                            }}
+                            className="h-6 px-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-black rounded-lg transition-colors shrink-0"
+                          >
+                            Add
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 2. Discount Dropdown Pill (Shifted left so it doesn't overflow right) */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setActiveCalcDropdown(prev => prev === 'discount' ? null : 'discount')}
+                      className={`w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${activeCalcDropdown === 'discount'
+                        ? 'bg-amber-600 text-white border-amber-600'
+                        : 'text-amber-600 bg-amber-50 border-amber-200 hover:bg-amber-100'
+                        }`}
+                    >
+                      <span>🏷️</span>
+                      <span>Discount</span>
+                    </button>
+                    {activeCalcDropdown === 'discount' && (
+                      <div className="absolute bottom-full left-[-72px] mb-1.5 w-[310px] bg-white border border-amber-300 rounded-2xl shadow-xl px-3.5 py-2.5 z-30 animate-in fade-in flex flex-col gap-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">SELECT DISCOUNT</span>
+                          <button
+                            type="button"
+                            onClick={() => setActiveCalcDropdown(null)}
+                            className="text-slate-400 hover:text-slate-700 text-xs font-bold leading-none p-0.5"
+                          >
+                            ✕
+                          </button>
+                        </div>
+
+                        {/* Identical layout matching GST */}
+                        <div className="flex items-center gap-1.5">
+                          {[5, 10, 15, 20].map(p => (
+                            <button
+                              key={p}
+                              type="button"
+                              onClick={() => handleApplyDiscount(p)}
+                              className="px-2 py-1 text-center text-[11px] font-black text-amber-800 bg-amber-50/90 hover:bg-amber-100 rounded-xl border border-amber-200 transition-colors shrink-0"
+                            >
+                              −{p}%
+                            </button>
+                          ))}
+
+                          {/* Compact % input */}
+                          <input
+                            type="number"
+                            placeholder="%"
+                            value={customDiscountInput}
+                            onChange={(e) => setCustomDiscountInput(e.target.value)}
+                            className="w-10 h-6 bg-slate-50 border border-slate-200 rounded-lg text-center text-xs font-bold outline-none text-slate-700 placeholder:text-slate-400 shrink-0"
+                          />
+
+                          {/* Compact Add button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const val = parseFloat(customDiscountInput);
+                              if (!isNaN(val) && val > 0) handleApplyDiscount(val);
+                            }}
+                            className="h-6 px-2 bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-black rounded-lg transition-colors shrink-0"
+                          >
+                            Add
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 3. Currency / Region Dropdown Pill (Opens only when clicked) */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setActiveCalcDropdown(prev => prev === 'region' ? null : 'region')}
+                      className={`w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${activeCalcDropdown === 'region'
+                        ? 'bg-indigo-600 text-white border-indigo-600'
+                        : 'text-indigo-600 bg-indigo-50 border-indigo-200 hover:bg-indigo-100'
+                        }`}
+                    >
+                      <span>🌐</span>
+                      <span>{calcCurrency}</span>
+                    </button>
+                    {activeCalcDropdown === 'region' && (
+                      <div className="absolute bottom-full right-0 mb-1 w-44 bg-white border border-indigo-300 rounded-2xl shadow-2xl p-2 z-30 animate-in fade-in flex flex-col gap-1">
+                        <div className="flex items-center justify-between px-1">
+                          <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">SELECT REGION</span>
+                          <button
+                            type="button"
+                            onClick={() => setActiveCalcDropdown(null)}
+                            className="text-slate-400 hover:text-slate-700 text-xs font-bold"
+                          >
+                            ✕
+                          </button>
+                        </div>
+
+                        {(['INR', 'USD', 'EUR'] as const).map(cur => (
+                          <button
+                            key={cur}
+                            type="button"
+                            onClick={() => {
+                              setCalcCurrency(cur);
+                              setActiveCalcDropdown(null);
+                            }}
+                            className={`text-left px-2 py-1.5 text-xs font-extrabold rounded-xl transition-colors flex justify-between items-center ${calcCurrency === cur ? 'bg-indigo-600 text-white' : 'text-slate-700 hover:bg-indigo-50'
+                              }`}
+                          >
+                            <span>{cur}</span>
+                            <span className="text-[11px] opacity-80">{currencyRates[cur]?.symbol}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 4. Compare Toggle Pill */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveCalcDropdown(null);
+                      setShowCompareMode(prev => !prev);
+                    }}
+                    className={`flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${showCompareMode ? 'bg-indigo-600 text-white border-indigo-600' : 'text-blue-600 bg-blue-50 border-blue-200 hover:bg-blue-100'
+                      }`}
+                  >
+                    <span>⇅</span>
+                    <span>Compare</span>
+                  </button>
+                </div>
+
+                {/* Keypad Grid matching Image 1 layout */}
+                <div className="grid grid-cols-4 gap-1 p-2 bg-slate-50/70 border-t border-gray-100">
+                  {/* Row 1: Clear, Backspace, Divide, Multiply */}
+                  <button
+                    type="button"
+                    onClick={() => handleCalcClick('AC')}
+                    className="h-10 rounded-xl text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 transition-colors flex items-center justify-center"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                      <path d="M3 3v5h5"></path>
+                    </svg>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCalcClick('backspace')}
+                    className="h-10 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center"
+                  >
+                    ⌫
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCalcClick('÷')}
+                    className="h-10 rounded-xl text-sm font-black text-emerald-600 bg-emerald-50/80 hover:bg-emerald-100 transition-colors flex items-center justify-center"
+                  >
+                    /
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCalcClick('x')}
+                    className="h-10 rounded-xl text-sm font-black text-emerald-600 bg-emerald-50/80 hover:bg-emerald-100 transition-colors flex items-center justify-center"
+                  >
+                    x
+                  </button>
+
+                  {/* Row 2: 7 8 9 - */}
+                  <button type="button" onClick={() => handleCalcClick('7')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">7</button>
+                  <button type="button" onClick={() => handleCalcClick('8')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">8</button>
+                  <button type="button" onClick={() => handleCalcClick('9')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">9</button>
+                  <button type="button" onClick={() => handleCalcClick('-')} className="h-10 rounded-xl text-base font-black text-emerald-600 bg-emerald-50/80 hover:bg-emerald-100 transition-colors">−</button>
+
+                  {/* Row 3: 4 5 6 + */}
+                  <button type="button" onClick={() => handleCalcClick('4')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">4</button>
+                  <button type="button" onClick={() => handleCalcClick('5')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">5</button>
+                  <button type="button" onClick={() => handleCalcClick('6')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">6</button>
+                  <button type="button" onClick={() => handleCalcClick('+')} className="h-10 rounded-xl text-base font-black text-emerald-600 bg-emerald-50/80 hover:bg-emerald-100 transition-colors">+</button>
+
+                  {/* Row 4: 1 2 3 = */}
+                  <button type="button" onClick={() => handleCalcClick('1')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">1</button>
+                  <button type="button" onClick={() => handleCalcClick('2')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">2</button>
+                  <button type="button" onClick={() => handleCalcClick('3')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">3</button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCalcClick('=')}
+                    className="row-span-2 rounded-xl text-xl font-black text-white bg-emerald-500 hover:bg-emerald-600 shadow-md shadow-emerald-500/30 transition-all flex items-center justify-center cursor-pointer"
+                  >
+                    =
+                  </button>
+
+                  {/* Row 5: SCI 0 . */}
+                  <button type="button" className="h-10 rounded-xl text-[11px] font-bold text-slate-500 bg-white shadow-xs hover:bg-slate-100 transition-colors">SCI</button>
+                  <button type="button" onClick={() => handleCalcClick('0')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">0</button>
+                  <button type="button" onClick={() => handleCalcClick('.')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">.</button>
+                </div>
+
+                {/* Bottom Currency Comparison & Conversion Footer matching Image 1 & 3 */}
+                <div className="bg-slate-900 text-white p-3 flex items-center justify-between">
+                  <div>
+                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                      TOTAL (SIMULATED {calcCurrency})
+                    </div>
+                    <div className="text-lg font-black text-emerald-400 tracking-tight">
+                      {currencyRates[calcCurrency]?.symbol}
+                      {(getRunningTotal() * (currencyRates[calcCurrency]?.rate || 1)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                      Base Value (INR)
+                    </div>
+                    <div className="text-xs font-bold text-slate-200">
+                      ₹{getRunningTotal().toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* History Drawer Modal */}
+                {showHistoryModal && (
+                  <div className="absolute inset-0 z-40 bg-black/40 backdrop-blur-xs flex flex-col justify-end">
+                    <div className="bg-white dark:bg-gray-900 rounded-t-2xl p-4 max-h-[75%] overflow-y-auto shadow-2xl flex flex-col">
+                      <div className="flex items-center justify-between pb-2 border-b border-gray-100 mb-2">
+                        <span className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-1.5">
+                          🕒 Calculator History
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setCalcHistory([])}
+                            className="text-[10px] font-bold text-red-500 hover:underline uppercase"
+                          >
+                            Clear
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setShowHistoryModal(false)}
+                            className="p-1 text-slate-400 hover:text-slate-700"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+
+                      {calcHistory.length === 0 ? (
+                        <div className="py-8 text-center text-xs text-slate-400 font-medium">
+                          No saved calculation history yet. Calculations will appear here as you calculate.
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {calcHistory.map(h => (
+                            <div key={h.id} className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs flex flex-col gap-1">
+                              <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold">
+                                <span>{h.timestamp}</span>
+                                <span className="font-extrabold text-emerald-600 text-xs">
+                                  {currencyRates[h.currency]?.symbol || '₹'}{h.total.toFixed(2)}
+                                </span>
+                              </div>
+                              <div className="text-slate-700 font-medium text-[11.5px]">
+                                {h.summary || (h.tape && h.tape.map(t => `${t.label}: ${t.runningTotal}`).join(' → '))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -783,12 +1978,12 @@ export default function UserSideBitTool({
 
       {/* DRAWER 4: CONTACTS */}
       {activeModal === 'contacts' && (
-        <div className="user-side-dock-panel" style={{ width: '400px', display: 'flex', flexDirection: 'column' }}>
+        <div className="user-side-dock-panel" style={{ width: '400px', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
           {/* Top Header: CONTACTS with Close button (Matching Image 2) */}
-          <div className="bnx-cal-header" style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
-            <h3 className="bnx-cal-title" style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '0.3px', margin: 0, color: '#0f172a' }}>CONTACTS</h3>
-            <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          <div className="px-4 h-14 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-black/[0.01] dark:bg-white/[0.01] shrink-0">
+            <span className="font-bold text-sm tracking-wide text-slate-800 dark:text-slate-100">CONTACTS</span>
+            <button className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-full text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors" onClick={closeModal} title="Close">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
@@ -796,14 +1991,14 @@ export default function UserSideBitTool({
           </div>
 
           {/* Sub Header & Search Section (Matching Image 1) */}
-          <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', flex: 1, gap: '16px' }}>
+          <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', flex: 1, gap: '16px', overflowY: 'auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
-                <h4 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Global Contacts</h4>
+                <h4 style={{ fontSize: '0.85rem', fontWeight: 750, color: '#0f172a', margin: 0 }}>Global Contacts</h4>
               </div>
               <button
                 type="button"
@@ -817,13 +2012,20 @@ export default function UserSideBitTool({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '18px',
+                  fontSize: '20px',
                   cursor: 'pointer',
                   fontWeight: 600,
                   transition: 'all 0.15s ease'
                 }}
                 title="Add Contact"
-                onClick={() => { }}
+                onClick={() => {
+                  setEditingContactId(null);
+                  setContactFullName('');
+                  setContactEmail('');
+                  setContactPhone('');
+                  setContactRole('');
+                  setShowAddContact(true);
+                }}
               >
                 +
               </button>
@@ -836,6 +2038,8 @@ export default function UserSideBitTool({
               </span>
               <input
                 type="text"
+                value={contactSearch}
+                onChange={(e) => setContactSearch(e.target.value)}
                 placeholder="Search global contacts..."
                 style={{
                   width: '100%',
@@ -852,167 +2056,747 @@ export default function UserSideBitTool({
               />
             </div>
 
-            {/* Empty State Body (Matching Image 1) */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '180px', gap: '12px' }}>
-              <div style={{ width: '48px', height: '48px', color: '#94a3b8' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: '100%', height: '100%' }}>
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
+            {/* Empty State or List */}
+            {contactsList.filter(c => c.fullName.toLowerCase().includes(contactSearch.toLowerCase()) || c.email.toLowerCase().includes(contactSearch.toLowerCase())).length === 0 ? (
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '180px', gap: '12px' }}>
+                <div style={{ width: '48px', height: '48px', color: '#94a3b8' }}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: '100%', height: '100%' }}>
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </div>
+                <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>No contacts found</span>
               </div>
-              <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>No contacts found</span>
-            </div>
-          </div>
-        </div>
-      )}
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {contactsList
+                  .filter(c => c.fullName.toLowerCase().includes(contactSearch.toLowerCase()) || c.email.toLowerCase().includes(contactSearch.toLowerCase()))
+                  .map(c => (
+                    <div
+                      key={c.id}
+                      style={{
+                        background: '#ffffff',
+                        border: '1.5px solid #edf2f7',
+                        borderRadius: '20px',
+                        padding: '16px 18px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                        position: 'relative',
+                        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
+                      }}
+                    >
+                      {/* Top Row: Name on Left, Badge & Edit Pencil on Right */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a' }}>
+                          {c.fullName}
+                        </span>
 
-      {/* DRAWER 5: NOTES */}
-      {activeModal === 'notes' && (
-        <div className="user-side-dock-panel">
-          <div className="bnx-cal-header">
-            <h3 className="bnx-cal-title">NOTES</h3>
-            <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span
+                            style={{
+                              background: '#eff6ff',
+                              color: '#2563eb',
+                              fontSize: '11px',
+                              fontWeight: 800,
+                              padding: '4px 10px',
+                              borderRadius: '14px',
+                              letterSpacing: '0.4px',
+                              textTransform: 'uppercase'
+                            }}
+                          >
+                            {c.role || 'BNX MAIL'}
+                          </span>
+
+                          <button
+                            type="button"
+                            title="Edit Contact"
+                            onClick={() => {
+                              setEditingContactId(c.id);
+                              setContactFullName(c.fullName);
+                              setContactEmail(c.email);
+                              setContactPhone(c.phone || '');
+                              setContactRole(c.role || '');
+                              setShowAddContact(true);
+                            }}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#94a3b8',
+                              cursor: 'pointer',
+                              padding: '2px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'color 0.15s ease'
+                            }}
+                            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = '#2563eb')}
+                            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = '#94a3b8')}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Detail 1: Email Row */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#64748b', fontSize: '13.5px', marginTop: '2px' }}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                          <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                        </svg>
+                        <span style={{ color: '#475569', fontWeight: 500 }}>{c.email}</span>
+                      </div>
+
+                      {/* Detail 2: Phone Row */}
+                      {c.phone && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#64748b', fontSize: '13.5px' }}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                          </svg>
+                          <span style={{ color: '#475569', fontWeight: 500 }}>{c.phone}</span>
+                        </div>
+                      )}
+
+                      {/* Detail 3: Role / Work Bag Row */}
+                      {c.role && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#64748b', fontSize: '13.5px' }}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                          </svg>
+                          <span style={{ color: '#475569', fontWeight: 500 }}>{c.role}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
-          <div className="user-dock-inner">
-            <div className="user-note-input-row">
-              <input
-                type="text"
-                className="user-note-input"
-                placeholder="Write a new note or memo..."
-                value={noteInput}
-                onChange={(e) => setNoteInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleAddNote(); }}
-              />
-              <button className="user-note-add-btn" onClick={handleAddNote}>Add</button>
-            </div>
-            <div className="user-notes-list">
-              {notesList.map((n, i) => (
-                <div key={i} className="user-note-card">
-                  <span style={{ fontSize: '13px', color: '#1e293b' }}>{n}</span>
+
+          {/* BOTTOM SHEET: Add / Edit Contact (Image 2) */}
+          {showAddContact && (
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'rgba(15, 23, 42, 0.45)',
+              backdropFilter: 'blur(3px)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+              zIndex: 50,
+              borderRadius: '20px',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                background: '#ffffff',
+                borderTopLeftRadius: '24px',
+                borderTopRightRadius: '24px',
+                padding: '22px 24px 26px',
+                boxShadow: '0 -10px 30px rgba(0,0,0,0.12)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px'
+              }}>
+                {/* Header: + Add Contact or Edit Contact + Close */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#2563eb' }}>
+                      {editingContactId ? '✎' : '+'}
+                    </span>
+                    <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>
+                      {editingContactId ? 'Edit Contact' : 'Add Contact'}
+                    </h4>
+                  </div>
                   <button
-                    className="user-note-delete-btn"
-                    onClick={() => setNotesList(prev => prev.filter((_, idx) => idx !== i))}
-                    title="Delete"
+                    type="button"
+                    onClick={() => {
+                      setShowAddContact(false);
+                      setEditingContactId(null);
+                    }}
+                    style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   >
-                    <i className="fa-regular fa-trash-can"></i>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
                   </button>
                 </div>
-              ))}
+
+                {/* Full Name */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>Full Name</label>
+                  <input
+                    type="text"
+                    value={contactFullName}
+                    onChange={(e) => setContactFullName(e.target.value)}
+                    placeholder="Jane Smith"
+                    style={{
+                      height: '44px',
+                      background: '#f8fafc',
+                      border: '1.5px solid #e2e8f0',
+                      borderRadius: '12px',
+                      padding: '0 14px',
+                      fontSize: '14px',
+                      color: '#0f172a',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+
+                {/* Email Address */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>Email Address</label>
+                  <input
+                    type="email"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    placeholder="jane@example.com"
+                    style={{
+                      height: '44px',
+                      background: '#f8fafc',
+                      border: '1.5px solid #e2e8f0',
+                      borderRadius: '12px',
+                      padding: '0 14px',
+                      fontSize: '14px',
+                      color: '#0f172a',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+
+                {/* Phone & Role */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>Phone</label>
+                    <input
+                      type="text"
+                      value={contactPhone}
+                      onChange={(e) => setContactPhone(e.target.value)}
+                      placeholder="+91 234 567 890"
+                      style={{
+                        height: '44px',
+                        background: '#f8fafc',
+                        border: '1.5px solid #e2e8f0',
+                        borderRadius: '12px',
+                        padding: '0 2px',
+                        fontSize: '14px',
+                        color: '#0f172a',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>Role</label>
+                    <input
+                      type="text"
+                      value={contactRole}
+                      onChange={(e) => setContactRole(e.target.value)}
+                      placeholder="e.g. Supplier"
+                      style={{
+                        height: '44px',
+                        background: '#f8fafc',
+                        border: '1.5px solid #e2e8f0',
+                        borderRadius: '12px',
+                        padding: '0 2px',
+                        fontSize: '14px',
+                        color: '#0f172a',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Save Contact Button (Exact Solid Royal Blue matching Image 2) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (contactFullName.trim() && contactEmail.trim()) {
+                      if (editingContactId) {
+                        setContactsList(prev => prev.map(item => {
+                          if (item.id === editingContactId) {
+                            return {
+                              ...item,
+                              fullName: contactFullName.trim(),
+                              email: contactEmail.trim(),
+                              phone: contactPhone.trim(),
+                              role: contactRole.trim()
+                            };
+                          }
+                          return item;
+                        }));
+                      } else {
+                        setContactsList(prev => [...prev, {
+                          id: `cnt-${Date.now()}`,
+                          fullName: contactFullName.trim(),
+                          email: contactEmail.trim(),
+                          phone: contactPhone.trim(),
+                          role: contactRole.trim()
+                        }]);
+                      }
+                      setContactFullName('');
+                      setContactEmail('');
+                      setContactPhone('');
+                      setContactRole('');
+                      setEditingContactId(null);
+                      setShowAddContact(false);
+                    }
+                  }}
+                  style={{
+                    height: '48px',
+                    background: '#1d63ed',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '14px',
+                    fontSize: '15px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(29, 99, 237, 0.35)',
+                    marginTop: '8px'
+                  }}
+                >
+                  {editingContactId ? 'Save Changes' : 'Save Contact'}
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 
-      {/* DRAWER 6: VIRTUAL KEYBOARD (Full & Interactive) */}
-      {activeModal === 'keyboard' && (
-        <div className="user-side-dock-panel bnx-vk-panel" style={{ width: '740px', maxWidth: 'calc(100vw - 80px)', height: 'auto', maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
-          <div className="bnx-cal-header" style={{ padding: '16px 22px', borderBottom: '1px solid #f1f5f9' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb' }}>
-                <i className="fa-solid fa-keyboard" style={{ fontSize: '17px' }}></i>
-              </div>
-              <div>
-                <h3 className="bnx-cal-title" style={{ fontSize: '17px', margin: 0, fontWeight: 700, color: '#0f172a' }}>Virtual Keyboard</h3>
-                <span style={{ fontSize: '11px', color: '#64748b' }}>Types directly into search bar</span>
-              </div>
-            </div>
-            <button className="bnx-cal-close-btn" onClick={closeModal} title="Close">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      {/* DRAWER 5: GLOBAL NOTES (Matching Image 3 & 4) */}
+      {activeModal === 'notes' && (
+        <div className="user-side-dock-panel" style={{ width: '480px', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+          {/* Header */}
+          <div className="px-4 h-14 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-black/[0.01] dark:bg-white/[0.01] shrink-0">
+            <span className="font-bold text-sm tracking-wide text-slate-800 dark:text-slate-100">NOTES</span>
+            <button className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-full text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors" onClick={closeModal} title="Close">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </button>
           </div>
 
-          <div style={{ padding: '22px', display: 'flex', flexDirection: 'column', gap: '10px', background: '#f8fafc' }}>
+          <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', flex: 1, gap: '16px', overflowY: 'auto' }}>
+            {/* Global Notes Title & Rounded Blue New Note Button (Matching user image) */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h4 className="font-bold text-sm tracking-wide text-slate-800 dark:text-slate-100" style={{ margin: 0 }}>My Notes</h4>
+              </div>
+              <button
+                type="button"
+                style={{
+
+                  height: '38px',
+                  padding: '0 16px',
+                  borderRadius: '10px',
+                  background: '#2563eb',
+                  color: '#ffffff',
+                  border: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                  boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
+                  transition: 'all 0.15s ease'
+                }}
+                title="New Note"
+                onClick={() => {
+                  setEditingNoteId(null);
+                  setNoteTitle('');
+                  setNoteContent('');
+                  setIsNotePinned(false);
+                  setNoteColor('#bfdbfe');
+                  setShowAddNote(true);
+                }}
+              >
+                <span>+</span> New Note
+              </button>
+            </div>
+
+            {/* <div style={{ fontSize: '1.1rem', fontWeight: 750, color: '#64748b', letterSpacing: '0.6px', textTransform: 'uppercase' }}>
+              ALL NOTES
+            </div> */}
+
+            {/* Notes List or Empty State */}
+            {notesList.length === 0 ? (
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '180px', gap: '12px' }}>
+                <div style={{ width: '52px', height: '52px', color: '#94a3b8' }}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: '100%', height: '100%' }}>
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                </div>
+                <span style={{ fontSize: '1.1rem', color: '#64748b', fontWeight: 500 }}>No notes found</span>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {notesList.map((n) => (
+                  <div
+                    key={n.id}
+                    style={{
+                      background: n.color || '#bfdbfe',
+                      borderRadius: '16px',
+                      padding: '16px 18px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                      position: 'relative',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                      border: '1px solid rgba(0,0,0,0.06)'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', wordBreak: 'break-word' }}>
+                        {n.title || 'Untitled Note'}
+                      </span>
+                      {n.isPinned && (
+                        <i className="fa-solid fa-thumbtack" style={{ fontSize: '14px', color: '#64748b' }}></i>
+                      )}
+                    </div>
+                    {n.content && (
+                      <p style={{ margin: '4px 0 8px', fontSize: '13.5px', color: '#1e293b', wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>
+                        {n.content}
+                      </p>
+                    )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px solid rgba(0, 0, 0, 0.06)' }}>
+                      <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: '#ffffff', color: '#0f172a' }}>
+                        BNX MAIL
+                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingNoteId(n.id);
+                            setNoteTitle(n.title);
+                            setNoteContent(n.content);
+                            setIsNotePinned(n.isPinned);
+                            setNoteColor(n.color || '#bfdbfe');
+                            setShowAddNote(true);
+                          }}
+                          style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', padding: '3px', fontSize: '13px' }}
+                          title="Edit Note"
+                        >
+                          <i className="fa-regular fa-pen-to-square"></i>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setNotesList(prev => prev.filter(item => item.id !== n.id))}
+                          style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '3px', fontSize: '13px' }}
+                          title="Delete Note"
+                        >
+                          <i className="fa-regular fa-trash-can"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* BOTTOM SHEET / MODAL: Edit Note / Add Note (Matching user images 1 & 2) */}
+          {showAddNote && (
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'rgba(15, 23, 42, 0.45)',
+              backdropFilter: 'blur(3px)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 50,
+              padding: '16px',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                background: noteColor || '#bfdbfe',
+                borderRadius: '24px',
+                padding: '24px',
+                width: '100%',
+                maxWidth: '420px',
+                boxShadow: '0 12px 36px rgba(0,0,0,0.2)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px',
+                position: 'relative'
+              }}>
+                {/* Header: Edit Note / Add Note with Close Icon */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>
+                    {editingNoteId ? 'Edit Note' : 'Add Note'}
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddNote(false);
+                      setEditingNoteId(null);
+                      setNoteTitle('');
+                      setNoteContent('');
+                    }}
+                    style={{ background: 'none', border: 'none', color: '#334155', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}
+                    title="Close"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Title Input */}
+                <input
+                  type="text"
+                  value={noteTitle}
+                  onChange={(e) => setNoteTitle(e.target.value)}
+                  placeholder="Title"
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    fontSize: '18px',
+                    fontWeight: 700,
+                    color: '#1e293b',
+                    outline: 'none',
+                    padding: '2px 0'
+                  }}
+                />
+
+                {/* Content Textarea */}
+                <textarea
+                  rows={5}
+                  value={noteContent}
+                  onChange={(e) => setNoteContent(e.target.value)}
+                  placeholder="Take a note..."
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    fontSize: '15px',
+                    color: '#334155',
+                    outline: 'none',
+                    resize: 'none',
+                    lineHeight: '1.5'
+                  }}
+                />
+
+                {/* Color Palette Bubbles + Pinned indicator */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+                    {[
+                      '#ffffff', // White
+                      '#fed7aa', // Peach
+                      '#fef08a', // Pastel Yellow
+                      '#d9f99d', // Pastel Lime
+                      '#ccfbf1', // Mint Teal
+                      '#bae6fd', // Sky Blue
+                      '#e2e8f0', // Slate Grey
+                      '#fecdd3', // Soft Pink
+                      '#fef9c3', // Pale Yellow
+                      '#bfdbfe', // Periwinkle Blue
+                    ].map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setNoteColor(c)}
+                        style={{
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '50%',
+                          background: c,
+                          border: noteColor === c ? '2.5px solid #2563eb' : '1px solid rgba(0,0,0,0.15)',
+                          cursor: 'pointer',
+                          padding: 0,
+                          transform: noteColor === c ? 'scale(1.15)' : 'scale(1)',
+                          transition: 'all 0.15s ease'
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsNotePinned(prev => !prev)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: isNotePinned ? '#2563eb' : '#64748b',
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                    title="Toggle pin"
+                  >
+                    <i className="fa-solid fa-thumbtack"></i>
+                    <span>{isNotePinned ? 'Pinned' : 'Pin'}</span>
+                  </button>
+                </div>
+
+                {/* Save Changes / Save Note Button (Matching user image 2) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (noteTitle.trim() || noteContent.trim()) {
+                      if (editingNoteId) {
+                        // Update existing note
+                        setNotesList(prev => prev.map(item => item.id === editingNoteId ? {
+                          ...item,
+                          title: noteTitle.trim(),
+                          content: noteContent.trim(),
+                          color: noteColor,
+                          isPinned: isNotePinned,
+                          date: 'Edited just now'
+                        } : item));
+                      } else {
+                        // Create new note
+                        setNotesList(prev => [{
+                          id: `note-${Date.now()}`,
+                          title: noteTitle.trim(),
+                          content: noteContent.trim(),
+                          color: noteColor,
+                          isPinned: isNotePinned,
+                          date: 'Just now'
+                        }, ...prev]);
+                      }
+                      setNoteTitle('');
+                      setNoteContent('');
+                      setEditingNoteId(null);
+                    }
+                    setShowAddNote(false);
+                  }}
+                  style={{
+                    height: '46px',
+                    background: '#2563eb',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '15px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(37, 99, 235, 0.3)',
+                    marginTop: '8px',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {editingNoteId ? 'Save Changes' : 'Save Note'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* DRAWER 6: VIRTUAL KEYBOARD (Full & Interactive - Compact Height: 215px, Top: 400px) */}
+      {activeModal === 'keyboard' && (
+        <div className="user-side-dock-panel bnx-vk-panel" style={{ top: '400px', width: '680px', maxWidth: 'calc(100vw - 80px)', height: '215px', maxHeight: '220px', overflow: 'hidden' }}>
+          <div className="bnx-cal-header" style={{ padding: '6px 14px', borderBottom: '1px solid #f1f5f9' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '22px', height: '22px', borderRadius: '6px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb' }}>
+                <i className="fa-solid fa-keyboard" style={{ fontSize: '12px' }}></i>
+              </div>
+              <div>
+                <h3 className="bnx-cal-title" style={{ fontSize: '13px', margin: 0, fontWeight: 700, color: '#0f172a', lineHeight: 1.1 }}>Virtual Keyboard</h3>
+                <span style={{ fontSize: '9.5px', color: '#64748b' }}>Types directly into search bar</span>
+              </div>
+            </div>
+            <button className="bnx-cal-close-btn" onClick={closeModal} title="Close" style={{ padding: '2px' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <div style={{ padding: '6px 12px', display: 'flex', flexDirection: 'column', gap: '4px', background: '#f8fafc', flex: 1, justifyContent: 'center' }}>
             {/* Row 1 */}
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
-              <button type="button" className="vk-btn vk-btn-sm" style={{ minWidth: '50px' }} onClick={() => handleVirtualKeyPress('Esc')}>Esc</button>
+            <div style={{ display: 'flex', gap: '4px', justifyContent: 'space-between' }}>
+              <button type="button" className="vk-btn vk-btn-sm" style={{ minWidth: '38px', height: '25px', fontSize: '10.5px' }} onClick={() => handleVirtualKeyPress('Esc')}>Esc</button>
               {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='].map((k, i) => (
                 <button
                   key={k}
                   type="button"
                   className="vk-btn vk-btn-sm"
-                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4px 0' }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0', height: '25px' }}
                   onClick={() => handleVirtualKeyPress(k)}
                 >
-                  <span style={{ fontSize: '10px', color: '#94a3b8', lineHeight: 1 }}>{['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+'][i]}</span>
-                  <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#1e293b' }}>{k}</span>
+                  <span style={{ fontSize: '7.5px', color: '#94a3b8', lineHeight: 1 }}>{['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+'][i]}</span>
+                  <span style={{ fontSize: '10.5px', fontWeight: 700, color: '#1e293b', lineHeight: 1 }}>{k}</span>
                 </button>
               ))}
-              <button type="button" className="vk-btn vk-btn-sm" style={{ minWidth: '80px', fontWeight: 600 }} onClick={() => handleVirtualKeyPress('Backspace')}>Backspace</button>
+              <button type="button" className="vk-btn vk-btn-sm" style={{ minWidth: '66px', fontWeight: 600, height: '25px', fontSize: '10.5px' }} onClick={() => handleVirtualKeyPress('Backspace')}>Backspace</button>
             </div>
 
             {/* Row 2 */}
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
-              <button type="button" className="vk-btn" style={{ minWidth: '60px' }} onClick={() => handleVirtualKeyPress('Tab')}>Tab</button>
+            <div style={{ display: 'flex', gap: '4px', justifyContent: 'space-between' }}>
+              <button type="button" className="vk-btn" style={{ minWidth: '46px', height: '25px', fontSize: '10.5px' }} onClick={() => handleVirtualKeyPress('Tab')}>Tab</button>
               {['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'].map((k) => (
-                <button key={k} type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, fontSize: '14px' }} onClick={() => handleVirtualKeyPress(k)}>{k}</button>
+                <button key={k} type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, fontSize: '11px', height: '25px' }} onClick={() => handleVirtualKeyPress(k)}>{k}</button>
               ))}
-              <button type="button" className="vk-btn" style={{ width: '42px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }} onClick={() => handleVirtualKeyPress('[')}>
-                <span style={{ fontSize: '10px', color: '#94a3b8' }}>{'{'}</span>
-                <span style={{ fontSize: '12px', fontWeight: 600 }}>[</span>
+              <button type="button" className="vk-btn" style={{ width: '32px', height: '25px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0' }} onClick={() => handleVirtualKeyPress('[')}>
+                <span style={{ fontSize: '7.5px', color: '#94a3b8', lineHeight: 1 }}>{'{'}</span>
+                <span style={{ fontSize: '10.5px', fontWeight: 600, lineHeight: 1 }}>[</span>
               </button>
-              <button type="button" className="vk-btn" style={{ width: '42px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }} onClick={() => handleVirtualKeyPress(']')}>
-                <span style={{ fontSize: '10px', color: '#94a3b8' }}>{'}'}</span>
-                <span style={{ fontSize: '12px', fontWeight: 600 }}>]</span>
+              <button type="button" className="vk-btn" style={{ width: '32px', height: '25px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0' }} onClick={() => handleVirtualKeyPress(']')}>
+                <span style={{ fontSize: '7.5px', color: '#94a3b8', lineHeight: 1 }}>{'}'}</span>
+                <span style={{ fontSize: '10.5px', fontWeight: 600, lineHeight: 1 }}>]</span>
               </button>
             </div>
 
             {/* Row 3 */}
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
-              <button type="button" className="vk-btn" style={{ minWidth: '78px' }} onClick={() => { }}>Caps Lock</button>
+            <div style={{ display: 'flex', gap: '4px', justifyContent: 'space-between' }}>
+              <button type="button" className="vk-btn" style={{ minWidth: '62px', height: '25px', fontSize: '10.5px' }} onClick={() => { }}>Caps</button>
               {['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'].map((k) => (
-                <button key={k} type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, fontSize: '14px' }} onClick={() => handleVirtualKeyPress(k)}>{k}</button>
+                <button key={k} type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, fontSize: '11px', height: '25px' }} onClick={() => handleVirtualKeyPress(k)}>{k}</button>
               ))}
-              <button type="button" className="vk-btn" style={{ width: '42px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }} onClick={() => handleVirtualKeyPress(';')}>
-                <span style={{ fontSize: '10px', color: '#94a3b8' }}>:</span>
-                <span style={{ fontSize: '12px', fontWeight: 600 }}>;</span>
+              <button type="button" className="vk-btn" style={{ width: '32px', height: '25px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0' }} onClick={() => handleVirtualKeyPress(';')}>
+                <span style={{ fontSize: '7.5px', color: '#94a3b8', lineHeight: 1 }}>:</span>
+                <span style={{ fontSize: '10.5px', fontWeight: 600, lineHeight: 1 }}>;</span>
               </button>
-              <button type="button" className="vk-btn" style={{ width: '42px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }} onClick={() => handleVirtualKeyPress("'")}>
-                <span style={{ fontSize: '10px', color: '#94a3b8' }}>"</span>
-                <span style={{ fontSize: '12px', fontWeight: 600 }}>'</span>
+              <button type="button" className="vk-btn" style={{ width: '32px', height: '25px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0' }} onClick={() => handleVirtualKeyPress("'")}>
+                <span style={{ fontSize: '7.5px', color: '#94a3b8', lineHeight: 1 }}>"</span>
+                <span style={{ fontSize: '10.5px', fontWeight: 600, lineHeight: 1 }}>'</span>
               </button>
-              <button type="button" className="vk-btn" style={{ minWidth: '86px', background: '#2563eb', color: '#ffffff', fontWeight: 700, border: 'none' }} onClick={() => handleVirtualKeyPress('Enter')}>Enter</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '68px', height: '25px', background: '#2563eb', color: '#ffffff', fontWeight: 700, border: 'none', fontSize: '10.5px' }} onClick={() => handleVirtualKeyPress('Enter')}>Enter</button>
             </div>
 
             {/* Row 4 */}
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
-              <button type="button" className="vk-btn" style={{ minWidth: '92px', background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', fontWeight: 600 }}>↑ Shift</button>
+            <div style={{ display: 'flex', gap: '4px', justifyContent: 'space-between' }}>
+              <button type="button" className="vk-btn" style={{ minWidth: '70px', height: '25px', background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', fontWeight: 600, fontSize: '10.5px' }}>↑ Shift</button>
               {['Z', 'X', 'C', 'V', 'B', 'N', 'M'].map((k) => (
-                <button key={k} type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, fontSize: '14px' }} onClick={() => handleVirtualKeyPress(k)}>{k}</button>
+                <button key={k} type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, fontSize: '11px', height: '25px' }} onClick={() => handleVirtualKeyPress(k)}>{k}</button>
               ))}
-              <button type="button" className="vk-btn" style={{ width: '42px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }} onClick={() => handleVirtualKeyPress(',')}>
-                <span style={{ fontSize: '10px', color: '#94a3b8' }}>&lt;</span>
-                <span style={{ fontSize: '12px', fontWeight: 600 }}>,</span>
+              <button type="button" className="vk-btn" style={{ width: '32px', height: '25px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0' }} onClick={() => handleVirtualKeyPress(',')}>
+                <span style={{ fontSize: '7.5px', color: '#94a3b8', lineHeight: 1 }}>&lt;</span>
+                <span style={{ fontSize: '10.5px', fontWeight: 600, lineHeight: 1 }}>,</span>
               </button>
-              <button type="button" className="vk-btn" style={{ width: '42px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }} onClick={() => handleVirtualKeyPress('.')}>
-                <span style={{ fontSize: '10px', color: '#94a3b8' }}>&gt;</span>
-                <span style={{ fontSize: '12px', fontWeight: 600 }}>.</span>
+              <button type="button" className="vk-btn" style={{ width: '32px', height: '25px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0' }} onClick={() => handleVirtualKeyPress('.')}>
+                <span style={{ fontSize: '7.5px', color: '#94a3b8', lineHeight: 1 }}>&gt;</span>
+                <span style={{ fontSize: '10.5px', fontWeight: 600, lineHeight: 1 }}>.</span>
               </button>
-              <button type="button" className="vk-btn" style={{ width: '42px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 0' }} onClick={() => handleVirtualKeyPress('/')}>
-                <span style={{ fontSize: '10px', color: '#94a3b8' }}>?</span>
-                <span style={{ fontSize: '12px', fontWeight: 600 }}>/</span>
+              <button type="button" className="vk-btn" style={{ width: '32px', height: '25px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0' }} onClick={() => handleVirtualKeyPress('/')}>
+                <span style={{ fontSize: '7.5px', color: '#94a3b8', lineHeight: 1 }}>?</span>
+                <span style={{ fontSize: '10.5px', fontWeight: 600, lineHeight: 1 }}>/</span>
               </button>
-              <button type="button" className="vk-btn" style={{ minWidth: '92px', background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', fontWeight: 600 }}>↑ Shift</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '70px', height: '25px', background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', fontWeight: 600, fontSize: '10.5px' }}>↑ Shift</button>
             </div>
 
             {/* Row 5 */}
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <button type="button" className="vk-btn" style={{ minWidth: '55px' }}>Ctrl</button>
-              <button type="button" className="vk-btn" style={{ minWidth: '55px' }}>Alt</button>
-              <button type="button" className="vk-btn" style={{ flex: 1, fontWeight: 700, letterSpacing: '1px' }} onClick={() => handleVirtualKeyPress('Space')}>Space</button>
-              <button type="button" className="vk-btn" style={{ minWidth: '55px' }}>Alt</button>
-              <button type="button" className="vk-btn" style={{ minWidth: '55px' }}>Ctrl</button>
-              <button type="button" className="vk-btn" style={{ width: '44px' }}><i className="fa-solid fa-caret-left"></i></button>
-              <button type="button" className="vk-btn" style={{ width: '44px' }}><i className="fa-solid fa-caret-down"></i></button>
-              <button type="button" className="vk-btn" style={{ width: '44px' }}><i className="fa-solid fa-caret-up"></i></button>
-              <button type="button" className="vk-btn" style={{ width: '44px' }}><i className="fa-solid fa-caret-right"></i></button>
+            <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+              <button type="button" className="vk-btn" style={{ minWidth: '40px', height: '25px', fontSize: '10.5px' }} onClick={(e) => { e.preventDefault(); }}>Ctrl</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '40px', height: '25px', fontSize: '10.5px' }} onClick={(e) => { e.preventDefault(); }}>Alt</button>
+              <button type="button" className="vk-btn" style={{ flex: 1, height: '25px', fontWeight: 700, letterSpacing: '1px', fontSize: '10.5px' }} onClick={() => handleVirtualKeyPress('Space')}>Space</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '40px', height: '25px', fontSize: '10.5px' }} onClick={(e) => { e.preventDefault(); }}>Alt</button>
+              <button type="button" className="vk-btn" style={{ minWidth: '40px', height: '25px', fontSize: '10.5px' }} onClick={(e) => { e.preventDefault(); }}>Ctrl</button>
+              <button type="button" className="vk-btn" style={{ width: '30px', height: '25px', fontSize: '9px' }}><i className="fa-solid fa-caret-left"></i></button>
+              <button type="button" className="vk-btn" style={{ width: '30px', height: '25px', fontSize: '9px' }}><i className="fa-solid fa-caret-down"></i></button>
+              <button type="button" className="vk-btn" style={{ width: '30px', height: '25px', fontSize: '9px' }}><i className="fa-solid fa-caret-up"></i></button>
+              <button type="button" className="vk-btn" style={{ width: '30px', height: '25px', fontSize: '9px' }}><i className="fa-solid fa-caret-right"></i></button>
             </div>
           </div>
         </div>

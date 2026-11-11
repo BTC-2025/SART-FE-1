@@ -804,6 +804,7 @@ export default function CaptainDutyRightView({
                   mode={partnerDetails?.serviceType || 'bike'}
                   pickupCoords={mapPickupCoords || { lat: captainCoords.lat, lng: captainCoords.lng }}
                   dropCoords={mapDropCoords}
+                  stops={activeAcceptedOrder?.stops || []}
                   pickupAddress={pickupLabel}
                   dropAddress={dropLabel}
                   selectionMode="idle"
@@ -1076,6 +1077,40 @@ export default function CaptainDutyRightView({
                   {/* Route Connector Line */}
                   <div className="c-route-vertical-line"></div>
 
+                  {/* Intermediate Stops Added by User */}
+                  {activeOrder.stops && activeOrder.stops.length > 0 && activeOrder.stops.map((st, sIdx) => (
+                    <React.Fragment key={st.id || `cap-stop-${sIdx}`}>
+                      <div className="c-route-stop stop" style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', margin: '6px 0' }}>
+                        <div style={{
+                          width: '18px',
+                          height: '18px',
+                          borderRadius: '50%',
+                          background: '#ea580c',
+                          color: '#ffffff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '10px',
+                          fontWeight: 900,
+                          flexShrink: 0,
+                          marginTop: '2px',
+                          boxShadow: '0 0 0 3px rgba(234, 88, 12, 0.25)'
+                        }}>
+                          {sIdx + 1}
+                        </div>
+                        <div className="c-stop-body">
+                          <div className="c-stop-dist" style={{ color: '#ea580c', fontSize: '11px', fontWeight: 800 }}>
+                            STOP #{sIdx + 1} {st.purpose ? `• ${st.purpose}` : ''}
+                          </div>
+                          <div className="c-stop-title" style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+                            {st.name}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="c-route-vertical-line" style={{ borderLeft: '2px dashed #ea580c' }}></div>
+                    </React.Fragment>
+                  ))}
+
                   {/* Step 2: Trip Drop Distance */}
                   <div className="c-route-stop drop">
                     <div className="c-stop-bullet bullet-drop"></div>
@@ -1345,6 +1380,11 @@ export default function CaptainDutyRightView({
                 <div style={{ fontSize: '11.5px', color: '#475569', marginBottom: '4px' }}>
                   📍 <strong>Pickup:</strong> {displayOrder.pickupLoc}
                 </div>
+                {displayOrder.stops && displayOrder.stops.length > 0 && displayOrder.stops.map((st, sIdx) => (
+                  <div key={st.id || `otp-stop-${sIdx}`} style={{ fontSize: '11.5px', color: '#ea580c', marginBottom: '4px', fontWeight: 700 }}>
+                    🛑 <strong>Stop #{sIdx + 1}:</strong> {st.name} {st.purpose ? `(${st.purpose})` : ''}
+                  </div>
+                ))}
                 <div style={{ fontSize: '11.5px', color: '#0369a1', fontWeight: 700 }}>
                   🏁 <strong>Destination:</strong> {displayOrder.dropLoc}
                 </div>

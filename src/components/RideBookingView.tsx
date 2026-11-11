@@ -170,7 +170,7 @@ export default function RideBookingView({
   const [otherRiderPhone, setOtherRiderPhone] = useState('');
 
   // Interactive Direct Map Selection Mode: 'pickup' | 'drop' | 'idle'
-  const [mapSelectionMode, setMapSelectionMode] = useState<'pickup' | 'drop' | 'idle'>('idle');
+  const [mapSelectionMode, setMapSelectionMode] = useState<'pickup' | 'drop' | 'stop' | 'idle'>('idle');
   const [routeGeometry, setRouteGeometry] = useState<[number, number][]>([]);
 
   // Auto-search suggestions for input fields
@@ -486,7 +486,7 @@ export default function RideBookingView({
 
 
   // Direct Map Click Handler: Only triggered on explicit mouse click on the map
-  const handleDirectMapLocationSelect = async (type: 'pickup' | 'drop', lat: number, lng: number) => {
+  const handleDirectMapLocationSelect = async (type: 'pickup' | 'drop' | 'stop', lat: number, lng: number) => {
     const coords = { lat: +lat.toFixed(5), lng: +lng.toFixed(5) };
     const addr = await reverseGeocode(coords.lat, coords.lng);
 
@@ -496,10 +496,15 @@ export default function RideBookingView({
       if (onSourceChange) onSourceChange(addr);
       // Auto toggle to 'drop' mode so next click easily selects the Red dropping pin!
       setMapSelectionMode('drop');
-    } else {
+    } else if (type === 'drop') {
       setDropoff(addr);
       setDropCoords(coords);
       if (onDestinationChange) onDestinationChange(addr);
+      setMapSelectionMode('idle');
+    } else if (type === 'stop') {
+      setNewStopName(addr);
+      setNewStopCoords(coords);
+      setShowAddStopForm(true);
       setMapSelectionMode('idle');
     }
   };
@@ -812,14 +817,7 @@ export default function RideBookingView({
                       }}
                       placeholder="Enter stop location"
                     />
-                    <button
-                      type="button"
-                      className="rb-input-map-icon-btn"
-                      onClick={() => handleOpenMapPicker(st.id)}
-                      title="Pick stop on map"
-                    >
-                      <i className="fa-solid fa-map-location-dot"></i>
-                    </button>
+
                   </div>
 
                 </div>
@@ -841,27 +839,53 @@ export default function RideBookingView({
             {/* Simple Add Stop Form */}
             {showAddStopForm && (
               <div className="rb-simple-add-stop-card">
-                <div className="rb-simple-stop-header">
-                  <span><i className="fa-solid fa-plus-circle"></i> New Stopping Point</span>
+                <div className="rb-simple-stop-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span><i className="fa-solid fa-plus-circle" style={{ color: '#ea580c' }}></i> New Stopping Point (Orange Pin)</span>
                 </div>
                 <div className="rb-field-with-icon">
-                  <input
-                    type="text"
-                    className="rb-input-element standard"
-                    placeholder="Enter stop location name"
-                    value={newStopName}
-                    onChange={(e) => setNewStopName(e.target.value)}
-                  />
                   <button
                     type="button"
-                    className="rb-field-map-btn"
-                    onClick={() => handleOpenMapPicker('new-stop')}
-                    title="Pick stop on map"
+                    onClick={() => setMapSelectionMode(prev => prev === 'stop' ? 'idle' : 'stop')}
+                    style={{
+                      width: '100%',
+                      padding: '11px 16px',
+                      borderRadius: '12px',
+                      border: '1.8px solid #ea580c',
+                      background: mapSelectionMode === 'stop' ? '#fff7ed' : '#ffffff',
+                      color: '#ea580c',
+                      fontWeight: 800,
+                      fontSize: '13.5px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      boxShadow: '0 2px 10px rgba(234, 88, 12, 0.12)'
+                    }}
+                    title="Click here, then click on the map below to place Orange Stop Pin"
                   >
-                    <i className="fa-solid fa-map-location-dot"></i>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <i className="fa-solid fa-location-dot" style={{ fontSize: '15px' }}></i>
+                      {newStopName ? (
+                        <span style={{ color: '#0f172a', fontWeight: 700 }}>{newStopName}</span>
+                      ) : (
+                        <span>Select on Map (Orange Pin)</span>
+                      )}
+                    </span>
+                    <span style={{
+                      fontSize: '11px',
+                      padding: '3px 9px',
+                      borderRadius: '12px',
+                      background: mapSelectionMode === 'stop' ? '#ea580c' : '#ffedd5',
+                      color: mapSelectionMode === 'stop' ? '#ffffff' : '#9a3412',
+                      fontWeight: 800
+                    }}>
+                      {mapSelectionMode === 'stop' ? 'Click Map Below' : newStopName ? 'Selected' : 'Pick on Map'}
+                    </span>
                   </button>
                 </div>
-                <div className="rb-field-with-icon" style={{ marginTop: '6px' }}>
+
+                <div className="rb-field-with-icon" style={{ marginTop: '8px' }}>
                   <input
                     type="text"
                     className="rb-input-element standard"
@@ -870,10 +894,16 @@ export default function RideBookingView({
                     onChange={(e) => setNewStopPurpose(e.target.value)}
                   />
                 </div>
+
                 <div className="rb-simple-stop-actions">
                   <button
                     type="button"
                     className="rb-btn-confirm-stop"
+                    disabled={!newStopName.trim()}
+                    style={{
+                      background: newStopName.trim() ? '#ea580c' : '#cbd5e1',
+                      cursor: newStopName.trim() ? 'pointer' : 'not-allowed'
+                    }}
                     onClick={() => {
                       if (!newStopName.trim()) return;
                       setStops(prev => [
@@ -890,6 +920,7 @@ export default function RideBookingView({
                       setNewStopCoords(null);
                       setNewStopPurpose('');
                       setShowAddStopForm(false);
+                      setMapSelectionMode('idle');
                     }}
                   >
                     Add Stop
@@ -897,7 +928,10 @@ export default function RideBookingView({
                   <button
                     type="button"
                     className="rb-btn-cancel-stop"
-                    onClick={() => setShowAddStopForm(false)}
+                    onClick={() => {
+                      setShowAddStopForm(false);
+                      setMapSelectionMode('idle');
+                    }}
                   >
                     Cancel
                   </button>
@@ -1061,6 +1095,9 @@ export default function RideBookingView({
               mode={mode as 'bike' | 'auto' | 'car'}
               pickupCoords={pickupCoords}
               dropCoords={dropCoords}
+              stops={stops}
+              newStopCoords={newStopCoords}
+              newStopName={newStopName}
               pickupAddress={pickup}
               dropAddress={dropoff}
               selectionMode={mapSelectionMode}
@@ -1236,7 +1273,7 @@ export default function RideBookingView({
               )}
             </div>
 
-            
+
           </>
         ) : (
           <div className="rb-distance-summary-bar empty">
@@ -1354,6 +1391,15 @@ export default function RideBookingView({
                     return;
                   }
                   setShowConfirmModal(false);
+
+                  let parsedSession: any = {};
+                  try {
+                    parsedSession = userSession ? JSON.parse(userSession) : {};
+                  } catch (e) { }
+
+                  const activeUserName = parsedSession.name || parsedSession.fullName || parsedSession.phone || 'Vasanth Kumar';
+                  const activeUserPhone = parsedSession.phone || '+91 98765 43210';
+
                   const selectedDriver = backendDrivers.length > 0 ? backendDrivers[0] : null;
                   const captainName = selectedDriver ? `${selectedDriver.driverName} (${selectedDriver.vehicleModel || 'SART Partner'})` : 'Karthik Raja (Super Captain)';
                   const plateNum = selectedDriver ? selectedDriver.plateNumber : (mode === 'bike' ? 'TN 09 BX 4281' : mode === 'auto' ? 'TN 05 AT 9821' : 'TN 01 CB 7741');
@@ -1361,7 +1407,7 @@ export default function RideBookingView({
 
                   const riderDisplay = bookingFor === 'others' && otherRiderName.trim()
                     ? `${otherRiderName.trim()} (${otherRiderPhone || 'Rider'})`
-                    : 'Myself';
+                    : activeUserName;
 
                   // Trigger backend booking API
                   let createdBookingId = null;
@@ -1383,8 +1429,10 @@ export default function RideBookingView({
                           otp: otpCode,
                           stops,
                           bookingFor,
-                          riderName: otherRiderName,
-                          riderPhone: otherRiderPhone,
+                          riderName: bookingFor === 'others' && otherRiderName.trim() ? otherRiderName.trim() : activeUserName,
+                          riderPhone: bookingFor === 'others' && otherRiderPhone.trim() ? otherRiderPhone.trim() : activeUserPhone,
+                          customerName: bookingFor === 'others' && otherRiderName.trim() ? otherRiderName.trim() : activeUserName,
+                          customerPhone: bookingFor === 'others' && otherRiderPhone.trim() ? otherRiderPhone.trim() : activeUserPhone,
                           vehicleType: mode,
                           pickupDist: '1.2 km',
                           pickupTime: '4 mins',
@@ -1425,9 +1473,12 @@ export default function RideBookingView({
                       dropLoc: dropoff || 'Drop Point',
                       userLat: pickupCoords?.lat || 13.0827,
                       userLng: pickupCoords?.lng || 80.2755,
+                      dropLat: dropCoords?.lat || 13.0600,
+                      dropLng: dropCoords?.lng || 80.2200,
+                      stops: stops || [],
                       otp: otpCode,
-                      customerName: bookingFor === 'others' && otherRiderName.trim() ? otherRiderName.trim() : 'Alex Carter',
-                      customerPhone: bookingFor === 'others' && otherRiderPhone.trim() ? otherRiderPhone.trim() : '+91 98765 43210'
+                      customerName: bookingFor === 'others' && otherRiderName.trim() ? otherRiderName.trim() : activeUserName,
+                      customerPhone: bookingFor === 'others' && otherRiderPhone.trim() ? otherRiderPhone.trim() : activeUserPhone
                     });
                   }
 
@@ -1514,430 +1565,575 @@ export default function RideBookingView({
           alignItems: 'center',
           backdropFilter: 'blur(3px)'
         }}>
-          {/* Bottom Sheet Card */}
+          {/* Dynamic Interactive Container: Two-column layout on desktop (Left: Content, Right: Live Captain Map) */}
           <div style={{
             background: '#ffffff',
             borderTopLeftRadius: '24px',
             borderTopRightRadius: '24px',
+            borderRadius: '24px',
             width: '100%',
-            maxWidth: '540px',
+            maxWidth: '1060px',
             maxHeight: '92vh',
-            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'row',
+            overflow: 'hidden',
             boxShadow: '0 -10px 40px rgba(0,0,0,0.22)',
-            padding: '16px 20px 24px 20px',
             position: 'relative',
-            animation: 'rbSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+            animation: 'rbSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            margin: 'auto 20px'
           }}>
-            {/* Grab Handle */}
+            {/* Left Content Column */}
             <div style={{
-              width: '40px',
-              height: '4px',
-              background: '#cbd5e1',
-              borderRadius: '2px',
-              margin: '0 auto 14px auto'
-            }}></div>
-
-            {/* OTP & Ride Lifecycle Status Header Section */}
-            <div style={{
-              textAlign: 'center',
-              borderBottom: '1px solid #f1f5f9',
-              paddingBottom: '14px',
-              marginBottom: '16px'
+              flex: '1 1 520px',
+              maxWidth: '540px',
+              overflowY: 'auto',
+              padding: '16px 20px 24px 20px',
+              borderRight: '1px solid #f1f5f9'
             }}>
-              {rideBookedModal.status === 'Completed' ? (
-                <>
-                  <div style={{ fontSize: '18px', color: '#16a34a', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                    <i className="fa-solid fa-circle-check" style={{ color: '#16a34a', fontSize: '22px' }}></i>
-                    <span>Ride Completed Successfully!</span>
-                  </div>
-                  <div style={{ fontSize: '13px', color: '#0f172a', fontWeight: 700, marginTop: '6px' }}>
-                    You have reached your destination. Thank you for riding with SART!
-                  </div>
-                </>
-              ) : rideBookedModal.status === 'In-Trip' ? (
-                <>
-                  <div style={{ fontSize: '17px', color: '#0284c7', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                    <i className="fa-solid fa-route fa-beat" style={{ color: '#0284c7' }}></i>
-                    <span>Ride In Progress • Heading to Destination</span>
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 700, marginTop: '4px' }}>
-                    OTP verified by Captain • Live navigation to {dropoff || 'destination'}
-                  </div>
-                </>
-              ) : rideBookedModal.isAcceptedByCaptain ? (
-                <>
-                  <span style={{ fontSize: '15px', color: '#0f172a', fontWeight: 800 }}>
-                    Start your order with PIN: <strong style={{ color: '#16a34a', letterSpacing: '2px', fontSize: '20px', padding: '2px 8px', background: '#dcfce7', borderRadius: '8px' }}>{rideBookedModal.otp}</strong>
-                  </span>
-                  <div style={{ fontSize: '12px', color: '#16a34a', fontWeight: 700, marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                    <span className="pulse-dot"></span>
-                    <span>Captain has accepted your ride • Live on road to pickup</span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <span style={{ fontSize: '15px', color: '#ea580c', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                    <i className="fa-solid fa-satellite-dish fa-spin" style={{ color: '#ea580c' }}></i>
-                    <span>Connecting with nearby Captains...</span>
-                  </span>
-                  <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>
-                    PIN / OTP will appear here as soon as Captain accepts your ride
-                  </div>
-                </>
-              )}
-            </div>
+              {/* Grab Handle */}
+              <div style={{
+                width: '40px',
+                height: '4px',
+                background: '#cbd5e1',
+                borderRadius: '2px',
+                margin: '0 auto 14px auto'
+              }}></div>
 
-            {/* Captain Profile Card & Call Button (matches user screenshot 1) */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
-              borderRadius: '16px',
-              padding: '12px 16px',
-              marginBottom: '14px'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              {/* OTP & Ride Lifecycle Status Header Section */}
+              <div style={{
+                textAlign: 'center',
+                borderBottom: '1px solid #f1f5f9',
+                paddingBottom: '14px',
+                marginBottom: '16px'
+              }}>
+                {rideBookedModal.status === 'Completed' ? (
+                  <>
+                    <div style={{ fontSize: '18px', color: '#16a34a', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <i className="fa-solid fa-circle-check" style={{ color: '#16a34a', fontSize: '22px' }}></i>
+                      <span>Ride Completed Successfully!</span>
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#0f172a', fontWeight: 700, marginTop: '6px' }}>
+                      You have reached your destination. Thank you for riding with SART!
+                    </div>
+                  </>
+                ) : rideBookedModal.status === 'In-Trip' ? (
+                  <>
+                    <div style={{ fontSize: '17px', color: '#0284c7', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <i className="fa-solid fa-route fa-beat" style={{ color: '#0284c7' }}></i>
+                      <span>Ride In Progress • Heading to Destination</span>
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 700, marginTop: '4px' }}>
+                      OTP verified by Captain • Live navigation to {dropoff || 'destination'}
+                    </div>
+                  </>
+                ) : rideBookedModal.isAcceptedByCaptain ? (
+                  <>
+                    <span style={{ fontSize: '15px', color: '#0f172a', fontWeight: 800 }}>
+                      Start your order with PIN: <strong style={{ color: '#16a34a', letterSpacing: '2px', fontSize: '20px', padding: '2px 8px', background: '#dcfce7', borderRadius: '8px' }}>{rideBookedModal.otp}</strong>
+                    </span>
+                    <div style={{ fontSize: '12px', color: '#16a34a', fontWeight: 700, marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                      <span className="pulse-dot"></span>
+                      <span>Captain has accepted your ride • Live on road to pickup</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span style={{ fontSize: '15px', color: '#ea580c', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <i className="fa-solid fa-satellite-dish fa-spin" style={{ color: '#ea580c' }}></i>
+                      <span>Connecting with nearby Captains...</span>
+                    </span>
+                    <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>
+                      PIN / OTP will appear here as soon as Captain accepts your ride
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Captain Profile Card & Call Button (Only appears AFTER Captain accepts the ride) */}
+              {rideBookedModal.isAcceptedByCaptain ? (
                 <div style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#ffffff',
-                  fontSize: '24px',
-                  boxShadow: '0 4px 10px rgba(234, 88, 12, 0.3)'
+                  justifyContent: 'space-between',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '16px',
+                  padding: '12px 16px',
+                  marginBottom: '14px'
                 }}>
-                  <i className="fa-solid fa-user"></i>
-                </div>
-                <div>
-                  <div style={{ fontSize: '15px', fontWeight: 900, color: '#0f172a' }}>
-                    {rideBookedModal.captain}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div style={{
+                      width: '52px',
+                      height: '52px',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#ffffff',
+                      fontSize: '24px',
+                      boxShadow: '0 4px 10px rgba(234, 88, 12, 0.3)'
+                    }}>
+                      <i className="fa-solid fa-user"></i>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '15px', fontWeight: 900, color: '#0f172a' }}>
+                        {rideBookedModal.captain}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: '#64748b', marginTop: '2px' }}>
+                        <span style={{ fontWeight: 800, color: '#0f172a' }}>4.8</span>
+                        <i className="fa-solid fa-star" style={{ color: '#eab308', fontSize: '11px' }}></i>
+                        <span>• {rideBookedModal.type} ({rideBookedModal.plate})</span>
+                      </div>
+                      {/* Distance from Captain to User */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 800, color: '#16a34a', marginTop: '3px' }}>
+                        <i className="fa-solid fa-route"></i>
+                        <span>{rideBookedModal.distanceToCaptain || '1.2 km from you'} ({rideBookedModal.eta || '4 mins'})</span>
+                      </div>
+                      {/* Captain Mobile Number */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#0369a1', marginTop: '3px' }}>
+                        <i className="fa-solid fa-phone" style={{ fontSize: '10px' }}></i>
+                        <span>{rideBookedModal.phone || '+91 98765 43210'}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: '#64748b', marginTop: '2px' }}>
-                    <span style={{ fontWeight: 800, color: '#0f172a' }}>4.8</span>
-                    <i className="fa-solid fa-star" style={{ color: '#eab308', fontSize: '11px' }}></i>
-                    <span>• {rideBookedModal.type} ({rideBookedModal.plate})</span>
-                  </div>
-                  {/* Distance from Captain to User */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 800, color: '#16a34a', marginTop: '3px' }}>
-                    <i className="fa-solid fa-route"></i>
-                    <span>{rideBookedModal.distanceToCaptain || '1.2 km from you'} ({rideBookedModal.eta || '4 mins'})</span>
-                  </div>
-                  {/* Captain Mobile Number */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#0369a1', marginTop: '3px' }}>
-                    <i className="fa-solid fa-phone" style={{ fontSize: '10px' }}></i>
-                    <span>{rideBookedModal.phone || '+91 98765 43210'}</span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Call Driver Button (Black circle with yellow phone icon matching Screenshot 1) */}
-              <button
-                type="button"
-                onClick={() => setCallActive(prev => !prev)}
-                title="Call Captain"
-                style={{
-                  width: '46px',
-                  height: '46px',
-                  borderRadius: '50%',
-                  background: '#000000',
-                  border: 'none',
+                  {/* Call Driver Button (Black circle with yellow phone icon matching Screenshot 1) */}
+                  <button
+                    type="button"
+                    onClick={() => setCallActive(prev => !prev)}
+                    title="Call Captain"
+                    style={{
+                      width: '46px',
+                      height: '46px',
+                      borderRadius: '50%',
+                      background: '#000000',
+                      border: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+                      transition: 'transform 0.15s ease'
+                    }}
+                  >
+                    <i className="fa-solid fa-phone" style={{ color: '#facc15', fontSize: '18px' }}></i>
+                  </button>
+                </div>
+              ) : (
+                <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
-                  transition: 'transform 0.15s ease'
-                }}
-              >
-                <i className="fa-solid fa-phone" style={{ color: '#facc15', fontSize: '18px' }}></i>
-              </button>
-            </div>
-
-            {/* Calling Active Bar */}
-            {callActive && (
-              <div style={{
-                background: '#ecfdf5',
-                border: '1px solid #a7f3d0',
-                borderRadius: '12px',
-                padding: '10px 14px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '14px',
-                fontSize: '13px',
-                color: '#065f46'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <i className="fa-solid fa-phone-volume fa-shake" style={{ color: '#10b981' }}></i>
-                  <span>Calling {rideBookedModal.captain} at <strong>{rideBookedModal.phone || '+91 98765 43210'}</strong> (Connecting via secure line)...</span>
-                </div>
-                <button
-                  onClick={() => setCallActive(false)}
-                  style={{ background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}
-                >
-                  End Call
-                </button>
-              </div>
-            )}
-
-            {/* Pickup Instructions Input Row (matches Screenshot 1) */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              background: '#f1f5f9',
-              borderRadius: '24px',
-              padding: '8px 16px',
-              marginBottom: '16px'
-            }}>
-              <i className="fa-regular fa-file-lines" style={{ color: '#64748b', fontSize: '15px' }}></i>
-              <input
-                type="text"
-                value={pickupInstruction}
-                onChange={(e) => setPickupInstruction(e.target.value)}
-                placeholder="Any pickup instructions ?"
-                style={{
-                  border: 'none',
-                  background: 'transparent',
-                  outline: 'none',
-                  fontSize: '13px',
-                  color: '#0f172a',
-                  width: '100%'
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowChatModal(true)}
-                title="Chat with Captain"
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#ea580c',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  padding: '2px'
-                }}
-              >
-                <i className="fa-solid fa-comment-dots"></i>
-              </button>
-            </div>
-
-            {/* Card Details: Pickup & Drop matching Screenshot 2 */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
-              {/* Pickup details box */}
-              <div style={{
-                background: '#ffffff',
-                border: '1px solid #e2e8f0',
-                borderRadius: '12px',
-                padding: '12px 14px'
-              }}>
-                <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Pickup details</div>
-                <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
-                  {pickup || 'Current GPS Spot'}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px', fontSize: '12px', color: '#4f46e5', fontWeight: 700 }}>
-                  <span style={{ cursor: 'pointer' }}><i className="fa-solid fa-pen"></i> Edit location</span>
-                  <span style={{ cursor: 'pointer' }}><i className="fa-regular fa-heart"></i> Add as Favorite</span>
-                </div>
-              </div>
-
-              {/* Drop details box */}
-              <div style={{
-                background: '#ffffff',
-                border: '1px solid #e2e8f0',
-                borderRadius: '12px',
-                padding: '12px 14px'
-              }}>
-                <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Drop details</div>
-                <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
-                  {dropoff || 'Selected Destination'}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px', fontSize: '12px', color: '#4f46e5', fontWeight: 700 }}>
-                  <span style={{ cursor: 'pointer' }}><i className="fa-solid fa-pen"></i> Edit location</span>
-                  <span style={{ cursor: 'pointer' }}><i className="fa-regular fa-heart"></i> Add as Favorite</span>
-                </div>
-              </div>
-
-              {/* Payment Box (matches Screenshot 2: Ride Fare ₹48 ₹39, QR Pay) */}
-              <div style={{
-                background: '#ffffff',
-                border: '1px solid #e2e8f0',
-                borderRadius: '12px',
-                padding: '12px 14px'
-              }}>
-                <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Payment</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
-                  <span style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>Ride Fare</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '13px' }}>
-                      ₹{Math.round(rideBookedModal.fare * 1.25)}
-                    </span>
-                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#0f172a' }}>
-                      ₹{rideBookedModal.fare}
-                    </span>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', fontSize: '12.5px', color: '#0f172a', fontWeight: 700 }}>
-                  <i className="fa-solid fa-qrcode" style={{ color: '#0284c7' }}></i>
-                  <span>QR Pay / UPI on arrival</span>
-                </div>
-
-                {/* Add More Incentive / Boost Fare for Captain (matches user request) */}
-                <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px dashed #cbd5e1' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#15803d' }}>
-                      <i className="fa-solid fa-bolt" style={{ color: '#f59e0b', marginRight: '4px' }}></i>
-                      Add More / Tip Captain for Faster Pickup:
-                    </span>
-                    <span style={{ fontSize: '12px', fontWeight: 900, color: '#16a34a' }}>
-                      +{rideBookedModal.bonus || 10}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    {[10, 20, 50].map((extraAmt) => (
-                      <button
-                        key={extraAmt}
-                        type="button"
-                        onClick={async () => {
-                          const newBonus = (rideBookedModal.bonus || 10) + extraAmt;
-                          setRideBookedModal((prev: any) => ({
-                            ...prev,
-                            bonus: newBonus
-                          }));
-                          if (socketRef && rideBookedModal.id) {
-                            socketRef.emit('boost_ride_fare', {
-                              bookingId: rideBookedModal.id,
-                              bonus: newBonus,
-                              fare: rideBookedModal.fare
-                            });
-                          }
-                          try {
-                            await fetch(`http://localhost:5000/api/rides/boost-fare`, {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                bookingId: rideBookedModal.id,
-                                bonus: newBonus
-                              })
-                            });
-                          } catch (e) { }
-                        }}
-                        style={{
-                          flex: 1,
-                          padding: '6px 10px',
-                          borderRadius: '16px',
-                          border: '1px solid #86efac',
-                          background: '#f0fdf4',
-                          color: '#15803d',
-                          fontSize: '12px',
-                          fontWeight: 800,
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                      >
-                        + ₹{extraAmt}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Cancel & Done Bottom Actions (matches Screenshot 2 Cancel button & handles In-Trip/Completed states) */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              {rideBookedModal.status === 'Completed' ? (
-                <button
-                  type="button"
-                  onClick={() => setRideBookedModal(null)}
-                  style={{
-                    flex: 1,
-                    background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
-                    border: 'none',
-                    borderRadius: '24px',
-                    padding: '13px 20px',
-                    color: '#ffffff',
-                    fontWeight: 800,
-                    fontSize: '15px',
-                    cursor: 'pointer',
+                  gap: '12px',
+                  background: '#fff7ed',
+                  border: '1.5px dashed #fed7aa',
+                  borderRadius: '16px',
+                  padding: '14px 16px',
+                  marginBottom: '14px'
+                }}>
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    background: '#ffedd5',
+                    color: '#ea580c',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '8px',
-                    boxShadow: '0 4px 12px rgba(22, 163, 74, 0.35)'
-                  }}
-                >
-                  <i className="fa-solid fa-circle-check"></i>
-                  <span>Done & Close</span>
-                </button>
-              ) : rideBookedModal.status === 'In-Trip' ? (
-                <div style={{
-                  flex: 1,
-                  background: '#f0fdf4',
-                  border: '1.5px solid #86efac',
-                  borderRadius: '24px',
-                  padding: '11px 18px',
-                  color: '#15803d',
-                  fontWeight: 800,
-                  fontSize: '13px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px'
-                }}>
-                  <i className="fa-solid fa-shield-halved" style={{ color: '#16a34a' }}></i>
-                  <span>Ride in progress • Safety tracking active</span>
+                    fontSize: '18px'
+                  }}>
+                    <i className="fa-solid fa-radar fa-spin"></i>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#9a3412' }}>
+                      Searching nearby Captains...
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#c2410c', marginTop: '2px' }}>
+                      Captain name, vehicle details and call option will appear once accepted.
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setRideBookedModal(null)}
-                  style={{
-                    flex: 1,
-                    background: '#ffffff',
-                    border: '1.5px solid #f87171',
-                    borderRadius: '24px',
-                    padding: '12px 20px',
-                    color: '#dc2626',
-                    fontWeight: 800,
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  Cancel Ride
-                </button>
               )}
 
-              {rideBookedModal.status !== 'Completed' && (
+              {/* Calling Active Bar */}
+              {callActive && (
+                <div style={{
+                  background: '#ecfdf5',
+                  border: '1px solid #a7f3d0',
+                  borderRadius: '12px',
+                  padding: '10px 14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '14px',
+                  fontSize: '13px',
+                  color: '#065f46'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <i className="fa-solid fa-phone-volume fa-shake" style={{ color: '#10b981' }}></i>
+                    <span>Calling {rideBookedModal.captain} at <strong>{rideBookedModal.phone || '+91 98765 43210'}</strong> (Connecting via secure line)...</span>
+                  </div>
+                  <button
+                    onClick={() => setCallActive(false)}
+                    style={{ background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}
+                  >
+                    End Call
+                  </button>
+                </div>
+              )}
+
+              {/* Pickup Instructions Input Row (matches Screenshot 1) */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                background: '#f1f5f9',
+                borderRadius: '24px',
+                padding: '8px 16px',
+                marginBottom: '16px'
+              }}>
+                <i className="fa-regular fa-file-lines" style={{ color: '#64748b', fontSize: '15px' }}></i>
+                <input
+                  type="text"
+                  value={pickupInstruction}
+                  onChange={(e) => setPickupInstruction(e.target.value)}
+                  placeholder="Any pickup instructions ?"
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    outline: 'none',
+                    fontSize: '13px',
+                    color: '#0f172a',
+                    width: '100%'
+                  }}
+                />
                 <button
                   type="button"
                   onClick={() => setShowChatModal(true)}
+                  title="Chat with Captain"
                   style={{
-                    flex: 1,
-                    background: '#2a1373',
+                    background: 'none',
                     border: 'none',
-                    borderRadius: '24px',
-                    padding: '12px 20px',
-                    color: '#ffffff',
-                    fontWeight: 800,
-                    fontSize: '14px',
+                    color: '#ea580c',
+                    fontSize: '16px',
                     cursor: 'pointer',
+                    padding: '2px'
+                  }}
+                >
+                  <i className="fa-solid fa-comment-dots"></i>
+                </button>
+              </div>
+
+              {/* Card Details: Pickup & Drop matching Screenshot 2 */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
+                {/* Pickup details box */}
+                <div style={{
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '12px 14px'
+                }}>
+                  <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Pickup details</div>
+                  <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
+                    {pickup || 'Current GPS Spot'}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px', fontSize: '12px', color: '#4f46e5', fontWeight: 700 }}>
+                    <span style={{ cursor: 'pointer' }}><i className="fa-solid fa-pen"></i> Edit location</span>
+                    <span style={{ cursor: 'pointer' }}><i className="fa-regular fa-heart"></i> Add as Favorite</span>
+                  </div>
+                </div>
+
+                {/* Intermediate Stops (Orange diamond badge) */}
+                {stops && stops.length > 0 && stops.map((st, idx) => (
+                  <div key={st.id || `modal-stop-${idx}`} style={{
+                    background: '#fff7ed',
+                    border: '1.5px solid #fed7aa',
+                    borderRadius: '12px',
+                    padding: '12px 14px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ fontSize: '11.5px', color: '#ea580c', fontWeight: 800, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '20px',
+                          height: '20px',
+                          borderRadius: '50%',
+                          background: '#ea580c',
+                          color: '#ffffff',
+                          fontSize: '11px',
+                          fontWeight: 900
+                        }}>
+                          {idx + 1}
+                        </span>
+                        Stopping #{idx + 1}
+                      </div>
+                      {st.purpose && (
+                        <span style={{ fontSize: '11px', color: '#9a3412', fontWeight: 700, background: '#ffedd5', padding: '2px 8px', borderRadius: '10px' }}>
+                          {st.purpose}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
+                      {st.name}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Drop details box */}
+                <div style={{
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '12px 14px'
+                }}>
+                  <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Drop details</div>
+                  <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
+                    {dropoff || 'Selected Destination'}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px', fontSize: '12px', color: '#4f46e5', fontWeight: 700 }}>
+                    <span style={{ cursor: 'pointer' }}><i className="fa-solid fa-pen"></i> Edit location</span>
+                    <span style={{ cursor: 'pointer' }}><i className="fa-regular fa-heart"></i> Add as Favorite</span>
+                  </div>
+                </div>
+
+                {/* Payment Box (matches Screenshot 2: Ride Fare ₹48 ₹39, QR Pay) */}
+                <div style={{
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '12px 14px'
+                }}>
+                  <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Payment</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                    <span style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>Ride Fare</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '13px' }}>
+                        ₹{Math.round(rideBookedModal.fare * 1.25)}
+                      </span>
+                      <span style={{ fontSize: '16px', fontWeight: 900, color: '#0f172a' }}>
+                        ₹{rideBookedModal.fare}
+                      </span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', fontSize: '12.5px', color: '#0f172a', fontWeight: 700 }}>
+                    <i className="fa-solid fa-qrcode" style={{ color: '#0284c7' }}></i>
+                    <span>QR Pay / UPI on arrival</span>
+                  </div>
+
+                  {/* Add More Incentive / Boost Fare for Captain (matches user request) */}
+                  <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px dashed #cbd5e1' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 800, color: '#15803d' }}>
+                        <i className="fa-solid fa-bolt" style={{ color: '#f59e0b', marginRight: '4px' }}></i>
+                        Add More / Tip Captain for Faster Pickup:
+                      </span>
+                      <span style={{ fontSize: '12px', fontWeight: 900, color: '#16a34a' }}>
+                        +{rideBookedModal.bonus || 10}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      {[10, 20, 50].map((extraAmt) => (
+                        <button
+                          key={extraAmt}
+                          type="button"
+                          onClick={async () => {
+                            const newBonus = (rideBookedModal.bonus || 10) + extraAmt;
+                            setRideBookedModal((prev: any) => ({
+                              ...prev,
+                              bonus: newBonus
+                            }));
+                            if (socketRef && rideBookedModal.id) {
+                              socketRef.emit('boost_ride_fare', {
+                                bookingId: rideBookedModal.id,
+                                bonus: newBonus,
+                                fare: rideBookedModal.fare
+                              });
+                            }
+                            try {
+                              await fetch(`http://localhost:5000/api/rides/boost-fare`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  bookingId: rideBookedModal.id,
+                                  bonus: newBonus
+                                })
+                              });
+                            } catch (e) { }
+                          }}
+                          style={{
+                            flex: 1,
+                            padding: '6px 10px',
+                            borderRadius: '16px',
+                            border: '1px solid #86efac',
+                            background: '#f0fdf4',
+                            color: '#15803d',
+                            fontSize: '12px',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          + ₹{extraAmt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Cancel & Done Bottom Actions (matches Screenshot 2 Cancel button & handles In-Trip/Completed states) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                {rideBookedModal.status === 'Completed' ? (
+                  <button
+                    type="button"
+                    onClick={() => setRideBookedModal(null)}
+                    style={{
+                      flex: 1,
+                      background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+                      border: 'none',
+                      borderRadius: '24px',
+                      padding: '13px 20px',
+                      color: '#ffffff',
+                      fontWeight: 800,
+                      fontSize: '15px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      boxShadow: '0 4px 12px rgba(22, 163, 74, 0.35)'
+                    }}
+                  >
+                    <i className="fa-solid fa-circle-check"></i>
+                    <span>Done & Close</span>
+                  </button>
+                ) : rideBookedModal.status === 'In-Trip' ? (
+                  <div style={{
+                    flex: 1,
+                    background: '#f0fdf4',
+                    border: '1.5px solid #86efac',
+                    borderRadius: '24px',
+                    padding: '11px 18px',
+                    color: '#15803d',
+                    fontWeight: 800,
+                    fontSize: '13px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '8px',
-                    boxShadow: '0 4px 12px rgba(234, 88, 12, 0.3)'
-                  }}
-                >
-                  <i className="fa-solid fa-comments"></i>
-                  <span>Chat Captain</span>
-                </button>
-              )}
+                    gap: '8px'
+                  }}>
+                    <i className="fa-solid fa-shield-halved" style={{ color: '#16a34a' }}></i>
+                    <span>Ride in progress • Safety tracking active</span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setRideBookedModal(null)}
+                    style={{
+                      flex: 1,
+                      background: '#ffffff',
+                      border: '1.5px solid #f87171',
+                      borderRadius: '24px',
+                      padding: '12px 20px',
+                      color: '#dc2626',
+                      fontWeight: 800,
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    Cancel Ride
+                  </button>
+                )}
+
+                {rideBookedModal.status !== 'Completed' && (
+                  <button
+                    type="button"
+                    onClick={() => setShowChatModal(true)}
+                    style={{
+                      flex: 1,
+                      background: '#2a1373',
+                      border: 'none',
+                      borderRadius: '24px',
+                      padding: '12px 20px',
+                      color: '#ffffff',
+                      fontWeight: 800,
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      boxShadow: '0 4px 12px rgba(234, 88, 12, 0.3)'
+                    }}
+                  >
+                    <i className="fa-solid fa-comments"></i>
+                    <span>Chat Captain</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Right Column: Live Captain Radar & Route Map (Image 2 Right Side) */}
+            <div style={{
+              flex: '1 1 480px',
+              minWidth: '380px',
+              position: 'relative',
+              background: '#e2e8f0',
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              {/* Live Map Top Pill Header */}
+              <div style={{
+                position: 'absolute',
+                top: '12px',
+                left: '12px',
+                right: '12px',
+                zIndex: 1000,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: 'rgba(15, 23, 42, 0.88)',
+                backdropFilter: 'blur(8px)',
+                padding: '8px 14px',
+                borderRadius: '14px',
+                color: '#ffffff',
+                fontSize: '12px',
+                fontWeight: 800,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.25)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 0 3px rgba(34, 197, 94, 0.4)' }}></span>
+                  <span>Live Captain: <strong>{rideBookedModal.captain}</strong></span>
+                </div>
+                <span style={{ color: '#facc15', fontSize: '11px' }}>
+                  {rideBookedModal.status === 'In-Trip' ? 'En Route to Destination' : 'En Route to Pickup'}
+                </span>
+              </div>
+
+              <InteractiveRideMap
+                mode={mode}
+                pickupCoords={pickupCoords}
+                dropCoords={dropCoords}
+                stops={stops}
+                pickupAddress={pickup}
+                dropAddress={dropoff}
+                selectionMode="idle"
+                onSelectLocation={() => { }}
+                nearbyCaptains={[{
+                  id: 'active-captain',
+                  driverName: rideBookedModal.captain || 'Captain',
+                  serviceType: mode,
+                  lat: (pickupCoords ? (pickupCoords.lat + (dropCoords ? (dropCoords.lat - pickupCoords.lat) * (captainProgress / 100) : 0.004)) : 13.0827),
+                  lng: (pickupCoords ? (pickupCoords.lng + (dropCoords ? (dropCoords.lng - pickupCoords.lng) * (captainProgress / 100) : 0.005)) : 80.2755),
+                  rating: 4.9,
+                  vehicleModel: rideBookedModal.type || 'Standard',
+                  plateNumber: rideBookedModal.plate || 'TN 09 EQ 4421'
+                }]}
+                routeGeometry={routeGeometry}
+              />
             </div>
           </div>
         </div>

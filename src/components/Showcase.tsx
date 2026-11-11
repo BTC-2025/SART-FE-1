@@ -1062,13 +1062,7 @@ export default function Showcase() {
             <h2 className="showcase-title">Explore Top Travel Destinations</h2>
             <span className="showcase-subtitle-tag">Best Travel Deals</span>
           </div>
-          <button
-            type="button"
-            className="showcase-view-all-link orange"
-            onClick={() => setIsHotelsGridExpanded(prev => !prev)}
-          >
-            {isHotelsGridExpanded ? 'View Less' : 'View All'} <i className={`fa-solid ${isHotelsGridExpanded ? 'fa-chevron-up' : 'fa-chevron-right'}`}></i>
-          </button>
+
         </div>
 
         <div className="showcase-slider-relative">
@@ -1217,26 +1211,8 @@ export default function Showcase() {
             <span className="showcase-subtitle-tag" style={{ color: '#0284c7' }}>Rides & Commute</span>
           </div>
           <div className="showcase-header-right">
-            <div className="showcase-category-pills">
-              {([''] as const).map(tab => (
-                <button
-                  key={tab}
-                  type="button"
-                  className={`showcase-pill-btn ${ridesCategory === tab ? 'active' : ''}`}
-                  onClick={() => setRidesCategory(tab)}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-            <button
-              type="button"
-              className="showcase-view-all-link"
-              onClick={() => setIsRidesExpanded(prev => !prev)}
-              style={{ background: '#f0f9ff', borderColor: '#bae6fd', color: '#0284c7' }}
-            >
-              {isRidesExpanded ? 'View Less' : 'View All Rides'} <i className={`fa-solid ${isRidesExpanded ? 'fa-chevron-up' : 'fa-chevron-right'}`}></i>
-            </button>
+
+
           </div>
         </div>
 
@@ -1423,26 +1399,8 @@ export default function Showcase() {
             <span className="showcase-subtitle-tag" style={{ color: '#16a34a' }}>Chauffeurs & Parking Hubs</span>
           </div>
           <div className="showcase-header-right">
-            <div className="showcase-category-pills">
-              {(['All'] as const).map(tab => (
-                <button
-                  key={tab}
-                  type="button"
-                  className={`showcase-pill-btn ${driversParkingCategory === tab ? 'active' : ''}`}
-                  onClick={() => setDriversParkingCategory(tab)}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-            <button
-              type="button"
-              className="showcase-view-all-link"
-              onClick={() => setIsDriversParkingExpanded(prev => !prev)}
-              style={{ background: '#f0fdf4', borderColor: '#bbf7d0', color: '#16a34a' }}
-            >
-              {isDriversParkingExpanded ? 'View Less' : 'View All Drivers & Parking'} <i className={`fa-solid ${isDriversParkingExpanded ? 'fa-chevron-up' : 'fa-chevron-right'}`}></i>
-            </button>
+
+
           </div>
         </div>
 
@@ -1526,18 +1484,7 @@ export default function Showcase() {
             <span className="showcase-subtitle-tag" style={{ color: '#7c3aed' }}>Self-Drive & Outstation Fleets</span>
           </div>
           <div className="showcase-header-right">
-            <div className="showcase-category-pills">
-              {(['All'] as const).map(tab => (
-                <button
-                  key={tab}
-                  type="button"
-                  className={`showcase-pill-btn ${rentalsCategory === tab ? 'active' : ''}`}
-                  onClick={() => setRentalsCategory(tab)}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
+
             <button
               type="button"
               className="showcase-view-all-link"

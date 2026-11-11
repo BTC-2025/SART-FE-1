@@ -5,8 +5,10 @@ import Navbar from '@/components/Navbar';
 import SubNavbar from '@/components/SubNavbar';
 import Footer from '@/components/Footer';
 import UserSideBitTool from '@/components/UserSideBitTool';
+import CitySelectorModal from '@/components/modals/CitySelectorModal';
 import { useSartStore } from '@/store/useSartStore';
 import { ALL_STORE_PRODUCTS } from '@/components/tabs/StoreTab';
+import { DEFAULT_CART_ITEMS } from './defaultCartData';
 import './CartPage.css';
 
 export default function CartPage() {
@@ -22,12 +24,44 @@ export default function CartPage() {
     addToCart,
     wallet,
     updateBalance,
-    addTransaction
+    addTransaction,
+    isBitToolOpen
   } = useSartStore();
 
+  const [isCityModalOpen, setIsCityModalOpen] = useState(false);
+  const [activeBitToolPanel, setActiveBitToolPanel] = useState<string | null>(null);
   const [userSession, setUserSession] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'cart' | 'wishlist'>('cart');
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoApplied, setPromoApplied] = useState(false);
+  const [promoError, setPromoError] = useState('');
+  const [hasInitializedDefault, setHasInitializedDefault] = useState(false);
+
+  // Initialize default sample data if cart is empty on first visit
+  useEffect(() => {
+    if (!hasInitializedDefault && cart.length === 0) {
+      const isCartSeeded = localStorage.getItem('sart_cart_seeded_v1');
+      if (!isCartSeeded) {
+        DEFAULT_CART_ITEMS.forEach((item) => {
+          addToCart(item);
+        });
+        localStorage.setItem('sart_cart_seeded_v1', 'true');
+      }
+      setHasInitializedDefault(true);
+    }
+  }, [cart.length, hasInitializedDefault, addToCart]);
+
+  // Listen for city selector modal event (e.g. from location button in Navbar)
+  useEffect(() => {
+    const handleOpenModal = (e: any) => {
+      if (e.detail === 'modal-city-selector') {
+        setIsCityModalOpen(true);
+      }
+    };
+    window.addEventListener('openReactModal', handleOpenModal);
+    return () => window.removeEventListener('openReactModal', handleOpenModal);
+  }, []);
 
   // Check login and clean expired guest items
   useEffect(() => {
@@ -53,15 +87,23 @@ export default function CartPage() {
 
   const showToast = (msg: string) => {
     setToastMsg(msg);
-    setTimeout(() => setToastMsg(null), 3000);
+    setTimeout(() => setToastMsg(null), 3200);
   };
 
   const isGuest = !userSession;
 
   // Subtotal & savings calculation
+  const totalItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const discountTotal = subtotal * 0.10; // 10% instant promo discount
-  const finalTotal = Math.max(0, subtotal - discountTotal);
+  const originalSubtotal = cart.reduce((sum, item) => {
+    const orig = item.originalPrice || Math.round(item.price * 1.35);
+    return sum + (orig * item.quantity);
+  }, 0);
+  const productDiscount = Math.max(0, originalSubtotal - subtotal);
+  const couponDiscount = promoApplied ? Math.round(subtotal * 0.15) : 0;
+  const deliveryFee = subtotal > 999 ? 0 : 99;
+  const finalTotal = Math.max(0, subtotal - couponDiscount + deliveryFee);
+  const totalSavings = productDiscount + couponDiscount;
 
   // Wishlist items populated with full details
   const wishlistItems = (wishlist || []).map((id) => {
@@ -71,19 +113,56 @@ export default function CartPage() {
         id: product.id,
         name: product.name,
         price: product.price,
+        originalPrice: (product as any).originalPrice || Math.round(product.price * 1.3),
         icon: product.icon || 'fa-box',
+        image: (product as any).image,
         category: product.category,
+        brand: (product as any).brand || 'SART Certified',
+        rating: (product as any).rating || 4.8,
+        inStock: (product as any).inStock ?? true,
       };
     }
-    // Fallback item definition if added from custom source
     return {
       id,
       name: `Saved Item (${id})`,
       price: 999,
+      originalPrice: 1499,
       icon: 'fa-heart',
+      image: undefined,
       category: 'Saved Wishlist',
+      brand: 'SART Mobility',
+      rating: 4.7,
+      inStock: true,
     };
   });
+
+  const handleApplyCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPromoError('');
+    const code = promoCode.trim().toUpperCase();
+    if (!code) {
+      setPromoError('Please enter a coupon code.');
+      return;
+    }
+    if (code === 'SART15' || code === 'FIRSTDRIVE' || code === 'SAVE15') {
+      setPromoApplied(true);
+      showToast('Coupon applied! 15% extra discount has been deducted.');
+    } else {
+      setPromoError('Invalid coupon. Try using "SART15" for 15% off.');
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setPromoApplied(false);
+    setPromoCode('');
+    showToast('Promo code removed.');
+  };
+
+  const handleResetToDefaults = () => {
+    clearCart();
+    DEFAULT_CART_ITEMS.forEach((item) => addToCart(item));
+    showToast('Cart reloaded with default featured products.');
+  };
 
   const handleCheckout = () => {
     if (cart.length === 0) {
@@ -91,14 +170,14 @@ export default function CartPage() {
       return;
     }
     if (wallet.balance < finalTotal) {
-      showToast(`Insufficient Wallet Balance! You need ₹${finalTotal.toLocaleString('en-IN')}`);
+      showToast(`Insufficient Wallet Balance! Need ₹${finalTotal.toLocaleString('en-IN')}`);
       return;
     }
 
     updateBalance(finalTotal, false);
     addTransaction({
       id: `tx-${Date.now()}`,
-      title: `Checkout: ${cart.length} item(s)`,
+      title: `Checkout: ${totalItemsCount} item(s)`,
       amount: finalTotal,
       date: new Date().toLocaleString(),
       isCredit: false,
@@ -114,7 +193,7 @@ export default function CartPage() {
     if (!wishlist.includes(item.id)) {
       toggleWishlist(item.id);
     }
-    showToast(`Moved "${item.name}" to Wishlist.`);
+    showToast(`Saved "${item.name}" to Wishlist.`);
   };
 
   const handleMoveToCart = (item: any) => {
@@ -122,21 +201,31 @@ export default function CartPage() {
       id: item.id,
       name: item.name,
       price: item.price,
+      originalPrice: item.originalPrice,
       icon: item.icon || 'fa-box',
+      image: item.image,
       category: item.category || 'General',
+      brand: item.brand,
       quantity: 1,
+      rating: item.rating,
+      inStock: item.inStock ?? true,
+      deliveryEstimate: 'Delivered in 2-3 Days',
+      savedAt: Date.now()
     });
     toggleWishlist(item.id);
-    showToast(`Added "${item.name}" to cart.`);
+    showToast(`Added "${item.name}" to your cart.`);
   };
 
   return (
     <div className="web-app-layout">
       <Navbar />
       <SubNavbar />
-      <UserSideBitTool isOpen={false} />
+      <UserSideBitTool
+        isOpen={isBitToolOpen}
+        onActivePanelChange={(panel) => setActiveBitToolPanel(panel)}
+      />
 
-      <main className="cart-page-main">
+      <main className={`cart-page-main ${isBitToolOpen ? (activeBitToolPanel ? 'has-bittool-panel' : 'has-bittool-strip') : ''}`}>
         {/* Toast Alert */}
         {toastMsg && (
           <div className="cart-page-toast">
@@ -146,24 +235,15 @@ export default function CartPage() {
         )}
 
         <div className="cart-page-container">
-          {/* Header Banner */}
-          <div className="cart-page-header">
-            <div className="cart-header-title-box">
-              <h1 className="cart-main-title">
-                <i className="fa-solid fa-bag-shopping"></i> My Cart
-              </h1>
-              <p className="cart-sub-title">
-                {isGuest ? (
-                  <span>
-                  </span>
-                ) : (
-                  <span className="user-badge-success">
-                    <i className="fa-solid fa-shield-check"></i> Logged In as {userSession.name || 'User'}
-                  </span>
-                )}
-              </p>
-            </div>
+          {/* Top Modern Header */}
+          <div className="cart-modern-hero">
+            <div className="cart-hero-left">
 
+              <h1 className="cart-page-title">
+                Shopping Cart
+              </h1>
+
+            </div>
 
           </div>
 
@@ -173,23 +253,41 @@ export default function CartPage() {
               {/* Left Column: Cart Items List */}
               <div className="cart-items-section">
                 <div className="cart-section-top">
-                  <span className="cart-items-count">
-                    {cart.length} {cart.length === 1 ? 'Item' : 'Items'} in your cart
-                  </span>
-                  {cart.length > 0 && (
+                  <div className="cart-count-group">
+                    <span className="cart-items-count">
+                      {totalItemsCount} {totalItemsCount === 1 ? 'Unit' : 'Units'} ({cart.length} unique {cart.length === 1 ? 'item' : 'items'})
+                    </span>
+                    {totalSavings > 0 && (
+                      <span className="cart-savings-pill">
+                        <i className="fa-solid fa-tag"></i> Saving ₹{totalSavings.toLocaleString('en-IN')}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="cart-top-actions">
                     <button
                       type="button"
-                      className="cart-clear-all-btn"
-                      onClick={() => {
-                        if (confirm('Are you sure you want to remove all items from your cart?')) {
-                          clearCart();
-                          showToast('Cart cleared successfully.');
-                        }
-                      }}
+                      className="cart-reload-defaults-btn"
+                      onClick={handleResetToDefaults}
+                      title="Load default sample items"
                     >
-                      <i className="fa-solid fa-trash-can"></i> Remove All
+                      <i className="fa-solid fa-rotate"></i> Load Default Items
                     </button>
-                  )}
+                    {cart.length > 0 && (
+                      <button
+                        type="button"
+                        className="cart-clear-all-btn"
+                        onClick={() => {
+                          if (confirm('Are you sure you want to remove all items from your cart?')) {
+                            clearCart();
+                            showToast('Cart cleared successfully.');
+                          }
+                        }}
+                      >
+                        <i className="fa-solid fa-trash-can"></i> Clear Cart
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {cart.length === 0 ? (
@@ -197,12 +295,19 @@ export default function CartPage() {
                     <div className="cart-empty-icon">
                       <i className="fa-solid fa-cart-shopping"></i>
                     </div>
-                    <h3>Your shopping cart is empty</h3>
-                    <p>Browse our verified auto parts, helmets, accessories, and book rides seamlessly.</p>
+                    <h3>Your shopping cart is currently empty</h3>
+                    <p>Load our default verified products to explore full product specs, pricing, and checkout, or browse the store.</p>
                     <div className="cart-empty-actions">
                       <button
                         type="button"
                         className="btn-primary-explore"
+                        onClick={handleResetToDefaults}
+                      >
+                        <i className="fa-solid fa-plus-circle"></i> Load Default Products
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-secondary-explore"
                         onClick={() => window.location.href = '/store'}
                       >
                         <i className="fa-solid fa-store"></i> Explore SART Store
@@ -212,7 +317,7 @@ export default function CartPage() {
                         className="btn-secondary-explore"
                         onClick={() => setActiveTab('wishlist')}
                       >
-                        <i className="fa-solid fa-heart"></i> View Wishlist ({wishlistItems.length})
+                        <i className="fa-solid fa-heart"></i> View Saved Items ({wishlistItems.length})
                       </button>
                     </div>
                   </div>
@@ -220,77 +325,138 @@ export default function CartPage() {
                   <div className="cart-items-list">
                     {cart.map((item) => {
                       const itemTotal = item.price * item.quantity;
-                      const addedTime = item.savedAt ? new Date(item.savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recently';
+                      const origPrice = item.originalPrice || Math.round(item.price * 1.35);
+                      const origTotal = origPrice * item.quantity;
+                      const discountPercent = Math.round(((origPrice - item.price) / origPrice) * 100);
+                      const deliveryDate = item.deliveryEstimate || 'Delivered in 2-3 Business Days';
+                      const brandName = item.brand || 'SART Certified Automotive';
 
                       return (
-                        <div key={item.id} className="cart-item-card">
-                          <div className="cart-item-img-box">
-                            <i className={`fa-solid ${item.icon || 'fa-box'}`}></i>
-                          </div>
-
-                          <div className="cart-item-info">
-                            <h3 className="cart-item-name">{item.name}</h3>
-                            <span className="cart-item-category">{item.category || 'Automotive & Mobility'}</span>
-                            <div className="cart-item-meta">
-                              {isGuest ? (
-                                <span className="">
-                                </span>
-                              ) : (
-                                <span className="meta-saved-tag">
-                                  <i className="fa-solid fa-cloud"></i> Saved to Account
-                                </span>
-                              )}
-                              <span className="meta-time-tag">Added: {addedTime}</span>
+                        <div key={item.id} className="cart-item-card-modern">
+                          {/* Left: Product Thumbnail */}
+                          <div className="cart-item-media">
+                            {item.image ? (
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="cart-item-thumbnail"
+                                onError={(e) => {
+                                  // Fallback to icon if remote image fails
+                                  (e.target as HTMLElement).style.display = 'none';
+                                }}
+                              />
+                            ) : null}
+                            <div className="cart-item-icon-fallback">
+                              <i className={`fa-solid ${item.icon || 'fa-box'}`}></i>
                             </div>
+                            {item.badge && (
+                              <span className="cart-item-floating-badge">{item.badge}</span>
+                            )}
                           </div>
 
-                          {/* Quantity Selector */}
-                          <div className="cart-item-quantity-box">
-                            <span className="qty-label">Quantity</span>
-                            <div className="qty-controls">
-                              <button
-                                type="button"
-                                className="qty-btn"
-                                onClick={() => updateCartQuantity(item.id, Math.max(1, item.quantity - 1))}
-                              >
-                                <i className="fa-solid fa-minus"></i>
-                              </button>
-                              <span className="qty-value">{item.quantity}</span>
-                              <button
-                                type="button"
-                                className="qty-btn"
-                                onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                              >
-                                <i className="fa-solid fa-plus"></i>
-                              </button>
+                          {/* Middle: Rich Product Specs & Details */}
+                          <div className="cart-item-details">
+                            <div className="cart-item-brand-row">
+                              <span className="cart-item-brand">{brandName}</span>
+                              <span className="cart-item-cat-tag">{item.category || 'Automotive Spares'}</span>
                             </div>
-                          </div>
 
-                          {/* Price & Actions */}
-                          <div className="cart-item-price-box">
-                            <span className="cart-price-primary">₹{itemTotal.toLocaleString('en-IN')}</span>
-                            <span className="cart-price-unit">₹{item.price.toLocaleString('en-IN')} each</span>
+                            <h3 className="cart-item-title">{item.name}</h3>
 
-                            <div className="cart-item-actions">
+                            {item.description && (
+                              <p className="cart-item-desc">{item.description}</p>
+                            )}
+
+                            {/* Trust badges and product metadata */}
+                            <div className="cart-item-features-strip">
+                              <div className="cart-feature-chip rating">
+                                <i className="fa-solid fa-star"></i>
+                                <span>{item.rating || 4.8}</span>
+                                <small>({item.reviewsCount || 120})</small>
+                              </div>
+                              <div className="cart-feature-chip verified">
+                                <i className="fa-solid fa-certificate"></i>
+                                <span>1 Year Brand Warranty</span>
+                              </div>
+                              <div className="cart-feature-chip stock">
+                                <i className="fa-solid fa-check-circle"></i>
+                                <span>In Stock & Ready to Ship</span>
+                              </div>
+                            </div>
+
+                            {/* Delivery & Protection row */}
+                            <div className="cart-item-delivery-row">
+                              <div className="delivery-info">
+                                <i className="fa-solid fa-truck-fast"></i>
+                                <span>Fast Delivery: <strong>{deliveryDate}</strong></span>
+                              </div>
+                              <div className="return-info">
+                                <i className="fa-solid fa-rotate-left"></i>
+                                <span>7 Days Free Return / Replacement</span>
+                              </div>
+                            </div>
+
+                            {/* Bottom Actions: Move to Wishlist & Remove */}
+                            <div className="cart-item-bottom-actions">
                               <button
                                 type="button"
-                                className="btn-action-save"
+                                className="btn-modern-action wishlist"
                                 onClick={() => handleMoveToWishlist(item)}
-                                title="Move to Wishlist"
                               >
-                                <i className="fa-regular fa-heart"></i> Save for later
+                                <i className="fa-regular fa-heart"></i> Save for Later
                               </button>
+                              <span className="action-sep">•</span>
                               <button
                                 type="button"
-                                className="btn-action-remove"
+                                className="btn-modern-action remove"
                                 onClick={() => {
                                   removeFromCart(item.id);
                                   showToast(`Removed "${item.name}" from cart.`);
                                 }}
-                                title="Remove item"
                               >
                                 <i className="fa-solid fa-trash-can"></i> Remove
                               </button>
+                            </div>
+                          </div>
+
+                          {/* Right: Price & Quantity Controls */}
+                          <div className="cart-item-pricing-col">
+                            <div className="pricing-box">
+                              <div className="current-price-row">
+                                <span className="cart-final-price">₹{itemTotal.toLocaleString('en-IN')}</span>
+                              </div>
+                              {origTotal > itemTotal && (
+                                <div className="orig-price-row">
+                                  <span className="cart-original-price">₹{origTotal.toLocaleString('en-IN')}</span>
+                                  <span className="cart-discount-percent">{discountPercent}% OFF</span>
+                                </div>
+                              )}
+                              <span className="cart-unit-rate">₹{item.price.toLocaleString('en-IN')} per unit</span>
+                            </div>
+
+                            {/* Interactive Quantity Stepper */}
+                            <div className="modern-qty-stepper">
+                              <span className="stepper-label">Quantity</span>
+                              <div className="stepper-controls">
+                                <button
+                                  type="button"
+                                  className="stepper-btn minus"
+                                  onClick={() => updateCartQuantity(item.id, Math.max(1, item.quantity - 1))}
+                                  disabled={item.quantity <= 1}
+                                  title="Decrease quantity"
+                                >
+                                  <i className="fa-solid fa-minus"></i>
+                                </button>
+                                <span className="stepper-number">{item.quantity}</span>
+                                <button
+                                  type="button"
+                                  className="stepper-btn plus"
+                                  onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
+                                  title="Increase quantity"
+                                >
+                                  <i className="fa-solid fa-plus"></i>
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -298,62 +464,165 @@ export default function CartPage() {
                     })}
                   </div>
                 )}
+
+                {/* Additional Value Banner below items */}
+                <div className="cart-assurance-banner">
+                  <div className="assurance-item">
+                    <i className="fa-solid fa-truck-shield"></i>
+                    <div>
+                      <strong>Free & Safe Delivery</strong>
+                      <p>Orders above ₹999 qualify for express shipping across India.</p>
+                    </div>
+                  </div>
+                  <div className="assurance-item">
+                    <i className="fa-solid fa-wrench"></i>
+                    <div>
+                      <strong>Optional Doorstep Fitment</strong>
+                      <p>Book a certified mechanic to install parts directly at your doorstep.</p>
+                    </div>
+                  </div>
+                  <div className="assurance-item">
+                    <i className="fa-solid fa-credit-card"></i>
+                    <div>
+                      <strong>Multiple Payment Options</strong>
+                      <p>SART Wallet, UPI, Cards, NetBanking, and Cash on Delivery.</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Right Column: Order Summary & Checkout */}
+              {/* Right Column: Order Summary & Checkout Card */}
               {cart.length > 0 && (
                 <div className="cart-summary-section">
-                  <div className="cart-summary-card">
-                    <h3 className="summary-title">Order Summary</h3>
+                  <div className="cart-summary-card-modern">
+                    <h3 className="summary-card-title">
+                      <i className="fa-solid fa-receipt"></i> Order Summary
+                    </h3>
 
-                    <div className="summary-row">
-                      <span>Items Subtotal</span>
-                      <span>₹{subtotal.toLocaleString('en-IN')}</span>
+                    {/* Promo Code Input */}
+                    <div className="coupon-box">
+                      <label className="coupon-label">Apply Promo / Coupon Code</label>
+                      {!promoApplied ? (
+                        <form onSubmit={handleApplyCoupon} className="coupon-form">
+                          <input
+                            type="text"
+                            placeholder="Enter Code (e.g. SART15)"
+                            value={promoCode}
+                            onChange={(e) => setPromoCode(e.target.value)}
+                            className="coupon-input"
+                          />
+                          <button type="submit" className="coupon-apply-btn">
+                            Apply
+                          </button>
+                        </form>
+                      ) : (
+                        <div className="coupon-applied-pill">
+                          <div className="coupon-applied-text">
+                            <i className="fa-solid fa-circle-check"></i>
+                            <span>Code <strong>{promoCode || 'SART15'}</strong> Applied!</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleRemoveCoupon}
+                            className="coupon-remove-btn"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )}
+                      {promoError && <p className="coupon-error-text">{promoError}</p>}
                     </div>
 
-                    <div className="summary-row discount">
-                      <span>Instant Promo (10% OFF)</span>
-                      <span>-₹{discountTotal.toLocaleString('en-IN')}</span>
-                    </div>
+                    {/* Breakdown List */}
+                    <div className="summary-breakdown">
+                      <div className="breakdown-row">
+                        <span>Items Price ({totalItemsCount} units)</span>
+                        <span>₹{originalSubtotal.toLocaleString('en-IN')}</span>
+                      </div>
 
-                    <div className="summary-row">
-                      <span>Standard Delivery</span>
-                      <span className="free-tag">FREE</span>
-                    </div>
+                      {productDiscount > 0 && (
+                        <div className="breakdown-row discount">
+                          <span>Catalog Discount</span>
+                          <span>-₹{productDiscount.toLocaleString('en-IN')}</span>
+                        </div>
+                      )}
 
-                    <div className="summary-divider"></div>
+                      {promoApplied && (
+                        <div className="breakdown-row discount promo">
+                          <span>Promo Code Savings (15%)</span>
+                          <span>-₹{couponDiscount.toLocaleString('en-IN')}</span>
+                        </div>
+                      )}
 
-                    <div className="summary-row total">
-                      <span>Total Amount</span>
-                      <span className="total-amount">₹{finalTotal.toLocaleString('en-IN')}</span>
-                    </div>
+                      <div className="breakdown-row">
+                        <span>Estimated Delivery</span>
+                        {deliveryFee === 0 ? (
+                          <span className="free-delivery-badge">FREE</span>
+                        ) : (
+                          <span>₹{deliveryFee}</span>
+                        )}
+                      </div>
 
-                    {/* SART Wallet Balance Box */}
-                    <div className="wallet-status-box">
-                      <div className="wallet-status-info">
-                        <i className="fa-solid fa-wallet"></i>
+                      <div className="breakdown-row">
+                        <span>Estimated Taxes & Packaging</span>
+                        <span className="free-delivery-badge">INCLUDED</span>
+                      </div>
+
+                      <div className="summary-line-divider"></div>
+
+                      <div className="breakdown-row final-total-row">
                         <div>
-                          <span className="wallet-lbl">SART Wallet Balance</span>
-                          <strong className="wallet-val">₹{wallet.balance.toLocaleString('en-IN')}</strong>
+                          <strong>Total Payable</strong>
+                          <span className="tax-inclusive-tag">(Inclusive of all GST)</span>
+                        </div>
+                        <strong className="final-total-num">₹{finalTotal.toLocaleString('en-IN')}</strong>
+                      </div>
+                    </div>
+
+                    {totalSavings > 0 && (
+                      <div className="summary-savings-banner">
+                        <i className="fa-solid fa-gift"></i>
+                        <span>You are saving <strong>₹{totalSavings.toLocaleString('en-IN')}</strong> on this order!</span>
+                      </div>
+                    )}
+
+                    {/* SART Wallet Box */}
+                    <div className="wallet-card-highlight">
+                      <div className="wallet-card-header">
+                        <div className="wallet-icon-ring">
+                          <i className="fa-solid fa-wallet"></i>
+                        </div>
+                        <div className="wallet-balance-info">
+                          <span className="wallet-title">SART Wallet Balance</span>
+                          <strong className="wallet-amount">₹{wallet.balance.toLocaleString('en-IN')}</strong>
                         </div>
                       </div>
-                      {wallet.balance < finalTotal && (
-                        <span className="wallet-warning">
-                          <i className="fa-solid fa-circle-exclamation"></i> Low balance
-                        </span>
+                      {wallet.balance < finalTotal ? (
+                        <div className="wallet-alert-warning">
+                          <i className="fa-solid fa-triangle-exclamation"></i>
+                          <span>Low balance. Please top up or pay remaining at checkout.</span>
+                        </div>
+                      ) : (
+                        <div className="wallet-alert-success">
+                          <i className="fa-solid fa-circle-check"></i>
+                          <span>Sufficient balance available for instant 1-click checkout.</span>
+                        </div>
                       )}
                     </div>
 
+                    {/* Primary Checkout Button */}
                     <button
                       type="button"
-                      className="btn-checkout-primary"
+                      className="btn-checkout-modern"
                       onClick={handleCheckout}
                     >
-                      <i className="fa-solid fa-lock"></i> Proceed to Checkout
+                      <i className="fa-solid fa-lock"></i>
+                      <span>Pay ₹{finalTotal.toLocaleString('en-IN')} & Place Order</span>
                     </button>
 
-                    <div className="summary-guarantee">
-                      <i className="fa-solid fa-shield-halved"></i> 100% Safe & Secure Payments via SART Universal Gateway
+                    <div className="summary-guarantee-note">
+                      <i className="fa-solid fa-shield-check"></i>
+                      <span>Encrypted 256-bit Secure Checkout • 100% Buyer Protection</span>
                     </div>
                   </div>
                 </div>
@@ -390,13 +659,13 @@ export default function CartPage() {
                     <i className="fa-solid fa-heart"></i>
                   </div>
                   <h3>Your Wishlist is Empty</h3>
-                  <p>Save items you like by clicking the heart icon on any product or service.</p>
+                  <p>Save items you like by clicking the heart icon on any automotive part or accessory.</p>
                   <button
                     type="button"
                     className="btn-primary-explore"
                     onClick={() => window.location.href = '/store'}
                   >
-                    <i className="fa-solid fa-store"></i> Browse Store
+                    <i className="fa-solid fa-store"></i> Browse SART Store
                   </button>
                 </div>
               ) : (
@@ -416,13 +685,28 @@ export default function CartPage() {
                       </button>
 
                       <div className="wishlist-img-box">
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }}
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        ) : null}
                         <i className={`fa-solid ${item.icon}`}></i>
                       </div>
 
                       <div className="wishlist-body">
-                        <h4 className="wishlist-title">{item.name}</h4>
                         <span className="wishlist-category">{item.category}</span>
-                        <div className="wishlist-price">₹{item.price.toLocaleString('en-IN')}</div>
+                        <h4 className="wishlist-title">{item.name}</h4>
+                        <div className="wishlist-pricing">
+                          <span className="wishlist-price">₹{item.price.toLocaleString('en-IN')}</span>
+                          {item.originalPrice && (
+                            <span className="wishlist-original-price">₹{item.originalPrice.toLocaleString('en-IN')}</span>
+                          )}
+                        </div>
                       </div>
 
                       <div className="wishlist-footer">
@@ -444,7 +728,7 @@ export default function CartPage() {
       </main>
 
       <Footer />
+      <CitySelectorModal isOpen={isCityModalOpen} onClose={() => setIsCityModalOpen(false)} />
     </div>
   );
 }
-

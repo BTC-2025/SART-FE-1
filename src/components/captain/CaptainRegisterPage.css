@@ -57,6 +57,7 @@
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -543,8 +544,15 @@
 }
 
 @keyframes fadeInDropdown {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .c-city-suggestion-item {
@@ -583,8 +591,15 @@
 }
 
 @keyframes slideDownSms {
-  from { opacity: 0; transform: translateY(-12px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .c-sms-toast-top {
@@ -710,4 +725,3 @@
 .c-auth-switch-link button:hover {
   color: #0369a1;
 }
-
