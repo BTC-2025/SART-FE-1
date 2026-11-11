@@ -26,7 +26,7 @@
   border-radius: 0px;
   padding-bottom: 10px;
   background: #ffffff;
-  border-left: 1px solid #e2e8f0;
+  border-left: 2px solid #2a1373 !important;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -179,6 +179,7 @@
   background: #ffffff !important;
   border-radius: 0 !important;
   border: 1px solid #eef2f6 !important;
+  border-left: 2px solid #2a1373 !important;
   border-right: none !important;
   box-shadow: -8px 8px 30px rgba(0, 0, 0, 0.06) !important;
   display: flex !important;
@@ -682,6 +683,7 @@
   background: #ffffff !important;
   border-radius: 0 !important;
   border: 1px solid #eef2f6 !important;
+  border-left: 2px solid #2a1373 !important;
   border-right: none !important;
   box-shadow: -8px 8px 30px rgba(0, 0, 0, 0.06) !important;
   display: flex !important;
@@ -1130,6 +1132,7 @@
   background: #ffffff !important;
   border-radius: 0 !important;
   border: 1px solid #eef2f6 !important;
+  border-left: 2px solid #2a1373 !important;
   border-right: none !important;
   box-shadow: -8px 8px 32px rgba(0, 0, 0, 0.08) !important;
   display: flex !important;
@@ -1441,7 +1444,7 @@
 
 /* Virtual Keyboard specific compact drawer with height between 200px and 300px */
 .user-side-dock-panel.bnx-vk-panel {
-  top: 400px !important;
+  top: 350px !important;
   width: 680px !important;
   max-width: calc(100vw - 80px) !important;
   height: 215px !important;
