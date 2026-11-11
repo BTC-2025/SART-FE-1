@@ -898,12 +898,12 @@
   opacity: 0.7;
 }
 
-/* Sidebar Circles: 42px x 42px with colored borders matching screenshot */
+/* Sidebar Circles: Compact 34px x 34px with thin 1px border matching screenshot */
 .bnx-tool-btn {
-  width: 42px !important;
-  height: 42px !important;
-  border-radius: 18px !important;
-  border: 1.8px solid transparent !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  border: 1px solid transparent !important;
   background: #ffffff !important;
   display: flex !important;
   align-items: center !important;
@@ -916,114 +916,114 @@
 }
 
 .bnx-tool-btn.bnx-square-shape {
-  border-radius: 12px !important;
-  border: 1.5px solid #dbeafe !important;
+  border-radius: 10px !important;
+  border: 1px solid #dbeafe !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-custom_edit {
-  border: 1.8px solid #cbd5e1 !important;
+  border: 1px solid #cbd5e1 !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-rides {
-  border: 1.8px solid #2563eb !important;
+  border: 1px solid #2563eb !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-rentals {
-  border: 1.8px solid #10b981 !important;
+  border: 1px solid #10b981 !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-logistics {
-  border: 1.8px solid #f59e0b !important;
+  border: 1px solid #f59e0b !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-parking {
-  border: 1.8px solid #8b5cf6 !important;
+  border: 1px solid #8b5cf6 !important;
   background: #ffffff !important;
 }
 
-/* Default Inactive: clean white background, soft rounded squircle border */
+/* Default Inactive: clean white background, thin 1px circular border */
 .bnx-tool-btn.bnx-brand-b {
-  border: 1.5px solid #dbeafe !important;
+  border: 1px solid #dbeafe !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-calendar {
-  border: 1.5px solid #fed7aa !important;
+  border: 1px solid #fed7aa !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-calculator {
-  border: 1.5px solid #a7f3d0 !important;
+  border: 1px solid #a7f3d0 !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-contacts,
 .bnx-tool-btn.bnx-people {
-  border: 1.5px solid #bfdbfe !important;
+  border: 1px solid #bfdbfe !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-notes {
-  border: 1.5px solid #fef08a !important;
+  border: 1px solid #fef08a !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-keyboard {
-  border: 1.5px solid #c7d2fe !important;
+  border: 1px solid #c7d2fe !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-cloud {
-  border: 1.5px solid #a5f3fc !important;
+  border: 1px solid #a5f3fc !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-pencil {
-  border: 1.5px solid #e2e8f0 !important;
+  border: 1px solid #e2e8f0 !important;
   background: #ffffff !important;
 }
 
-/* Active Selected Tool: Bold 2.5px ring matching Image 1, 2, 3 */
+/* Active Selected Tool: 1.5px colored border matching screenshot */
 .bnx-tool-btn.active-tool {
-  border: 2.5px solid #2563eb !important;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+  border: 1.5px solid #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12) !important;
   background: #ffffff !important;
 }
 
 .bnx-tool-btn.bnx-calendar.active-tool {
-  border: 2.5px solid #ea580c !important;
-  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15) !important;
+  border: 1.5px solid #ea580c !important;
+  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.12) !important;
 }
 
 .bnx-tool-btn.bnx-calculator.active-tool {
-  border: 2.5px solid #059669 !important;
-  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15) !important;
+  border: 1.5px solid #059669 !important;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.12) !important;
 }
 
 .bnx-tool-btn.bnx-contacts.active-tool,
 .bnx-tool-btn.bnx-people.active-tool {
-  border: 2.5px solid #2563eb !important;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+  border: 1.5px solid #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12) !important;
 }
 
 .bnx-tool-btn.bnx-notes.active-tool {
-  border: 2.5px solid #2563eb !important;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+  border: 1.5px solid #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12) !important;
 }
 
 .bnx-tool-btn.bnx-keyboard.active-tool {
-  border: 2.5px solid #6366f1 !important;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+  border: 1.5px solid #6366f1 !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.12) !important;
 }
 
 .bnx-tool-btn.bnx-cloud.active-tool {
-  border: 2.5px solid #06b6d4 !important;
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15) !important;
+  border: 1.5px solid #06b6d4 !important;
+  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.12) !important;
 }
 
 /* Solid Green Checkmark Circle Button */
