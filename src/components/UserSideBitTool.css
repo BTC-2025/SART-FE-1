@@ -556,18 +556,18 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+  box-shadow: none !important;
   position: relative;
   user-select: none;
 }
 
 .bnx-tool-btn:hover {
   transform: translateY(-2px) scale(1.06);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  box-shadow: none !important;
 }
 
 .bnx-tool-btn.active-tool {
-  box-shadow: 0 0 0 2.5px #2563eb, 0 6px 16px rgba(37, 99, 235, 0.3) !important;
+  box-shadow: none !important;
 }
 
 /* 1. Yellow Calendar Circle */
@@ -913,6 +913,7 @@
   padding: 0 !important;
   margin: 0 !important;
   flex-shrink: 0 !important;
+  box-shadow: none !important;
 }
 
 .bnx-tool-btn.bnx-square-shape {
@@ -1001,11 +1002,11 @@
   background: #f1f5f9 !important;
 }
 
-/* Active Selected Tool: Square with full matching tinted background and NO harsh border */
+/* Active Selected Tool: Square with full matching tinted background and NO box shadow */
 .bnx-tool-btn.active-tool {
   border-radius: 8px !important;
   border: none !important;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25) !important;
+  box-shadow: none !important;
   background: #dbeafe !important;
 }
 
@@ -1013,14 +1014,14 @@
   border-radius: 8px !important;
   border: none !important;
   background: #ffedd5 !important;
-  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.25) !important;
+  box-shadow: none !important;
 }
 
 .bnx-tool-btn.bnx-calculator.active-tool {
   border-radius: 8px !important;
   border: none !important;
   background: #d1fae5 !important;
-  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.25) !important;
+  box-shadow: none !important;
 }
 
 .bnx-tool-btn.bnx-contacts.active-tool,
@@ -1028,28 +1029,28 @@
   border-radius: 8px !important;
   border: none !important;
   background: #dbeafe !important;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25) !important;
+  box-shadow: none !important;
 }
 
 .bnx-tool-btn.bnx-notes.active-tool {
   border-radius: 8px !important;
   border: none !important;
   background: #fef9c3 !important;
-  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.25) !important;
+  box-shadow: none !important;
 }
 
 .bnx-tool-btn.bnx-keyboard.active-tool {
   border-radius: 8px !important;
   border: none !important;
   background: #e0e7ff !important;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25) !important;
+  box-shadow: none !important;
 }
 
 .bnx-tool-btn.bnx-cloud.active-tool {
   border-radius: 8px !important;
   border: none !important;
   background: #cffafe !important;
-  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.25) !important;
+  box-shadow: none !important;
 }
 
 /* Solid Green Checkmark Circle Button */
