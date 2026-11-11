@@ -947,44 +947,229 @@ export default function UserSideBitTool({
         </div>
       )}
 
-      {/* DRAWER 3: CALCULATOR */}
+      {/* DRAWER 3: CALCULATOR (Exact Match to Inspector Classes) */}
       {activeModal === 'calculator' && (
-        <div className="user-side-dock-panel">
-          <div className="user-dock-header">
-            <span className="user-dock-title">CALCULATOR</span>
-            <button className="user-dock-close-btn" onClick={closeModal} title="Close">
-              <i className="fa-solid fa-xmark"></i>
+        <div className="user-side-dock-panel flex flex-col h-full bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-2xl">
+          {/* Top Panel Header */}
+          <div className="px-4 h-14 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-black/[0.01] dark:bg-white/[0.01] shrink-0">
+            <span className="font-bold text-sm tracking-wide text-slate-800 dark:text-slate-100">Calculator</span>
+            <button
+              className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-full text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+              onClick={closeModal}
+              title="Close"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
             </button>
           </div>
-          <div className="user-dock-inner">
-            <div className="user-calc-screen">
-              <div className="user-calc-formula">{calcFormula}</div>
-              <div className="user-calc-display">{calcDisplay}</div>
-            </div>
-            <div className="user-calc-pad">
-              <button className="user-calc-key clear" onClick={() => handleCalcClick('AC')}>AC</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('backspace')}>⌫</button>
-              <button className="user-calc-key op" onClick={() => handleCalcClick('%')}>%</button>
-              <button className="user-calc-key op" onClick={() => handleCalcClick('÷')}>÷</button>
 
-              <button className="user-calc-key" onClick={() => handleCalcClick('7')}>7</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('8')}>8</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('9')}>9</button>
-              <button className="user-calc-key op" onClick={() => handleCalcClick('x')}>×</button>
+          <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col p-0">
+            <div className="h-full w-full overflow-hidden flex flex-col relative min-h-[480px]">
+              <div className="flex flex-col h-full bg-white dark:bg-gray-900">
+                {/* Beta Calc Title & Action Buttons Row */}
+                <div className="flex items-center justify-between p-2.5 border-b border-gray-100 dark:border-gray-800">
+                  <div className="flex items-center gap-2 font-bold text-gray-800 dark:text-gray-100 tracking-wide text-xs">
+                    <span className="text-emerald-500 font-black">#</span>
+                    <span>BETA CALC</span>
+                  </div>
 
-              <button className="user-calc-key" onClick={() => handleCalcClick('4')}>4</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('5')}>5</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('6')}>6</button>
-              <button className="user-calc-key op" onClick={() => handleCalcClick('-')}>−</button>
+                  <div className="flex items-center gap-1 text-gray-500">
+                    {/* History button */}
+                    <button
+                      type="button"
+                      className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                      title="Tape History"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-history">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                        <path d="M3 3v5h5"></path>
+                        <path d="M12 7v5l4 2"></path>
+                      </svg>
+                    </button>
 
-              <button className="user-calc-key" onClick={() => handleCalcClick('1')}>1</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('2')}>2</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('3')}>3</button>
-              <button className="user-calc-key op" onClick={() => handleCalcClick('+')}>+</button>
+                    {/* Share button */}
+                    <button
+                      type="button"
+                      disabled
+                      className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-50"
+                      title="Share Tape"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-share2">
+                        <circle cx="18" cy="5" r="3"></circle>
+                        <circle cx="6" cy="12" r="3"></circle>
+                        <circle cx="18" cy="19" r="3"></circle>
+                        <line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line>
+                        <line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line>
+                      </svg>
+                    </button>
 
-              <button className="user-calc-key" onClick={() => handleCalcClick('0')}>0</button>
-              <button className="user-calc-key" onClick={() => handleCalcClick('.')}>.</button>
-              <button className="user-calc-key equal" style={{ gridColumn: 'span 2' }} onClick={() => handleCalcClick('=')}>=</button>
+                    {/* Trash/Clear Tape button */}
+                    <button
+                      type="button"
+                      onClick={() => handleCalcClick('AC')}
+                      className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 rounded-lg transition-colors"
+                      title="Clear Tape"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash2">
+                        <path d="M3 6h18"></path>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                        <line x1="10" x2="10" y1="11" y2="17"></line>
+                        <line x1="14" x2="14" y1="11" y2="17"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Tape Content Container */}
+                <div className="flex-1 overflow-y-auto p-3 space-y-2.5 bg-gray-50/50 dark:bg-gray-900/50 hidden-scrollbar">
+                  <div className="h-full flex flex-col items-center justify-center opacity-40">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-2">
+                      <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                      <path d="M3 3v5h5"></path>
+                      <path d="M12 7v5l4 2"></path>
+                    </svg>
+                    <p className="text-xs">Start typing to record Tape</p>
+                  </div>
+                </div>
+
+                {/* Display Value Screen: SET BASE + Large Digits */}
+                <div className="bg-gray-100/50 dark:bg-gray-800 py-2 px-3 border-t border-gray-200 dark:border-gray-700">
+                  <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">SET BASE</div>
+                  <div className="text-2xl font-black text-right h-8 truncate overflow-hidden text-slate-900 dark:text-white">
+                    {calcDisplay || '0'}
+                  </div>
+                </div>
+
+                {/* Quick Action Preset Pills: % GST | Discount | INR | Compare */}
+                <div className="grid grid-cols-4 gap-1.5 p-1.5 border-t border-gray-100 dark:border-gray-800">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const num = parseFloat(calcDisplay) || 0;
+                      setCalcDisplay(String(+(num * 1.18).toFixed(2)));
+                    }}
+                    className="flex items-center justify-center gap-1.5 py-1.5 px-1 text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800 hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-percent">
+                      <line x1="19" x2="5" y1="5" y2="19"></line>
+                      <circle cx="6.5" cy="6.5" r="2.5"></circle>
+                      <circle cx="17.5" cy="17.5" r="2.5"></circle>
+                    </svg>
+                    <span>GST</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const num = parseFloat(calcDisplay) || 0;
+                      setCalcDisplay(String(+(num * 0.9).toFixed(2)));
+                    }}
+                    className="flex items-center justify-center gap-1.5 py-1.5 px-1 text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800 hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                      <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                    </svg>
+                    <span>Discount</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCalcClick('₹')}
+                    className="flex items-center justify-center gap-1.5 py-1.5 px-1 text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800 hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                  >
+                    <span className="text-[11px]">₹</span>
+                    <span>INR</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="flex items-center justify-center gap-1.5 py-1.5 px-1 text-xs font-bold text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                  >
+                    <span>⇄</span>
+                    <span>Compare</span>
+                  </button>
+                </div>
+
+                {/* Keypad Grid */}
+                <div className="grid grid-cols-4 gap-1 p-2 bg-slate-50/70 border-t border-gray-100">
+                  {/* Row 1 */}
+                  <button
+                    type="button"
+                    onClick={() => handleCalcClick('AC')}
+                    className="h-10 rounded-xl text-xs font-bold text-red-500 bg-white shadow-xs hover:bg-red-50 transition-colors flex items-center justify-center"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                      <path d="M3 3v5h5"></path>
+                    </svg>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCalcClick('backspace')}
+                    className="h-10 rounded-xl text-xs font-bold text-slate-700 bg-white shadow-xs hover:bg-slate-100 transition-colors flex items-center justify-center"
+                  >
+                    ←
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCalcClick('÷')}
+                    className="h-10 rounded-xl text-sm font-bold text-emerald-600 bg-emerald-50/70 shadow-xs hover:bg-emerald-100 transition-colors flex items-center justify-center"
+                  >
+                    /
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCalcClick('x')}
+                    className="h-10 rounded-xl text-sm font-bold text-emerald-600 bg-emerald-50/70 shadow-xs hover:bg-emerald-100 transition-colors flex items-center justify-center"
+                  >
+                    x
+                  </button>
+
+                  {/* Row 2: 7 8 9 - */}
+                  <button type="button" onClick={() => handleCalcClick('7')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">7</button>
+                  <button type="button" onClick={() => handleCalcClick('8')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">8</button>
+                  <button type="button" onClick={() => handleCalcClick('9')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">9</button>
+                  <button type="button" onClick={() => handleCalcClick('-')} className="h-10 rounded-xl text-base font-bold text-emerald-600 bg-emerald-50/70 shadow-xs hover:bg-emerald-100 transition-colors">−</button>
+
+                  {/* Row 3: 4 5 6 + */}
+                  <button type="button" onClick={() => handleCalcClick('4')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">4</button>
+                  <button type="button" onClick={() => handleCalcClick('5')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">5</button>
+                  <button type="button" onClick={() => handleCalcClick('6')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">6</button>
+                  <button type="button" onClick={() => handleCalcClick('+')} className="h-10 rounded-xl text-base font-bold text-emerald-600 bg-emerald-50/70 shadow-xs hover:bg-emerald-100 transition-colors">+</button>
+
+                  {/* Row 4: 1 2 3 = */}
+                  <button type="button" onClick={() => handleCalcClick('1')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">1</button>
+                  <button type="button" onClick={() => handleCalcClick('2')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">2</button>
+                  <button type="button" onClick={() => handleCalcClick('3')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">3</button>
+
+                  <button
+                    type="button"
+                    rowSpan={2}
+                    onClick={() => handleCalcClick('=')}
+                    className="row-span-2 rounded-xl text-lg font-black text-white bg-emerald-500 hover:bg-emerald-600 shadow-md shadow-emerald-500/30 transition-all flex items-center justify-center cursor-pointer"
+                  >
+                    =
+                  </button>
+
+                  {/* Row 5: SCI 0 . */}
+                  <button type="button" className="h-10 rounded-xl text-[11px] font-bold text-slate-500 bg-white shadow-xs hover:bg-slate-100 transition-colors">SCI</button>
+                  <button type="button" onClick={() => handleCalcClick('0')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">0</button>
+                  <button type="button" onClick={() => handleCalcClick('.')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">.</button>
+                </div>
+
+                {/* Bottom Tape Running Total Footer matching Image */}
+                <div className="bg-slate-900 text-white p-2.5 px-3 flex flex-col justify-center">
+                  <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">TAPE RUNNING TOTAL</div>
+                  <div className="text-base font-black text-emerald-400 tracking-tight">₹{calcDisplay === 'Error' ? '0.00' : (parseFloat(calcDisplay) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
