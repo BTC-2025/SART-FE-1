@@ -1618,7 +1618,7 @@ export default function UserSideBitTool({
                       <span>GST</span>
                     </button>
                     {activeCalcDropdown === 'gst' && (
-                      <div className="absolute bottom-full left-0 mb-1.5 w-[258px] bg-white border border-emerald-300 rounded-2xl shadow-xl px-2.5 py-2 z-30 animate-in fade-in flex flex-col gap-1.5">
+                      <div className="absolute bottom-full left-0 mb-1.5 w-[290px] bg-white border border-emerald-300 rounded-2xl shadow-xl px-2 py-1.5 z-30 animate-in fade-in flex flex-col gap-1">
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">SELECT GST</span>
                           <button
@@ -1630,36 +1630,36 @@ export default function UserSideBitTool({
                           </button>
                         </div>
 
-                        {/* Exact match to 2nd image: 4 pills + compact % input + green Add button */}
-                        <div className="flex items-center gap-1.5">
+                        {/* All elements neatly contained within 290px width (< 300px) */}
+                        <div className="flex items-center gap-1">
                           {[5, 12, 18, 28].map(p => (
                             <button
                               key={p}
                               type="button"
                               onClick={() => handleApplyGst(p)}
-                              className="px-2 py-1 text-center text-[11.5px] font-black text-emerald-800 bg-emerald-50/90 hover:bg-emerald-100 rounded-xl border border-emerald-200 transition-colors shrink-0"
+                              className="px-2 py-1 text-center text-[11px] font-black text-emerald-800 bg-emerald-50/90 hover:bg-emerald-100 rounded-xl border border-emerald-200 transition-colors shrink-0"
                             >
                               +{p}%
                             </button>
                           ))}
 
-                          {/* Compact % input matching 2nd image */}
+                          {/* Compact % input */}
                           <input
                             type="number"
                             placeholder="%"
                             value={customGstInput}
                             onChange={(e) => setCustomGstInput(e.target.value)}
-                            className="w-9 h-7 bg-slate-50 border border-slate-200 rounded-xl text-center text-xs font-bold outline-none text-slate-700 placeholder:text-slate-400 shrink-0"
+                            className="w-8 h-6 bg-slate-50 border border-slate-200 rounded-lg text-center text-xs font-bold outline-none text-slate-700 placeholder:text-slate-400 shrink-0"
                           />
 
-                          {/* Compact Add button matching 2nd image */}
+                          {/* Compact Add button */}
                           <button
                             type="button"
                             onClick={() => {
                               const val = parseFloat(customGstInput);
                               if (!isNaN(val) && val > 0) handleApplyGst(val);
                             }}
-                            className="h-7 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl transition-colors shrink-0"
+                            className="h-6 px-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-black rounded-lg transition-colors shrink-0"
                           >
                             Add
                           </button>
@@ -1668,7 +1668,7 @@ export default function UserSideBitTool({
                     )}
                   </div>
 
-                  {/* 2. Discount Dropdown Pill (Opens only when clicked, width matching 2nd image) */}
+                  {/* 2. Discount Dropdown Pill (Opens only when clicked, identical 290px width & height) */}
                   <div className="relative">
                     <button
                       type="button"
@@ -1682,7 +1682,7 @@ export default function UserSideBitTool({
                       <span>Discount</span>
                     </button>
                     {activeCalcDropdown === 'discount' && (
-                      <div className="absolute bottom-full left-0 mb-1.5 w-[258px] bg-white border border-amber-300 rounded-2xl shadow-xl px-2.5 py-2 z-30 animate-in fade-in flex flex-col gap-1.5">
+                      <div className="absolute bottom-full left-0 mb-1.5 w-[290px] bg-white border border-amber-300 rounded-2xl shadow-xl px-2 py-1.5 z-30 animate-in fade-in flex flex-col gap-1">
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">SELECT DISCOUNT</span>
                           <button
@@ -1694,36 +1694,36 @@ export default function UserSideBitTool({
                           </button>
                         </div>
 
-                        {/* Exact match to 2nd image: 4 pills + compact % input + amber Add button */}
-                        <div className="flex items-center gap-1.5">
+                        {/* Identical layout matching GST */}
+                        <div className="flex items-center gap-1">
                           {[5, 10, 15, 20].map(p => (
                             <button
                               key={p}
                               type="button"
                               onClick={() => handleApplyDiscount(p)}
-                              className="px-2 py-1 text-center text-[11.5px] font-black text-amber-800 bg-amber-50/90 hover:bg-amber-100 rounded-xl border border-amber-200 transition-colors shrink-0"
+                              className="px-2 py-1 text-center text-[11px] font-black text-amber-800 bg-amber-50/90 hover:bg-amber-100 rounded-xl border border-amber-200 transition-colors shrink-0"
                             >
                               −{p}%
                             </button>
                           ))}
 
-                          {/* Compact % input matching 2nd image */}
+                          {/* Compact % input */}
                           <input
                             type="number"
                             placeholder="%"
                             value={customDiscountInput}
                             onChange={(e) => setCustomDiscountInput(e.target.value)}
-                            className="w-9 h-7 bg-slate-50 border border-slate-200 rounded-xl text-center text-xs font-bold outline-none text-slate-700 placeholder:text-slate-400 shrink-0"
+                            className="w-8 h-6 bg-slate-50 border border-slate-200 rounded-lg text-center text-xs font-bold outline-none text-slate-700 placeholder:text-slate-400 shrink-0"
                           />
 
-                          {/* Compact Add button matching 2nd image */}
+                          {/* Compact Add button */}
                           <button
                             type="button"
                             onClick={() => {
                               const val = parseFloat(customDiscountInput);
                               if (!isNaN(val) && val > 0) handleApplyDiscount(val);
                             }}
-                            className="h-7 px-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-black rounded-xl transition-colors shrink-0"
+                            className="h-6 px-2 bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-black rounded-lg transition-colors shrink-0"
                           >
                             Add
                           </button>
@@ -2243,6 +2243,7 @@ export default function UserSideBitTool({
                         background: '#f8fafc',
                         border: '1.5px solid #e2e8f0',
                         borderRadius: '12px',
+                        padding: '0 2px',
                         fontSize: '14px',
                         color: '#0f172a',
                         outline: 'none'
@@ -2256,12 +2257,13 @@ export default function UserSideBitTool({
                       type="text"
                       value={contactRole}
                       onChange={(e) => setContactRole(e.target.value)}
-                      placeholder="e.g.Supplier"
+                      placeholder="e.g. Supplier"
                       style={{
                         height: '44px',
                         background: '#f8fafc',
                         border: '1.5px solid #e2e8f0',
                         borderRadius: '12px',
+                        padding: '0 2px',
                         fontSize: '14px',
                         color: '#0f172a',
                         outline: 'none'
