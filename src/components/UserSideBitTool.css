@@ -15,9 +15,9 @@
 .user-side-bittool-strip {
   position: fixed;
   right: 0;
-  top: 64px;
-  /* Below Main Navbar (56px) + SubNavbar (40px) */
-  height: calc(100vh - 64px) !important;
+  top: 104px;
+  /* Below Main Navbar (64px) + SubNavbar (40px) = 104px */
+  height: calc(100vh - 104px) !important;
   max-height: none !important;
   bottom: 0 !important;
   border-radius: 0 !important;
@@ -27,6 +27,7 @@
   padding-bottom: 10px;
   background: #ffffff;
   border-left: 2px solid #2a1373 !important;
+  border-right: 2px solid #2a1373 !important;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -180,7 +181,7 @@
   border-radius: 0 !important;
   border: 1px solid #eef2f6 !important;
   border-left: 2px solid #2a1373 !important;
-  border-right: none !important;
+  border-right: 2px solid #2a1373 !important;
   box-shadow: -8px 8px 30px rgba(0, 0, 0, 0.06) !important;
   display: flex !important;
   flex-direction: column !important;
@@ -675,7 +676,7 @@
 .user-side-dock-panel.bnx-cal-panel {
   position: fixed !important;
   top: 104px !important;
-  right: 60px !important;
+  right: 58px !important;
   width: 380px !important;
   height: calc(100vh - 104px) !important;
   max-height: none !important;
@@ -684,7 +685,7 @@
   border-radius: 0 !important;
   border: 1px solid #eef2f6 !important;
   border-left: 2px solid #2a1373 !important;
-  border-right: none !important;
+  border-right: 2px solid #2a1373 !important;
   box-shadow: -8px 8px 30px rgba(0, 0, 0, 0.06) !important;
   display: flex !important;
   flex-direction: column !important;
@@ -1124,7 +1125,7 @@
   margin-top: 0;
   position: fixed !important;
   top: 104px !important;
-  right: 60px !important;
+  right: 58px !important;
   width: 380px !important;
   height: calc(100vh - 104px) !important;
   max-height: none !important;
@@ -1133,7 +1134,7 @@
   border-radius: 0 !important;
   border: 1px solid #eef2f6 !important;
   border-left: 2px solid #2a1373 !important;
-  border-right: none !important;
+  border-right: 2px solid #2a1373 !important;
   box-shadow: -8px 8px 32px rgba(0, 0, 0, 0.08) !important;
   display: flex !important;
   flex-direction: column !important;
