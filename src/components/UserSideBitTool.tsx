@@ -99,6 +99,49 @@ export default function UserSideBitTool({
   // Calculator states
   const [calcDisplay, setCalcDisplay] = useState('0');
   const [calcFormula, setCalcFormula] = useState('');
+  const [calcCurrency, setCalcCurrency] = useState<'INR' | 'USD' | 'EUR' | 'GBP' | 'AED'>('INR');
+  const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showCompareMode, setShowCompareMode] = useState(false);
+  const [showGstDropdown, setShowGstDropdown] = useState(false);
+  const [showDiscountDropdown, setShowDiscountDropdown] = useState(false);
+  const [copiedShareAlert, setCopiedShareAlert] = useState(false);
+
+  // Price comparison items (Side A vs Side B)
+  const [compareItems, setCompareItems] = useState<Array<{ id: string; desc: string; valA: number; valB: number }>>([
+    { id: 'cmp-1', desc: 'Item 1', valA: 91, valB: 92 },
+    { id: 'cmp-2', desc: 'Item 1', valA: 91, valB: 92 }
+  ]);
+  const [cmpInputDesc, setCmpInputDesc] = useState('');
+  const [cmpInputValA, setCmpInputValA] = useState('');
+  const [cmpInputValB, setCmpInputValB] = useState('');
+
+  // Interactive Tape Entries (Base, Discount, GST, Addition, etc.)
+  interface TapeItem {
+    id: string;
+    type: 'BASE' | 'DISCOUNT' | 'GST' | 'ADD' | 'SUB' | 'MUL' | 'DIV';
+    label: string;
+    percent?: number;
+    value: number;
+    runningTotal: number;
+    diff?: number;
+  }
+
+  const [tapeItems, setTapeItems] = useState<TapeItem[]>([
+    { id: 't-1', type: 'BASE', label: 'Base Amount', value: 8, runningTotal: 8 },
+    { id: 't-2', type: 'DISCOUNT', label: '10% Disc', percent: 10, value: 10, runningTotal: 7.2, diff: -0.8 },
+    { id: 't-3', type: 'GST', label: '5% GST', percent: 5, value: 5, runningTotal: 7.56, diff: 0.36 },
+    { id: 't-4', type: 'ADD', label: 'Extra Add', value: 8, runningTotal: 15.56, diff: 8 }
+  ]);
+
+  // Tape history logs
+  const [calcHistory, setCalcHistory] = useState<Array<{
+    id: string;
+    timestamp: string;
+    tape: TapeItem[];
+    total: number;
+    currency: string;
+  }>>([]);
 
   // Calendar Item Modal State (Image 1 & 2)
   const [showAddCalendarItem, setShowAddCalendarItem] = useState(false);
@@ -169,6 +212,163 @@ export default function UserSideBitTool({
 
   if (!isOpen) return null;
 
+  // Exchange rates relative to INR (1 INR = x Currency)
+  const currencyRates: Record<string, { symbol: string; rate: number; name: string }> = {
+    INR: { symbol: '₹', rate: 1, name: 'India (INR)' },
+    USD: { symbol: '$', rate: 0.012, name: 'USA (USD)' },
+    EUR: { symbol: '€', rate: 0.011, name: 'Europe (EUR)' },
+    GBP: { symbol: '£', rate: 0.0094, name: 'UK (GBP)' },
+    AED: { symbol: 'AED', rate: 0.044, name: 'UAE (AED)' }
+  };
+
+  const getRunningTotal = () => {
+    if (tapeItems.length === 0) return parseFloat(calcDisplay) || 0;
+    return tapeItems[tapeItems.length - 1].runningTotal;
+  };
+
+  const handleApplyDiscount = (percent: number) => {
+    const currentBase = getRunningTotal();
+    const discountAmount = +(currentBase * (percent / 100)).toFixed(2);
+    const newTotal = +(currentBase - discountAmount).toFixed(2);
+    setTapeItems(prev => [
+      ...prev,
+      {
+        id: `t-${Date.now()}`,
+        type: 'DISCOUNT',
+        label: `${percent}% Disc`,
+        percent: percent,
+        value: percent,
+        runningTotal: newTotal,
+        diff: -discountAmount
+      }
+    ]);
+    setShowDiscountDropdown(false);
+  };
+
+  const handleApplyGst = (percent: number) => {
+    const currentBase = getRunningTotal();
+    const gstAmount = +(currentBase * (percent / 100)).toFixed(2);
+    const newTotal = +(currentBase + gstAmount).toFixed(2);
+    setTapeItems(prev => [
+      ...prev,
+      {
+        id: `t-${Date.now()}`,
+        type: 'GST',
+        label: `${percent}% GST`,
+        percent: percent,
+        value: percent,
+        runningTotal: newTotal,
+        diff: +gstAmount
+      }
+    ]);
+    setShowGstDropdown(false);
+  };
+
+  const handleApplyOperation = (op: 'ADD' | 'SUB' | 'MUL' | 'DIV') => {
+    const entered = parseFloat(calcDisplay) || 0;
+    if (entered === 0 && tapeItems.length === 0) return;
+    const currentBase = getRunningTotal();
+    let newTotal = currentBase;
+    let diffVal = entered;
+
+    if (tapeItems.length === 0) {
+      setTapeItems([
+        {
+          id: `t-${Date.now()}`,
+          type: 'BASE',
+          label: 'Base Amount',
+          value: entered,
+          runningTotal: entered
+        }
+      ]);
+      setCalcDisplay('0');
+      return;
+    }
+
+    if (op === 'ADD') {
+      newTotal = +(currentBase + entered).toFixed(2);
+      diffVal = entered;
+    } else if (op === 'SUB') {
+      newTotal = +(currentBase - entered).toFixed(2);
+      diffVal = -entered;
+    } else if (op === 'MUL') {
+      newTotal = +(currentBase * entered).toFixed(2);
+      diffVal = +(newTotal - currentBase).toFixed(2);
+    } else if (op === 'DIV') {
+      newTotal = entered !== 0 ? +(currentBase / entered).toFixed(2) : currentBase;
+      diffVal = +(newTotal - currentBase).toFixed(2);
+    }
+
+    setTapeItems(prev => [
+      ...prev,
+      {
+        id: `t-${Date.now()}`,
+        type: op,
+        label: 'Add label...',
+        value: entered,
+        runningTotal: newTotal,
+        diff: diffVal
+      }
+    ]);
+    setCalcDisplay('0');
+  };
+
+  const handleClearTape = () => {
+    if (tapeItems.length > 0) {
+      setCalcHistory(prev => [
+        {
+          id: `hist-${Date.now()}`,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          tape: [...tapeItems],
+          total: getRunningTotal(),
+          currency: calcCurrency
+        },
+        ...prev
+      ]);
+    }
+    setTapeItems([]);
+    setCalcDisplay('0');
+    setCalcFormula('');
+  };
+
+  const handleShareTape = () => {
+    const symbol = currencyRates[calcCurrency]?.symbol || '₹';
+    const total = getRunningTotal();
+    const lines = tapeItems.map(item => {
+      if (item.type === 'DISCOUNT') return `• Discount ${item.percent}%: -${symbol}${Math.abs(item.diff || 0)} (Total: ${symbol}${item.runningTotal})`;
+      if (item.type === 'GST') return `• GST ${item.percent}%: +${symbol}${item.diff || 0} (Total: ${symbol}${item.runningTotal})`;
+      if (item.type === 'BASE') return `• Base Amount: ${symbol}${item.value}`;
+      return `• + ${item.value} = ${symbol}${item.runningTotal}`;
+    });
+
+    const shareText = `*BETA CALC SUMMARY*\n` + lines.join('\n') + `\n*TOTAL: ${symbol}${total}*\n(Calculated via SART Beta Calc)`;
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(shareText);
+      setCopiedShareAlert(true);
+      setTimeout(() => setCopiedShareAlert(false), 2500);
+    }
+  };
+
+  const handleAddCompareItem = () => {
+    const vA = parseFloat(cmpInputValA) || 0;
+    const vB = parseFloat(cmpInputValB) || 0;
+    if (cmpInputDesc.trim() || vA || vB) {
+      setCompareItems(prev => [
+        ...prev,
+        {
+          id: `cmp-${Date.now()}`,
+          desc: cmpInputDesc.trim() || `Item ${prev.length + 1}`,
+          valA: vA,
+          valB: vB
+        }
+      ]);
+      setCmpInputDesc('');
+      setCmpInputValA('');
+      setCmpInputValB('');
+    }
+  };
+
   const handleCalcClick = (val: string) => {
     if (val === 'C' || val === 'AC') {
       setCalcDisplay('0');
@@ -177,18 +377,17 @@ export default function UserSideBitTool({
       if (calcDisplay.length <= 1) setCalcDisplay('0');
       else setCalcDisplay(calcDisplay.slice(0, -1));
     } else if (val === '=') {
-      try {
-        const sanitized = calcDisplay.replace(/x/g, '*').replace(/÷/g, '/');
-        if (/^[0-9+\-*/. ()]+$/.test(sanitized)) {
-          const res = Function(`'use strict'; return (${sanitized})`)();
-          setCalcDisplay(String(res));
-          setCalcFormula(calcDisplay + ' =');
-        }
-      } catch (e) {
-        setCalcDisplay('Error');
+      const num = parseFloat(calcDisplay);
+      if (!isNaN(num) && num !== 0) {
+        handleApplyOperation('ADD');
       }
+    } else if (['+', '-', 'x', '÷'].includes(val)) {
+      if (val === '+') handleApplyOperation('ADD');
+      else if (val === '-') handleApplyOperation('SUB');
+      else if (val === 'x') handleApplyOperation('MUL');
+      else if (val === '÷') handleApplyOperation('DIV');
     } else {
-      if (calcDisplay === '0' && !['+', '-', '*', '/', '.', 'x', '÷'].includes(val)) {
+      if (calcDisplay === '0' && !['.', '+', '-', '*', '/', 'x', '÷'].includes(val)) {
         setCalcDisplay(val);
       } else {
         setCalcDisplay(prev => prev + val);
@@ -1091,9 +1290,9 @@ export default function UserSideBitTool({
         </div>
       )}
 
-      {/* DRAWER 3: CALCULATOR (Exact Match to Inspector Classes) */}
+      {/* DRAWER 3: CALCULATOR (Exact Match to Inspector Classes & Uploaded UI) */}
       {activeModal === 'calculator' && (
-        <div className="user-side-dock-panel flex flex-col h-full bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-2xl">
+        <div className="user-side-dock-panel flex flex-col h-full bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-2xl relative">
           {/* Top Panel Header */}
           <div className="px-4 h-14 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-black/[0.01] dark:bg-white/[0.01] shrink-0">
             <span className="font-bold text-sm tracking-wide text-slate-800 dark:text-slate-100">Calculator</span>
@@ -1109,10 +1308,10 @@ export default function UserSideBitTool({
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col p-0">
-            <div className="h-full w-full overflow-hidden flex flex-col relative min-h-[480px]">
+          <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col p-0 relative">
+            <div className="h-full w-full overflow-hidden flex flex-col relative min-h-[520px]">
               <div className="flex flex-col h-full bg-white dark:bg-gray-900">
-                {/* Beta Calc Title & Action Buttons Row */}
+                {/* Beta Calc Title & Action Buttons Row matching uploaded Image 3 */}
                 <div className="flex items-center justify-between p-2.5 border-b border-gray-100 dark:border-gray-800">
                   <div className="flex items-center gap-2 font-bold text-gray-800 dark:text-gray-100 tracking-wide text-xs">
                     <span className="text-emerald-500 font-black">#</span>
@@ -1123,10 +1322,11 @@ export default function UserSideBitTool({
                     {/* History button */}
                     <button
                       type="button"
-                      className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                      onClick={() => setShowHistoryModal(prev => !prev)}
+                      className={`p-1.5 rounded-lg transition-colors ${showHistoryModal ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
                       title="Tape History"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-history">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
                         <path d="M3 3v5h5"></path>
                         <path d="M12 7v5l4 2"></path>
@@ -1136,11 +1336,11 @@ export default function UserSideBitTool({
                     {/* Share button */}
                     <button
                       type="button"
-                      disabled
-                      className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-50"
+                      onClick={handleShareTape}
+                      className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                       title="Share Tape"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-share2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="18" cy="5" r="3"></circle>
                         <circle cx="6" cy="12" r="3"></circle>
                         <circle cx="18" cy="19" r="3"></circle>
@@ -1152,11 +1352,11 @@ export default function UserSideBitTool({
                     {/* Trash/Clear Tape button */}
                     <button
                       type="button"
-                      onClick={() => handleCalcClick('AC')}
+                      onClick={handleClearTape}
                       className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 rounded-lg transition-colors"
                       title="Clear Tape"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M3 6h18"></path>
                         <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
                         <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
@@ -1167,84 +1367,325 @@ export default function UserSideBitTool({
                   </div>
                 </div>
 
-                {/* Tape Content Container */}
-                <div className="flex-1 overflow-y-auto p-3 space-y-2.5 bg-gray-50/50 dark:bg-gray-900/50 hidden-scrollbar">
-                  <div className="h-full flex flex-col items-center justify-center opacity-40">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-2">
-                      <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                      <path d="M3 3v5h5"></path>
-                      <path d="M12 7v5l4 2"></path>
-                    </svg>
-                    <p className="text-xs">Start typing to record Tape</p>
+                {/* Copied alert toast */}
+                {copiedShareAlert && (
+                  <div className="bg-emerald-600 text-white text-[11px] font-bold text-center py-1 animate-in fade-in">
+                    ✓ Full Calculation Summary Copied to Clipboard!
+                  </div>
+                )}
+
+                {/* Tape Content Container / Cards Stack matching Image 2 & 3 */}
+                {!showCompareMode ? (
+                  <div className="flex-1 overflow-y-auto p-3 space-y-2.5 bg-gray-50/50 dark:bg-gray-900/50 hidden-scrollbar max-h-[220px]">
+                    {tapeItems.length === 0 ? (
+                      <div className="h-full flex flex-col items-center justify-center opacity-40 py-8">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-2">
+                          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                          <path d="M3 3v5h5"></path>
+                          <path d="M12 7v5l4 2"></path>
+                        </svg>
+                        <p className="text-xs">Enter numbers and select GST / Discount / Operations</p>
+                      </div>
+                    ) : (
+                      tapeItems.map((item) => {
+                        const curSymbol = currencyRates[calcCurrency]?.symbol || '₹';
+                        const curRate = currencyRates[calcCurrency]?.rate || 1;
+                        const dispTotal = (item.runningTotal * curRate).toFixed(2);
+                        const dispDiff = item.diff !== undefined ? (item.diff * curRate).toFixed(2) : undefined;
+
+                        return (
+                          <div
+                            key={item.id}
+                            className="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-xs relative flex flex-col gap-1 text-xs"
+                          >
+                            {/* Top badge & label & close button */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1.5">
+                                {item.type === 'BASE' && (
+                                  <span className="bg-indigo-600 text-white font-black text-[9.5px] px-2 py-0.5 rounded-md uppercase tracking-wider">
+                                    BASE
+                                  </span>
+                                )}
+                                {item.type === 'DISCOUNT' && (
+                                  <span className="bg-amber-500 text-white font-black text-[9.5px] px-2 py-0.5 rounded-md uppercase tracking-wider">
+                                    DISCOUNT
+                                  </span>
+                                )}
+                                {item.type === 'GST' && (
+                                  <span className="bg-emerald-500 text-white font-black text-[9.5px] px-2 py-0.5 rounded-md uppercase tracking-wider">
+                                    GST
+                                  </span>
+                                )}
+                                {['ADD', 'SUB', 'MUL', 'DIV'].includes(item.type) && (
+                                  <span className="bg-slate-600 text-white font-black text-[10px] w-5 h-5 rounded-md flex items-center justify-center">
+                                    {item.type === 'ADD' ? '+' : item.type === 'SUB' ? '−' : item.type === 'MUL' ? '×' : '÷'}
+                                  </span>
+                                )}
+                                <span className="font-semibold text-slate-500 text-[11px]">{item.label}</span>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => setTapeItems(prev => prev.filter(t => t.id !== item.id))}
+                                className="text-slate-300 hover:text-red-500 transition-colors text-xs font-bold"
+                              >
+                                ×
+                              </button>
+                            </div>
+
+                            {/* Middle & Right: Input value & Running Total */}
+                            <div className="flex items-center justify-between mt-1">
+                              <div className="font-extrabold text-slate-900 text-sm flex items-center gap-1">
+                                {item.type === 'BASE' && <span>= {item.value}</span>}
+                                {item.type === 'DISCOUNT' && <span>% {item.percent}</span>}
+                                {item.type === 'GST' && <span>% {item.percent}</span>}
+                                {item.type === 'ADD' && <span>+ {item.value}</span>}
+                                {item.type === 'SUB' && <span>− {item.value}</span>}
+                                {item.type === 'MUL' && <span>× {item.value}</span>}
+                                {item.type === 'DIV' && <span>÷ {item.value}</span>}
+                              </div>
+
+                              <div className="text-right">
+                                <div className="font-extrabold text-emerald-600 text-sm">
+                                  {curSymbol}{dispTotal}
+                                </div>
+                                {dispDiff && (
+                                  <div className={`text-[10px] font-bold ${parseFloat(dispDiff) < 0 ? 'text-amber-600' : 'text-emerald-500'}`}>
+                                    {parseFloat(dispDiff) < 0 ? `${curSymbol}${dispDiff}` : `+${curSymbol}${dispDiff}`}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                ) : (
+                  /* PRICE COMPARISON MODE (Matching Image 1) */
+                  <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50/70 border-b border-gray-200">
+                    <div className="flex items-center justify-between pb-1.5 border-b border-indigo-100">
+                      <div className="flex items-center gap-1.5 text-indigo-700 font-extrabold text-[11px] tracking-wider uppercase">
+                        <span>⚖️ PRICE COMPARISON</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setCompareItems([])}
+                          className="text-[10px] font-bold text-red-500 hover:underline uppercase"
+                        >
+                          CLEAR ALL
+                        </button>
+                        <span className="bg-red-50 border border-red-200 text-red-600 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full">
+                          {compareItems.reduce((acc, c) => acc + c.valB, 0) > compareItems.reduce((acc, c) => acc + c.valA, 0) ? 'B Wins ▲' : 'A Wins ▲'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Table Header */}
+                    <div className="grid grid-cols-12 text-[10px] font-bold text-slate-500 uppercase px-1 pt-1">
+                      <span className="col-span-6">Description</span>
+                      <span className="col-span-3 text-right text-indigo-600 font-bold">Side A</span>
+                      <span className="col-span-3 text-right text-indigo-600 font-bold">Side B</span>
+                    </div>
+
+                    {/* Compare Rows */}
+                    <div className="space-y-1.5 max-h-[110px] overflow-y-auto pr-0.5">
+                      {compareItems.map((ci) => (
+                        <div key={ci.id} className="grid grid-cols-12 text-xs font-semibold items-center bg-white p-2 rounded-xl border border-slate-200/80">
+                          <span className="col-span-6 text-slate-800 truncate">{ci.desc}</span>
+                          <span className="col-span-3 text-right font-bold text-indigo-600">₹{ci.valA}</span>
+                          <span className="col-span-3 text-right font-bold text-indigo-600 flex items-center justify-end gap-1">
+                            ₹{ci.valB}
+                            <button
+                              type="button"
+                              onClick={() => setCompareItems(prev => prev.filter(c => c.id !== ci.id))}
+                              className="text-slate-300 hover:text-red-500 text-[10px] ml-1"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Total Row */}
+                    <div className="grid grid-cols-12 text-xs font-black pt-1.5 border-t border-slate-200 border-dashed px-1">
+                      <span className="col-span-6 uppercase text-slate-600 text-[11px]">TOTAL</span>
+                      <span className="col-span-3 text-right text-indigo-600">
+                        ₹{compareItems.reduce((acc, c) => acc + c.valA, 0)}
+                      </span>
+                      <span className="col-span-3 text-right text-indigo-600">
+                        ₹{compareItems.reduce((acc, c) => acc + c.valB, 0)}
+                      </span>
+                    </div>
+
+                    {/* Add Compare Inputs */}
+                    <div className="grid grid-cols-12 gap-1 pt-1">
+                      <input
+                        type="text"
+                        placeholder="Description"
+                        value={cmpInputDesc}
+                        onChange={(e) => setCmpInputDesc(e.target.value)}
+                        className="col-span-5 bg-white border border-slate-300 rounded-lg p-1.5 text-xs outline-none"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Val A"
+                        value={cmpInputValA}
+                        onChange={(e) => setCmpInputValA(e.target.value)}
+                        className="col-span-3 bg-white border border-slate-300 rounded-lg p-1.5 text-xs outline-none text-right"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Val B"
+                        value={cmpInputValB}
+                        onChange={(e) => setCmpInputValB(e.target.value)}
+                        className="col-span-3 bg-white border border-slate-300 rounded-lg p-1.5 text-xs outline-none text-right"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddCompareItem}
+                        className="col-span-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-xs"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    {/* Diff & Ratio Footer Pills */}
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <div className="bg-white border border-slate-200 rounded-xl p-1.5 text-center text-[11px] font-bold text-slate-600">
+                        Diff <span className="text-indigo-600 font-extrabold">₹{Math.abs(compareItems.reduce((acc, c) => acc + c.valA, 0) - compareItems.reduce((acc, c) => acc + c.valB, 0))}</span>
+                      </div>
+                      <div className="bg-white border border-slate-200 rounded-xl p-1.5 text-center text-[11px] font-bold text-slate-600">
+                        Ratio <span className="text-indigo-600 font-extrabold">{compareItems.reduce((acc, c) => acc + c.valB, 0) > 0 ? (compareItems.reduce((acc, c) => acc + c.valA, 0) / compareItems.reduce((acc, c) => acc + c.valB, 0)).toFixed(2) : '1.00'}x</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* CONTINUE Input Screen: CONTINUE label + large number display */}
+                <div className="bg-gray-100/60 dark:bg-gray-800 py-1.5 px-3 border-t border-gray-200 dark:border-gray-700">
+                  <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">CONTINUE</div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 font-bold text-sm">+</span>
+                    <div className="text-xl font-black text-right text-slate-900 dark:text-white truncate">
+                      {calcDisplay || '0'}
+                    </div>
                   </div>
                 </div>
 
-                {/* Display Value Screen: SET BASE + Large Digits */}
-                <div className="bg-gray-100/50 dark:bg-gray-800 py-2 px-3 border-t border-gray-200 dark:border-gray-700">
-                  <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">SET BASE</div>
-                  <div className="text-2xl font-black text-right h-8 truncate overflow-hidden text-slate-900 dark:text-white">
-                    {calcDisplay || '0'}
+                {/* Quick Action Preset Pills matching Image 2 & 3: % GST | Discount | Currency/Region | Compare */}
+                <div className="grid grid-cols-4 gap-1.5 p-1.5 border-t border-gray-100 dark:border-gray-800 relative bg-white">
+                  {/* 1. GST Dropdown Pill */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setShowGstDropdown(prev => !prev)}
+                      className="w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold text-emerald-600 bg-emerald-50 rounded-xl border border-emerald-200 hover:bg-emerald-100 transition-colors"
+                    >
+                      <span>%</span>
+                      <span>GST</span>
+                    </button>
+                    {showGstDropdown && (
+                      <div className="absolute bottom-full left-0 mb-1 w-28 bg-white border border-emerald-200 rounded-xl shadow-xl p-1 z-30 animate-in fade-in flex flex-col gap-0.5">
+                        <div className="text-[9.5px] font-bold text-slate-400 px-2 py-0.5 uppercase">Select GST</div>
+                        {[5, 12, 18, 28].map(p => (
+                          <button
+                            key={p}
+                            type="button"
+                            onClick={() => handleApplyGst(p)}
+                            className="text-left px-2 py-1 text-xs font-bold text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors flex justify-between"
+                          >
+                            <span>+{p}%</span>
+                            <span className="text-[10px] opacity-60">GST</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
 
-                {/* Quick Action Preset Pills: % GST | Discount | INR | Compare */}
-                <div className="grid grid-cols-4 gap-1.5 p-1.5 border-t border-gray-100 dark:border-gray-800">
+                  {/* 2. Discount Dropdown Pill */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setShowDiscountDropdown(prev => !prev)}
+                      className="w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold text-amber-600 bg-amber-50 rounded-xl border border-amber-200 hover:bg-amber-100 transition-colors"
+                    >
+                      <span>🏷️</span>
+                      <span>Discount</span>
+                    </button>
+                    {showDiscountDropdown && (
+                      <div className="absolute bottom-full left-0 mb-1 w-32 bg-white border border-amber-200 rounded-xl shadow-xl p-1 z-30 animate-in fade-in flex flex-col gap-0.5">
+                        <div className="text-[9.5px] font-bold text-slate-400 px-2 py-0.5 uppercase">Select Discount</div>
+                        {[5, 10, 15, 20, 25, 50].map(p => (
+                          <button
+                            key={p}
+                            type="button"
+                            onClick={() => handleApplyDiscount(p)}
+                            className="text-left px-2 py-1 text-xs font-bold text-amber-700 hover:bg-amber-50 rounded-lg transition-colors flex justify-between"
+                          >
+                            <span>−{p}%</span>
+                            <span className="text-[10px] opacity-60">OFF</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 3. Currency / Region Dropdown Pill (India, USA, Europe, etc.) */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrencyDropdown(prev => !prev)}
+                      className="w-full flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold text-indigo-600 bg-indigo-50 rounded-xl border border-indigo-200 hover:bg-indigo-100 transition-colors"
+                    >
+                      <span>🌐</span>
+                      <span>{calcCurrency}</span>
+                    </button>
+                    {showCurrencyDropdown && (
+                      <div className="absolute bottom-full left-0 mb-1 w-36 bg-white border border-indigo-200 rounded-xl shadow-xl p-1 z-30 animate-in fade-in flex flex-col gap-0.5">
+                        <div className="text-[9.5px] font-bold text-slate-400 px-2 py-0.5 uppercase">Select Region</div>
+                        {(['INR', 'USD', 'EUR', 'GBP', 'AED'] as const).map(cur => (
+                          <button
+                            key={cur}
+                            type="button"
+                            onClick={() => {
+                              setCalcCurrency(cur);
+                              setShowCurrencyDropdown(false);
+                            }}
+                            className={`text-left px-2 py-1 text-xs font-bold rounded-lg transition-colors flex justify-between ${
+                              calcCurrency === cur ? 'bg-indigo-600 text-white' : 'text-slate-700 hover:bg-indigo-50'
+                            }`}
+                          >
+                            <span>{cur}</span>
+                            <span className="text-[10px] opacity-75">{currencyRates[cur]?.symbol}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 4. Compare Toggle Pill */}
                   <button
                     type="button"
-                    onClick={() => {
-                      const num = parseFloat(calcDisplay) || 0;
-                      setCalcDisplay(String(+(num * 1.18).toFixed(2)));
-                    }}
-                    className="flex items-center justify-center gap-1.5 py-1.5 px-1 text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800 hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                    onClick={() => setShowCompareMode(prev => !prev)}
+                    className={`flex items-center justify-center gap-1 py-1.5 px-1 text-xs font-bold rounded-xl border transition-colors ${
+                      showCompareMode ? 'bg-indigo-600 text-white border-indigo-600' : 'text-blue-600 bg-blue-50 border-blue-200 hover:bg-blue-100'
+                    }`}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-percent">
-                      <line x1="19" x2="5" y1="5" y2="19"></line>
-                      <circle cx="6.5" cy="6.5" r="2.5"></circle>
-                      <circle cx="17.5" cy="17.5" r="2.5"></circle>
-                    </svg>
-                    <span>GST</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const num = parseFloat(calcDisplay) || 0;
-                      setCalcDisplay(String(+(num * 0.9).toFixed(2)));
-                    }}
-                    className="flex items-center justify-center gap-1.5 py-1.5 px-1 text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800 hover:scale-[1.02] active:scale-[0.98] transition-transform"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                      <line x1="7" y1="7" x2="7.01" y2="7"></line>
-                    </svg>
-                    <span>Discount</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleCalcClick('₹')}
-                    className="flex items-center justify-center gap-1.5 py-1.5 px-1 text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800 hover:scale-[1.02] active:scale-[0.98] transition-transform"
-                  >
-                    <span className="text-[11px]">₹</span>
-                    <span>INR</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="flex items-center justify-center gap-1.5 py-1.5 px-1 text-xs font-bold text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:scale-[1.02] active:scale-[0.98] transition-transform"
-                  >
-                    <span>⇄</span>
+                    <span>⇅</span>
                     <span>Compare</span>
                   </button>
                 </div>
 
-                {/* Keypad Grid */}
+                {/* Keypad Grid matching Image 1 layout */}
                 <div className="grid grid-cols-4 gap-1 p-2 bg-slate-50/70 border-t border-gray-100">
-                  {/* Row 1 */}
+                  {/* Row 1: Clear, Backspace, Divide, Multiply */}
                   <button
                     type="button"
                     onClick={() => handleCalcClick('AC')}
-                    className="h-10 rounded-xl text-xs font-bold text-red-500 bg-white shadow-xs hover:bg-red-50 transition-colors flex items-center justify-center"
+                    className="h-10 rounded-xl text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 transition-colors flex items-center justify-center"
                   >
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
@@ -1255,15 +1696,15 @@ export default function UserSideBitTool({
                   <button
                     type="button"
                     onClick={() => handleCalcClick('backspace')}
-                    className="h-10 rounded-xl text-xs font-bold text-slate-700 bg-white shadow-xs hover:bg-slate-100 transition-colors flex items-center justify-center"
+                    className="h-10 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center"
                   >
-                    ←
+                    ⌫
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleCalcClick('÷')}
-                    className="h-10 rounded-xl text-sm font-bold text-emerald-600 bg-emerald-50/70 shadow-xs hover:bg-emerald-100 transition-colors flex items-center justify-center"
+                    className="h-10 rounded-xl text-sm font-black text-emerald-600 bg-emerald-50/80 hover:bg-emerald-100 transition-colors flex items-center justify-center"
                   >
                     /
                   </button>
@@ -1271,7 +1712,7 @@ export default function UserSideBitTool({
                   <button
                     type="button"
                     onClick={() => handleCalcClick('x')}
-                    className="h-10 rounded-xl text-sm font-bold text-emerald-600 bg-emerald-50/70 shadow-xs hover:bg-emerald-100 transition-colors flex items-center justify-center"
+                    className="h-10 rounded-xl text-sm font-black text-emerald-600 bg-emerald-50/80 hover:bg-emerald-100 transition-colors flex items-center justify-center"
                   >
                     x
                   </button>
@@ -1280,13 +1721,13 @@ export default function UserSideBitTool({
                   <button type="button" onClick={() => handleCalcClick('7')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">7</button>
                   <button type="button" onClick={() => handleCalcClick('8')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">8</button>
                   <button type="button" onClick={() => handleCalcClick('9')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">9</button>
-                  <button type="button" onClick={() => handleCalcClick('-')} className="h-10 rounded-xl text-base font-bold text-emerald-600 bg-emerald-50/70 shadow-xs hover:bg-emerald-100 transition-colors">−</button>
+                  <button type="button" onClick={() => handleCalcClick('-')} className="h-10 rounded-xl text-base font-black text-emerald-600 bg-emerald-50/80 hover:bg-emerald-100 transition-colors">−</button>
 
                   {/* Row 3: 4 5 6 + */}
                   <button type="button" onClick={() => handleCalcClick('4')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">4</button>
                   <button type="button" onClick={() => handleCalcClick('5')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">5</button>
                   <button type="button" onClick={() => handleCalcClick('6')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">6</button>
-                  <button type="button" onClick={() => handleCalcClick('+')} className="h-10 rounded-xl text-base font-bold text-emerald-600 bg-emerald-50/70 shadow-xs hover:bg-emerald-100 transition-colors">+</button>
+                  <button type="button" onClick={() => handleCalcClick('+')} className="h-10 rounded-xl text-base font-black text-emerald-600 bg-emerald-50/80 hover:bg-emerald-100 transition-colors">+</button>
 
                   {/* Row 4: 1 2 3 = */}
                   <button type="button" onClick={() => handleCalcClick('1')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">1</button>
@@ -1297,7 +1738,7 @@ export default function UserSideBitTool({
                     type="button"
                     rowSpan={2}
                     onClick={() => handleCalcClick('=')}
-                    className="row-span-2 rounded-xl text-lg font-black text-white bg-emerald-500 hover:bg-emerald-600 shadow-md shadow-emerald-500/30 transition-all flex items-center justify-center cursor-pointer"
+                    className="row-span-2 rounded-xl text-xl font-black text-white bg-emerald-500 hover:bg-emerald-600 shadow-md shadow-emerald-500/30 transition-all flex items-center justify-center cursor-pointer"
                   >
                     =
                   </button>
@@ -1308,11 +1749,77 @@ export default function UserSideBitTool({
                   <button type="button" onClick={() => handleCalcClick('.')} className="h-10 rounded-xl text-sm font-bold text-slate-800 bg-white shadow-xs hover:bg-slate-100 transition-colors">.</button>
                 </div>
 
-                {/* Bottom Tape Running Total Footer matching Image */}
-                <div className="bg-slate-900 text-white p-2.5 px-3 flex flex-col justify-center">
-                  <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">TAPE RUNNING TOTAL</div>
-                  <div className="text-base font-black text-emerald-400 tracking-tight">₹{calcDisplay === 'Error' ? '0.00' : (parseFloat(calcDisplay) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                {/* Bottom Currency Comparison & Conversion Footer matching Image 1 & 3 */}
+                <div className="bg-slate-900 text-white p-3 flex items-center justify-between">
+                  <div>
+                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                      TOTAL (SIMULATED {calcCurrency})
+                    </div>
+                    <div className="text-lg font-black text-emerald-400 tracking-tight">
+                      {currencyRates[calcCurrency]?.symbol}
+                      {(getRunningTotal() * (currencyRates[calcCurrency]?.rate || 1)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                      Base Value (INR)
+                    </div>
+                    <div className="text-xs font-bold text-slate-200">
+                      ₹{getRunningTotal().toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </div>
+                  </div>
                 </div>
+
+                {/* History Drawer Modal */}
+                {showHistoryModal && (
+                  <div className="absolute inset-0 z-40 bg-black/40 backdrop-blur-xs flex flex-col justify-end">
+                    <div className="bg-white dark:bg-gray-900 rounded-t-2xl p-4 max-h-[75%] overflow-y-auto shadow-2xl flex flex-col">
+                      <div className="flex items-center justify-between pb-2 border-b border-gray-100 mb-2">
+                        <span className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-1.5">
+                          🕒 Calculator History
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setCalcHistory([])}
+                            className="text-[10px] font-bold text-red-500 hover:underline uppercase"
+                          >
+                            Clear
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setShowHistoryModal(false)}
+                            className="p-1 text-slate-400 hover:text-slate-700"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+
+                      {calcHistory.length === 0 ? (
+                        <div className="py-8 text-center text-xs text-slate-400 font-medium">
+                          No saved calculation history yet. Clear tape to archive sessions here.
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {calcHistory.map(h => (
+                            <div key={h.id} className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs flex flex-col gap-1">
+                              <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold">
+                                <span>{h.timestamp}</span>
+                                <span className="font-extrabold text-emerald-600 text-xs">
+                                  {currencyRates[h.currency]?.symbol || '₹'}{h.total.toFixed(2)}
+                                </span>
+                              </div>
+                              <div className="text-slate-600 text-[11px]">
+                                {h.tape.map(t => `${t.label}: ${t.runningTotal}`).join(' → ')}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
