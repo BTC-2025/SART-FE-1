@@ -620,8 +620,21 @@ export default function CaptainDutyRightView({
               <span>{partnerDetails?.model || partnerDetails?.vehicleModel || 'Hero Splendor Pro BS6'}</span>
             </div>
           </div>
+          {/* Below: Orders Accepted & Orders Rejected counters */}
+          <div className="c-orders-stats-strip">
+            <div className="c-order-stat-pill accepted">
+              <div className="icon-circle">
+                <i className="fa-solid fa-check"></i>
+              </div>
+              <div className="stat-text-col">
+                <div className="stat-count">{completedOrdersCount !== undefined ? completedOrdersCount : (partnerDetails?.ordersAccepted !== undefined ? partnerDetails.ordersAccepted : 0)}</div>
+                <div className="stat-label">Orders Accepted</div>
+              </div>
+            </div>
 
-          <div className="c-duty-hero-right" onClick={() => { if (onOpenWallet) onOpenWallet(); }} style={{ cursor: onOpenWallet ? "pointer" : "default" }} title="Click to view Captain Wallet & Daily Breakdown">
+
+          </div>
+          <div className="c-duty-hero-right" onClick={() => { if (typeof window !== 'undefined') window.location.href = '/ride/captain/wallet'; else if (onOpenWallet) onOpenWallet(); }} style={{ cursor: "pointer" }} title="Click to view Captain Wallet & Daily Breakdown">
             <span className="c-earnings-title">TODAY'S EARNINGS</span>
             <div className="c-earnings-amount" title="Stored safely in database">
               <span>₹{todayEarnings}</span>
@@ -630,20 +643,7 @@ export default function CaptainDutyRightView({
           </div>
         </div>
 
-        {/* Below: Orders Accepted & Orders Rejected counters */}
-        <div className="c-orders-stats-strip">
-          <div className="c-order-stat-pill accepted">
-            <div className="icon-circle">
-              <i className="fa-solid fa-check"></i>
-            </div>
-            <div className="stat-text-col">
-              <div className="stat-count">{completedOrdersCount !== undefined ? completedOrdersCount : (partnerDetails?.ordersAccepted !== undefined ? partnerDetails.ordersAccepted : 0)}</div>
-              <div className="stat-label">Orders Accepted</div>
-            </div>
-          </div>
 
-
-        </div>
       </div>
 
 

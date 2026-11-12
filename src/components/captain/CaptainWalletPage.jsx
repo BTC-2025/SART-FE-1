@@ -5,6 +5,8 @@ import React, { useState, useEffect } from 'react';
 export default function CaptainWalletPage({ partnerDetails, onBackToHome }) {
   const [balance, setBalance] = useState(0);
   const [todayEarnings, setTodayEarnings] = useState(0);
+  const [yesterdayEarnings, setYesterdayEarnings] = useState(0);
+  const [totalEarnings, setTotalEarnings] = useState(0);
   const [totalCompletedRides, setTotalCompletedRides] = useState(0);
   const [dailyHistory, setDailyHistory] = useState([]);
   const [transactions, setTransactions] = useState([]);
@@ -34,6 +36,8 @@ export default function CaptainWalletPage({ partnerDetails, onBackToHome }) {
         const earnData = await earnRes.json();
         if (earnData.success) {
           setTodayEarnings(earnData.todayEarnings || 0);
+          setYesterdayEarnings(earnData.yesterdayEarnings || 0);
+          setTotalEarnings(earnData.totalEarnings || 0);
           setTotalCompletedRides(earnData.totalCompletedRides || 0);
           setDailyHistory(earnData.dailyHistory || []);
         }
@@ -171,23 +175,23 @@ export default function CaptainWalletPage({ partnerDetails, onBackToHome }) {
         </button>
       </div>
 
-      {/* Top 3 Metric Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px', marginBottom: '28px' }}>
+      {/* Top Metric Cards: Balance, Today, Yesterday, Total */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '16px', marginBottom: '28px' }}>
         {/* Wallet Balance */}
         <div style={{
           background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)',
           color: '#ffffff',
           borderRadius: '18px',
-          padding: '20px 24px',
+          padding: '20px 22px',
           boxShadow: '0 8px 20px rgba(37, 99, 235, 0.25)'
         }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', opacity: 0.85, letterSpacing: '0.6px' }}>
+          <div style={{ fontSize: '11.5px', fontWeight: 700, textTransform: 'uppercase', opacity: 0.85, letterSpacing: '0.6px' }}>
             Available Wallet Balance
           </div>
-          <div style={{ fontSize: '32px', fontWeight: 900, margin: '8px 0 4px' }}>
+          <div style={{ fontSize: '30px', fontWeight: 900, margin: '8px 0 4px' }}>
             ₹{balance.toFixed(2)}
           </div>
-          <div style={{ fontSize: '12px', opacity: 0.9 }}>
+          <div style={{ fontSize: '11.5px', opacity: 0.9 }}>
             Eligible for instant withdrawal anytime
           </div>
         </div>
@@ -197,36 +201,55 @@ export default function CaptainWalletPage({ partnerDetails, onBackToHome }) {
           background: '#ffffff',
           border: '1.5px solid #e2e8f0',
           borderRadius: '18px',
-          padding: '20px 24px',
+          padding: '20px 22px',
           boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
         }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.6px' }}>
-            Today's Earned Fare
+          <div style={{ fontSize: '11.5px', fontWeight: 700, textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.6px' }}>
+            Today's Earnings
           </div>
-          <div style={{ fontSize: '32px', fontWeight: 900, color: '#059669', margin: '8px 0 4px' }}>
+          <div style={{ fontSize: '30px', fontWeight: 900, color: '#059669', margin: '8px 0 4px' }}>
             ₹{todayEarnings.toFixed(2)}
           </div>
-          <div style={{ fontSize: '12px', color: '#64748b' }}>
-            From completed rides today
+          <div style={{ fontSize: '11.5px', color: '#64748b' }}>
+            Earned fare today
           </div>
         </div>
 
-        {/* Total Rides Completed */}
+        {/* Yesterday's Earnings */}
         <div style={{
           background: '#ffffff',
           border: '1.5px solid #e2e8f0',
           borderRadius: '18px',
-          padding: '20px 24px',
+          padding: '20px 22px',
           boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
         }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.6px' }}>
-            Total Completed Rides
+          <div style={{ fontSize: '11.5px', fontWeight: 700, textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.6px' }}>
+            Yesterday's Earnings
           </div>
-          <div style={{ fontSize: '32px', fontWeight: 900, color: '#0f172a', margin: '8px 0 4px' }}>
-            {totalCompletedRides}
+          <div style={{ fontSize: '30px', fontWeight: 900, color: '#2563eb', margin: '8px 0 4px' }}>
+            ₹{yesterdayEarnings.toFixed(2)}
           </div>
-          <div style={{ fontSize: '12px', color: '#64748b' }}>
-            Unique trips completed by you
+          <div style={{ fontSize: '11.5px', color: '#64748b' }}>
+            Earned fare yesterday
+          </div>
+        </div>
+
+        {/* Total Earnings */}
+        <div style={{
+          background: '#ffffff',
+          border: '1.5px solid #e2e8f0',
+          borderRadius: '18px',
+          padding: '20px 22px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+        }}>
+          <div style={{ fontSize: '11.5px', fontWeight: 700, textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.6px' }}>
+            Total Earned
+          </div>
+          <div style={{ fontSize: '30px', fontWeight: 900, color: '#0f172a', margin: '8px 0 4px' }}>
+            ₹{totalEarnings.toFixed(2)}
+          </div>
+          <div style={{ fontSize: '11.5px', color: '#64748b' }}>
+            Across {totalCompletedRides} completed rides
           </div>
         </div>
       </div>

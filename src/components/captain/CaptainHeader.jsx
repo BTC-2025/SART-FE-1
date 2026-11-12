@@ -261,7 +261,11 @@ export default function CaptainHeader({
                   }}
                   onClick={() => {
                     setIsProfileDropdownOpen(false);
-                    if (onOpenWallet) onOpenWallet();
+                    if (typeof window !== 'undefined') {
+                      window.location.href = '/ride/captain/wallet';
+                    } else if (onOpenWallet) {
+                      onOpenWallet();
+                    }
                   }}
                 >
                   <i className="fa-solid fa-wallet" style={{ color: '#2563eb' }}></i> Wallet
