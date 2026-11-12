@@ -77,13 +77,21 @@ export default function Home() {
         const mode = getRideModeFromPath(pathname);
         setActiveRideMode(mode);
       }
-      if (['ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking', 'support', 'profile'].includes(tab)) {
+      if (['ride', 'carrier', 'rental', 'drivers', 'community', 'mechanic', 'parking', 'support', 'profile', 'favorites', 'wallet'].includes(tab)) {
         setActiveTab(tab as any);
       }
-    } else if (pathname.startsWith('/booking/')) {
+    } else if (pathname.startsWith('/booking')) {
       setActiveTab('booking');
     } else if (pathname.startsWith('/store')) {
       setActiveTab('store');
+    } else if (pathname.startsWith('/favorites')) {
+      setActiveTab('favorites');
+    } else if (pathname.startsWith('/wallet')) {
+      setActiveTab('wallet');
+    } else if (pathname.startsWith('/profile')) {
+      setActiveTab('profile');
+    } else if (pathname.startsWith('/support')) {
+      setActiveTab('support');
     } else {
       // Check for top-level tabs (e.g. /store, /wallet)
       const tab = pathname.replace('/', '');
