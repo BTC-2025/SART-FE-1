@@ -400,29 +400,7 @@ export default function CartPage() {
                     </div>
                     <h3>Your shopping cart is currently empty</h3>
                     <p>Load our default verified products to explore full product specs, pricing, and checkout, or browse the store.</p>
-                    <div className="cart-empty-actions">
-                      <button
-                        type="button"
-                        className="btn-primary-explore"
-                        onClick={handleResetToDefaults}
-                      >
-                        <i className="fa-solid fa-plus-circle"></i> Load Default Products
-                      </button>
-                      <button
-                        type="button"
-                        className="btn-secondary-explore"
-                        onClick={() => window.location.href = '/store'}
-                      >
-                        <i className="fa-solid fa-store"></i> Explore SART Store
-                      </button>
-                      <button
-                        type="button"
-                        className="btn-secondary-explore"
-                        onClick={() => setActiveTab('wishlist')}
-                      >
-                        <i className="fa-solid fa-heart"></i> View Saved Items ({wishlistItems.length})
-                      </button>
-                    </div>
+
                   </div>
                 ) : (
                   <>
@@ -509,14 +487,6 @@ export default function CartPage() {
                             {/* Bottom Bar: Action buttons on left, pricing + stepper on right */}
                             <div className="cart-item-bottom-bar">
                               <div className="cart-item-bottom-actions">
-                                <button
-                                  type="button"
-                                  className="btn-modern-action wishlist"
-                                  onClick={() => handleMoveToWishlist(item)}
-                                >
-                                  <i className="fa-regular fa-heart"></i> Save for Later
-                                </button>
-                                <span className="action-sep">•</span>
                                 <button
                                   type="button"
                                   className="btn-modern-action remove"
@@ -722,9 +692,7 @@ export default function CartPage() {
                         </div>
                       </div>
                       {wallet.balance < finalTotal ? (
-                        <div className="wallet-alert-warning">
-                          <i className="fa-solid fa-triangle-exclamation"></i>
-                          <span>Low balance. Please top up or pay remaining at checkout.</span>
+                        <div >
                         </div>
                       ) : (
                         <div className="wallet-alert-success">
