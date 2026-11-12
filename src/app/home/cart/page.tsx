@@ -31,7 +31,19 @@ export default function CartPage() {
   const [isCityModalOpen, setIsCityModalOpen] = useState(false);
   const [activeBitToolPanel, setActiveBitToolPanel] = useState<string | null>(null);
   const [userSession, setUserSession] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'cart' | 'wishlist'>('cart');
+  const [activeTab, setActiveTab] = useState<'cart' | 'wishlist' | 'address' | 'payment' | 'order-success'>('cart');
+  const [selectedAddress, setSelectedAddress] = useState<string>('addr_1');
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [isAddingAddress, setIsAddingAddress] = useState(false);
+  const [addressDetails, setAddressDetails] = useState({
+    name: 'P. Vasanth Kumar',
+    addressLine: 'East street, near lord Ganesh temple, Patur, Kovur, Sri Potti Sriramulu Nellore District, Sri Potti Sriramulu Nellore District, Andhra Pradesh, 524137',
+    phone: '9032932985'
+  });
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'online'>('cod');
+  const [onlineAccordion, setOnlineAccordion] = useState<'upi' | 'wallet' | 'card' | 'netbanking'>('upi');
+  const [isQrRevealed, setIsQrRevealed] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
@@ -172,28 +184,57 @@ export default function CartPage() {
     showToast('Cart reloaded with default featured products.');
   };
 
-  const handleCheckout = () => {
+  // Calculate Online Payment Discount (Matching reference: extra discount for Pay Online)
+  const onlineDiscount = paymentMethod === 'online' ? Math.min(86, Math.max(20, Math.round(finalTotal * 0.05))) : 0;
+  const paymentFinalTotal = Math.max(0, finalTotal - onlineDiscount);
+
+  const handleProceedToAddress = () => {
     if (cart.length === 0) {
       showToast('Cart is empty!');
       return;
     }
-    if (wallet.balance < finalTotal) {
-      showToast(`Insufficient Wallet Balance! Need ₹${finalTotal.toLocaleString('en-IN')}`);
+    setActiveTab('address');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleProceedToPayment = () => {
+    setActiveTab('payment');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleConfirmOrder = () => {
+    if (cart.length === 0) {
+      showToast('Cart is empty!');
       return;
     }
 
-    updateBalance(finalTotal, false);
-    addTransaction({
-      id: `tx-${Date.now()}`,
-      title: `Checkout: ${totalItemsCount} item(s)`,
-      amount: finalTotal,
-      date: new Date().toLocaleString(),
-      isCredit: false,
-      category: 'Store'
-    });
+    setIsProcessingPayment(true);
 
-    clearCart();
-    showToast(`Order placed successfully! ₹${finalTotal.toLocaleString('en-IN')} paid via SART Wallet.`);
+    setTimeout(() => {
+      setIsProcessingPayment(false);
+
+      if (paymentMethod === 'online' && onlineAccordion === 'wallet') {
+        if (wallet.balance < paymentFinalTotal) {
+          showToast(`Insufficient Wallet Balance! Need ₹${paymentFinalTotal.toLocaleString('en-IN')}`);
+          return;
+        }
+        updateBalance(paymentFinalTotal, false);
+      }
+
+      addTransaction({
+        id: `tx-${Date.now()}`,
+        title: `Order: ${totalItemsCount} item(s) (${paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'})`,
+        amount: paymentFinalTotal,
+        date: new Date().toLocaleString(),
+        isCredit: false,
+        category: 'Store'
+      });
+
+      clearCart();
+      setActiveTab('order-success');
+      showToast('Order placed successfully!');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 1200);
   };
 
   const handleMoveToWishlist = (item: any) => {
@@ -243,16 +284,70 @@ export default function CartPage() {
         )}
 
         <div className="cart-page-container">
+          {/* Checkout Process Stepper Header (Image 4) */}
+          {(activeTab === 'cart' || activeTab === 'address' || activeTab === 'payment' || activeTab === 'order-success') && (
+            <div className="checkout-stepper-container">
+              <div
+                className={`step-item ${activeTab === 'cart' ? 'current' : 'completed'}`}
+                onClick={() => setActiveTab('cart')}
+              >
+                <div className="step-circle">
+                  {activeTab !== 'cart' ? <i className="fa-solid fa-check"></i> : <span>1</span>}
+                </div>
+                <span className="step-label">Cart</span>
+              </div>
+              <div className={`step-connector ${activeTab !== 'cart' ? 'active' : ''}`}></div>
+
+              <div
+                className={`step-item ${activeTab === 'address' ? 'current' : (activeTab === 'payment' || activeTab === 'order-success') ? 'completed' : 'pending'}`}
+                onClick={() => {
+                  if (cart.length > 0) setActiveTab('address');
+                }}
+              >
+                <div className="step-circle">
+                  {(activeTab === 'payment' || activeTab === 'order-success') ? (
+                    <i className="fa-solid fa-check"></i>
+                  ) : (
+                    <span>2</span>
+                  )}
+                </div>
+                <span className="step-label">Address</span>
+              </div>
+              <div className={`step-connector ${(activeTab === 'payment' || activeTab === 'order-success') ? 'active' : ''}`}></div>
+
+              <div
+                className={`step-item ${activeTab === 'payment' ? 'current' : activeTab === 'order-success' ? 'completed' : 'pending'}`}
+                onClick={() => {
+                  if (cart.length > 0) setActiveTab('payment');
+                }}
+              >
+                <div className="step-circle">
+                  {activeTab === 'order-success' ? <i className="fa-solid fa-check"></i> : <span>3</span>}
+                </div>
+                <span className="step-label">Payment</span>
+              </div>
+              <div className={`step-connector ${activeTab === 'order-success' ? 'active' : ''}`}></div>
+
+              <div className={`step-item ${activeTab === 'order-success' ? 'completed' : 'pending'}`}>
+                <div className="step-circle">
+                  <span>4</span>
+                </div>
+                <span className="step-label">Summary</span>
+              </div>
+            </div>
+          )}
+
           {/* Top Modern Header */}
           <div className="cart-modern-hero">
             <div className="cart-hero-left">
-
               <h1 className="cart-page-title">
-                Shopping Cart
+                {activeTab === 'cart' && 'Shopping Cart'}
+                {activeTab === 'address' && 'Select Delivery Address'}
+                {activeTab === 'payment' && 'Select Payment Method'}
+                {activeTab === 'order-success' && 'Order Confirmed'}
+                {activeTab === 'wishlist' && 'Saved Products'}
               </h1>
-
             </div>
-
           </div>
 
           {/* VIEW 1: SHOPPING CART */}
@@ -517,30 +612,7 @@ export default function CartPage() {
                   </>
                 )}
 
-                {/* Additional Value Banner below items */}
-                <div className="cart-assurance-banner">
-                  <div className="assurance-item">
-                    <i className="fa-solid fa-truck-shield"></i>
-                    <div>
-                      <strong>Free & Safe Delivery</strong>
-                      <p>Orders above ₹999 qualify for express shipping across India.</p>
-                    </div>
-                  </div>
-                  <div className="assurance-item">
-                    <i className="fa-solid fa-wrench"></i>
-                    <div>
-                      <strong>Optional Doorstep Fitment</strong>
-                      <p>Book a certified mechanic to install parts directly at your doorstep.</p>
-                    </div>
-                  </div>
-                  <div className="assurance-item">
-                    <i className="fa-solid fa-credit-card"></i>
-                    <div>
-                      <strong>Multiple Payment Options</strong>
-                      <p>SART Wallet, UPI, Cards, NetBanking, and Cash on Delivery.</p>
-                    </div>
-                  </div>
-                </div>
+
               </div>
 
               {/* Right Column: Order Summary & Checkout Card */}
@@ -662,14 +734,14 @@ export default function CartPage() {
                       )}
                     </div>
 
-                    {/* Primary Checkout Button */}
+                    {/* Primary Checkout Button to Proceed to Address & Payment */}
                     <button
                       type="button"
                       className="btn-checkout-modern"
-                      onClick={handleCheckout}
+                      onClick={handleProceedToAddress}
                     >
-                      <i className="fa-solid fa-lock"></i>
-                      <span>Pay ₹{finalTotal.toLocaleString('en-IN')} & Place Order</span>
+                      <i className="fa-solid fa-arrow-right"></i>
+                      <span>Proceed to Buy (₹{finalTotal.toLocaleString('en-IN')})</span>
                     </button>
 
                     <div className="summary-guarantee-note">
@@ -706,7 +778,466 @@ export default function CartPage() {
             </div>
           )}
 
-          {/* VIEW 2: WISHLIST (SAVED ITEMS) */}
+          {/* VIEW 2: ADDRESS SELECTION (Image 1) */}
+          {activeTab === 'address' && (
+            <div className="checkout-stage-layout">
+              {/* Left Column: Address Selection */}
+              <div className="checkout-main-content">
+                <div className="checkout-stage-card">
+                  <div className="checkout-card-header-row">
+                    <h2 className="checkout-stage-title">Select Delivery Address</h2>
+                    <button
+                      type="button"
+                      className="checkout-add-action-btn"
+                      onClick={() => setIsAddingAddress(true)}
+                    >
+                      + ADD NEW ADDRESS
+                    </button>
+                  </div>
+
+                  {/* Selected Address Card */}
+                  <div className={`checkout-address-box ${selectedAddress === 'addr_1' ? 'selected' : ''}`}>
+                    <div className="address-box-top">
+                      <div className="address-radio-label">
+                        <span className="address-custom-radio checked"></span>
+                        <h3 className="address-user-name">{addressDetails.name}</h3>
+                      </div>
+                      <button
+                        type="button"
+                        className="address-edit-btn"
+                        onClick={() => setIsEditingAddress(true)}
+                      >
+                        EDIT
+                      </button>
+                    </div>
+
+                    <p className="address-text-body">
+                      {addressDetails.addressLine}
+                    </p>
+
+                    <p className="address-phone-number">
+                      {addressDetails.phone}
+                    </p>
+
+                    <button
+                      type="button"
+                      className="btn-deliver-address-action"
+                      onClick={handleProceedToPayment}
+                    >
+                      Deliver to this Address
+                    </button>
+                  </div>
+
+                  {/* Modal / Form for editing address if triggered */}
+                  {isEditingAddress && (
+                    <div className="address-edit-inline-form">
+                      <h4 style={{ margin: '0 0 10px', fontSize: '13px', fontWeight: 800 }}>Edit Delivery Address</h4>
+                      <input
+                        type="text"
+                        className="checkout-input"
+                        placeholder="Full Name"
+                        value={addressDetails.name}
+                        onChange={(e) => setAddressDetails({ ...addressDetails, name: e.target.value })}
+                        style={{ marginBottom: '8px' }}
+                      />
+                      <textarea
+                        className="checkout-textarea"
+                        placeholder="Complete Address"
+                        value={addressDetails.addressLine}
+                        onChange={(e) => setAddressDetails({ ...addressDetails, addressLine: e.target.value })}
+                        style={{ marginBottom: '8px' }}
+                      />
+                      <input
+                        type="text"
+                        className="checkout-input"
+                        placeholder="Mobile Number"
+                        value={addressDetails.phone}
+                        onChange={(e) => setAddressDetails({ ...addressDetails, phone: e.target.value })}
+                        style={{ marginBottom: '10px' }}
+                      />
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          type="button"
+                          className="btn-deliver-address-action"
+                          style={{ width: 'auto', padding: '6px 16px' }}
+                          onClick={() => {
+                            setIsEditingAddress(false);
+                            showToast('Address updated.');
+                          }}
+                        >
+                          Save Address
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-back-to-cart"
+                          onClick={() => setIsEditingAddress(false)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Right Column: Price Details (Matching Image 1 & 2 & 3) */}
+              <div className="checkout-side-summary">
+                <div className="price-details-card">
+                  <h3 className="price-details-title">Price Details ({totalItemsCount} Items)</h3>
+
+                  <div className="price-details-list">
+                    <div className="price-row">
+                      <span>Product Price</span>
+                      <span className="price-val">+ ₹{originalSubtotal.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="price-row discount">
+                      <span>Total Discounts</span>
+                      <span className="price-val discount-green">- ₹{totalSavings.toLocaleString('en-IN')}</span>
+                    </div>
+
+                    <div className="price-details-divider"></div>
+
+                    <div className="price-row order-total-row">
+                      <strong>Order Total</strong>
+                      <strong className="order-total-amount">₹{finalTotal.toLocaleString('en-IN')}</strong>
+                    </div>
+                  </div>
+
+                  {totalSavings > 0 && (
+                    <div className="yay-savings-badge">
+                      <div className="yay-icon">
+                        <i className="fa-solid fa-percent"></i>
+                      </div>
+                      <span>Yay! Your total discount is ₹{totalSavings.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW 3: PAYMENT METHOD (Image 2 & 3) */}
+          {activeTab === 'payment' && (
+            <div className="checkout-stage-layout">
+              {/* Left Column: Select Payment Method */}
+              <div className="checkout-main-content">
+                <div className="checkout-stage-card">
+                  <div className="checkout-card-header-row">
+                    <h2 className="checkout-stage-title">Select Payment Method</h2>
+                  </div>
+
+                  <div className="payment-options-container">
+                    {/* Option 1: Cash on Delivery */}
+                    <div
+                      className={`payment-method-box ${paymentMethod === 'cod' ? 'selected' : ''}`}
+                      onClick={() => setPaymentMethod('cod')}
+                    >
+                      <div className="pm-header-row">
+                        <div className="pm-left">
+                          <span className="pm-price">₹{finalTotal.toLocaleString('en-IN')}</span>
+                          <span className="pm-label">Cash on Delivery</span>
+                          <span className="pm-cash-icon" role="img" aria-label="cash">💵</span>
+                        </div>
+                        <div className="pm-radio-indicator">
+                          {paymentMethod === 'cod' && <i className="fa-solid fa-check"></i>}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Option 2: Pay Online with Sub-methods */}
+                    <div className={`payment-method-box pay-online-box ${paymentMethod === 'online' ? 'selected' : ''}`}>
+                      <div className="pm-header-row" onClick={() => setPaymentMethod('online')}>
+                        <div className="pm-left">
+                          <div className="pm-price-wrap">
+                            <span className="pm-price-strike">₹{finalTotal.toLocaleString('en-IN')}</span>
+                            <span className="pm-price online-green">₹{paymentFinalTotal.toLocaleString('en-IN')}</span>
+                            <span className="pm-save-pill">Save ₹{onlineDiscount || 86}</span>
+                          </div>
+                          <span className="pm-label">Pay Online</span>
+                          <div className="pm-brand-icons">
+                            <span className="gpay-circle">
+                              <span style={{ color: '#4285F4', fontWeight: 900 }}>G</span>
+                              <span style={{ color: '#EA4335', fontWeight: 900 }}>P</span>
+                              <span style={{ color: '#FBBC05', fontWeight: 900 }}>a</span>
+                              <span style={{ color: '#34A853', fontWeight: 900 }}>y</span>
+                            </span>
+                          </div>
+                        </div>
+                        <div className="pm-radio-indicator">
+                          {paymentMethod === 'online' && <i className="fa-solid fa-check"></i>}
+                        </div>
+                      </div>
+
+                      {/* Promo tag */}
+                      <div className="online-extra-discount-bar">
+                        <div className="online-tag-icon">
+                          <i className="fa-solid fa-percent"></i>
+                        </div>
+                        <span>Get extra ₹20 off with Google Pay</span>
+                        <button type="button" className="view-offers-btn" onClick={() => showToast('Instant ₹20 applied for GPay / UPI payments!')}>
+                          View Offers
+                        </button>
+                      </div>
+
+                      {/* Expanded Accordion List for Online Payment (Image 3) */}
+                      {paymentMethod === 'online' && (
+                        <div className="online-accordion-list">
+                          {/* Accordion: UPI */}
+                          <div className="accordion-item">
+                            <div
+                              className="accordion-header"
+                              onClick={() => setOnlineAccordion(onlineAccordion === 'upi' ? ('' as any) : 'upi')}
+                            >
+                              <span className="acc-title">UPI</span>
+                              <i className={`fa-solid fa-chevron-${onlineAccordion === 'upi' ? 'up' : 'down'}`}></i>
+                            </div>
+
+                            {onlineAccordion === 'upi' && (
+                              <div className="accordion-body">
+                                <div className="upi-scan-qr-section">
+                                  <div className="upi-scan-label">
+                                    <i className="fa-solid fa-qrcode" style={{ fontSize: '15px' }}></i>
+                                    <span>Scan and Pay</span>
+                                  </div>
+
+                                  <div className="upi-partner-badges">
+                                    <span className="app-badge gpay">GPay</span>
+                                    <span className="app-badge phonepe">PhonePe</span>
+                                    <span className="app-badge paytm">Paytm</span>
+                                    <span className="app-badge bhim">BHIM</span>
+                                  </div>
+
+                                  {/* QR Code Container */}
+                                  <div className="upi-qr-card-frame">
+                                    <div className="qr-bracket-corner top-left"></div>
+                                    <div className="qr-bracket-corner top-right"></div>
+                                    <div className="qr-bracket-corner bottom-left"></div>
+                                    <div className="qr-bracket-corner bottom-right"></div>
+
+                                    {!isQrRevealed ? (
+                                      <div className="qr-blurred-view">
+                                        <div className="qr-pixel-matrix-placeholder"></div>
+                                        <button
+                                          type="button"
+                                          className="btn-view-qr-code"
+                                          onClick={() => setIsQrRevealed(true)}
+                                        >
+                                          View QR Code
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <div className="qr-revealed-view">
+                                        <div className="qr-mock-code">
+                                          <div className="qr-pixel corner tl"></div>
+                                          <div className="qr-pixel corner tr"></div>
+                                          <div className="qr-pixel corner bl"></div>
+                                          <div className="qr-pixel center">
+                                            <i className="fa-solid fa-indian-rupee-sign"></i>
+                                          </div>
+                                        </div>
+                                        <span className="qr-timer-text">Scan with any UPI App • Expires in 04:59</span>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  <span className="upi-subtext">Click to view and scan QR Code with any UPI App</span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Accordion: Wallet */}
+                          <div className="accordion-item">
+                            <div
+                              className="accordion-header"
+                              onClick={() => setOnlineAccordion(onlineAccordion === 'wallet' ? ('' as any) : 'wallet')}
+                            >
+                              <span className="acc-title">Wallet (SART Wallet: ₹{wallet.balance.toLocaleString('en-IN')})</span>
+                              <i className={`fa-solid fa-chevron-${onlineAccordion === 'wallet' ? 'up' : 'down'}`}></i>
+                            </div>
+                            {onlineAccordion === 'wallet' && (
+                              <div className="accordion-body">
+                                <p style={{ margin: '0 0 8px', fontSize: '11.5px', color: '#475569' }}>
+                                  Use your pre-loaded SART Wallet balance for instant 1-tap checkout.
+                                </p>
+                                {wallet.balance < paymentFinalTotal ? (
+                                  <span style={{ color: '#d97706', fontSize: '11px', fontWeight: 700 }}>
+                                    ⚠️ Wallet balance is less than payable amount. Please select UPI or add funds.
+                                  </span>
+                                ) : (
+                                  <span style={{ color: '#16a34a', fontSize: '11px', fontWeight: 700 }}>
+                                    ✓ Sufficient balance available in SART Wallet.
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Accordion: Debit / Credit Cards */}
+                          <div className="accordion-item">
+                            <div
+                              className="accordion-header"
+                              onClick={() => setOnlineAccordion(onlineAccordion === 'card' ? ('' as any) : 'card')}
+                            >
+                              <span className="acc-title">Debit/Credit Cards</span>
+                              <i className={`fa-solid fa-chevron-${onlineAccordion === 'card' ? 'up' : 'down'}`}></i>
+                            </div>
+                            {onlineAccordion === 'card' && (
+                              <div className="accordion-body">
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: '340px' }}>
+                                  <input type="text" className="checkout-input" placeholder="Card Number (XXXX XXXX XXXX XXXX)" maxLength={19} />
+                                  <div style={{ display: 'flex', gap: '8px' }}>
+                                    <input type="text" className="checkout-input" placeholder="MM/YY" maxLength={5} />
+                                    <input type="password" className="checkout-input" placeholder="CVV" maxLength={4} />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Accordion: Net Banking */}
+                          <div className="accordion-item">
+                            <div
+                              className="accordion-header"
+                              onClick={() => setOnlineAccordion(onlineAccordion === 'netbanking' ? ('' as any) : 'netbanking')}
+                            >
+                              <span className="acc-title">Net Banking</span>
+                              <i className={`fa-solid fa-chevron-${onlineAccordion === 'netbanking' ? 'up' : 'down'}`}></i>
+                            </div>
+                            {onlineAccordion === 'netbanking' && (
+                              <div className="accordion-body">
+                                <select className="checkout-input">
+                                  <option value="sbi">State Bank of India</option>
+                                  <option value="hdfc">HDFC Bank</option>
+                                  <option value="icici">ICICI Bank</option>
+                                  <option value="axis">Axis Bank</option>
+                                  <option value="kotak">Kotak Mahindra Bank</option>
+                                </select>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Price Details & Continue CTA */}
+              <div className="checkout-side-summary">
+                <div className="price-details-card">
+                  <h3 className="price-details-title">Price Details ({totalItemsCount} Items)</h3>
+
+                  <div className="price-details-list">
+                    <div className="price-row">
+                      <span>Product Price</span>
+                      <span className="price-val">+ ₹{originalSubtotal.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="price-row discount">
+                      <span>Total Discounts</span>
+                      <span className="price-val discount-green">- ₹{(totalSavings + onlineDiscount).toLocaleString('en-IN')}</span>
+                    </div>
+
+                    <div className="price-details-divider"></div>
+
+                    <div className="price-row order-total-row">
+                      <strong>Order Total</strong>
+                      <strong className="order-total-amount">₹{paymentFinalTotal.toLocaleString('en-IN')}</strong>
+                    </div>
+                  </div>
+
+                  {totalSavings > 0 && (
+                    <div className="yay-savings-badge">
+                      <div className="yay-icon">
+                        <i className="fa-solid fa-percent"></i>
+                      </div>
+                      <span>Yay! Your total discount is ₹{(totalSavings + onlineDiscount).toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+
+                  {/* Payment CTA Note & Button */}
+                  <div className="payment-submit-container">
+                    <p className="payment-cta-disclaimer">
+                      {paymentMethod === 'online'
+                        ? "Clicking on 'Continue' will proceed with secure payment"
+                        : "Clicking on 'Continue' will not deduct any money"}
+                    </p>
+                    <button
+                      type="button"
+                      className="btn-payment-continue"
+                      onClick={handleConfirmOrder}
+                      disabled={isProcessingPayment}
+                    >
+                      {isProcessingPayment ? (
+                        <>
+                          <i className="fa-solid fa-circle-notch fa-spin"></i>
+                          <span>Processing Order...</span>
+                        </>
+                      ) : (
+                        <span>Continue</span>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW 4: ORDER SUCCESS */}
+          {activeTab === 'order-success' && (
+            <div className="order-success-screen">
+              <div className="success-icon-banner">
+                <i className="fa-solid fa-circle-check"></i>
+              </div>
+              <h2 className="success-headline">Order Placed Successfully!</h2>
+              <p className="success-subtext">
+                Thank you for your purchase, {addressDetails.name}! Your order has been registered and is being prepared for express delivery.
+              </p>
+
+              <div className="success-info-card">
+                <div className="success-info-row">
+                  <span>Payment Mode:</span>
+                  <strong>{paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment (Prepaid)'}</strong>
+                </div>
+                <div className="success-info-row">
+                  <span>Shipping To:</span>
+                  <span>{addressDetails.addressLine}</span>
+                </div>
+                <div className="success-info-row">
+                  <span>Contact Number:</span>
+                  <strong>{addressDetails.phone}</strong>
+                </div>
+              </div>
+
+              <div className="success-actions-row">
+                <button
+                  type="button"
+                  className="btn-deliver-address-action"
+                  style={{ width: 'auto', padding: '10px 24px' }}
+                  onClick={() => {
+                    setActiveTab('cart');
+                    handleResetToDefaults();
+                  }}
+                >
+                  <i className="fa-solid fa-rotate-left"></i> Order More Items
+                </button>
+                <button
+                  type="button"
+                  className="btn-back-to-cart"
+                  style={{ padding: '10px 20px' }}
+                  onClick={() => {
+                    if (typeof window !== 'undefined') {
+                      window.location.href = '/store';
+                    }
+                  }}
+                >
+                  <i className="fa-solid fa-store"></i> Explore Store
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW 5: WISHLIST (SAVED ITEMS) */}
           {activeTab === 'wishlist' && (
             <div className="wishlist-section">
               <div className="cart-section-top">
