@@ -354,10 +354,12 @@ export default function CartPage() {
                                     onError={(e) => {
                                       // Fallback to icon if remote image fails
                                       (e.target as HTMLElement).style.display = 'none';
+                                      const fallback = (e.target as HTMLElement).parentElement?.querySelector('.cart-item-icon-fallback') as HTMLElement;
+                                      if (fallback) fallback.style.display = 'flex';
                                     }}
                                   />
                                 ) : null}
-                                <div className="cart-item-icon-fallback">
+                                <div className="cart-item-icon-fallback" style={{ display: item.image ? 'none' : 'flex' }}>
                                   <i className={`fa-solid ${item.icon || 'fa-box'}`}></i>
                                 </div>
                                 {item.badge && (
@@ -674,6 +676,30 @@ export default function CartPage() {
                       <i className="fa-solid fa-shield-check"></i>
                       <span>Encrypted 256-bit Secure Checkout • 100% Buyer Protection</span>
                     </div>
+
+                    {/* View Saved / Wishlist Products Entry Card */}
+                    <button
+                      type="button"
+                      className="cart-saved-products-entry-btn"
+                      onClick={() => setActiveTab('wishlist')}
+                      title="View all saved products in Wishlist"
+                    >
+                      <div className="saved-entry-left">
+                        <div className="saved-entry-icon">
+                          <i className="fa-solid fa-heart"></i>
+                        </div>
+                        <div className="saved-entry-info">
+                          <span className="saved-entry-title">Saved Products</span>
+                          <span className="saved-entry-count">
+                            {wishlistItems.length} {wishlistItems.length === 1 ? 'item saved' : 'items saved'} for later
+                          </span>
+                        </div>
+                      </div>
+                      <div className="saved-entry-action">
+                        <span>View</span>
+                        <i className="fa-solid fa-chevron-right"></i>
+                      </div>
+                    </button>
                   </div>
                 </div>
               )}
@@ -684,9 +710,19 @@ export default function CartPage() {
           {activeTab === 'wishlist' && (
             <div className="wishlist-section">
               <div className="cart-section-top">
-                <span className="cart-items-count">
-                  {wishlistItems.length} {wishlistItems.length === 1 ? 'Item' : 'Items'} saved in Wishlist
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <button
+                    type="button"
+                    className="btn-back-to-cart"
+                    onClick={() => setActiveTab('cart')}
+                    title="Return to Shopping Cart"
+                  >
+                    <i className="fa-solid fa-arrow-left"></i> Back to Cart
+                  </button>
+                  <span className="cart-items-count">
+                    {wishlistItems.length} {wishlistItems.length === 1 ? 'Item' : 'Items'} saved in Wishlist
+                  </span>
+                </div>
                 {wishlistItems.length > 0 && (
                   <button
                     type="button"
