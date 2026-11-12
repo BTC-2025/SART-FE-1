@@ -54,7 +54,8 @@ export interface GovtRtcCardItem {
   code: string;
   fullName: string;
   bgImage: string;
-  emblemSvg: React.ReactNode;
+  logoImg?: string;
+  emblemSvg?: React.ReactNode;
 }
 
 export const GOVT_RTC_CARDS: GovtRtcCardItem[] = [
@@ -62,6 +63,7 @@ export const GOVT_RTC_CARDS: GovtRtcCardItem[] = [
     code: 'APSRTC',
     fullName: 'Andhra Pradesh State Road Transport Corporation',
     bgImage: 'https://images.unsplash.com/photo-1596178065887-1198b6148b2b?auto=format&fit=crop&w=600&q=80',
+    logoImg: '/images/rtc/apsrtc_logo.png',
     emblemSvg: (
       <svg viewBox="0 0 100 100" width="100%" height="100%">
         <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#e11d48" strokeWidth="3" />
@@ -85,6 +87,7 @@ export const GOVT_RTC_CARDS: GovtRtcCardItem[] = [
     code: 'TGSRTC',
     fullName: 'Telangana State Road Transport Corporation',
     bgImage: 'https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?auto=format&fit=crop&w=600&q=80',
+    logoImg: '/images/rtc/tsrtc_logo.png',
     emblemSvg: (
       <svg viewBox="0 0 100 100" width="100%" height="100%">
         <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#15803d" strokeWidth="3" />
@@ -104,6 +107,7 @@ export const GOVT_RTC_CARDS: GovtRtcCardItem[] = [
     code: 'Kerala RTC',
     fullName: 'Kerala Road Transport Corporation',
     bgImage: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=600&q=80',
+    logoImg: '/images/rtc/kerala_rtc_logo.png',
     emblemSvg: (
       <svg viewBox="0 0 100 100" width="100%" height="100%">
         <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#15803d" strokeWidth="3" />
@@ -125,6 +129,7 @@ export const GOVT_RTC_CARDS: GovtRtcCardItem[] = [
     code: 'GSRTC',
     fullName: 'Gujarat State Road Transport Corporation',
     bgImage: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80',
+    logoImg: '/images/rtc/gsrtc_logo.jpg',
     emblemSvg: (
       <svg viewBox="0 0 100 100" width="100%" height="100%">
         <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#047857" strokeWidth="3" />
@@ -145,6 +150,7 @@ export const GOVT_RTC_CARDS: GovtRtcCardItem[] = [
     code: 'KSRTC',
     fullName: 'Karnataka State Road Transport Corporation',
     bgImage: 'https://images.unsplash.com/photo-1590766940554-634a7ed41450?auto=format&fit=crop&w=600&q=80',
+    logoImg: '/images/rtc/ksrtc_logo.png',
     emblemSvg: (
       <svg viewBox="0 0 100 100" width="100%" height="100%">
         <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#b91c1c" strokeWidth="3" />
@@ -2171,7 +2177,15 @@ export default function BusBookingView({
 
                     {/* Circular Emblem badge centered near top */}
                     <div className="bb-govt-card-emblem-badge">
-                      {card.emblemSvg}
+                      {card.logoImg ? (
+                        <img
+                          src={card.logoImg}
+                          alt={card.code}
+                          className="bb-govt-card-emblem-img"
+                        />
+                      ) : (
+                        card.emblemSvg
+                      )}
                     </div>
 
                     {/* Bottom gradient overlay with text */}
