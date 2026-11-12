@@ -37,16 +37,18 @@ export default function CartPage() {
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState('');
   const [hasInitializedDefault, setHasInitializedDefault] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4; // 2 columns x 2 rows = 4 items per page
 
   // Initialize default sample data if cart is empty on first visit
   useEffect(() => {
     if (!hasInitializedDefault && cart.length === 0) {
-      const isCartSeeded = localStorage.getItem('sart_cart_seeded_v1');
+      const isCartSeeded = localStorage.getItem('sart_cart_seeded_v2');
       if (!isCartSeeded) {
         DEFAULT_CART_ITEMS.forEach((item) => {
           addToCart(item);
         });
-        localStorage.setItem('sart_cart_seeded_v1', 'true');
+        localStorage.setItem('sart_cart_seeded_v2', 'true');
       }
       setHasInitializedDefault(true);
     }
@@ -91,6 +93,12 @@ export default function CartPage() {
   };
 
   const isGuest = !userSession;
+
+  // Pagination calculation for 2 columns x 2 rows (4 items per page)
+  const totalPages = Math.ceil(cart.length / itemsPerPage);
+  const activePage = Math.min(Math.max(1, currentPage), totalPages || 1);
+  const startIndex = (activePage - 1) * itemsPerPage;
+  const paginatedCartItems = cart.slice(startIndex, startIndex + itemsPerPage);
 
   // Subtotal & savings calculation
   const totalItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -322,147 +330,189 @@ export default function CartPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="cart-items-list">
-                    {cart.map((item) => {
-                      const itemTotal = item.price * item.quantity;
-                      const origPrice = item.originalPrice || Math.round(item.price * 1.35);
-                      const origTotal = origPrice * item.quantity;
-                      const discountPercent = Math.round(((origPrice - item.price) / origPrice) * 100);
-                      const deliveryDate = item.deliveryEstimate || 'Delivered in 2-3 Business Days';
-                      const brandName = item.brand || 'SART Certified Automotive';
+                  <>
+                    <div className="cart-items-list">
+                      {paginatedCartItems.map((item) => {
+                        const itemTotal = item.price * item.quantity;
+                        const origPrice = item.originalPrice || Math.round(item.price * 1.35);
+                        const origTotal = origPrice * item.quantity;
+                        const discountPercent = Math.round(((origPrice - item.price) / origPrice) * 100);
+                        const deliveryDate = item.deliveryEstimate || 'Delivered in 2-3 Business Days';
+                        const brandName = item.brand || 'SART Certified Automotive';
 
-                      return (
-                        <div key={item.id} className="cart-item-card-modern">
-                          {/* Left: Product Thumbnail */}
-                          <div className="cart-item-media">
-                            {item.image ? (
-                              <img
-                                src={item.image}
-                                alt={item.name}
-                                className="cart-item-thumbnail"
-                                onError={(e) => {
-                                  // Fallback to icon if remote image fails
-                                  (e.target as HTMLElement).style.display = 'none';
-                                }}
-                              />
-                            ) : null}
-                            <div className="cart-item-icon-fallback">
-                              <i className={`fa-solid ${item.icon || 'fa-box'}`}></i>
-                            </div>
-                            {item.badge && (
-                              <span className="cart-item-floating-badge">{item.badge}</span>
-                            )}
-                          </div>
-
-                          {/* Middle: Rich Product Specs & Details */}
-                          <div className="cart-item-details">
-                            <div className="cart-item-brand-row">
-                              <span className="cart-item-brand">{brandName}</span>
-                              <span className="cart-item-cat-tag">{item.category || 'Automotive Spares'}</span>
-                            </div>
-
-                            <h3 className="cart-item-title">{item.name}</h3>
-
-                            {item.description && (
-                              <p className="cart-item-desc">{item.description}</p>
-                            )}
-
-                            {/* Trust badges and product metadata */}
-                            <div className="cart-item-features-strip">
-                              <div className="cart-feature-chip rating">
-                                <i className="fa-solid fa-star"></i>
-                                <span>{item.rating || 4.8}</span>
-                                <small>({item.reviewsCount || 120})</small>
-                              </div>
-                              <div className="cart-feature-chip verified">
-                                <i className="fa-solid fa-certificate"></i>
-                                <span>1 Year Brand Warranty</span>
-                              </div>
-                              <div className="cart-feature-chip stock">
-                                <i className="fa-solid fa-check-circle"></i>
-                                <span>In Stock & Ready to Ship</span>
-                              </div>
-                            </div>
-
-                            {/* Delivery & Protection row */}
-                            <div className="cart-item-delivery-row">
-                              <div className="delivery-info">
-                                <i className="fa-solid fa-truck-fast"></i>
-                                <span>Fast Delivery: <strong>{deliveryDate}</strong></span>
-                              </div>
-                              <div className="return-info">
-                                <i className="fa-solid fa-rotate-left"></i>
-                                <span>7 Days Free Return / Replacement</span>
-                              </div>
-                            </div>
-
-                            {/* Bottom Actions: Move to Wishlist & Remove */}
-                            <div className="cart-item-bottom-actions">
-                              <button
-                                type="button"
-                                className="btn-modern-action wishlist"
-                                onClick={() => handleMoveToWishlist(item)}
-                              >
-                                <i className="fa-regular fa-heart"></i> Save for Later
-                              </button>
-                              <span className="action-sep">•</span>
-                              <button
-                                type="button"
-                                className="btn-modern-action remove"
-                                onClick={() => {
-                                  removeFromCart(item.id);
-                                  showToast(`Removed "${item.name}" from cart.`);
-                                }}
-                              >
-                                <i className="fa-solid fa-trash-can"></i> Remove
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Right: Price & Quantity Controls */}
-                          <div className="cart-item-pricing-col">
-                            <div className="pricing-box">
-                              <div className="current-price-row">
-                                <span className="cart-final-price">₹{itemTotal.toLocaleString('en-IN')}</span>
-                              </div>
-                              {origTotal > itemTotal && (
-                                <div className="orig-price-row">
-                                  <span className="cart-original-price">₹{origTotal.toLocaleString('en-IN')}</span>
-                                  <span className="cart-discount-percent">{discountPercent}% OFF</span>
+                        return (
+                          <div key={item.id} className="cart-item-card-modern">
+                            {/* Top row: Media + Details */}
+                            <div className="cart-item-top-row">
+                              {/* Left: Product Thumbnail */}
+                              <div className="cart-item-media">
+                                {item.image ? (
+                                  <img
+                                    src={item.image}
+                                    alt={item.name}
+                                    className="cart-item-thumbnail"
+                                    onError={(e) => {
+                                      // Fallback to icon if remote image fails
+                                      (e.target as HTMLElement).style.display = 'none';
+                                    }}
+                                  />
+                                ) : null}
+                                <div className="cart-item-icon-fallback">
+                                  <i className={`fa-solid ${item.icon || 'fa-box'}`}></i>
                                 </div>
-                              )}
-                              <span className="cart-unit-rate">₹{item.price.toLocaleString('en-IN')} per unit</span>
+                                {item.badge && (
+                                  <span className="cart-item-floating-badge">{item.badge}</span>
+                                )}
+                              </div>
+
+                              {/* Middle: Rich Product Specs & Details */}
+                              <div className="cart-item-details">
+                                <div className="cart-item-brand-row">
+                                  <span className="cart-item-brand">{brandName}</span>
+                                  <span className="cart-item-cat-tag">{item.category || 'Automotive Spares'}</span>
+                                </div>
+
+                                <h3 className="cart-item-title">{item.name}</h3>
+
+                                {item.description && (
+                                  <p className="cart-item-desc">{item.description}</p>
+                                )}
+
+                                {/* Trust badges and product metadata */}
+                                <div className="cart-item-features-strip">
+                                  <div className="cart-feature-chip rating">
+                                    <i className="fa-solid fa-star"></i>
+                                    <span>{item.rating || 4.8}</span>
+                                    <small>({item.reviewsCount || 120})</small>
+                                  </div>
+                                  <div className="cart-feature-chip verified">
+                                    <i className="fa-solid fa-certificate"></i>
+                                    <span>1 Year Brand Warranty</span>
+                                  </div>
+                                  <div className="cart-feature-chip stock">
+                                    <i className="fa-solid fa-check-circle"></i>
+                                    <span>In Stock & Ready to Ship</span>
+                                  </div>
+                                </div>
+
+                                {/* Delivery & Protection row */}
+                                <div className="cart-item-delivery-row">
+                                  <div className="delivery-info">
+                                    <i className="fa-solid fa-truck-fast"></i>
+                                    <span>Fast Delivery: <strong>{deliveryDate}</strong></span>
+                                  </div>
+                                  <div className="return-info">
+                                    <i className="fa-solid fa-rotate-left"></i>
+                                    <span>7 Days Free Return / Replacement</span>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
 
-                            {/* Interactive Quantity Stepper */}
-                            <div className="modern-qty-stepper">
-                              <span className="stepper-label">Quantity</span>
-                              <div className="stepper-controls">
+                            {/* Bottom Bar: Action buttons on left, pricing + stepper on right */}
+                            <div className="cart-item-bottom-bar">
+                              <div className="cart-item-bottom-actions">
                                 <button
                                   type="button"
-                                  className="stepper-btn minus"
-                                  onClick={() => updateCartQuantity(item.id, Math.max(1, item.quantity - 1))}
-                                  disabled={item.quantity <= 1}
-                                  title="Decrease quantity"
+                                  className="btn-modern-action wishlist"
+                                  onClick={() => handleMoveToWishlist(item)}
                                 >
-                                  <i className="fa-solid fa-minus"></i>
+                                  <i className="fa-regular fa-heart"></i> Save for Later
                                 </button>
-                                <span className="stepper-number">{item.quantity}</span>
+                                <span className="action-sep">•</span>
                                 <button
                                   type="button"
-                                  className="stepper-btn plus"
-                                  onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                                  title="Increase quantity"
+                                  className="btn-modern-action remove"
+                                  onClick={() => {
+                                    removeFromCart(item.id);
+                                    showToast(`Removed "${item.name}" from cart.`);
+                                  }}
                                 >
-                                  <i className="fa-solid fa-plus"></i>
+                                  <i className="fa-solid fa-trash-can"></i> Remove
                                 </button>
+                              </div>
+
+                              <div className="cart-item-pricing-col">
+                                <div className="pricing-box">
+                                  <div className="current-price-row">
+                                    <span className="cart-final-price">₹{itemTotal.toLocaleString('en-IN')}</span>
+                                  </div>
+                                  {origTotal > itemTotal && (
+                                    <div className="orig-price-row">
+                                      <span className="cart-original-price">₹{origTotal.toLocaleString('en-IN')}</span>
+                                      <span className="cart-discount-percent">{discountPercent}% OFF</span>
+                                    </div>
+                                  )}
+                                  <span className="cart-unit-rate">₹{item.price.toLocaleString('en-IN')} per unit</span>
+                                </div>
+
+                                {/* Interactive Quantity Stepper */}
+                                <div className="modern-qty-stepper">
+                                  <span className="stepper-label">Quantity</span>
+                                  <div className="stepper-controls">
+                                    <button
+                                      type="button"
+                                      className="stepper-btn minus"
+                                      onClick={() => updateCartQuantity(item.id, Math.max(1, item.quantity - 1))}
+                                      disabled={item.quantity <= 1}
+                                      title="Decrease quantity"
+                                    >
+                                      <i className="fa-solid fa-minus"></i>
+                                    </button>
+                                    <span className="stepper-number">{item.quantity}</span>
+                                    <button
+                                      type="button"
+                                      className="stepper-btn plus"
+                                      onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
+                                      title="Increase quantity"
+                                    >
+                                      <i className="fa-solid fa-plus"></i>
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Clean Pagination Control matching user image */}
+                    {totalPages > 1 && (
+                      <div className="cart-pagination-bar">
+                        <button
+                          type="button"
+                          className={`cart-page-nav-btn ${activePage <= 1 ? 'disabled' : ''}`}
+                          onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                          disabled={activePage <= 1}
+                          title="Previous Page"
+                        >
+                          <i className="fa-solid fa-chevron-left"></i>
+                        </button>
+
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                          <button
+                            key={pageNum}
+                            type="button"
+                            className={`cart-page-number-btn ${activePage === pageNum ? 'active' : ''}`}
+                            onClick={() => setCurrentPage(pageNum)}
+                          >
+                            {pageNum}
+                          </button>
+                        ))}
+
+                        <button
+                          type="button"
+                          className={`cart-page-nav-btn ${activePage >= totalPages ? 'disabled' : ''}`}
+                          onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                          disabled={activePage >= totalPages}
+                          title="Next Page"
+                        >
+                          <i className="fa-solid fa-chevron-right"></i>
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
 
                 {/* Additional Value Banner below items */}
