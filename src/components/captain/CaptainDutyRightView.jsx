@@ -880,11 +880,11 @@ export default function CaptainDutyRightView({
                 }}></div>
                 {(activeAcceptedOrder.rideStage || rideStage) === 'in_trip' ? (
                   <span>
-                    Navigating to Destination: <strong style={{ color: '#facc15' }}>{activeAcceptedOrder.dropDist || '3.8 km'}</strong> • {activeAcceptedOrder.dropLoc}
+                    Navigating to Destination: <strong style={{ color: '#facc15' }}>{activeAcceptedOrder.dropDist || '3.8 km'}</strong>
                   </span>
                 ) : (
                   <span>
-                    Direction to Customer: <strong style={{ color: '#facc15' }}>{activeAcceptedOrder.pickupDist || '0.8 km'}</strong> ({activeAcceptedOrder.pickupTime || '3 mins'}) • {activeAcceptedOrder.pickupLoc}
+                    Direction to Customer: <strong style={{ color: '#facc15' }}>{activeAcceptedOrder.pickupDist || '1.2 km'}</strong> ({activeAcceptedOrder.pickupTime || '4 mins'})
                   </span>
                 )}
               </div>

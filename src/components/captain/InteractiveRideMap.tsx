@@ -618,43 +618,39 @@ export default function InteractiveRideMap({
       </div>
 
       {/* Floating Status & Instruction Tooltip at bottom of map */}
-      <div style={{
-        position: 'absolute',
-        bottom: '14px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 1000,
-        background: 'rgba(15, 23, 42, 0.9)',
-        color: '#ffffff',
-        padding: '6px 16px',
-        borderRadius: '24px',
-        fontSize: '12px',
-        fontWeight: 700,
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
-        pointerEvents: 'none'
-      }}>
-        {selectionMode === 'pickup' && (
-          <>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }}></span>
-            <span>Click map to set <strong>Pickup Location</strong></span>
-          </>
-        )}
-        {selectionMode === 'drop' && (
-          <>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }}></span>
-            <span>Click map to set <strong>Dropping Point (Red Pin)</strong></span>
-          </>
-        )}
-        {selectionMode === 'idle' && (
-          <>
-            <i className="fa-solid fa-computer-mouse" style={{ color: '#f97316' }}></i>
-            <span>Click on map to select pickup or dropping point</span>
-          </>
-        )}
-      </div>
+      {selectionMode !== 'idle' && (
+        <div style={{
+          position: 'absolute',
+          bottom: '14px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
+          background: 'rgba(15, 23, 42, 0.9)',
+          color: '#ffffff',
+          padding: '6px 16px',
+          borderRadius: '24px',
+          fontSize: '12px',
+          fontWeight: 700,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
+          pointerEvents: 'none'
+        }}>
+          {selectionMode === 'pickup' && (
+            <>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }}></span>
+              <span>Click map to set <strong>Pickup Location</strong></span>
+            </>
+          )}
+          {selectionMode === 'drop' && (
+            <>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }}></span>
+              <span>Click map to set <strong>Dropping Point (Red Pin)</strong></span>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
