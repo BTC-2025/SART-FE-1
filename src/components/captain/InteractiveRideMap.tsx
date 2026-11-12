@@ -337,7 +337,7 @@ export default function InteractiveRideMap({
     });
   }, [dropAddress, dropMarkerLabel, dropMarkerType]);
 
-  // Custom Orange Pin Marker for Intermediate Stops
+  // Custom Orange Pin Marker for Intermediate Stops (Exact User Reference Match)
   const createStopMarkerIcon = (stopName: string, index: number) => {
     return L.divIcon({
       className: 'sart-stop-orange-pin',
@@ -346,40 +346,44 @@ export default function InteractiveRideMap({
           <div style="
             background: #ffffff;
             color: #c2410c;
-            padding: 3px 9px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11.5px;
+            font-weight: 900;
             white-space: nowrap;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
-            border: 1.5px solid #f97316;
-            margin-bottom: 4px;
-            max-width: 170px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+            border: 2px solid #ea580c;
+            margin-bottom: 5px;
+            max-width: 190px;
             overflow: hidden;
             text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 6px;
           ">
-            🟠 Stop ${index + 1}: ${stopName || 'Stopping Point'}
+            <span style="width: 10px; height: 10px; border-radius: 50%; background: #f97316; display: inline-block; flex-shrink: 0; box-shadow: 0 0 4px rgba(249, 115, 22, 0.8);"></span>
+            <span>Stop ${index + 1}: ${stopName || 'Stopping Point'}</span>
           </div>
           <div style="
-            width: 30px;
-            height: 30px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
-            background: #f97316;
+            background: #ea580c;
             border: 3.5px solid #ffffff;
-            box-shadow: 0 0 0 5px rgba(249, 115, 22, 0.35), 0 4px 8px rgba(0,0,0,0.35);
+            box-shadow: 0 0 0 6px rgba(234, 88, 12, 0.35), 0 4px 10px rgba(0,0,0,0.35);
             display: flex;
             align-items: center;
             justify-content: center;
             color: #ffffff;
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 900;
           ">
             ${index + 1}
           </div>
         </div>
       `,
-      iconSize: [30, 50],
-      iconAnchor: [15, 50]
+      iconSize: [34, 60],
+      iconAnchor: [17, 60]
     });
   };
 
