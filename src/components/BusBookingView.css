@@ -617,6 +617,14 @@
   transform: translateX(-50%) scale(1.06);
 }
 
+.bb-govt-card-emblem-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
+  display: block;
+}
+
 /* Bottom Gradient Overlay & Typography */
 .bb-govt-card-bottom {
   position: absolute;

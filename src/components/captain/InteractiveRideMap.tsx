@@ -18,13 +18,16 @@ L.Icon.Default.mergeOptions({
 function MapBoundsUpdater({
   pickupCoords,
   dropCoords,
+  stops = [],
   selectionMode
 }: {
   pickupCoords: { lat: number; lng: number } | null;
   dropCoords: { lat: number; lng: number } | null;
-  selectionMode: 'pickup' | 'drop' | 'idle';
+  stops?: Array<{ id: string; name: string; lat?: number; lng?: number; purpose?: string }>;
+  selectionMode: 'pickup' | 'drop' | 'stop' | 'idle';
 }) {
   const map = useMap();
+  const hasUserPannedOrZoomed = React.useRef(false);
 
   useEffect(() => {
     // Invalidate map size to ensure all Google map tiles load properly inside flex/dynamic containers
@@ -34,21 +37,130 @@ function MapBoundsUpdater({
     return () => clearTimeout(timer);
   }, [map]);
 
+  // If user manually drags or zooms, don't continually snap map view away from them
   useEffect(() => {
-    if (pickupCoords && dropCoords) {
-      const bounds = L.latLngBounds(
-        [pickupCoords.lat, pickupCoords.lng],
-        [dropCoords.lat, dropCoords.lng]
-      );
+    const onUserInteraction = () => {
+      hasUserPannedOrZoomed.current = true;
+    };
+    map.on('movestart', onUserInteraction);
+    return () => {
+      map.off('movestart', onUserInteraction);
+    };
+  }, [map]);
+
+  useEffect(() => {
+    // Collect all valid points (pickup, drop, and all stopping points)
+    const points: [number, number][] = [];
+    if (pickupCoords?.lat && pickupCoords?.lng) {
+      points.push([pickupCoords.lat, pickupCoords.lng]);
+    }
+    if (stops && stops.length > 0) {
+      stops.forEach(st => {
+        if (st.lat && st.lng) {
+          points.push([st.lat, st.lng]);
+        }
+      });
+    }
+    if (dropCoords?.lat && dropCoords?.lng) {
+      points.push([dropCoords.lat, dropCoords.lng]);
+    }
+
+    if (points.length >= 2) {
+      const bounds = L.latLngBounds(points);
       map.fitBounds(bounds, { padding: [60, 60], maxZoom: 15, animate: true });
     } else if (pickupCoords) {
       map.setView([pickupCoords.lat, pickupCoords.lng], 14, { animate: true });
     } else if (dropCoords) {
       map.setView([dropCoords.lat, dropCoords.lng], 14, { animate: true });
     }
-  }, [pickupCoords?.lat, pickupCoords?.lng, dropCoords?.lat, dropCoords?.lng]);
+  }, [pickupCoords?.lat, pickupCoords?.lng, dropCoords?.lat, dropCoords?.lng, stops?.length]);
 
   return null;
+}
+
+// Controller for custom floating Zoom in / Zoom out buttons
+function ZoomButtons() {
+  const map = useMap();
+  return (
+    <div style={{
+      position: 'absolute',
+      right: '16px',
+      bottom: '68px',
+      zIndex: 1000,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '6px'
+    }}>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          map.zoomIn();
+        }}
+        title="Zoom In"
+        style={{
+          width: '36px',
+          height: '36px',
+          borderRadius: '8px',
+          background: '#ffffff',
+          color: '#1e293b',
+          border: '1.5px solid #cbd5e1',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          fontSize: '16px',
+          fontWeight: 900,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          transition: 'all 0.15s ease'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = '#f1f5f9';
+          e.currentTarget.style.borderColor = '#94a3b8';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = '#ffffff';
+          e.currentTarget.style.borderColor = '#cbd5e1';
+        }}
+      >
+        <i className="fa-solid fa-plus"></i>
+      </button>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          map.zoomOut();
+        }}
+        title="Zoom Out"
+        style={{
+          width: '36px',
+          height: '36px',
+          borderRadius: '8px',
+          background: '#ffffff',
+          color: '#1e293b',
+          border: '1.5px solid #cbd5e1',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          fontSize: '16px',
+          fontWeight: 900,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          transition: 'all 0.15s ease'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = '#f1f5f9';
+          e.currentTarget.style.borderColor = '#94a3b8';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = '#ffffff';
+          e.currentTarget.style.borderColor = '#cbd5e1';
+        }}
+      >
+        <i className="fa-solid fa-minus"></i>
+      </button>
+    </div>
+  );
 }
 
 // Handle Map Click (Only selects on explicit mouse click, NOT mouse movement)
@@ -69,6 +181,7 @@ export interface InteractiveRideMapProps {
   mode: 'bike' | 'auto' | 'car';
   pickupCoords: { lat: number; lng: number } | null;
   dropCoords: { lat: number; lng: number } | null;
+  stops?: Array<{ id: string; name: string; lat?: number; lng?: number; purpose?: string }>;
   pickupAddress: string;
   dropAddress: string;
   selectionMode: 'pickup' | 'drop' | 'idle';
@@ -92,6 +205,7 @@ export default function InteractiveRideMap({
   mode = 'bike',
   pickupCoords,
   dropCoords,
+  stops = [],
   pickupAddress,
   dropAddress,
   selectionMode,
@@ -223,6 +337,56 @@ export default function InteractiveRideMap({
     });
   }, [dropAddress, dropMarkerLabel, dropMarkerType]);
 
+  // Custom Orange Pin Marker for Intermediate Stops (Exact User Reference Match)
+  const createStopMarkerIcon = (stopName: string, index: number) => {
+    return L.divIcon({
+      className: 'sart-stop-orange-pin',
+      html: `
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -100%);">
+          <div style="
+            background: #ffffff;
+            color: #c2410c;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11.5px;
+            font-weight: 900;
+            white-space: nowrap;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+            border: 2px solid #ea580c;
+            margin-bottom: 5px;
+            max-width: 190px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+          ">
+            <span style="width: 10px; height: 10px; border-radius: 50%; background: #f97316; display: inline-block; flex-shrink: 0; box-shadow: 0 0 4px rgba(249, 115, 22, 0.8);"></span>
+            <span>Stop ${index + 1}: ${stopName || 'Stopping Point'}</span>
+          </div>
+          <div style="
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #ea580c;
+            border: 3.5px solid #ffffff;
+            box-shadow: 0 0 0 6px rgba(234, 88, 12, 0.35), 0 4px 10px rgba(0,0,0,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 900;
+          ">
+            ${index + 1}
+          </div>
+        </div>
+      `,
+      iconSize: [34, 60],
+      iconAnchor: [17, 60]
+    });
+  };
+
   // Real vehicle icons for nearby live captains (matching Screenshot 2 Auto / Bike / Cab icons)
   const createCaptainIcon = (driver: any) => {
     const isAuto = mode === 'auto' || driver.serviceType === 'auto';
@@ -286,7 +450,10 @@ export default function InteractiveRideMap({
         zoom={13}
         style={{ width: '100%', height: '100%', borderRadius: '12px', zIndex: 1 }}
         zoomControl={false}
-        scrollWheelZoom={false}
+        scrollWheelZoom={true}
+        doubleClickZoom={true}
+        touchZoom={true}
+        dragging={true}
       >
         {/* Google Maps HD Street Tiles (Default) */}
         {mapStyle === 'satellite' ? (
@@ -316,8 +483,12 @@ export default function InteractiveRideMap({
         <MapBoundsUpdater
           pickupCoords={pickupCoords}
           dropCoords={dropCoords}
+          stops={stops}
           selectionMode={selectionMode}
         />
+
+        {/* Interactive Zoom In / Zoom Out Buttons for Captain */}
+        <ZoomButtons />
 
         {/* Listen for single mouse click to select point */}
         <MapClickHandler onMapClick={handleMapClick} />
@@ -341,7 +512,19 @@ export default function InteractiveRideMap({
           <Marker position={[pickupCoords.lat, pickupCoords.lng]} icon={pickupMarkerIcon} />
         )}
 
-        {/* 3. Red Dropping Point Marker */}
+        {/* 3. Orange Stopping Points Markers (Intermediate Stops) */}
+        {stops && stops.length > 0 && stops.map((st, idx) => {
+          if (!st.lat || !st.lng) return null;
+          return (
+            <Marker
+              key={st.id || `stop-${idx}`}
+              position={[st.lat, st.lng]}
+              icon={createStopMarkerIcon(st.name || st.address || `Stop ${idx + 1}`, idx)}
+            />
+          );
+        })}
+
+        {/* 4. Red Dropping Point Marker */}
         {dropCoords && (
           <Marker position={[dropCoords.lat, dropCoords.lng]} icon={dropMarkerIcon} />
         )}
@@ -435,43 +618,39 @@ export default function InteractiveRideMap({
       </div>
 
       {/* Floating Status & Instruction Tooltip at bottom of map */}
-      <div style={{
-        position: 'absolute',
-        bottom: '14px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 1000,
-        background: 'rgba(15, 23, 42, 0.9)',
-        color: '#ffffff',
-        padding: '6px 16px',
-        borderRadius: '24px',
-        fontSize: '12px',
-        fontWeight: 700,
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
-        pointerEvents: 'none'
-      }}>
-        {selectionMode === 'pickup' && (
-          <>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }}></span>
-            <span>Click map to set <strong>Pickup Location</strong></span>
-          </>
-        )}
-        {selectionMode === 'drop' && (
-          <>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }}></span>
-            <span>Click map to set <strong>Dropping Point (Red Pin)</strong></span>
-          </>
-        )}
-        {selectionMode === 'idle' && (
-          <>
-            <i className="fa-solid fa-computer-mouse" style={{ color: '#f97316' }}></i>
-            <span>Click on map to select pickup or dropping point</span>
-          </>
-        )}
-      </div>
+      {selectionMode !== 'idle' && (
+        <div style={{
+          position: 'absolute',
+          bottom: '14px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
+          background: 'rgba(15, 23, 42, 0.9)',
+          color: '#ffffff',
+          padding: '6px 16px',
+          borderRadius: '24px',
+          fontSize: '12px',
+          fontWeight: 700,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
+          pointerEvents: 'none'
+        }}>
+          {selectionMode === 'pickup' && (
+            <>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }}></span>
+              <span>Click map to set <strong>Pickup Location</strong></span>
+            </>
+          )}
+          {selectionMode === 'drop' && (
+            <>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }}></span>
+              <span>Click map to set <strong>Dropping Point (Red Pin)</strong></span>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

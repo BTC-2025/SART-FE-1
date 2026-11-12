@@ -38,8 +38,11 @@ export default function CaptainHeader({
     { id: 'car', label: 'Cab & Car', icon: 'fa-car-side', route: 'ride-car' }
   ];
 
-  // If user is inside Rides section (rides, bike, auto, car), show the 3 vehicle categories:
-  const isRideSection = ['rides', 'bike', 'auto', 'car'].includes(activeSubTab);
+  // Check if current page is the wallet page
+  const isWalletPage = (typeof window !== 'undefined' && window.location.pathname.includes('/wallet')) || activeSubTab === 'wallet';
+
+  // If user is inside Rides section (rides, bike, auto, car), show the 3 vehicle categories (except on wallet page):
+  const isRideSection = !isWalletPage && ['rides', 'bike', 'auto', 'car'].includes(activeSubTab);
 
   return (
     <div className="sart-business-nav-wrapper">
@@ -261,7 +264,11 @@ export default function CaptainHeader({
                   }}
                   onClick={() => {
                     setIsProfileDropdownOpen(false);
-                    if (onOpenWallet) onOpenWallet();
+                    if (typeof window !== 'undefined') {
+                      window.location.href = '/ride/captain/wallet';
+                    } else if (onOpenWallet) {
+                      onOpenWallet();
+                    }
                   }}
                 >
                   <i className="fa-solid fa-wallet" style={{ color: '#2563eb' }}></i> Wallet

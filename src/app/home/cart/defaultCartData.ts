@@ -55,6 +55,42 @@ export const DEFAULT_CART_ITEMS: CartItem[] = [
     deliveryEstimate: 'Express Next-Day Delivery',
     badge: 'PREMIUM CHOICE',
     savedAt: Date.now()
+  },
+  {
+    id: 'prod-led-headlight-160w',
+    name: 'Laser Matrix LED Headlight Bulbs 160W (6500K Crystal White)',
+    price: 2499,
+    originalPrice: 4500,
+    quantity: 1,
+    icon: 'fa-lightbulb',
+    image: 'https://images.unsplash.com/photo-1503376710356-70d6943f65e2?auto=format&fit=crop&w=600&q=80',
+    category: 'Spare Parts & Electricals',
+    brand: 'Lumileds Pro',
+    description: 'Canbus error-free 30,000 Lumens plug-and-play LED bulbs with copper cooling tubes. 300% brighter throw than halogen.',
+    rating: 4.85,
+    reviewsCount: 114,
+    inStock: true,
+    deliveryEstimate: 'Delivered in 2 Days',
+    badge: 'NEW 2026 GEN',
+    savedAt: Date.now()
+  },
+  {
+    id: 'prod-jumpstarter-24000',
+    name: 'Heavy Duty Jump Starter 24000mAh with Digital Inflator',
+    price: 4299,
+    originalPrice: 6999,
+    quantity: 1,
+    icon: 'fa-car-battery',
+    image: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=600&q=80',
+    category: 'Emergency & Roadside Safety',
+    brand: 'PowerVault Emergency',
+    description: 'Starts up to 8.0L Petrol / 6.5L Diesel engines up to 40 times on single charge. Includes 150 PSI auto air compressor.',
+    rating: 4.9,
+    reviewsCount: 88,
+    inStock: true,
+    deliveryEstimate: 'Tomorrow by 5:00 PM',
+    badge: 'ALL-IN-ONE RESCUE',
+    savedAt: Date.now()
   }
 ];
 

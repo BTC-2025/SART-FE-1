@@ -602,7 +602,7 @@ export default function CaptainRegisterPage({ onLoginSuccess, initialTab = 'logi
             }}
           >
             <i className="fa-regular fa-circle-user" style={{ fontSize: '18px' }}></i>
-            <span style={{ fontWeight: 700, fontSize: '13.5px' }}>Alex Carter</span>
+            <span style={{ fontWeight: 700, fontSize: '13.5px' }}>Captain</span>
             <i className="fa-solid fa-chevron-down" style={{ fontSize: '10px' }}></i>
           </div>
         </div>

@@ -268,7 +268,10 @@ export default function Navbar() {
         </div>
         <div className={`ctrl-btn ${activeTab === "favorites" ? "active" : ""}`}
           title="Favorites & Wishlist"
-          onClick={() => setActiveTab("favorites")}
+          onClick={() => {
+            setActiveTab("favorites");
+            router.push('/favorites', { scroll: false });
+          }}
         >
           <i className="fa-solid fa-heart"></i>
           {wishlist.length > 0 && <span className="ctrl-badge">{wishlist.length}</span>}
@@ -292,15 +295,7 @@ export default function Navbar() {
 
 
         <div ref={bittoolRef} style={{ position: 'relative' }}>
-          {/* Bit-tool Sliders Button beside Alex Carter */}
-          {/* <button
-            type="button"
-            className={`nav-bittool-btn ${isBittoolOpen ? 'active' : ''}`}
-            onClick={() => setIsBittoolOpen(!isBittoolOpen)}
-            title="Captain and Vehicle Mode Switcher"
-          >
-            <i className="fa-solid fa-sliders"></i>
-          </button> */}
+
 
           {/* Vertical Dropdown Strip with Captain Vehicle Icons & Business tools */}
           {isBittoolOpen && (

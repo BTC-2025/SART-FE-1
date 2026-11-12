@@ -290,23 +290,42 @@ export default function CaptainDutyRightView({
 
     const fetchRoutePolyline = async () => {
       try {
-        let startLat = captainCoords.lat;
-        let startLng = captainCoords.lng;
-        let endLat = activeAcceptedOrder.userLat;
-        let endLng = activeAcceptedOrder.userLng;
+        let waypoints = [];
 
         if (currentStage === 'in_trip') {
-          // Navigating to final destination!
-          startLat = activeAcceptedOrder.userLat || captainCoords.lat;
-          startLng = activeAcceptedOrder.userLng || captainCoords.lng;
-          endLat = activeAcceptedOrder.dropLat || (activeAcceptedOrder.userLat - 0.018);
-          endLng = activeAcceptedOrder.dropLng || (activeAcceptedOrder.userLng + 0.022);
+          // Navigating from customer pickup through intermediate stopping points to final destination!
+          const startLat = activeAcceptedOrder.userLat || captainCoords.lat;
+          const startLng = activeAcceptedOrder.userLng || captainCoords.lng;
+          const endLat = activeAcceptedOrder.dropLat || (activeAcceptedOrder.userLat - 0.018);
+          const endLng = activeAcceptedOrder.dropLng || (activeAcceptedOrder.userLng + 0.022);
+
+          waypoints.push(`${startLng},${startLat}`);
+
+          // Include all intermediate stops
+          if (activeAcceptedOrder.stops && activeAcceptedOrder.stops.length > 0) {
+            activeAcceptedOrder.stops.forEach(st => {
+              if (st.lng && st.lat) {
+                waypoints.push(`${st.lng},${st.lat}`);
+              }
+            });
+          }
+
+          waypoints.push(`${endLng},${endLat}`);
+        } else {
+          // Pickup stage: Captain location -> Customer pickup point
+          const startLat = captainCoords.lat;
+          const startLng = captainCoords.lng;
+          const endLat = activeAcceptedOrder.userLat;
+          const endLng = activeAcceptedOrder.userLng;
+          if (!endLat || !endLng) return;
+          waypoints.push(`${startLng},${startLat}`);
+          waypoints.push(`${endLng},${endLat}`);
         }
 
-        if (!endLat || !endLng) return;
+        if (waypoints.length < 2) return;
 
         // Use free public OSRM router for realistic road directions
-        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`;
+        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${waypoints.join(';')}?overview=full&geometries=geojson`;
         const res = await fetch(osrmUrl);
         if (res.ok) {
           const data = await res.json();
@@ -324,11 +343,16 @@ export default function CaptainDutyRightView({
       const targetLat = currentStage === 'in_trip' ? (activeAcceptedOrder.dropLat || 13.0600) : activeAcceptedOrder.userLat;
       const targetLng = currentStage === 'in_trip' ? (activeAcceptedOrder.dropLng || 80.2200) : activeAcceptedOrder.userLng;
       if (targetLat && targetLng) {
-        setCaptainToUserRoute([
-          [captainCoords.lat, captainCoords.lng],
-          [(captainCoords.lat + targetLat) / 2 + 0.0015, (captainCoords.lng + targetLng) / 2 - 0.0015],
-          [targetLat, targetLng]
-        ]);
+        const fallbackRoute = [
+          [captainCoords.lat, captainCoords.lng]
+        ];
+        if (currentStage === 'in_trip' && activeAcceptedOrder.stops && activeAcceptedOrder.stops.length > 0) {
+          activeAcceptedOrder.stops.forEach(st => {
+            if (st.lat && st.lng) fallbackRoute.push([st.lat, st.lng]);
+          });
+        }
+        fallbackRoute.push([targetLat, targetLng]);
+        setCaptainToUserRoute(fallbackRoute);
       }
     };
 
@@ -341,6 +365,7 @@ export default function CaptainDutyRightView({
     activeAcceptedOrder?.dropLat,
     activeAcceptedOrder?.dropLng,
     activeAcceptedOrder?.rideStage,
+    activeAcceptedOrder?.stops?.length
   ]);
 
 
@@ -581,44 +606,9 @@ export default function CaptainDutyRightView({
     <main className="c-duty-right-container">
       {/* 1. Star Captain Hero / Today's Earnings (Crisp Royal Blue Pixel-Match to 2nd Image) */}
       <div className="c-duty-hero-card">
-        {/* Same line: Star Captain on left, Today's Earnings on right */}
-        <div className="c-duty-hero-top-row">
-          <div className="c-duty-hero-left">
-            <div className="c-star-badge">
-              <i className="fa-solid fa-star"></i>
-              <span>Star Captain</span>
-            </div>
-            <div className="c-duty-vehicle-badge">
-              <i className="fa-solid fa-motorcycle"></i>
-              <span>{partnerDetails?.plateNumber || partnerDetails?.vehiclePlate || 'KA 05 MN 9922'}</span>
-              <span className="dot">•</span>
-              <span>{partnerDetails?.model || partnerDetails?.vehicleModel || 'Hero Splendor Pro BS6'}</span>
-            </div>
-          </div>
-
-          <div className="c-duty-hero-right" onClick={() => { if (onOpenWallet) onOpenWallet(); }} style={{ cursor: onOpenWallet ? "pointer" : "default" }} title="Click to view Captain Wallet & Daily Breakdown">
-            <span className="c-earnings-title">TODAY'S EARNINGS</span>
-            <div className="c-earnings-amount" title="Stored safely in database">
-              <span>₹{todayEarnings}</span>
-              <i className="fa-solid fa-chevron-down" style={{ fontSize: '13px' }}></i>
-            </div>
-          </div>
-        </div>
-
-        {/* Below: Orders Accepted & Orders Rejected counters */}
-        <div className="c-orders-stats-strip">
-          <div className="c-order-stat-pill accepted">
-            <div className="icon-circle">
-              <i className="fa-solid fa-check"></i>
-            </div>
-            <div className="stat-text-col">
-              <div className="stat-count">{completedOrdersCount !== undefined ? completedOrdersCount : (partnerDetails?.ordersAccepted !== undefined ? partnerDetails.ordersAccepted : 0)}</div>
-              <div className="stat-label">Orders Accepted</div>
-            </div>
-          </div>
 
 
-        </div>
+
       </div>
 
 
@@ -855,11 +845,11 @@ export default function CaptainDutyRightView({
                 }}></div>
                 {(activeAcceptedOrder.rideStage || rideStage) === 'in_trip' ? (
                   <span>
-                    Navigating to Destination: <strong style={{ color: '#facc15' }}>{activeAcceptedOrder.dropDist || '3.8 km'}</strong> • {activeAcceptedOrder.dropLoc}
+                    Navigating to Destination: <strong style={{ color: '#facc15' }}>{activeAcceptedOrder.dropDist || '3.8 km'}</strong>
                   </span>
                 ) : (
                   <span>
-                    Direction to Customer: <strong style={{ color: '#facc15' }}>{activeAcceptedOrder.pickupDist || '0.8 km'}</strong> ({activeAcceptedOrder.pickupTime || '3 mins'}) • {activeAcceptedOrder.pickupLoc}
+                    Direction to Customer: <strong style={{ color: '#facc15' }}>{activeAcceptedOrder.pickupDist || '1.2 km'}</strong> ({activeAcceptedOrder.pickupTime || '4 mins'})
                   </span>
                 )}
               </div>

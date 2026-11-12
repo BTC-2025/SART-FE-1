@@ -54,14 +54,16 @@ export interface GovtRtcCardItem {
   code: string;
   fullName: string;
   bgImage: string;
-  emblemSvg: React.ReactNode;
+  logoImg?: string;
+  emblemSvg?: React.ReactNode;
 }
 
 export const GOVT_RTC_CARDS: GovtRtcCardItem[] = [
   {
     code: 'APSRTC',
     fullName: 'Andhra Pradesh State Road Transport Corporation',
-    bgImage: 'https://images.unsplash.com/photo-1596178065887-1198b6148b2b?auto=format&fit=crop&w=600&q=80',
+    bgImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRl6-oaf-jF2KCyZOAugjmBSq55wsREoLLsCxKRDxdU3CVM1Up4LGILZI4&s=10',
+    logoImg: '/images/rtc/apsrtc_logo.png',
     emblemSvg: (
       <svg viewBox="0 0 100 100" width="100%" height="100%">
         <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#e11d48" strokeWidth="3" />
@@ -84,7 +86,8 @@ export const GOVT_RTC_CARDS: GovtRtcCardItem[] = [
   {
     code: 'TGSRTC',
     fullName: 'Telangana State Road Transport Corporation',
-    bgImage: 'https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?auto=format&fit=crop&w=600&q=80',
+    bgImage: 'https://www.trawell.in/admin/images/upload/249844992Hyderabad_Main.jpg',
+    logoImg: '/images/rtc/tsrtc_logo.png',
     emblemSvg: (
       <svg viewBox="0 0 100 100" width="100%" height="100%">
         <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#15803d" strokeWidth="3" />
@@ -104,6 +107,7 @@ export const GOVT_RTC_CARDS: GovtRtcCardItem[] = [
     code: 'Kerala RTC',
     fullName: 'Kerala Road Transport Corporation',
     bgImage: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=600&q=80',
+    logoImg: '/images/rtc/kerala_rtc_logo.png',
     emblemSvg: (
       <svg viewBox="0 0 100 100" width="100%" height="100%">
         <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#15803d" strokeWidth="3" />
@@ -125,6 +129,7 @@ export const GOVT_RTC_CARDS: GovtRtcCardItem[] = [
     code: 'GSRTC',
     fullName: 'Gujarat State Road Transport Corporation',
     bgImage: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80',
+    logoImg: '/images/rtc/gsrtc_logo.jpg',
     emblemSvg: (
       <svg viewBox="0 0 100 100" width="100%" height="100%">
         <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#047857" strokeWidth="3" />
@@ -145,6 +150,7 @@ export const GOVT_RTC_CARDS: GovtRtcCardItem[] = [
     code: 'KSRTC',
     fullName: 'Karnataka State Road Transport Corporation',
     bgImage: 'https://images.unsplash.com/photo-1590766940554-634a7ed41450?auto=format&fit=crop&w=600&q=80',
+    logoImg: '/images/rtc/ksrtc_logo.png',
     emblemSvg: (
       <svg viewBox="0 0 100 100" width="100%" height="100%">
         <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#b91c1c" strokeWidth="3" />
@@ -161,6 +167,7 @@ export const GOVT_RTC_CARDS: GovtRtcCardItem[] = [
     code: 'MSRTC',
     fullName: 'Maharashtra State Road Transport Corporation',
     bgImage: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=600&q=80',
+    logoImg: '/images/rtc/msrtc_logo.jpg',
     emblemSvg: (
       <svg viewBox="0 0 100 100" width="100%" height="100%">
         <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#b91c1c" strokeWidth="3" />
@@ -181,6 +188,7 @@ export const GOVT_RTC_CARDS: GovtRtcCardItem[] = [
     code: 'TNSTC',
     fullName: 'Tamil Nadu State Transport Corporation',
     bgImage: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80',
+    logoImg: '/images/rtc/tnstc_logo.png',
     emblemSvg: (
       <svg viewBox="0 0 100 100" width="100%" height="100%">
         <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#1d4ed8" strokeWidth="3" />
@@ -197,6 +205,7 @@ export const GOVT_RTC_CARDS: GovtRtcCardItem[] = [
     code: 'RSRTC',
     fullName: 'Rajasthan State Road Transport Corporation',
     bgImage: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=600&q=80',
+    logoImg: '/images/rtc/rsrtc_logo.png',
     emblemSvg: (
       <svg viewBox="0 0 100 100" width="100%" height="100%">
         <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#c026d3" strokeWidth="3" />
@@ -214,6 +223,7 @@ export const GOVT_RTC_CARDS: GovtRtcCardItem[] = [
     code: 'UPSRTC',
     fullName: 'Uttar Pradesh State Road Transport Corporation',
     bgImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=600&q=80',
+    logoImg: '/images/rtc/upsrtc_logo.png',
     emblemSvg: (
       <svg viewBox="0 0 100 100" width="100%" height="100%">
         <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#b91c1c" strokeWidth="3" />
@@ -1536,8 +1546,17 @@ export default function BusBookingView({
     if (!selectedBus || selectedSeats.length === 0) return;
     const pnr = `BUS${Math.floor(10000000 + Math.random() * 90000000)}`;
     const totalAmount = calculateTotalFare();
-    const primaryPax = passengers[selectedSeats[0]] || { name: 'Alex Carter', age: '28', gender: 'Male' };
-    const pName = primaryPax.name.trim() || 'Alex Carter';
+    const savedUserSession = (() => {
+      try {
+        const stored = typeof window !== 'undefined' ? localStorage.getItem('sart_user_session') : null;
+        if (stored) return JSON.parse(stored);
+      } catch (e) { }
+      return null;
+    })();
+    const defaultLoggedInName = savedUserSession?.name || savedUserSession?.fullName || 'Vasanth Kumar';
+
+    const primaryPax = passengers[selectedSeats[0]] || { name: defaultLoggedInName, age: '28', gender: 'Male' };
+    const pName = primaryPax.name.trim() || defaultLoggedInName;
     const newBooking = {
       id: `bus-${Date.now()}`,
       title: `${selectedBus.operator} (${selectedBus.busType})`,
@@ -2171,7 +2190,15 @@ export default function BusBookingView({
 
                     {/* Circular Emblem badge centered near top */}
                     <div className="bb-govt-card-emblem-badge">
-                      {card.emblemSvg}
+                      {card.logoImg ? (
+                        <img
+                          src={card.logoImg}
+                          alt={card.code}
+                          className="bb-govt-card-emblem-img"
+                        />
+                      ) : (
+                        card.emblemSvg
+                      )}
                     </div>
 
                     {/* Bottom gradient overlay with text */}
@@ -2405,7 +2432,16 @@ export default function BusBookingView({
                   </div>
                   <div><strong>Boarding:</strong> {selectedBoardingPoint || selectedBus.boardingPoints[0]?.name} ({selectedBus.depTime})</div>
                   <div><strong>Dropping:</strong> {selectedDroppingPoint || selectedBus.droppingPoints[0]?.name} ({selectedBus.arrTime})</div>
-                  <div><strong>Primary Passenger:</strong> {passengers[selectedSeats[0]]?.name || 'Alex Carter'} (Age: {passengers[selectedSeats[0]]?.age || '28'}) • {registeredPhone}</div>
+                  <div><strong>Primary Passenger:</strong> {passengers[selectedSeats[0]]?.name || (() => {
+                    try {
+                      const s = typeof window !== 'undefined' ? localStorage.getItem('sart_user_session') : null;
+                      if (s) {
+                        const parsed = JSON.parse(s);
+                        return parsed.name || parsed.fullName || 'Vasanth Kumar';
+                      }
+                    } catch (e) { }
+                    return 'Vasanth Kumar';
+                  })()} (Age: {passengers[selectedSeats[0]]?.age || '28'}) • {registeredPhone}</div>
                   <div><strong>Total Fare Paid:</strong> ₹{calculateTotalFare()}</div>
                 </div>
                 <button
