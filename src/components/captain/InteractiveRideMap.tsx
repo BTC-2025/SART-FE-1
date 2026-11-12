@@ -18,13 +18,16 @@ L.Icon.Default.mergeOptions({
 function MapBoundsUpdater({
   pickupCoords,
   dropCoords,
+  stops = [],
   selectionMode
 }: {
   pickupCoords: { lat: number; lng: number } | null;
   dropCoords: { lat: number; lng: number } | null;
-  selectionMode: 'pickup' | 'drop' | 'idle';
+  stops?: Array<{ id: string; name: string; lat?: number; lng?: number; purpose?: string }>;
+  selectionMode: 'pickup' | 'drop' | 'stop' | 'idle';
 }) {
   const map = useMap();
+  const hasUserPannedOrZoomed = React.useRef(false);
 
   useEffect(() => {
     // Invalidate map size to ensure all Google map tiles load properly inside flex/dynamic containers
@@ -34,21 +37,130 @@ function MapBoundsUpdater({
     return () => clearTimeout(timer);
   }, [map]);
 
+  // If user manually drags or zooms, don't continually snap map view away from them
   useEffect(() => {
-    if (pickupCoords && dropCoords) {
-      const bounds = L.latLngBounds(
-        [pickupCoords.lat, pickupCoords.lng],
-        [dropCoords.lat, dropCoords.lng]
-      );
+    const onUserInteraction = () => {
+      hasUserPannedOrZoomed.current = true;
+    };
+    map.on('movestart', onUserInteraction);
+    return () => {
+      map.off('movestart', onUserInteraction);
+    };
+  }, [map]);
+
+  useEffect(() => {
+    // Collect all valid points (pickup, drop, and all stopping points)
+    const points: [number, number][] = [];
+    if (pickupCoords?.lat && pickupCoords?.lng) {
+      points.push([pickupCoords.lat, pickupCoords.lng]);
+    }
+    if (stops && stops.length > 0) {
+      stops.forEach(st => {
+        if (st.lat && st.lng) {
+          points.push([st.lat, st.lng]);
+        }
+      });
+    }
+    if (dropCoords?.lat && dropCoords?.lng) {
+      points.push([dropCoords.lat, dropCoords.lng]);
+    }
+
+    if (points.length >= 2) {
+      const bounds = L.latLngBounds(points);
       map.fitBounds(bounds, { padding: [60, 60], maxZoom: 15, animate: true });
     } else if (pickupCoords) {
       map.setView([pickupCoords.lat, pickupCoords.lng], 14, { animate: true });
     } else if (dropCoords) {
       map.setView([dropCoords.lat, dropCoords.lng], 14, { animate: true });
     }
-  }, [pickupCoords?.lat, pickupCoords?.lng, dropCoords?.lat, dropCoords?.lng]);
+  }, [pickupCoords?.lat, pickupCoords?.lng, dropCoords?.lat, dropCoords?.lng, stops?.length]);
 
   return null;
+}
+
+// Controller for custom floating Zoom in / Zoom out buttons
+function ZoomButtons() {
+  const map = useMap();
+  return (
+    <div style={{
+      position: 'absolute',
+      right: '16px',
+      bottom: '68px',
+      zIndex: 1000,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '6px'
+    }}>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          map.zoomIn();
+        }}
+        title="Zoom In"
+        style={{
+          width: '36px',
+          height: '36px',
+          borderRadius: '8px',
+          background: '#ffffff',
+          color: '#1e293b',
+          border: '1.5px solid #cbd5e1',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          fontSize: '16px',
+          fontWeight: 900,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          transition: 'all 0.15s ease'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = '#f1f5f9';
+          e.currentTarget.style.borderColor = '#94a3b8';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = '#ffffff';
+          e.currentTarget.style.borderColor = '#cbd5e1';
+        }}
+      >
+        <i className="fa-solid fa-plus"></i>
+      </button>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          map.zoomOut();
+        }}
+        title="Zoom Out"
+        style={{
+          width: '36px',
+          height: '36px',
+          borderRadius: '8px',
+          background: '#ffffff',
+          color: '#1e293b',
+          border: '1.5px solid #cbd5e1',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          fontSize: '16px',
+          fontWeight: 900,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          transition: 'all 0.15s ease'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = '#f1f5f9';
+          e.currentTarget.style.borderColor = '#94a3b8';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = '#ffffff';
+          e.currentTarget.style.borderColor = '#cbd5e1';
+        }}
+      >
+        <i className="fa-solid fa-minus"></i>
+      </button>
+    </div>
+  );
 }
 
 // Handle Map Click (Only selects on explicit mouse click, NOT mouse movement)
@@ -69,6 +181,7 @@ export interface InteractiveRideMapProps {
   mode: 'bike' | 'auto' | 'car';
   pickupCoords: { lat: number; lng: number } | null;
   dropCoords: { lat: number; lng: number } | null;
+  stops?: Array<{ id: string; name: string; lat?: number; lng?: number; purpose?: string }>;
   pickupAddress: string;
   dropAddress: string;
   selectionMode: 'pickup' | 'drop' | 'idle';
@@ -92,6 +205,7 @@ export default function InteractiveRideMap({
   mode = 'bike',
   pickupCoords,
   dropCoords,
+  stops = [],
   pickupAddress,
   dropAddress,
   selectionMode,
@@ -223,6 +337,52 @@ export default function InteractiveRideMap({
     });
   }, [dropAddress, dropMarkerLabel, dropMarkerType]);
 
+  // Custom Orange Pin Marker for Intermediate Stops
+  const createStopMarkerIcon = (stopName: string, index: number) => {
+    return L.divIcon({
+      className: 'sart-stop-orange-pin',
+      html: `
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -100%);">
+          <div style="
+            background: #ffffff;
+            color: #c2410c;
+            padding: 3px 9px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+            border: 1.5px solid #f97316;
+            margin-bottom: 4px;
+            max-width: 170px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          ">
+            🟠 Stop ${index + 1}: ${stopName || 'Stopping Point'}
+          </div>
+          <div style="
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #f97316;
+            border: 3.5px solid #ffffff;
+            box-shadow: 0 0 0 5px rgba(249, 115, 22, 0.35), 0 4px 8px rgba(0,0,0,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 900;
+          ">
+            ${index + 1}
+          </div>
+        </div>
+      `,
+      iconSize: [30, 50],
+      iconAnchor: [15, 50]
+    });
+  };
+
   // Real vehicle icons for nearby live captains (matching Screenshot 2 Auto / Bike / Cab icons)
   const createCaptainIcon = (driver: any) => {
     const isAuto = mode === 'auto' || driver.serviceType === 'auto';
@@ -286,7 +446,10 @@ export default function InteractiveRideMap({
         zoom={13}
         style={{ width: '100%', height: '100%', borderRadius: '12px', zIndex: 1 }}
         zoomControl={false}
-        scrollWheelZoom={false}
+        scrollWheelZoom={true}
+        doubleClickZoom={true}
+        touchZoom={true}
+        dragging={true}
       >
         {/* Google Maps HD Street Tiles (Default) */}
         {mapStyle === 'satellite' ? (
@@ -316,8 +479,12 @@ export default function InteractiveRideMap({
         <MapBoundsUpdater
           pickupCoords={pickupCoords}
           dropCoords={dropCoords}
+          stops={stops}
           selectionMode={selectionMode}
         />
+
+        {/* Interactive Zoom In / Zoom Out Buttons for Captain */}
+        <ZoomButtons />
 
         {/* Listen for single mouse click to select point */}
         <MapClickHandler onMapClick={handleMapClick} />
@@ -341,7 +508,19 @@ export default function InteractiveRideMap({
           <Marker position={[pickupCoords.lat, pickupCoords.lng]} icon={pickupMarkerIcon} />
         )}
 
-        {/* 3. Red Dropping Point Marker */}
+        {/* 3. Orange Stopping Points Markers (Intermediate Stops) */}
+        {stops && stops.length > 0 && stops.map((st, idx) => {
+          if (!st.lat || !st.lng) return null;
+          return (
+            <Marker
+              key={st.id || `stop-${idx}`}
+              position={[st.lat, st.lng]}
+              icon={createStopMarkerIcon(st.name || st.address || `Stop ${idx + 1}`, idx)}
+            />
+          );
+        })}
+
+        {/* 4. Red Dropping Point Marker */}
         {dropCoords && (
           <Marker position={[dropCoords.lat, dropCoords.lng]} icon={dropMarkerIcon} />
         )}

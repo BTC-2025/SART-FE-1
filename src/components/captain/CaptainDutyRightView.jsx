@@ -290,23 +290,42 @@ export default function CaptainDutyRightView({
 
     const fetchRoutePolyline = async () => {
       try {
-        let startLat = captainCoords.lat;
-        let startLng = captainCoords.lng;
-        let endLat = activeAcceptedOrder.userLat;
-        let endLng = activeAcceptedOrder.userLng;
+        let waypoints = [];
 
         if (currentStage === 'in_trip') {
-          // Navigating to final destination!
-          startLat = activeAcceptedOrder.userLat || captainCoords.lat;
-          startLng = activeAcceptedOrder.userLng || captainCoords.lng;
-          endLat = activeAcceptedOrder.dropLat || (activeAcceptedOrder.userLat - 0.018);
-          endLng = activeAcceptedOrder.dropLng || (activeAcceptedOrder.userLng + 0.022);
+          // Navigating from customer pickup through intermediate stopping points to final destination!
+          const startLat = activeAcceptedOrder.userLat || captainCoords.lat;
+          const startLng = activeAcceptedOrder.userLng || captainCoords.lng;
+          const endLat = activeAcceptedOrder.dropLat || (activeAcceptedOrder.userLat - 0.018);
+          const endLng = activeAcceptedOrder.dropLng || (activeAcceptedOrder.userLng + 0.022);
+
+          waypoints.push(`${startLng},${startLat}`);
+
+          // Include all intermediate stops
+          if (activeAcceptedOrder.stops && activeAcceptedOrder.stops.length > 0) {
+            activeAcceptedOrder.stops.forEach(st => {
+              if (st.lng && st.lat) {
+                waypoints.push(`${st.lng},${st.lat}`);
+              }
+            });
+          }
+
+          waypoints.push(`${endLng},${endLat}`);
+        } else {
+          // Pickup stage: Captain location -> Customer pickup point
+          const startLat = captainCoords.lat;
+          const startLng = captainCoords.lng;
+          const endLat = activeAcceptedOrder.userLat;
+          const endLng = activeAcceptedOrder.userLng;
+          if (!endLat || !endLng) return;
+          waypoints.push(`${startLng},${startLat}`);
+          waypoints.push(`${endLng},${endLat}`);
         }
 
-        if (!endLat || !endLng) return;
+        if (waypoints.length < 2) return;
 
         // Use free public OSRM router for realistic road directions
-        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`;
+        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${waypoints.join(';')}?overview=full&geometries=geojson`;
         const res = await fetch(osrmUrl);
         if (res.ok) {
           const data = await res.json();
@@ -324,11 +343,16 @@ export default function CaptainDutyRightView({
       const targetLat = currentStage === 'in_trip' ? (activeAcceptedOrder.dropLat || 13.0600) : activeAcceptedOrder.userLat;
       const targetLng = currentStage === 'in_trip' ? (activeAcceptedOrder.dropLng || 80.2200) : activeAcceptedOrder.userLng;
       if (targetLat && targetLng) {
-        setCaptainToUserRoute([
-          [captainCoords.lat, captainCoords.lng],
-          [(captainCoords.lat + targetLat) / 2 + 0.0015, (captainCoords.lng + targetLng) / 2 - 0.0015],
-          [targetLat, targetLng]
-        ]);
+        const fallbackRoute = [
+          [captainCoords.lat, captainCoords.lng]
+        ];
+        if (currentStage === 'in_trip' && activeAcceptedOrder.stops && activeAcceptedOrder.stops.length > 0) {
+          activeAcceptedOrder.stops.forEach(st => {
+            if (st.lat && st.lng) fallbackRoute.push([st.lat, st.lng]);
+          });
+        }
+        fallbackRoute.push([targetLat, targetLng]);
+        setCaptainToUserRoute(fallbackRoute);
       }
     };
 
@@ -341,6 +365,7 @@ export default function CaptainDutyRightView({
     activeAcceptedOrder?.dropLat,
     activeAcceptedOrder?.dropLng,
     activeAcceptedOrder?.rideStage,
+    activeAcceptedOrder?.stops?.length
   ]);
 
 
