@@ -7,10 +7,10 @@ export default function ProfileTab() {
   const { activeTab } = useSartStore();
   const [mounted, setMounted] = useState(false);
   const [profile, setProfile] = useState({
-    name: 'PICHUKA KUMAR',
-    email: 'venkatavasanthakumarp1997@bnxmail.com',
+    name: 'SAI KUMAR',
+    email: 'saip1997@bnxmail.com',
     recoveryEmail: 'None added',
-    phone: '+919032932985',
+    phone: '+919988664422',
     birthday: 'Not set',
     gender: 'Rather not say',
     avatar: ''

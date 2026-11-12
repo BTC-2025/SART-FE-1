@@ -134,7 +134,7 @@ export default function FlightPassengerDetailsModal({
                 E-Ticket Confirmed!
               </h4>
               <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: '#64748b' }}>
-                Booked for <strong>{passenger.title} {passenger.fullName || 'Alex Carter'}</strong>
+                Booked for <strong>{passenger.title} {passenger.fullName || 'Full Name'}</strong>
               </p>
 
               <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0', textAlign: 'left', marginBottom: '20px', fontSize: '13px' }}>

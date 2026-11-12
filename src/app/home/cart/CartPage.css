@@ -1,7 +1,7 @@
 /* CartPage.css - Modern Premium Redesign */
 
 .cart-page-main {
-  min-height: calc(100vh - 120px);
+  min-height: auto;
   background: #f4f6fa;
   padding: 10px 20px 40px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -212,9 +212,7 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  max-height: calc(100vh - 210px);
-  overflow-y: auto;
-  padding-right: 8px;
+  overflow: visible;
 }
 
 /* Custom smooth thin scrollbar for left side */
@@ -493,45 +491,38 @@
 
 .pricing-box {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
+  align-items: center;
+}
+
+.price-inline-group {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
 }
 
 .cart-final-price {
-  font-size: 16px;
+  font-size: 19px;
   font-weight: 900;
-  color: #0f172a;
+  color: #0b192c;
   letter-spacing: -0.3px;
-}
-
-.orig-price-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  line-height: 1;
 }
 
 .cart-original-price {
-  font-size: 11px;
+  font-size: 12.5px;
   color: #94a3b8;
   text-decoration: line-through;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .cart-discount-percent {
-  font-size: 9.5px;
+  font-size: 12px;
   font-weight: 800;
-  color: #16a34a;
-  background: #dcfce7;
-  padding: 1px 4px;
-  border-radius: 4px;
-}
-
-.cart-unit-rate {
-  font-size: 10px;
-  color: #64748b;
-  font-weight: 600;
-  margin-top: 1px;
+  color: #0d9488;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  letter-spacing: 0.2px;
 }
 
 /* Modern Stepper */
@@ -610,6 +601,7 @@
   margin-top: 16px;
   margin-bottom: 8px;
   padding: 8px;
+  margin-left: 700px;
 }
 
 .cart-page-nav-btn,
@@ -2195,7 +2187,8 @@
   .cart-items-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
-    max-height: calc(100vh - 210px);
+    max-height: none;
+    overflow: visible;
   }
 
   .cart-item-card-modern {
@@ -2242,6 +2235,7 @@
 }
 
 @media (max-width: 900px) {
+
   .cart-layout-grid,
   .checkout-stage-layout {
     grid-template-columns: 1fr;
@@ -2249,7 +2243,8 @@
 
   .cart-items-list {
     grid-template-columns: 1fr;
-    max-height: 500px;
+    max-height: none;
+    overflow: visible;
   }
 }
 

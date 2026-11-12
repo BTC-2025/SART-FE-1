@@ -606,42 +606,7 @@ export default function CaptainDutyRightView({
     <main className="c-duty-right-container">
       {/* 1. Star Captain Hero / Today's Earnings (Crisp Royal Blue Pixel-Match to 2nd Image) */}
       <div className="c-duty-hero-card">
-        {/* Same line: Star Captain on left, Today's Earnings on right */}
-        <div className="c-duty-hero-top-row">
-          <div className="c-duty-hero-left">
-            <div className="c-star-badge">
-              <i className="fa-solid fa-star"></i>
-              <span>Star Captain</span>
-            </div>
-            <div className="c-duty-vehicle-badge">
-              <i className="fa-solid fa-motorcycle"></i>
-              <span>{partnerDetails?.plateNumber || partnerDetails?.vehiclePlate || 'KA 05 MN 9922'}</span>
-              <span className="dot">•</span>
-              <span>{partnerDetails?.model || partnerDetails?.vehicleModel || 'Hero Splendor Pro BS6'}</span>
-            </div>
-          </div>
-          {/* Below: Orders Accepted & Orders Rejected counters */}
-          <div className="c-orders-stats-strip">
-            <div className="c-order-stat-pill accepted">
-              <div className="icon-circle">
-                <i className="fa-solid fa-check"></i>
-              </div>
-              <div className="stat-text-col">
-                <div className="stat-count">{completedOrdersCount !== undefined ? completedOrdersCount : (partnerDetails?.ordersAccepted !== undefined ? partnerDetails.ordersAccepted : 0)}</div>
-                <div className="stat-label">Orders Accepted</div>
-              </div>
-            </div>
 
-
-          </div>
-          <div className="c-duty-hero-right" onClick={() => { if (typeof window !== 'undefined') window.location.href = '/ride/captain/wallet'; else if (onOpenWallet) onOpenWallet(); }} style={{ cursor: "pointer" }} title="Click to view Captain Wallet & Daily Breakdown">
-            <span className="c-earnings-title">TODAY'S EARNINGS</span>
-            <div className="c-earnings-amount" title="Stored safely in database">
-              <span>₹{todayEarnings}</span>
-              <i className="fa-solid fa-chevron-down" style={{ fontSize: '13px' }}></i>
-            </div>
-          </div>
-        </div>
 
 
       </div>

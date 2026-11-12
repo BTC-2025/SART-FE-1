@@ -17,11 +17,13 @@
 }
 
 .new-city-modal {
-  background: #f4f5f7; /* Light grayish/white background from screenshot */
+  background: #f4f5f7;
+  /* Light grayish/white background from screenshot */
   border-radius: 16px;
   width: 90%;
+  margin-top: 20px;
   max-width: 750px;
-  max-height: 90vh;
+  max-height: 65vh;
   display: flex;
   flex-direction: column;
   color: #111827;
@@ -97,7 +99,8 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  color: #b08a32; /* Gold text */
+  color: #b08a32;
+  /* Gold text */
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
@@ -135,7 +138,8 @@
 }
 
 .new-city-card.active {
-  border-color: #d1d5db; /* Same as hover or default */
+  border-color: #d1d5db;
+  /* Same as hover or default */
   background: #fdfbf7;
 }
 
@@ -145,7 +149,8 @@
 }
 
 .new-city-card.active .city-pin {
-  color: #6b7280; /* Same as default */
+  color: #6b7280;
+  /* Same as default */
 }
 
 .city-name {
@@ -171,12 +176,13 @@
 .alphabet-letter {
   font-size: 14px;
   font-weight: 700;
-  color: #b08a32; /* Default gold from screenshot */
+  color: #b08a32;
+  /* Default gold from screenshot */
   cursor: pointer;
 }
 
 /* Make some grey as if disabled/no cities */
-.alphabet-letter:nth-child(n+15):nth-child(-n+17), 
+.alphabet-letter:nth-child(n+15):nth-child(-n+17),
 .alphabet-letter:nth-child(24),
 .alphabet-letter:nth-child(25),
 .alphabet-letter:nth-child(26) {

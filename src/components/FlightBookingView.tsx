@@ -199,15 +199,15 @@ export default function FlightBookingView({
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const [passenger, setPassenger] = useState<FlightPassenger>({
     title: 'Mr',
-    fullName: 'Alex Carter',
+    fullName: 'Full Name',
     age: '28',
     gender: 'Male',
     seatPreference: 'Window',
     mealPreference: 'Veg'
   });
   const [contact, setContact] = useState<FlightContactInfo>({
-    email: 'alex.carter@example.com',
-    phone: '+91 98765 43210'
+    email: 'name2000@example.com',
+    phone: '+91 9876543210'
   });
 
   // Travelers & Cabin Class state

@@ -22,8 +22,8 @@ export default function CaptainWalletRoutePage() {
       } else {
         // Fallback default details
         setPartnerDetails({
-          name: 'P. Vasanth Kumar',
-          mobile: '9032932985',
+          name: 'Kumar',
+          mobile: '9988664422',
           serviceType: 'bike',
           city: 'Chennai',
           vehicleModel: 'Hero Splendor EV Bike',
@@ -66,10 +66,10 @@ export default function CaptainWalletRoutePage() {
         onOpenProfile={() => {
           if (typeof window !== 'undefined') window.location.href = '/ride/captain/bike';
         }}
-        onOpenWallet={() => {}}
+        onOpenWallet={() => { }}
         onOpenLocationModal={() => setIsLocationModalOpen(true)}
         onLogout={handleLogout}
-        activeSubTab="rides"
+        activeSubTab="wallet"
       />
 
       <EnableLocationModal
@@ -93,3 +93,4 @@ export default function CaptainWalletRoutePage() {
     </div>
   );
 }
+

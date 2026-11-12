@@ -295,15 +295,7 @@ export default function Navbar() {
 
 
         <div ref={bittoolRef} style={{ position: 'relative' }}>
-          {/* Bit-tool Sliders Button beside Alex Carter */}
-          {/* <button
-            type="button"
-            className={`nav-bittool-btn ${isBittoolOpen ? 'active' : ''}`}
-            onClick={() => setIsBittoolOpen(!isBittoolOpen)}
-            title="Captain and Vehicle Mode Switcher"
-          >
-            <i className="fa-solid fa-sliders"></i>
-          </button> */}
+
 
           {/* Vertical Dropdown Strip with Captain Vehicle Icons & Business tools */}
           {isBittoolOpen && (
