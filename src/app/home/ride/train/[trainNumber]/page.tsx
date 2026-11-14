@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ALL_CHENNAI_BANGALORE_TRAINS, EXPANDED_CORRIDOR_TRAINS, INITIAL_TRAINS, TrainItem } from '@/components/trainData';
 
@@ -125,11 +125,17 @@ export default function TrainRouteHistoryPage() {
     }
   };
 
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
   const scrollToBottom = () => {
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: 'smooth'
-    });
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    } else {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight || document.body.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
   };
 
   return (
@@ -769,6 +775,8 @@ export default function TrainRouteHistoryPage() {
           </div>
         </div>
       )}
+      {/* Anchor for Scrolling to Bottom */}
+      <div ref={bottomRef} style={{ height: '1px' }}></div>
     </div>
   );
 }
