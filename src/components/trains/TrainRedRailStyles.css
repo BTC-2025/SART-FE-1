@@ -1,0 +1,761 @@
+/* Train RedRail / Enhanced UI Styles */
+
+/* IRCTC Partner Badge */
+.tb-irctc-partner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Rating Badge in Card Header */
+.tb-rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #16a34a;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+  line-height: 1.4;
+}
+
+.tb-fastest-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fef08a;
+  color: #854d0e;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.tb-top-right-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tb-schedule-link-btn {
+  background: none;
+  border: none;
+  color: #0284c7;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+.tb-schedule-link-btn:hover {
+  background: #f0f9ff;
+  text-decoration: underline;
+}
+
+/* Confirm Banner across the card */
+.tb-card-confirm-banner {
+  margin: 10px 0;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-left: 3px solid #0284c7;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+}
+.tb-confirm-tag {
+  font-weight: 800;
+  color: #0284c7;
+}
+.tb-confirm-msg {
+  color: #475569;
+  font-weight: 500;
+}
+
+/* Class card status variations */
+.tb-class-card-regret {
+  border-color: #cbd5e1 !important;
+  opacity: 0.85;
+}
+.tb-header-regret {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+}
+.tb-status-main {
+  font-size: 13px;
+  font-weight: 800;
+}
+.tb-status-sub {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+.tb-status-sub.high {
+  color: #16a34a;
+}
+.tb-status-sub.medium {
+  color: #d97706;
+}
+.tb-status-sub.low {
+  color: #dc2626;
+}
+
+/* ---------------- Route Modal (Image 1) ---------------- */
+.tb-route-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.tb-route-modal-card {
+  background: #f8fafc;
+  width: 100%;
+  max-width: 980px;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 88vh;
+  border: 1px solid #e2e8f0;
+}
+
+.tb-route-modal-header {
+  padding: 20px 28px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.tb-route-modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.3px;
+}
+.tb-route-modal-close {
+  background: #f1f5f9;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: #64748b;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.tb-route-modal-close:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.tb-route-modal-body {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  overflow: hidden;
+  height: 100%;
+}
+
+.tb-route-timeline-container {
+  padding: 24px 28px;
+  overflow-y: auto;
+  background: #f8fafc;
+}
+
+.tb-route-date-pill-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.tb-route-date-pill {
+  background: #475569;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 999px;
+  letter-spacing: 0.3px;
+}
+
+.tb-route-timeline {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.tb-route-stop-row {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 16px;
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.tb-route-track {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+.tb-route-node {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3.5px solid #475569;
+  margin-top: 14px;
+  z-index: 2;
+}
+.tb-route-node.start {
+  border-color: #16a34a;
+}
+.tb-route-node.end {
+  border-color: #dc2626;
+}
+.tb-route-line {
+  position: absolute;
+  top: 24px;
+  bottom: -24px;
+  width: 3px;
+  background: #475569;
+  z-index: 1;
+}
+
+.tb-route-stop-card {
+  background: #eef2ff;
+  border: 1px solid #e0e7ff;
+  border-radius: 12px;
+  padding: 14px 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+.tb-route-stop-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.tb-route-station-meta {
+  display: flex;
+  flex-direction: column;
+}
+.tb-route-station-code {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+}
+.tb-route-station-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+.tb-route-tag-pill {
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  background: #ffffff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+}
+
+.tb-route-times-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.tb-route-time-col {
+  display: flex;
+  flex-direction: column;
+}
+.tb-route-label {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+.tb-route-time-val {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+.tb-route-time-val.dep {
+  color: #16a34a;
+}
+
+/* Sidebar in Route Modal */
+.tb-route-details-sidebar {
+  padding: 24px;
+  background: #ffffff;
+  border-left: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+.tb-route-sidebar-title {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+}
+.tb-route-detail-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tb-route-box-label {
+  font-size: 11.5px;
+  color: #64748b;
+  font-weight: 600;
+}
+.tb-route-box-val {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+.tb-service-days-row {
+  display: flex;
+  gap: 6px;
+}
+.tb-service-day {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* ---------------- Calendar Availability Modal (Image 3) ---------------- */
+.tb-cal-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.tb-cal-modal-card {
+  background: #ffffff;
+  border-radius: 20px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+.tb-cal-modal-header {
+  padding: 20px 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.tb-cal-train-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.tb-cal-train-number {
+  font-size: 16px;
+  font-weight: 900;
+  color: #0284c7;
+}
+.tb-cal-train-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+}
+.tb-cal-class-badge {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #334155;
+}
+.tb-cal-route-sub {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+.tb-cal-close-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+}
+.tb-cal-close-btn:hover {
+  color: #0f172a;
+}
+
+/* Quota Tabs */
+.tb-cal-quota-tabs {
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+.tb-cal-quota-tab {
+  flex: 1;
+  padding: 12px 8px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tb-cal-quota-tab.active {
+  color: #dc2626;
+  border-bottom-color: #dc2626;
+  background: #ffffff;
+}
+
+/* Dates List Rows */
+.tb-cal-dates-list {
+  padding: 12px 20px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+.tb-cal-date-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 110px;
+  align-items: center;
+  padding: 12px 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.tb-cal-date-row:last-child {
+  border-bottom: none;
+}
+.tb-cal-date-left {
+  display: flex;
+  flex-direction: column;
+}
+.tb-cal-date-str {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+.tb-cal-day-str {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.tb-cal-status-mid {
+  display: flex;
+  flex-direction: column;
+}
+.tb-cal-status-pill {
+  font-size: 14px;
+  font-weight: 800;
+}
+.tb-cal-status-pill.avail {
+  color: #16a34a;
+}
+.tb-cal-status-pill.wl {
+  color: #dc2626;
+}
+.tb-cal-subtext {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.tb-cal-book-btn {
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25);
+}
+.tb-cal-book-btn:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+.tb-cal-book-text {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.tb-cal-book-fare {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tb-cal-modal-footer {
+  padding: 14px 20px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.tb-cal-footer-link {
+  background: none;
+  border: none;
+  color: #0284c7;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.tb-cal-footer-link:hover {
+  text-decoration: underline;
+}
+.tb-cal-footer-sep {
+  color: #cbd5e1;
+}
+
+/* ================== INLINE AVAILABILITY IN TRAIN CARD (Images 1, 3, 4, 5, 6) ================== */
+.tb-class-card.selected {
+  outline: 2.5px solid #16a34a;
+  outline-offset: -1px;
+  background: #f0fdf4 !important;
+}
+
+.tb-inline-avail-container {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #e2e8f0;
+  animation: fadeInDown 0.2s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tb-inline-quota-nav {
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid #e2e8f0;
+  gap: 24px;
+  padding: 0 4px;
+  margin-bottom: 12px;
+}
+
+.tb-inline-quota-btn {
+  background: none;
+  border: none;
+  padding: 8px 6px 12px 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.tb-inline-quota-btn:hover {
+  color: #0f172a;
+}
+
+.tb-inline-quota-btn.active {
+  color: #dc2626;
+}
+
+.tb-inline-quota-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #dc2626;
+  border-radius: 2px 2px 0 0;
+}
+
+/* Quota green styling for Senior Citizen & Ladies when active (Image 4 & 5) */
+.tb-inline-quota-btn.quota-green-style.active {
+  color: #16a34a !important;
+}
+
+.tb-inline-quota-btn.quota-green-style.active::after {
+  background: #16a34a !important;
+}
+
+.tb-inline-dates-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.tb-inline-next-dates-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  text-align: center;
+  margin: 12px 0 6px 0;
+  position: relative;
+}
+
+.tb-inline-date-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 120px;
+  align-items: center;
+  padding: 12px 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.tb-inline-date-row:last-child {
+  border-bottom: none;
+}
+
+.tb-inline-date-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tb-inline-date-str {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.tb-inline-day-str {
+  font-size: 12.5px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.tb-inline-status-mid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tb-inline-status-text {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.tb-inline-status-text.status-avail {
+  color: #16a34a;
+}
+
+.tb-inline-status-text.status-wl {
+  color: #d97706; /* Orange as shown in user image 3 */
+}
+
+.tb-inline-status-text.status-notavail {
+  color: #dc2626;
+}
+
+.tb-inline-subtext {
+  font-size: 12px;
+  color: #d97706;
+  font-weight: 600;
+}
+
+.tb-inline-action-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* User image 3 styled orange outline Book button */
+.tb-inline-book-btn {
+  background: #ffffff;
+  border: 1.5px solid #d97706;
+  color: #d97706;
+  padding: 6px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  min-width: 90px;
+}
+
+.tb-inline-book-btn:hover {
+  background: #fffbeb;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.18);
+}
+
+.tb-inline-book-btn .tb-inline-book-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tb-inline-book-btn .tb-inline-book-fare {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.tb-inline-book-disabled {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #94a3b8;
+  padding: 6px 20px;
+  border-radius: 8px;
+  cursor: not-allowed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 90px;
+}
+
+.tb-inline-book-disabled .tb-inline-book-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tb-inline-book-disabled .tb-inline-book-fare {
+  font-size: 13px;
+  font-weight: 700;
+}
+

@@ -22,6 +22,8 @@ export default function CitySelectorModal({ isOpen, onClose }: CitySelectorModal
   const [searchResults, setSearchResults] = useState<PlaceSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  const [showLocationPrompt, setShowLocationPrompt] = useState(false);
+  const [detectedLocationName, setDetectedLocationName] = useState<string | null>(null);
 
   // Dynamic place lookup across all of India using live Geocoding API
   React.useEffect(() => {
@@ -73,16 +75,20 @@ export default function CitySelectorModal({ isOpen, onClose }: CitySelectorModal
 
   const handleCitySelect = (cityName: string) => {
     if (typeof window !== 'undefined') {
+      localStorage.setItem('sart_user_location', cityName);
       window.dispatchEvent(new CustomEvent('updateLocation', { detail: cityName }));
     }
+    setShowLocationPrompt(false);
     onClose();
   };
 
-  const handleUseCurrentLocation = () => {
+  // Perform reverse geocoding to resolve exact location name
+  const performGpsDetection = () => {
     if (typeof window === 'undefined') return;
 
     if (!navigator.geolocation) {
       alert('Geolocation is not supported by your browser.');
+      setShowLocationPrompt(false);
       return;
     }
 
@@ -93,42 +99,75 @@ export default function CitySelectorModal({ isOpen, onClose }: CitySelectorModal
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
         try {
+          // Fetch reverse geocoded address using high zoom level (18) for exact street / area
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1`,
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
             { headers: { 'Accept-Language': 'en' } }
           );
           if (res.ok) {
             const data = await res.json();
             const addr = data.address || {};
-            // Pick current district or city
-            const detectedDistrictOrCity =
-              addr.state_district ||
-              addr.county ||
-              addr.city ||
-              addr.town ||
-              addr.suburb ||
+            
+            // Priority:
+            // 1. Village name if available (village, hamlet, residential, neighbourhood, suburb)
+            // 2. Mandal / Tehsil / Taluk / Sub-district if village not available
+            // 3. District / City if neither is available
+            const villageName =
               addr.village ||
-              addr.state ||
-              'Current Location';
+              addr.hamlet ||
+              addr.locality ||
+              addr.suburb ||
+              addr.neighbourhood ||
+              addr.residential ||
+              addr.isolated_dwelling;
 
-            handleCitySelect(detectedDistrictOrCity);
+            const mandalName =
+              addr.mandal ||
+              addr.tehsil ||
+              addr.taluk ||
+              addr.subdistrict ||
+              addr.county ||
+              addr.town;
+
+            const districtName =
+              addr.district ||
+              addr.state_district ||
+              addr.city ||
+              addr.city_district ||
+              addr.state;
+
+            // Select only the single most specific available hierarchy level
+            let exactLocationName = villageName || mandalName || districtName || data.name || 'Current Location';
+
+            // Clean up unwanted suffixes if any (e.g., "Karnampattu")
+            exactLocationName = exactLocationName.split(',')[0].trim();
+
+            setDetectedLocationName(exactLocationName);
+            handleCitySelect(exactLocationName);
           } else {
             handleCitySelect('Current Location');
           }
         } catch (e) {
+          console.warn('Reverse geocoding error:', e);
           handleCitySelect('Current Location');
         } finally {
           setIsDetectingLocation(false);
+          setShowLocationPrompt(false);
         }
       },
       (err) => {
         setIsDetectingLocation(false);
+        setShowLocationPrompt(false);
         console.warn('Geolocation error:', err);
-        // Fallback or user prompt
         alert('Could not access GPS location. Please check your browser location permissions or choose a city from the list.');
       },
       { timeout: 10000, enableHighAccuracy: true }
     );
+  };
+
+  const handleUseCurrentLocation = () => {
+    // Show the "Enable Location" prompt dialog matching Image 1
+    setShowLocationPrompt(true);
   };
 
   return (
@@ -241,6 +280,70 @@ export default function CitySelectorModal({ isOpen, onClose }: CitySelectorModal
 
         </div>
       </div>
+
+      {/* Enable Location Dialog (Exact Image 1) */}
+      {showLocationPrompt && (
+        <div
+          className="enable-location-backdrop"
+          onClick={() => !isDetectingLocation && setShowLocationPrompt(false)}
+        >
+          <div
+            className="enable-location-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="enable-location-close-btn"
+              onClick={() => !isDetectingLocation && setShowLocationPrompt(false)}
+            >
+              <i className="fa-solid fa-xmark"></i>
+            </button>
+
+            {/* Concentric Green Circles Icon */}
+            <div className="enable-location-icon-wrap">
+              <div className="enable-location-outer-circle">
+                <div className="enable-location-inner-circle">
+                  <i className="fa-solid fa-location-dot enable-location-pin-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            {/* Title & Description */}
+            <h3 className="enable-location-title">Enable Location</h3>
+            <p className="enable-location-desc">
+              Discover medical clinics, fitness coaches, and styling salons nearest to you. We request access to your device's GPS location.
+            </p>
+
+            {/* Primary Action: Allow Access */}
+            <button
+              type="button"
+              className="enable-location-allow-btn"
+              onClick={performGpsDetection}
+              disabled={isDetectingLocation}
+            >
+              {isDetectingLocation ? (
+                <>
+                  <i className="fa-solid fa-spinner fa-spin"></i> Getting Exact Location...
+                </>
+              ) : (
+                <>
+                  <i className="fa-solid fa-crosshairs"></i> Allow Access
+                </>
+              )}
+            </button>
+
+            {/* Secondary Action: Choose Manually */}
+            <button
+              type="button"
+              className="enable-location-manual-btn"
+              onClick={() => setShowLocationPrompt(false)}
+              disabled={isDetectingLocation}
+            >
+              Choose Manually
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

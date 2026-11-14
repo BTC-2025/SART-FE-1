@@ -99,6 +99,15 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const storedLoc = localStorage.getItem('sart_user_location');
+        if (storedLoc) {
+          setCurrentLocation(storedLoc);
+        }
+      }
+    } catch (e) { }
+
     const handleLocationUpdate = (e: any) => {
       setCurrentLocation(e.detail);
     };

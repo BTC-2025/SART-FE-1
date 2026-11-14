@@ -1,7 +1,6 @@
 /* Bus Booking View Scoped Styles */
 .bb-container {
   width: 100%;
-  max-width: 1280px;
   margin: 0 auto;
   box-sizing: border-box;
   font-family: inherit;
@@ -10,7 +9,7 @@
 /* Promotional Cards Strip */
 .bb-promo-strip {
   display: grid;
-  grid-templateColumns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 16px;
   margin-top: 20px;
   margin-bottom: 24px;
@@ -24,7 +23,7 @@
   flex-direction: column;
   justify-content: space-between;
   min-height: 90px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
 
 .bb-card-brics {
@@ -535,7 +534,7 @@
 
 .bb-govt-carousel-track {
   display: flex;
-  gap: 16px;
+  gap: 10px;
   overflow-x: auto;
   scroll-behavior: smooth;
   padding-bottom: 8px;
@@ -558,8 +557,8 @@
 
 /* Individual State Transport Card (Exact Image 2 Structure) */
 .bb-govt-card {
-  flex: 0 0 220px;
-  height: 240px;
+  flex: 0 0 205px;
+  height: 150px;
   border-radius: 16px;
   position: relative;
   overflow: hidden;
@@ -631,7 +630,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 38px 14px 14px 14px;
+  padding: 8px 4px 4px 4px;
   background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.75) 55%, transparent 100%);
   z-index: 2;
   color: #ffffff;
@@ -655,6 +654,7 @@
   line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
@@ -672,6 +672,7 @@
   .bb-main-grid {
     grid-template-columns: 1fr;
   }
+
   .bb-filter-sidebar {
     position: static !important;
     max-height: none !important;
@@ -1257,7 +1258,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 48px;
+  min-width: 100px;
   box-shadow: 0 2px 6px rgba(21, 128, 61, 0.2);
 }
 
@@ -1362,12 +1363,12 @@
 }
 
 .bb-tab-link-img3.active {
-  color: #dc2626;
+  color: #6057C9;
   font-weight: 700;
 }
 
 .bb-view-seats-cta-img3 {
-  background: #dc2626;
+  background: #6057C9;
   color: #ffffff;
   border: none;
   border-radius: 20px;
@@ -1380,7 +1381,7 @@
 }
 
 .bb-view-seats-cta-img3:hover {
-  background: #b91c1c;
+  background: #6057C9;
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
 }
@@ -1457,8 +1458,13 @@
 }
 
 @keyframes bbFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .bb-seat-modal-box-img3 {
@@ -1475,8 +1481,15 @@
 }
 
 @keyframes bbScaleUp {
-  from { opacity: 0; transform: scale(0.96) translateY(12px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /* Top Navigation Tabs Bar */
@@ -1518,7 +1531,7 @@
 }
 
 .bb-modal-nav-tab.active {
-  color: #dc2626;
+  color: #2a1373;
   font-weight: 800;
 }
 
@@ -1529,7 +1542,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: #dc2626;
+  background: #2a1373;
   border-radius: 3px 3px 0 0;
 }
 
@@ -1744,18 +1757,23 @@
 }
 
 .bb-legend-box.female-selected {
-  border: 1.5px solid #ec4899;
-  background: #fdf2f8;
+  border: 1.5px solid #0284c7;
+  background: #ffffff;
 }
 
 .bb-legend-box.male-selected {
-  border: 1.5px solid #3b82f6;
-  background: #eff6ff;
+  border: 1.5px solid #0284c7;
+  background: #ffffff;
 }
 
 .bb-legend-box.booked {
-  border: 1.5px solid #cbd5e1;
-  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  background: #e2e8f0;
+}
+
+.bb-legend-box.booked-women {
+  border: 1.5px solid #f43f5e;
+  background: #ffffff;
 }
 
 /* Decks side by side */
@@ -1766,9 +1784,9 @@
 
 .bb-deck-card-img3 {
   flex: 1;
-  background: #f8fafc;
+  background: #ffffff;
   border: 1.5px solid #e2e8f0;
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 12px 10px;
 }
 
@@ -1777,21 +1795,21 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 4px 8px 4px;
-  border-bottom: 1px dashed #cbd5e1;
-  margin-bottom: 12px;
+  border-bottom: 1px dashed #e2e8f0;
+  margin-bottom: 14px;
 }
 
 .bb-deck-title-text {
   font-size: 13px;
-  font-weight: 800;
-  color: #0f172a;
+  font-weight: 700;
+  color: #334155;
 }
 
 .bb-steering-icon-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .bb-deck-body-layout {
@@ -1804,7 +1822,7 @@
 .bb-deck-single-sleepers-col {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .bb-berth-seat-wrap {
@@ -1816,54 +1834,43 @@
 }
 
 .bb-berth-seat-body {
-  width: 42px;
-  height: 72px;
-  border-radius: 8px;
-  border: 1.5px solid #10b981;
-  background: #ffffff;
+  width: 44px;
+  height: 82px;
+  border-radius: 6px;
+  border: 2px solid #4485d5;
+  background: #cbd5e1;
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
-  padding: 4px;
+  box-sizing: border-box;
   transition: all 0.15s ease;
 }
 
-.bb-berth-pillow {
-  width: 80%;
-  height: 12px;
-  border-radius: 4px;
-  background: #e2fbe8;
-  border: 1px solid #a7f3d0;
-  margin-bottom: 2px;
-  transition: background 0.15s ease;
-}
 
-.bb-seat-gender-icon {
-  position: absolute;
-  top: 10px;
-  font-size: 13px;
-  font-weight: 900;
-}
 
-.bb-seat-price-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: #047857;
-  margin-top: 2px;
-}
 
-.bb-seat-price-label.sold {
-  color: #94a3b8;
+.bb-seat-inner-price {
+  font-size: 11px;
   font-weight: 600;
+  color: #1e293b;
+  line-height: 1.1;
+  text-align: center;
+  letter-spacing: -0.2px;
+  margin-top: 10px;
+}
+
+.bb-seat-avatar-svg {
+  margin-top: 22px;
+  display: block;
 }
 
 /* Seater chairs column (Right) */
 .bb-deck-seaters-pairs-col {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .bb-seater-row-pair {
@@ -1886,40 +1893,45 @@
 }
 
 .bb-chair-seat-body {
-  width: 38px;
-  height: 38px;
-  border-radius: 8px;
-  border: 1.5px solid #10b981;
-  background: #ffffff;
+  width: 42px;
+  height: 42px;
+  border-radius: 6px;
+  border: 2px solid #4485d5;
+  background: #cbd5e1;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   position: relative;
-  color: #059669;
-  font-size: 15px;
+  padding: 4px 2px 4px 2px;
+  box-sizing: border-box;
   transition: all 0.15s ease;
 }
 
-.bb-chair-seat-body .bb-seat-gender-icon {
-  position: absolute;
-  top: -6px;
-  right: -4px;
+.bb-clean-seat-headrest {
+  width: 78%;
+  height: 4px;
+  border-radius: 2px;
+  /* background: #94a3b8; */
+  margin-top: auto;
+}
+
+.bb-chair-seat-body .bb-seat-inner-price {
   font-size: 10px;
-  background: #ffffff;
-  border-radius: 50%;
-  width: 14px;
-  height: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  font-weight: 600;
+  color: #1e293b;
+  margin-top: 4px;
+}
+
+.bb-chair-seat-body .bb-seat-avatar-svg {
+  margin-top: 6px;
 }
 
 /* Double sleeper column in Upper Deck */
 .bb-deck-double-sleepers-col {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .bb-double-sleeper-pair {
@@ -1927,65 +1939,79 @@
   gap: 8px;
 }
 
-/* SEAT COLOR THEMES: AVAILABLE, FEMALE (PINK), MALE (BLUE), BOOKED */
+/* ---------------- MODERN SEAT THEMES (IMAGE 2 STYLE) ---------------- */
 
-/* 1. Female Selected Theme (PINK) */
+/* Available Seat (White card with crisp thin border) */
+.bb-berth-seat-wrap.available .bb-berth-seat-body,
+.bb-chair-seat-wrap.available .bb-chair-seat-body {
+  border: 1px solid #94a3b8;
+  background: #ffffff;
+}
+
+.bb-berth-seat-wrap.available:hover .bb-berth-seat-body,
+.bb-chair-seat-wrap.available:hover .bb-chair-seat-body {
+  border-color: #0284c7;
+}
+
+/* Selected Seat (Active user selection - Blue border with blue bottom pillow like Image 2) */
+.bb-berth-seat-wrap.available.selected-clean .bb-berth-seat-body,
+.bb-chair-seat-wrap.available.selected-clean .bb-chair-seat-body {
+  border: 2px solid #02c71c !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 1px rgba(2, 132, 199, 0.2);
+}
+
+.bb-berth-seat-wrap.available.selected-clean .bb-berth-pillow,
+.bb-chair-seat-wrap.available.selected-clean .bb-clean-seat-headrest {
+  background: #02c71c !important;
+}
+
+.bb-berth-seat-wrap.available.selected-clean .bb-seat-inner-price,
+.bb-chair-seat-wrap.available.selected-clean .bb-seat-inner-price {
+  color: #0f172a !important;
+  font-weight: 700;
+}
+
+/* Booked Grey Seat (Generic Booked) */
+.bb-berth-seat-wrap.booked,
+.bb-chair-seat-wrap.booked {
+  cursor: not-allowed;
+}
+
+.bb-berth-seat-wrap.booked.booked-grey .bb-berth-seat-body,
+.bb-chair-seat-wrap.booked.booked-grey .bb-chair-seat-body {
+  background: #cbd5e1 !important;
+  border: 1px solid #94a3b8 !important;
+}
+
+.bb-berth-seat-wrap.booked.booked-grey .bb-berth-pillow,
+.bb-chair-seat-wrap.booked.booked-grey .bb-clean-seat-headrest {
+  background: #64748b !important;
+}
+
+/* Booked Female Seat (Women Booked - Pink Accent/Border with avatar and pink pillow) */
+.bb-berth-seat-wrap.booked.booked-female .bb-berth-seat-body,
+.bb-chair-seat-wrap.booked.booked-female .bb-chair-seat-body {
+  background: #e2e8f0 !important;
+  border: 1.5px solid #f43f5e !important;
+  border-bottom: 2.5px solid #f43f5e !important;
+}
+
+.bb-berth-seat-wrap.booked.booked-female .bb-berth-pillow,
+.bb-chair-seat-wrap.booked.booked-female .bb-clean-seat-headrest {
+  background: #f43f5e !important;
+}
+
+/* Also support selected pink if needed */
 .bb-berth-seat-wrap.selected-female .bb-berth-seat-body,
 .bb-chair-seat-wrap.selected-female .bb-chair-seat-body {
-  border-color: #ec4899;
-  background: #fdf2f8;
-  color: #db2777;
-  box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.25);
+  border: 2px solid #f43f5e !important;
+  background: #ffffff !important;
 }
 
-.bb-berth-seat-wrap.selected-female .bb-berth-pillow {
-  background: #fbcfe8;
-  border-color: #f472b6;
-}
-
-.bb-berth-seat-wrap.selected-female .bb-seat-price-label,
-.bb-chair-seat-wrap.selected-female .bb-seat-price-label {
-  color: #db2777;
-  font-weight: 800;
-}
-
-/* 2. Male Selected Theme (BLUE) */
-.bb-berth-seat-wrap.selected-male .bb-berth-seat-body,
-.bb-chair-seat-wrap.selected-male .bb-chair-seat-body {
-  border-color: #3b82f6;
-  background: #eff6ff;
-  color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
-}
-
-.bb-berth-seat-wrap.selected-male .bb-berth-pillow {
-  background: #bfdbfe;
-  border-color: #93c5fd;
-}
-
-.bb-berth-seat-wrap.selected-male .bb-seat-price-label,
-.bb-chair-seat-wrap.selected-male .bb-seat-price-label {
-  color: #1d4ed8;
-  font-weight: 800;
-}
-
-/* 3. Booked / Sold Seats */
-.bb-chair-seat-wrap.booked,
-.bb-berth-seat-wrap.booked {
-  cursor: not-allowed;
-  opacity: 0.8;
-}
-
-.bb-chair-seat-wrap.booked-male .bb-chair-seat-body {
-  border-color: #cbd5e1;
-  background: #f1f5f9;
-  color: #94a3b8;
-}
-
-.bb-chair-seat-wrap.booked-female .bb-chair-seat-body {
-  border-color: #fbcfe8;
-  background: #fdf2f8;
-  color: #f472b6;
+.bb-berth-seat-wrap.selected-female .bb-berth-pillow,
+.bb-chair-seat-wrap.selected-female .bb-clean-seat-headrest {
+  background: #f43f5e !important;
 }
 
 /* ---------------- RIGHT COLUMN: Bus Details & Real Bus Photos (Image 3) ---------------- */
@@ -2339,7 +2365,7 @@
 }
 
 .bb-chip-flip-btn {
-  background: rgba(0,0,0,0.06);
+  background: rgba(0, 0, 0, 0.06);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -2586,7 +2612,7 @@
 }
 
 .bb-chip-gender-flip {
-  background: rgba(0,0,0,0.08);
+  background: rgba(0, 0, 0, 0.08);
   border: none;
   border-radius: 4px;
   padding: 2px 6px;
@@ -2626,7 +2652,7 @@
 }
 
 .bb-confirm-book-btn {
-  background: #dc2626;
+  background: #2a1373;
   color: #ffffff;
   border: none;
   border-radius: 10px;
@@ -2713,9 +2739,9 @@
    1. CLEAN SEAT STYLING (NO CHAIR GLYPH, MODERN GEOMETRIC BUS SEAT)
    ========================================================================= */
 .bb-clean-seat-headrest {
-  width: 65%;
+
   height: 4px;
-  background: #10b981;
+
   border-radius: 2px;
   position: absolute;
   top: 4px;
@@ -2725,44 +2751,8 @@
 .bb-clean-seat-code {
   font-size: 11px;
   font-weight: 800;
-  color: #059669;
+  color: #000000;
   margin-top: 4px;
-}
-
-.bb-chair-seat-wrap.selected-clean .bb-chair-seat-body,
-.bb-berth-seat-wrap.selected-clean .bb-berth-seat-body {
-  border-color: #dc2626 !important;
-  background: #fef2f2 !important;
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.25);
-}
-
-.bb-chair-seat-wrap.selected-clean .bb-clean-seat-headrest {
-  background: #dc2626;
-}
-
-.bb-chair-seat-wrap.selected-clean .bb-clean-seat-code,
-.bb-berth-seat-wrap.selected-clean .bb-clean-seat-code {
-  color: #dc2626 !important;
-}
-
-.bb-chair-seat-wrap.selected-clean .bb-seat-price-label,
-.bb-berth-seat-wrap.selected-clean .bb-seat-price-label {
-  color: #dc2626 !important;
-  font-weight: 800;
-}
-
-.bb-chair-seat-wrap.booked .bb-clean-seat-headrest {
-  background: #cbd5e1;
-}
-
-.bb-chair-seat-wrap.booked .bb-clean-seat-code {
-  color: #94a3b8;
-}
-
-.bb-selected-seat-chip.selected-clean {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #b91c1c;
 }
 
 /* =========================================================================
@@ -2793,9 +2783,11 @@
   0% {
     box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
   }
+
   70% {
     box-shadow: 0 0 0 7px rgba(34, 197, 94, 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
   }
@@ -3059,8 +3051,15 @@
 }
 
 @keyframes bbSonarPing {
-  0% { transform: scale(0.9); opacity: 0.8; }
-  100% { transform: scale(1.4); opacity: 0; }
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
 }
 
 .bb-standby-title {
@@ -3596,7 +3595,7 @@
   transition: all 0.15s ease;
 }
 
-.bb-img5-radio-wrap input:checked + .bb-img5-radio-circle {
+.bb-img5-radio-wrap input:checked+.bb-img5-radio-circle {
   border-color: #334155;
   background: #334155;
   box-shadow: inset 0 0 0 3px #ffffff;
@@ -4232,7 +4231,7 @@
 .bb-fare-amount-total {
   font-size: 20px;
   font-weight: 900;
-  color: #dc2626;
+  color: #2a1373;
 }
 
 /* =========================================================================
@@ -4777,9 +4776,19 @@
 }
 
 @keyframes bbRadarSweep {
-  0% { transform: rotate(0deg); opacity: 0.8; }
-  50% { opacity: 0.3; }
-  100% { transform: rotate(360deg); opacity: 0.8; }
+  0% {
+    transform: rotate(0deg);
+    opacity: 0.8;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+
+  100% {
+    transform: rotate(360deg);
+    opacity: 0.8;
+  }
 }
 
 .bb-standby-satellite-icon {

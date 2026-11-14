@@ -12,6 +12,8 @@ const InteractiveRideMap = dynamic(() => import('./InteractiveRideMap'), {
   )
 });
 
+import CaptainPaymentSelectModal from './modals/CaptainPaymentSelectModal';
+
 export default function CaptainDutyRightView({
   partnerDetails,
   isOnDuty,
@@ -35,6 +37,7 @@ export default function CaptainDutyRightView({
   const [isCompletingTrip, setIsCompletingTrip] = useState(false);
   const [completionAlert, setCompletionAlert] = useState(null);
   const [isRideCompletedSuccess, setIsRideCompletedSuccess] = useState(false);
+  const [showPaymentSelectModal, setShowPaymentSelectModal] = useState(false);
   const [todayEarnings, setTodayEarnings] = useState(0);
   const [completedOrdersCount, setCompletedOrdersCount] = useState(0);
 
@@ -446,11 +449,21 @@ export default function CaptainDutyRightView({
     }
   };
 
-  // Handle Captain Reaching Destination and Completing the Ride (Records Earnings to Database)
-  const handleCompleteTrip = async () => {
+  // Handle Captain Reaching Destination - Opens Cash or Online (PhonePe / UPI) Choice
+  const handleOpenPaymentChoice = () => {
     if (!displayOrder) return;
+    setShowPaymentSelectModal(true);
+  };
+  const handleCompleteTrip = handleOpenPaymentChoice;
+
+  // Process Completed Ride with Selected Payment Method (Cash or Online)
+  const handleCompleteTripWithPayment = async (paymentMethod = 'online') => {
+    if (!displayOrder) return;
+    setShowPaymentSelectModal(false);
     setIsCompletingTrip(true);
     setIsRideCompletedSuccess(true);
+    const isCash = paymentMethod === 'cash';
+
     try {
       const token = localStorage.getItem("sart_captain_jwt_token") || partnerDetails?.token;
       const headers = {
@@ -462,7 +475,9 @@ export default function CaptainDutyRightView({
         socketRef.emit("ride_status_update", {
           bookingId: displayOrder.id,
           status: "Completed",
-          rideStage: "completed"
+          rideStage: "completed",
+          paymentMethod,
+          isCash
         });
       }
 
@@ -470,7 +485,8 @@ export default function CaptainDutyRightView({
         method: "POST",
         headers,
         body: JSON.stringify({
-          orderId: displayOrder.id
+          orderId: displayOrder.id,
+          paymentMethod
         })
       });
 
@@ -479,8 +495,12 @@ export default function CaptainDutyRightView({
 
       setCompletionAlert({
         title: "Ride Completed Successfully!",
-        message: "Great Job! Total fare credited: ₹" + earned + ". Stored into database.",
+        message: isCash
+          ? "Great Job! Cash collected: ₹" + earned + ". (Not added to digital wallet)"
+          : "Great Job! Total fare credited: ₹" + earned + ". Stored into database.",
         fare: earned,
+        isCash,
+        paymentMethod,
         type: "success"
       });
 
@@ -499,14 +519,20 @@ export default function CaptainDutyRightView({
         socketRef.emit("ride_status_update", {
           bookingId: displayOrder.id,
           status: "Completed",
-          rideStage: "completed"
+          rideStage: "completed",
+          paymentMethod,
+          isCash
         });
       }
       const earned = displayOrder.fare + (displayOrder.bonus || 10);
       setCompletionAlert({
         title: "Ride Completed Successfully!",
-        message: "Great Job! Total fare credited: ₹" + earned + ". Stored into database.",
+        message: isCash
+          ? "Great Job! Cash collected: ₹" + earned + ". (Not added to digital wallet)"
+          : "Great Job! Total fare credited: ₹" + earned + ". Stored into database.",
         fare: earned,
+        isCash,
+        paymentMethod,
         type: "success"
       });
       setTimeout(() => {
@@ -675,7 +701,7 @@ export default function CaptainDutyRightView({
                 fontSize: '11px',
                 fontWeight: 900
               }}>
-                {incomingOrders.length || (activeAcceptedOrder ? 1 : 0)}
+                {incomingOrders.length || (activeAcceptedOrder ? 0 : 0)}
               </div>
               <i className="fa-solid fa-motorcycle"></i>
               <span>Orders View</span>
@@ -718,7 +744,7 @@ export default function CaptainDutyRightView({
               <button
                 type="button"
                 id="beside-orders-ride-completed-btn"
-                onClick={handleCompleteTrip}
+                onClick={handleOpenPaymentChoice}
                 disabled={isCompletingTrip || isRideCompletedSuccess || activeAcceptedOrder.status === 'Completed'}
                 style={{
                   background: (isRideCompletedSuccess || activeAcceptedOrder.status === 'Completed')
@@ -1675,8 +1701,18 @@ export default function CaptainDutyRightView({
                   justifyContent: 'space-between'
                 }}
               >
-                <span style={{ fontSize: '14px', fontWeight: 700, color: '#64748b' }}>Credited to Wallet</span>
-                <span style={{ fontSize: '24px', fontWeight: 900, color: '#16a34a' }}>+ ₹{completionAlert.fare}</span>
+                <span style={{ fontSize: '14px', fontWeight: 700, color: '#64748b' }}>
+                  {completionAlert.isCash ? 'Payment Received (Cash)' : 'Credited to Wallet'}
+                </span>
+                <span
+                  style={{
+                    fontSize: '24px',
+                    fontWeight: 900,
+                    color: completionAlert.isCash ? '#0f172a' : '#16a34a'
+                  }}
+                >
+                  {completionAlert.isCash ? `₹${completionAlert.fare}` : `+ ₹${completionAlert.fare}`}
+                </span>
               </div>
 
               <button
@@ -1707,6 +1743,16 @@ export default function CaptainDutyRightView({
               </button>
             </div>
           </div>
+        )}
+
+        {/* Payment Selection Modal (Cash vs Online PhonePe / UPI QR) */}
+        {showPaymentSelectModal && displayOrder && (
+          <CaptainPaymentSelectModal
+            fare={displayOrder.fare + (displayOrder.bonus || 10)}
+            customerName={displayOrder.userName || displayOrder.passengerName || 'Customer'}
+            onConfirmPayment={(method) => handleCompleteTripWithPayment(method)}
+            onClose={() => setShowPaymentSelectModal(false)}
+          />
         )}
 
         {/* 💬 Live Captain-to-Customer AI-Powered Chat Modal */}

@@ -1,6 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import TrainTicketPdfModal, { TrainTicketModalData } from './trains/TrainTicketPdfModal';
+import { POPULAR_CITIES } from './trainData';
 
 export interface TrainPassenger {
   name: string;
@@ -22,7 +25,14 @@ interface TrainPassengerDetailsModalProps {
   passenger: TrainPassenger;
   freeCancel?: boolean;
   onPassengerChange: (p: TrainPassenger) => void;
-  onConfirmBooking: () => void;
+  onConfirmBooking: (bookingMeta?: {
+    passengers: TrainPassenger[];
+    email?: string;
+    phone?: string;
+    irctcId?: string;
+    boardingStation?: string;
+    paymentDetails?: any;
+  }) => void;
   onClose: () => void;
   isConfirmed?: boolean;
 }
@@ -44,25 +54,54 @@ export default function TrainPassengerDetailsModal({
   onClose,
   isConfirmed = false
 }: TrainPassengerDetailsModalProps) {
+  const router = useRouter();
+  const [showErsPdfModal, setShowErsPdfModal] = useState(false);
+
   // Form state matching image 1
-  const [boardingStation, setBoardingStation] = useState(source || '');
+  const [boardingStation, setBoardingStation] = useState(source || 'Perambur (PER)');
+  const [isStationDropdownOpen, setIsStationDropdownOpen] = useState(false);
+  const [stationSearchQuery, setStationSearchQuery] = useState('');
+  const stationDropdownRef = useRef<HTMLDivElement>(null);
+
   const [irctcUsername, setIrctcUsername] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [stateOfResidence, setStateOfResidence] = useState('');
   const [shareWhatsApp, setShareWhatsApp] = useState(true);
 
+  // Close station dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (stationDropdownRef.current && !stationDropdownRef.current.contains(event.target as Node)) {
+        setIsStationDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Filter stations based on search query
+  const filteredStations = POPULAR_CITIES.filter((st) => {
+    const q = stationSearchQuery.toLowerCase().trim();
+    if (!q) return true;
+    return (
+      st.name.toLowerCase().includes(q) ||
+      st.code.toLowerCase().includes(q) ||
+      st.state.toLowerCase().includes(q)
+    );
+  });
+
   // Multiple passengers list support - only show when added
   const [passengersList, setPassengersList] = useState<TrainPassenger[]>(
     passenger.name && passenger.name.trim().length > 0
       ? [
-          {
-            name: passenger.name,
-            age: passenger.age || '',
-            gender: passenger.gender || 'Male',
-            berthPreference: (passenger.berthPreference as any) || 'No Preference'
-          }
-        ]
+        {
+          name: passenger.name,
+          age: passenger.age || '',
+          gender: passenger.gender || 'Male',
+          berthPreference: (passenger.berthPreference as any) || 'No Preference'
+        }
+      ]
       : []
   );
 
@@ -106,16 +145,17 @@ export default function TrainPassengerDetailsModal({
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '16px'
+      padding: '0px'
     }}>
       <div style={{
         background: '#f8fafc',
-        borderRadius: '16px',
-        maxWidth: '720px',
+        borderRadius: '0px',
+        maxWidth: '100%',
         width: '100%',
-        maxHeight: '94vh',
+        height: '100vh',
+        maxHeight: '100vh',
         overflowY: 'auto',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        boxShadow: 'none',
         display: 'flex',
         flexDirection: 'column'
       }}>
@@ -189,11 +229,11 @@ export default function TrainPassengerDetailsModal({
               <div style={{ background: '#f8fafc', padding: '14px 16px', borderRadius: '12px', border: '1px solid #e2e8f0', textAlign: 'left', marginBottom: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
                   <span style={{ color: '#64748b' }}>Journey:</span>
-                  <span style={{ fontWeight: 700, color: '#0f172a' }}>{source.split('-')[0].trim()} → {destination.split('-')[0].trim()}</span>
+                  <span style={{ fontWeight: 700, color: '#0f172a' }}>{source.split('-')[0].trim() || 'Chennai'} → {destination.split('-')[0].trim() || 'Bengaluru'}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
                   <span style={{ color: '#64748b' }}>Boarding Station:</span>
-                  <span style={{ fontWeight: 700, color: '#0f172a' }}>{boardingStation}</span>
+                  <span style={{ fontWeight: 700, color: '#0f172a' }}>{boardingStation || source.split('-')[0].trim() || 'Chennai'}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
                   <span style={{ color: '#64748b' }}>Journey Date:</span>
@@ -201,11 +241,21 @@ export default function TrainPassengerDetailsModal({
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
                   <span style={{ color: '#64748b' }}>IRCTC ID:</span>
-                  <span style={{ fontWeight: 700, color: '#0f172a' }}>{irctcUsername}</span>
+                  <span style={{ fontWeight: 700, color: '#0f172a' }}>{irctcUsername || 'Confirmed'}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
-                  <span style={{ color: '#64748b' }}>Passengers ({passengersList.length}):</span>
-                  <span style={{ fontWeight: 700, color: '#0f172a' }}>{passengersList.map(p => p.name).join(', ')}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '8px', fontSize: '13px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: '#64748b' }}>Passengers ({passengersList.length || 1}):</span>
+                    <span style={{ fontWeight: 700, color: '#0f172a' }}>
+                      {passengersList.length > 0 ? passengersList.map(p => `${p.name} (${p.age || '25'}, ${p.gender})`).join(', ') : (passenger.name || 'Passenger')}
+                    </span>
+                  </div>
+                  {phoneNumber && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#64748b' }}>
+                      <span>Contact:</span>
+                      <span style={{ fontWeight: 600, color: '#334155' }}>+91 {phoneNumber} {email ? `• ${email}` : ''}</span>
+                    </div>
+                  )}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', borderTop: '1px dashed #cbd5e1', paddingTop: '8px', marginTop: '8px' }}>
                   <span style={{ color: '#64748b' }}>Status:</span>
@@ -213,23 +263,79 @@ export default function TrainPassengerDetailsModal({
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={onClose}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  background: '#0f172a',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '10px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
-              >
-                Close & View Bookings
-              </button>
+              <div style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowErsPdfModal(true)}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: '#0284c7',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '10px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 10px rgba(2, 132, 199, 0.25)'
+                  }}
+                >
+                  <i className="fa-solid fa-file-pdf"></i> View & Download Ticket
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: '#0f172a',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '10px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  Close & View Bookings
+                </button>
+              </div>
+
+              {/* Electronic Reservation Slip Modal */}
+              {showErsPdfModal && (
+                <TrainTicketPdfModal
+                  ticket={{
+                    pnr: `291${Math.floor(1000000 + Math.random() * 9000000)}`,
+                    trainNumber,
+                    trainName,
+                    classCode,
+                    source,
+                    destination,
+                    boardingStation,
+                    departureTime: depTime,
+                    departureDate: dateOfJourney,
+                    destinationTime: arrTime || '11:15 AM',
+                    destinationDate: dateOfJourney,
+                    bookingDate: `${dateOfJourney} 20:21:44 HRS`,
+                    passengers: (passengersList.length > 0 ? passengersList : [passenger]).map((p, idx) => ({
+                      name: p.name || 'PASSENGER',
+                      age: p.age || 24,
+                      gender: p.gender || 'M',
+                      bookingStatus: `CNF/Coach S3/Berth ${24 + idx}/${p.berthPreference || 'LOWER'}`,
+                      currentStatus: `CNF/Coach S3/Berth ${24 + idx}/${p.berthPreference || 'LOWER'}`
+                    })),
+                    fare: fare * (passengersList.length || 1),
+                    convenienceFee: 11.80,
+                    insurancePremium: 0.90,
+                    totalFare: totalPayable
+                  }}
+                  onClose={() => setShowErsPdfModal(false)}
+                />
+              )}
             </div>
           ) : (
             <>
@@ -238,36 +344,148 @@ export default function TrainPassengerDetailsModal({
                 <h3 style={{ margin: '0 0 2px 0', fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>Boarding station</h3>
                 <p style={{ margin: '0 0 10px 0', fontSize: '12px', color: '#64748b' }}>You can board from a different station</p>
 
-                <div style={{
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                  position: 'relative',
-                  background: '#ffffff'
-                }}>
+                <div
+                  ref={stationDropdownRef}
+                  style={{
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    position: 'relative',
+                    background: '#ffffff'
+                  }}
+                >
                   <label style={{ display: 'block', fontSize: '10px', color: '#64748b', fontWeight: 600 }}>Boarding Station</label>
-                  <select
-                    value={boardingStation}
-                    onChange={(e) => setBoardingStation(e.target.value)}
+
+                  {/* Searchable input box */}
+                  <div
+                    onClick={() => setIsStationDropdownOpen(true)}
                     style={{
-                      width: '100%',
-                      border: 'none',
-                      outline: 'none',
-                      fontSize: '13px',
-                      fontWeight: 700,
-                      color: '#0f172a',
-                      background: 'transparent',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
                       cursor: 'pointer'
                     }}
                   >
-                    <option value={source}>{source}</option>
-                    <option value="Perambur (PER)">Perambur (PER)</option>
-                    <option value="Chennai Central (MAS)">Chennai Central (MAS)</option>
-                    <option value="Tambaram (TBM)">Tambaram (TBM)</option>
-                    <option value="Vijayawada Jn (BZA)">Vijayawada Jn (BZA)</option>
-                    <option value="Secunderabad (SC)">Secunderabad (SC)</option>
-                    <option value="KSR Bengaluru (SBC)">KSR Bengaluru (SBC)</option>
-                  </select>
+                    <input
+                      type="text"
+                      value={isStationDropdownOpen ? stationSearchQuery : boardingStation}
+                      onChange={(e) => {
+                        setStationSearchQuery(e.target.value);
+                        if (!isStationDropdownOpen) setIsStationDropdownOpen(true);
+                      }}
+                      onFocus={() => {
+                        setIsStationDropdownOpen(true);
+                        setStationSearchQuery('');
+                      }}
+                      placeholder="Type station name or code..."
+                      style={{
+                        width: '100%',
+                        border: 'none',
+                        outline: 'none',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        color: '#0f172a',
+                        background: 'transparent'
+                      }}
+                    />
+                    <i
+                      className={`fa-solid fa-chevron-down`}
+                      style={{
+                        fontSize: '11px',
+                        color: '#64748b',
+                        transform: isStationDropdownOpen ? 'rotate(180deg)' : 'none',
+                        transition: 'transform 0.2s ease'
+                      }}
+                    ></i>
+                  </div>
+
+                  {/* Autocomplete dropdown options */}
+                  {isStationDropdownOpen && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        right: 0,
+                        maxHeight: '220px',
+                        overflowY: 'auto',
+                        background: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '8px',
+                        boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
+                        zIndex: 50,
+                        marginTop: '4px'
+                      }}
+                    >
+                      {/* Current selected option if source */}
+                      {source && (
+                        <div
+                          onClick={() => {
+                            setBoardingStation(source);
+                            setIsStationDropdownOpen(false);
+                            setStationSearchQuery('');
+                          }}
+                          style={{
+                            padding: '10px 14px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            borderBottom: '1px solid #f1f5f9',
+                            background: boardingStation === source ? '#eff6ff' : '#ffffff',
+                            color: '#1e3a8a'
+                          }}
+                        >
+                          <i className="fa-solid fa-train" style={{ marginRight: '8px', color: '#3b82f6' }}></i>
+                          {source} (Selected Route)
+                        </div>
+                      )}
+
+                      {filteredStations.map((st) => {
+                        const label = `${st.name} (${st.code})`;
+                        const isSelected = boardingStation.includes(st.code);
+                        return (
+                          <div
+                            key={st.code}
+                            onClick={() => {
+                              setBoardingStation(label);
+                              setIsStationDropdownOpen(false);
+                              setStationSearchQuery('');
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = '#f8fafc';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = isSelected ? '#f0fdf4' : '#ffffff';
+                            }}
+                            style={{
+                              padding: '10px 14px',
+                              cursor: 'pointer',
+                              fontSize: '13px',
+                              fontWeight: isSelected ? 700 : 500,
+                              background: isSelected ? '#f0fdf4' : '#ffffff',
+                              color: isSelected ? '#15803d' : '#0f172a',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              borderBottom: '1px solid #f8fafc'
+                            }}
+                          >
+                            <div>
+                              <span>{st.name}</span>
+                              <span style={{ color: '#64748b', fontSize: '11px', marginLeft: '6px' }}>({st.code})</span>
+                            </div>
+                            <span style={{ fontSize: '11px', color: '#94a3b8' }}>{st.state}</span>
+                          </div>
+                        );
+                      })}
+
+                      {filteredStations.length === 0 && (
+                        <div style={{ padding: '12px 14px', fontSize: '12px', color: '#94a3b8', textAlign: 'center' }}>
+                          No matching stations found
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div style={{ fontSize: '11px', color: '#475569', marginTop: '6px', fontWeight: 500 }}>
                   Boarding time: <span style={{ fontWeight: 600 }}>{dateOfJourney} • {depTime}</span>
@@ -316,7 +534,7 @@ export default function TrainPassengerDetailsModal({
                   />
                 </div>
                 <p style={{ margin: '6px 0 8px 0', fontSize: '11px', color: '#64748b' }}>
-                  Username is case sensitive. Eg- <strong>ABC123</strong> and <strong>abc123</strong> both can be valid IDs and belong to different users.
+                  Username is case sensitive. Eg- <strong>abc123</strong> both can be valid IDs and belong to different users.
                 </p>
                 <div style={{ display: 'flex', gap: '16px', fontSize: '11px' }}>
                   <a href="#forgot" onClick={(e) => { e.preventDefault(); alert('Please visit irctc.co.in to recover your username'); }} style={{ color: '#2563eb', textDecoration: 'none', fontWeight: 600 }}>
@@ -528,8 +746,12 @@ export default function TrainPassengerDetailsModal({
                     <input
                       type="tel"
                       value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      placeholder="Phone Number"
+                      maxLength={10}
+                      onChange={(e) => {
+                        const digitsOnly = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        setPhoneNumber(digitsOnly);
+                      }}
+                      placeholder="Phone Number (10 digits)"
                       style={{
                         width: '100%',
                         padding: '10px 12px',
@@ -623,14 +845,54 @@ export default function TrainPassengerDetailsModal({
                 <button
                   type="button"
                   onClick={() => {
-                    if (passengersList.length > 0) {
-                      onPassengerChange(passengersList[0]);
+                    let finalList = [...passengersList];
+                    if (finalList.length === 0 && currentName.trim()) {
+                      finalList = [{
+                        name: currentName.trim(),
+                        age: currentAge || '25',
+                        gender: currentGender,
+                        berthPreference: currentBerth
+                      }];
+                      setPassengersList(finalList);
                     }
-                    onConfirmBooking();
+                    if (finalList.length === 0) {
+                      alert('Please enter at least one passenger name');
+                      return;
+                    }
+                    if (finalList.length > 0) {
+                      onPassengerChange(finalList[0]);
+                    }
+
+                    // Save pending booking details in localStorage for the dedicated payment page
+                    const pendingBooking = {
+                      trainName,
+                      trainNumber,
+                      classCode,
+                      fare,
+                      totalAmount: totalPayable,
+                      source,
+                      destination,
+                      dateOfJourney,
+                      depTime,
+                      arrTime,
+                      passengers: finalList,
+                      email: email.trim(),
+                      phone: phoneNumber.trim(),
+                      irctcId: irctcUsername.trim(),
+                      boardingStation: boardingStation.trim(),
+                      freeCancel
+                    };
+
+                    if (typeof window !== 'undefined') {
+                      localStorage.setItem('sart_pending_train_booking', JSON.stringify(pendingBooking));
+                    }
+
+                    // Navigate directly to dedicated payment page
+                    router.push('/home/ride/train/payment');
                   }}
                   style={{
                     padding: '12px 28px',
-                    background: '#dc2626',
+                    background: '#2a1373',
                     color: 'white',
                     border: 'none',
                     borderRadius: '10px',
@@ -640,7 +902,7 @@ export default function TrainPassengerDetailsModal({
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)'
+                    boxShadow: '0 4px 12px rgba(42, 19, 115, 0.35)'
                   }}
                 >
                   <i className="fa-solid fa-lock"></i> Pay & Confirm
