@@ -11,8 +11,15 @@
 }
 
 @keyframes rbFadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Header Card */
@@ -88,8 +95,8 @@
 }
 
 .rb-circle-hero-img-wrap {
-  width: 34px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,8 +104,7 @@
 }
 
 .rb-circle-hero-img {
-  max-width: 100%;
-  max-height: 100%;
+
   object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
 }
@@ -452,9 +458,17 @@
   justify-content: space-between;
 }
 
-.rb-box-label.green { color: #16a34a; }
-.rb-box-label.orange { color: #2a1373; }
-.rb-box-label.red { color: #dc2626; }
+.rb-box-label.green {
+  color: #16a34a;
+}
+
+.rb-box-label.orange {
+  color: #2a1373;
+}
+
+.rb-box-label.red {
+  color: #dc2626;
+}
 
 .rb-remove-stop-cross {
   background: #fee2e2;
@@ -810,8 +824,17 @@
 }
 
 @keyframes rbPulseDot {
-  0%, 100% { transform: scale(0.9); opacity: 0.6; }
-  50% { transform: scale(1.4); opacity: 1; }
+
+  0%,
+  100% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
 }
 
 .rb-interactive-map-canvas {
@@ -1031,9 +1054,17 @@
   margin-bottom: 3px;
 }
 
-.rb-pin-bubble.green { background: #16a34a; }
-.rb-pin-bubble.orange { background: #2a1373; }
-.rb-pin-bubble.red { background: #dc2626; }
+.rb-pin-bubble.green {
+  background: #16a34a;
+}
+
+.rb-pin-bubble.orange {
+  background: #2a1373;
+}
+
+.rb-pin-bubble.red {
+  background: #dc2626;
+}
 
 .rb-pin-dot-wrap {
   width: 22px;
@@ -1046,8 +1077,13 @@
   justify-content: center;
 }
 
-.rb-pin-dot-wrap.green { border-color: #16a34a; }
-.rb-pin-dot-wrap.red { border-color: #dc2626; }
+.rb-pin-dot-wrap.green {
+  border-color: #16a34a;
+}
+
+.rb-pin-dot-wrap.red {
+  border-color: #dc2626;
+}
 
 .rb-pin-dot-inner {
   width: 6px;
@@ -1160,9 +1196,17 @@
   border-radius: 50%;
 }
 
-.rb-quick-btn .bullet.green { background: #16a34a; }
-.rb-quick-btn .bullet.orange { background: #2a1373; }
-.rb-quick-btn .bullet.red { background: #dc2626; }
+.rb-quick-btn .bullet.green {
+  background: #16a34a;
+}
+
+.rb-quick-btn .bullet.orange {
+  background: #2a1373;
+}
+
+.rb-quick-btn .bullet.red {
+  background: #dc2626;
+}
 
 .rb-map-brand-footer {
   position: absolute;
@@ -1214,6 +1258,7 @@
 }
 
 @media (max-width: 768px) {
+
   .rb-vehicle-cards-grid,
   .rb-vehicle-cards-grid.two-cards {
     grid-template-columns: 1fr;
@@ -1354,7 +1399,8 @@
 }
 
 .rb-continue-booking-btn {
-  background: #2a1373; color: #ffffff;
+  background: #2a1373;
+  color: #ffffff;
   border: none;
   border-radius: 10px;
   padding: 10px 22px;
@@ -1401,13 +1447,20 @@
 }
 
 @keyframes rbModalFadeIn {
-  from { opacity: 0; transform: scale(0.96); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .rb-modal-header {
   padding: 18px 24px;
-  background: #0f172a;
+  background: #2a1373;
   color: white;
   display: flex;
   align-items: center;
@@ -1481,9 +1534,17 @@
   border-radius: 50%;
 }
 
-.rb-legend-pill .dot.green { background: #16a34a; }
-.rb-legend-pill .dot.orange { background: #2a1373; }
-.rb-legend-pill .dot.red { background: #dc2626; }
+.rb-legend-pill .dot.green {
+  background: #16a34a;
+}
+
+.rb-legend-pill .dot.orange {
+  background: #2a1373;
+}
+
+.rb-legend-pill .dot.red {
+  background: #dc2626;
+}
 
 .rb-modal-map-canvas {
   position: relative;
@@ -1527,9 +1588,17 @@
   margin-top: 2px;
 }
 
-.rb-itin-icon.green { background: #16a34a; }
-.rb-itin-icon.orange { background: #2a1373; }
-.rb-itin-icon.red { background: #dc2626; }
+.rb-itin-icon.green {
+  background: #16a34a;
+}
+
+.rb-itin-icon.orange {
+  background: #2a1373;
+}
+
+.rb-itin-icon.red {
+  background: #dc2626;
+}
 
 .rb-itin-body {
   flex: 1;
@@ -1543,9 +1612,17 @@
   font-weight: 800;
 }
 
-.rb-itin-title.green { color: #16a34a; }
-.rb-itin-title.orange { color: #2a1373; }
-.rb-itin-title.red { color: #dc2626; }
+.rb-itin-title.green {
+  color: #16a34a;
+}
+
+.rb-itin-title.orange {
+  color: #2a1373;
+}
+
+.rb-itin-title.red {
+  color: #dc2626;
+}
 
 .rb-itin-address {
   font-size: 13px;
@@ -1608,7 +1685,8 @@
 }
 
 .rb-modal-confirm-btn {
-  background: #2a1373; color: #ffffff;
+  background: #2a1373;
+  color: #ffffff;
   border: none;
   border-radius: 10px;
   padding: 12px 24px;
@@ -2012,4 +2090,3 @@
   font-weight: 700;
   color: #0f172a;
 }
-

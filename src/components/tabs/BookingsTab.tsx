@@ -8,6 +8,9 @@ import AirBooking from '../booking-pages/air';
 import TrainBooking from '../booking-pages/train';
 import { FLEET_CATEGORIES, FLEET_ITEMS, MOCK_BOOKINGS, Booking } from '../../data/mockBookings';
 import { bookingsApiClient, governmentTransitApi, BackendBooking } from '../../services/bookingsApi';
+import { GlobalBookingDetailModal } from './GlobalBookingDetailModal';
+import TrainTicketPdfModal, { TrainTicketModalData } from '../trains/TrainTicketPdfModal';
+import { BookingCardItem } from './BookingCardItem';
 
 export default function BookingsTab() {
   const pathname = usePathname();
@@ -44,6 +47,7 @@ export default function BookingsTab() {
 
   const [overviewTab, setOverviewTab] = useState<'upcoming' | 'past' | 'cancelled'>('upcoming');
   const [selectedGlobalBooking, setSelectedGlobalBooking] = useState<Booking | null>(null);
+  const [selectedTicketForPdf, setSelectedTicketForPdf] = useState<TrainTicketModalData | null>(null);
   const [showMoreDestinations, setShowMoreDestinations] = useState(false);
   const [showAllBookings, setShowAllBookings] = useState(false);
 
@@ -106,7 +110,87 @@ export default function BookingsTab() {
     loadBackendBookings();
   }, []);
 
-  const allBookingsSource = backendBookingsList.length > 0 ? backendBookingsList : MOCK_BOOKINGS;
+  // Local storage bookings (e.g. newly booked buses)
+  const [localBookings, setLocalBookings] = useState<Booking[]>([]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const globalStr = localStorage.getItem('sart_global_bookings');
+      if (globalStr) {
+        try {
+          const parsed = JSON.parse(globalStr);
+          if (Array.isArray(parsed)) {
+            setLocalBookings(parsed.map((b: any) => ({
+              id: b.id || b.pnr || `BK-${Date.now()}`,
+              title: b.title || 'Bus Booking',
+              number: b.number || b.pnr || 'BUS',
+              type: 'bus',
+              image: 'https://img.icons8.com/fluency/96/bus.png',
+              source: b.source || 'Chennai',
+              sourceCode: b.sourceCode || (b.source ? b.source.slice(0, 3).toUpperCase() : 'MAA'),
+              sourceTime: b.sourceTime || '10:00',
+              sourceDate: b.sourceDate || 'Today',
+              destination: b.destination || 'Bangalore',
+              destinationCode: b.destinationCode || (b.destination ? b.destination.slice(0, 3).toUpperCase() : 'BLR'),
+              destinationTime: b.destinationTime || '18:00',
+              destinationDate: b.destinationDate || 'Today',
+              duration: b.duration || '8h 00m',
+              bookingId: b.bookingId || b.pnr,
+              pnr: b.pnr || b.bookingId,
+              passengerName: b.passengerName || 'Passenger',
+              seatStatus: b.seatStatus || 'Confirmed',
+              statusBadge: b.isCancelled ? 'CAN' : 'CNF',
+              statusText: b.isCancelled ? 'Cancelled' : 'Ticket Confirmed',
+              isActive: !b.isCancelled,
+              isCancelled: !!b.isCancelled,
+              stops: b.stops || []
+            })));
+          }
+        } catch (e) { }
+      }
+    }
+  }, [overviewTab]);
+
+  const baseBookings = backendBookingsList.length > 0 ? backendBookingsList : MOCK_BOOKINGS;
+  const allBookingsSource = [
+    ...localBookings,
+    ...baseBookings.filter(b => !localBookings.some(lb => lb.bookingId === b.bookingId || lb.pnr === b.pnr))
+  ];
+
+  const handleCancelBooking = (bookingId: string) => {
+    if (typeof window !== 'undefined') {
+      const globalStr = localStorage.getItem('sart_global_bookings');
+      if (globalStr) {
+        try {
+          const list = JSON.parse(globalStr);
+          const updated = list.map((b: any) => {
+            if (b.id === bookingId || b.bookingId === bookingId || b.pnr === bookingId) {
+              return { ...b, isActive: false, isCancelled: true };
+            }
+            return b;
+          });
+          localStorage.setItem('sart_global_bookings', JSON.stringify(updated));
+        } catch (e) { }
+      }
+    }
+
+    setLocalBookings(prev =>
+      prev.map(b => (b.id === bookingId || b.bookingId === bookingId || b.pnr === bookingId)
+        ? { ...b, isActive: false, isCancelled: true, statusBadge: 'CAN' }
+        : b
+      )
+    );
+
+    setBackendBookingsList(prev =>
+      prev.map(b => (b.id === bookingId || b.bookingId === bookingId || b.pnr === bookingId)
+        ? { ...b, isActive: false, isCancelled: true, statusBadge: 'CAN' }
+        : b
+      )
+    );
+
+    setSelectedGlobalBooking(null);
+    setOverviewTab('cancelled');
+  };
 
   const filteredOverviewBookings = allBookingsSource.filter(b => {
     if (overviewTab === 'upcoming') return b.isActive && !b.isCancelled;
@@ -290,124 +374,11 @@ export default function BookingsTab() {
     return (
       <section className={`tab-screen ${globalActiveTab === 'booking' ? 'active' : ''}`} id="tab-booking">
         {/* Global Booking Details Modal */}
-        {selectedGlobalBooking && (
-          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.8)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            <div style={{ width: '100%', maxWidth: '800px', background: 'white', borderRadius: '16px', display: 'flex', overflow: 'hidden', maxHeight: '90vh' }}>
-
-              {/* Left: Details */}
-              <div style={{ flex: 1, padding: '30px', overflowY: 'auto' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
-                  <div>
-                    <h2 style={{ margin: '0 0 4px 0', fontSize: '20px', color: '#0f172a' }}>{selectedGlobalBooking.title}</h2>
-                    <div style={{ fontSize: '13px', color: '#64748b' }}>Booking ID: {selectedGlobalBooking.bookingId}</div>
-                  </div>
-                  <button onClick={() => setSelectedGlobalBooking(null)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#64748b' }}>
-                    <i className="fa-solid fa-xmark"></i>
-                  </button>
-                </div>
-
-                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px', marginBottom: '24px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                    <div>
-                      <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 'bold' }}>FROM</div>
-                      <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#0f172a' }}>{selectedGlobalBooking.source}</div>
-                      <div style={{ fontSize: '13px', color: '#0f172a' }}>{selectedGlobalBooking.sourceTime}, {selectedGlobalBooking.sourceDate}</div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 'bold' }}>TO</div>
-                      <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#0f172a' }}>{selectedGlobalBooking.destination}</div>
-                      <div style={{ fontSize: '13px', color: '#0f172a' }}>{selectedGlobalBooking.destinationTime}, {selectedGlobalBooking.destinationDate}</div>
-                    </div>
-                  </div>
-                  <div style={{ borderTop: '1px dashed #cbd5e1', paddingTop: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                    <div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>Passenger Name</div>
-                      <div style={{ fontSize: '14px', fontWeight: 'bold' }}>John Doe</div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>Contact Number</div>
-                      <div style={{ fontSize: '14px', fontWeight: 'bold' }}>+91 9876543210</div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>Email Address</div>
-                      <div style={{ fontSize: '14px', fontWeight: 'bold' }}>john.doe@example.com</div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>Address</div>
-                      <div style={{ fontSize: '14px', fontWeight: 'bold' }}>123 Main St, Bangalore, India</div>
-                    </div>
-                  </div>
-                </div>
-
-                {selectedGlobalBooking.isCancelled ? (
-                  <>
-                    <h3 style={{ fontSize: '16px', margin: '0 0 16px 0', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px', color: '#ef4444' }}>Cancellation & Refund Details</h3>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '8px' }}>
-                      <span style={{ color: '#64748b' }}>Base Fare Paid</span>
-                      <span style={{ fontWeight: 'bold' }}>₹4,500</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '8px' }}>
-                      <span style={{ color: '#64748b' }}>Taxes & Fees Paid</span>
-                      <span style={{ fontWeight: 'bold' }}>₹320</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '8px', borderBottom: '1px dashed #cbd5e1', paddingBottom: '8px' }}>
-                      <span style={{ color: '#64748b' }}>Total Amount Paid</span>
-                      <span style={{ fontWeight: 'bold' }}>₹4,720</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '8px', marginTop: '16px' }}>
-                      <span style={{ color: '#64748b' }}>Cancellation Penalty</span>
-                      <span style={{ fontWeight: 'bold', color: '#ef4444' }}>-₹1,200</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '8px' }}>
-                      <span style={{ color: '#64748b' }}>GST & Govt Taxes on Cancellation</span>
-                      <span style={{ fontWeight: 'bold', color: '#ef4444' }}>-₹216</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '8px', borderBottom: '1px dashed #cbd5e1', paddingBottom: '8px' }}>
-                      <span style={{ color: '#64748b' }}>Platform Convenience Fee (Non-refundable)</span>
-                      <span style={{ fontWeight: 'bold', color: '#ef4444' }}>-₹100</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '18px', marginBottom: '16px', marginTop: '16px' }}>
-                      <span style={{ fontWeight: 'bold', color: '#10b981' }}>Total Refund Amount</span>
-                      <span style={{ fontWeight: 'bold', color: '#10b981' }}>₹3,204</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '8px', fontSize: '12px', color: '#64748b' }}>
-                      <span style={{ background: '#ecfdf5', color: '#10b981', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold' }}><i className="fa-solid fa-check-circle"></i> Refunded Successfully</span>
-                      <span style={{ background: '#f1f5f9', padding: '4px 8px', borderRadius: '4px' }}>Ref: RFND987654321</span>
-                    </div>
-                    <p suppressHydrationWarning style={{ fontSize: '12px', color: '#64748b', marginTop: '16px', background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                      <strong>Note:</strong> The refund of ₹3,204 has been successfully processed and credited to the original payment method (Credit Card **** 1234) on {new Date().toLocaleDateString('en-IN')}. It may take 3-5 business days to reflect in your bank statement.
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <h3 style={{ fontSize: '16px', margin: '0 0 16px 0', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>Transaction & Payment Details</h3>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '8px' }}>
-                      <span style={{ color: '#64748b' }}>Base Fare</span>
-                      <span style={{ fontWeight: 'bold' }}>₹4,500</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '8px' }}>
-                      <span style={{ color: '#64748b' }}>Taxes & Fees</span>
-                      <span style={{ fontWeight: 'bold' }}>₹320</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '8px', borderBottom: '1px dashed #cbd5e1', paddingBottom: '8px' }}>
-                      <span style={{ color: '#64748b' }}>Discount</span>
-                      <span style={{ fontWeight: 'bold', color: '#10b981' }}>-₹100</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', marginBottom: '16px' }}>
-                      <span style={{ fontWeight: 'bold', color: '#0f172a' }}>Total Amount Paid</span>
-                      <span style={{ fontWeight: 'bold', color: '#0f172a' }}>₹4,720</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '8px', fontSize: '12px', color: '#64748b' }}>
-                      <span style={{ background: '#f1f5f9', padding: '4px 8px', borderRadius: '4px' }}>Paid via Credit Card **** 1234</span>
-                      <span style={{ background: '#f1f5f9', padding: '4px 8px', borderRadius: '4px' }}>Txn ID: TXN987654321</span>
-                    </div>
-                  </>
-                )}
-              </div>
-
-            </div>
-          </div>
-        )}
+        <GlobalBookingDetailModal
+          booking={selectedGlobalBooking}
+          onClose={() => setSelectedGlobalBooking(null)}
+          onCancelBooking={handleCancelBooking}
+        />
 
         <div className="bookings-tab-container fleet-selection-container">
 
@@ -609,62 +580,56 @@ export default function BookingsTab() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
               {displayedOverviewBookings.map((booking, idx) => (
-                <div key={idx} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '36px', height: '36px', background: '#f1f5f9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                        {booking.image ? (
-                          <img src={booking.image} alt={booking.type} style={{ width: '24px', height: '24px', objectFit: 'contain' }} />
-                        ) : (
-                          <i className={`fa-solid ${booking.title.includes('AUTO') ? 'fa-motorcycle' : booking.title.includes('CRUISE') ? 'fa-ship' : booking.title.includes('EXPRESS') ? 'fa-train' : 'fa-plane'}`} style={{ color: '#0f172a' }}></i>
-                        )}
-                      </div>
-                      <div>
-                        <div style={{ fontSize: '11px', color: '#64748b' }}>{booking.number}</div>
-                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#0f172a' }}>{booking.title}</div>
-                      </div>
-                    </div>
-                    {overviewTab === 'cancelled' && (
-                      <div style={{ color: '#ef4444', fontSize: '12px', fontWeight: 'bold' }}>CANCELLED</div>
-                    )}
-                    {overviewTab !== 'cancelled' && (
-                      <div style={{ color: '#cbd5e1', fontSize: '14px', fontWeight: 'bold' }}>P</div>
-                    )}
-                  </div>
+                <BookingCardItem
+                  key={idx}
+                  booking={booking}
+                  overviewTab={overviewTab}
+                  onViewDetails={(b) => setSelectedGlobalBooking(b)}
+                  onDownloadTicket={(b) => {
+                    const extra = (b as any).extraData ? JSON.parse((b as any).extraData) : {};
+                    const allPax = (b as any).allPassengers || (extra.allPassengers) || [];
+                    const paxFormatted = allPax.length > 0
+                      ? allPax.map((p: any, i: number) => ({
+                          name: p.name || 'PASSENGER',
+                          age: p.age || 24,
+                          gender: p.gender || 'M',
+                          bookingStatus: `CNF/Coach S3/Berth ${24 + i}/${p.berthPreference || 'LOWER'}`,
+                          currentStatus: `CNF/Coach S3/Berth ${24 + i}/${p.berthPreference || 'LOWER'}`
+                        }))
+                      : [{
+                          name: b.passengerName || 'PASSENGER',
+                          age: 24,
+                          gender: 'M',
+                          bookingStatus: b.seatStatus || 'CNF/Coach S3/Berth 24',
+                          currentStatus: b.seatStatus || 'CNF/Coach S3/Berth 24'
+                        }];
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <div>
-                      <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#0f172a' }}>{booking.sourceCode || booking.source}</div>
-                      <div style={{ fontSize: '13px', color: '#0f172a', fontWeight: '500', marginTop: '4px' }}>{booking.sourceTime}</div>
-                      <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>{booking.sourceDate}</div>
-                    </div>
-                    <i className="fa-solid fa-arrow-right-long" style={{ color: '#cbd5e1' }}></i>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#0f172a' }}>{booking.destinationCode || booking.destination}</div>
-                      <div style={{ fontSize: '13px', color: '#0f172a', fontWeight: '500', marginTop: '4px' }}>{booking.destinationTime}</div>
-                      <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>{booking.destinationDate}</div>
-                    </div>
-                  </div>
-
-                  <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>
-                    Booking ID {booking.bookingId}
-                  </div>
-
-                  {overviewTab === 'cancelled' ? (
-                    <button onClick={() => setSelectedGlobalBooking(booking)} style={{ width: '100%', padding: '10px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-                      Refund Details
-                    </button>
-                  ) : (
-                    <div style={{ display: 'flex', gap: '12px', marginTop: 'auto' }}>
-                      <button style={{ flex: 1, padding: '10px 4px', fontSize: '14px', whiteSpace: 'nowrap', background: 'transparent', color: '#0ea5e9', border: '1px solid #0ea5e9', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-                        Download Ticket
-                      </button>
-                      <button onClick={() => setSelectedGlobalBooking(booking)} style={{ flex: 1, padding: '10px 4px', fontSize: '14px', whiteSpace: 'nowrap', background: '#8b5cf6', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-                        View Details
-                      </button>
-                    </div>
-                  )}
-                </div>
+                    setSelectedTicketForPdf({
+                      pnr: b.pnr || b.bookingId?.replace(/\D/g, '').padEnd(10, '0') || '2917590674',
+                      trainNumber: b.number?.replace(/\D/g, '') || '12992',
+                      trainName: b.title || 'EXP',
+                      classCode: b.seatStatus?.match(/\(([^)]+)\)/)?.[1] || 'SECOND SITTING (2S)',
+                      source: b.source || 'JAIPUR (JP)',
+                      sourceCode: b.sourceCode || 'JP',
+                      sourceTime: b.sourceTime || '14:10',
+                      sourceDate: b.sourceDate || '12-Sep-2026',
+                      destination: b.destination || 'FATEHNAGAR (FAN)',
+                      destinationCode: b.destinationCode || 'FAN',
+                      destinationTime: b.destinationTime || '20:09',
+                      destinationDate: b.destinationDate || b.sourceDate || '12-Sep-2026',
+                      boardingStation: b.source || 'JAIPUR (JP)',
+                      departureTime: b.sourceTime || '14:10',
+                      departureDate: b.sourceDate || '12-Sep-2026',
+                      bookingDate: `${b.sourceDate || '12-Sep-2026'} 20:21:44 HRS`,
+                      passengers: paxFormatted,
+                      fare: (b as any).transactionAmount || (b as any).price || 320,
+                      convenienceFee: 11.80,
+                      insurancePremium: 0.90,
+                      totalFare: ((b as any).transactionAmount || (b as any).price || 320) + 12.70
+                    });
+                  }}
+                  onCancelBooking={handleCancelBooking}
+                />
               ))}
             </div>
           </div>
@@ -1003,6 +968,14 @@ export default function BookingsTab() {
       {category === 'Sea' && <SeaBooking selectedVehicleType={selectedVehicleType} handleBackToFleet={handleBackToFleet} />}
       {category === 'Air' && <AirBooking selectedVehicleType={selectedVehicleType} handleBackToFleet={handleBackToFleet} />}
       {category === 'Train' && <TrainBooking selectedVehicleType={selectedVehicleType} handleBackToFleet={handleBackToFleet} />}
+
+      {/* Full Laptop Electronic Reservation Slip (ERS) Printable Modal */}
+      {selectedTicketForPdf && (
+        <TrainTicketPdfModal
+          ticket={selectedTicketForPdf}
+          onClose={() => setSelectedTicketForPdf(null)}
+        />
+      )}
     </section>
   );
 }

@@ -5,6 +5,10 @@ export interface TrainClassOption {
   statusType: 'available' | 'wl' | 'regret' | 'update';
   updated: string;
   isTatkal?: boolean;
+  chance?: string;
+  chanceColor?: 'low' | 'medium' | 'high';
+  subtext?: string;
+  refund3x?: boolean;
 }
 
 export interface TrainItem {
@@ -23,12 +27,18 @@ export interface TrainItem {
   arrivalStationCode: string;
   arrivalTag?: string;
   classes: TrainClassOption[];
-  stops: { station: string; code: string; arr: string; dep: string; halt: string }[];
+  stops: { station: string; code: string; arr: string; dep: string; halt: string; distance?: string }[];
   distance?: string;
   avgSpeed?: string;
   punctuality?: string;
   pantryAvailable?: boolean;
   coaches?: { code: string; label: string; type: string }[];
+  rating?: number;
+  ratingCount?: number;
+  trainType?: string;
+  bannerTag?: string;
+  fastest?: boolean;
+  soldOut?: boolean;
 }
 
 export interface BikeStopItem {
@@ -552,17 +562,34 @@ export const EXPANDED_CORRIDOR_TRAINS: TrainItem[] = [
   }
 ];
 
+import { ALL_CHENNAI_BANGALORE_TRAINS } from './trains/chennaiBangaloreTrains';
+
+export { ALL_CHENNAI_BANGALORE_TRAINS };
+
 // Corridors lookup dictionary: finds trains traveling between origin and destination
 export function getCorridorTrains(src: string, dest: string): TrainItem[] {
   const s = src.toLowerCase().trim();
   const d = dest.toLowerCase().trim();
 
-  // 1. Chennai <-> Katpadi / Vellore / Bangalore route
+  // 1. Chennai <-> Bangalore / Bengaluru corridor (User specific detailed schedule)
+  const isChennaiBangalore =
+    (s.includes('chennai') || s.includes('mas') || s.includes('perambur') || s.includes('per') || s.includes('ms')) &&
+    (d.includes('bengaluru') || d.includes('bangalore') || d.includes('sbc') || d.includes('smvb') || d.includes('ypr') || d.includes('bnc'));
+
+  const isBangaloreChennai =
+    (s.includes('bengaluru') || s.includes('bangalore') || s.includes('sbc') || s.includes('smvb') || s.includes('ypr') || s.includes('bnc')) &&
+    (d.includes('chennai') || d.includes('mas') || d.includes('perambur') || d.includes('per') || d.includes('ms'));
+
+  if (isChennaiBangalore || isBangaloreChennai) {
+    return ALL_CHENNAI_BANGALORE_TRAINS;
+  }
+
+  // 2. Chennai <-> Katpadi / Vellore
   const isChennaiToVellore =
     (s.includes('chennai') || s.includes('mas') || s.includes('ms') || s.includes('perambur') || s.includes('tbm')) &&
-    (d.includes('katpadi') || d.includes('vellore') || d.includes('kpd') || d.includes('vlr') || d.includes('bengaluru') || d.includes('bangalore') || d.includes('mys'));
+    (d.includes('katpadi') || d.includes('vellore') || d.includes('kpd') || d.includes('vlr') || d.includes('mys'));
 
-  // 2. Chennai <-> Vijayawada / Andhra / Kolkata route
+  // 3. Chennai <-> Vijayawada / Andhra / Kolkata route
   const isChennaiToVijayawada =
     (s.includes('chennai') || s.includes('mas') || s.includes('ms') || s.includes('tbm')) &&
     (d.includes('vijayawada') || d.includes('bza') || d.includes('guntur') || d.includes('vizag') || d.includes('visakhapatnam') || d.includes('nellore') || d.includes('howrah'));
@@ -571,11 +598,11 @@ export function getCorridorTrains(src: string, dest: string): TrainItem[] {
     return EXPANDED_CORRIDOR_TRAINS;
   }
   if (isChennaiToVellore) {
-    return INITIAL_TRAINS;
+    return [...ALL_CHENNAI_BANGALORE_TRAINS, ...INITIAL_TRAINS];
   }
 
   // Generic directional match: check if train stops cover src and dest in order
-  const allKnown = [...INITIAL_TRAINS, ...EXPANDED_CORRIDOR_TRAINS];
+  const allKnown = [...ALL_CHENNAI_BANGALORE_TRAINS, ...INITIAL_TRAINS, ...EXPANDED_CORRIDOR_TRAINS];
   const matched = allKnown.filter(t => {
     const srcIndex = t.stops.findIndex(st => st.station.toLowerCase().includes(s) || st.code.toLowerCase().includes(s));
     const destIndex = t.stops.findIndex(st => st.station.toLowerCase().includes(d) || st.code.toLowerCase().includes(d));

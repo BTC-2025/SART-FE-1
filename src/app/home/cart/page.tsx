@@ -35,10 +35,20 @@ export default function CartPage() {
   const [selectedAddress, setSelectedAddress] = useState<string>('addr_1');
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [isAddingAddress, setIsAddingAddress] = useState(false);
-  const [addressDetails, setAddressDetails] = useState({
+  const [addressDetails, setAddressDetails] = useState<{
+    id?: string;
+    name: string;
+    addressLine: string;
+    phone: string;
+  } | null>({
     name: 'P. Vasanth Kumar',
     addressLine: 'East street, near lord Ganesh temple, Patur, Kovur, Sri Potti Sriramulu Nellore District, Sri Potti Sriramulu Nellore District, Andhra Pradesh, 524137',
     phone: '9032932985'
+  });
+  const [newAddressForm, setNewAddressForm] = useState({
+    name: '',
+    addressLine: '',
+    phone: ''
   });
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
 
@@ -55,6 +65,50 @@ export default function CartPage() {
     lat: number;
     lng: number;
   }
+
+  // Load address from backend on mount or when userSession changes
+  useEffect(() => {
+    const fetchBackendAddress = async () => {
+      try {
+        const token = userSession?.token || (typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('sart_user_session') || '{}')?.token : null);
+        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const res = await fetch('http://localhost:5000/api/user/addresses', { headers });
+        if (res.ok) {
+          const result = await res.json();
+          if (result && result.success && Array.isArray(result.data) && result.data.length > 0) {
+            const defaultAddr = result.data.find((a: any) => a.isDefault) || result.data[0];
+            setAddressDetails({
+              id: defaultAddr.id,
+              name: defaultAddr.name,
+              addressLine: defaultAddr.addressLine,
+              phone: defaultAddr.phone
+            });
+            localStorage.setItem('sart_saved_delivery_address', JSON.stringify(defaultAddr));
+            return;
+          }
+        }
+      } catch (err) {
+        // Fallback to local storage if offline/backend unreachable
+      }
+
+      // Check localStorage if backend returned empty or was unreachable
+      try {
+        const cached = localStorage.getItem('sart_saved_delivery_address');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.name) {
+            setAddressDetails(parsed);
+          } else if (parsed === null) {
+            setAddressDetails(null);
+          }
+        }
+      } catch (e) { }
+    };
+
+    fetchBackendAddress();
+  }, [userSession]);
 
   const [savedAddresses, setSavedAddresses] = useState<UserAddressItem[]>([
     {
@@ -783,40 +837,91 @@ export default function CartPage() {
                     </div>
 
                     {/* Selected Address Card */}
-                    <div className={`checkout-address-box ${selectedAddress === 'addr_1' ? 'selected' : ''}`}>
-                      <div className="address-box-top">
-                        <div className="address-radio-label">
-                          <span className="address-custom-radio checked"></span>
-                          <h3 className="address-user-name">{addressDetails.name}</h3>
+                    {addressDetails ? (
+                      <div className={`checkout-address-box ${selectedAddress === 'addr_1' ? 'selected' : ''}`}>
+                        <div className="address-box-top">
+                          <div className="address-radio-label">
+                            <span className="address-custom-radio checked"></span>
+                            <h3 className="address-user-name">{addressDetails.name}</h3>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <button
+                              type="button"
+                              className="address-edit-btn"
+                              onClick={() => setIsEditingAddress(true)}
+                            >
+                              EDIT
+                            </button>
+                            <button
+                              type="button"
+                              className="address-edit-btn"
+                              style={{ color: '#ef4444' }}
+                              onClick={async () => {
+                                if (confirm('Are you sure you want to permanently delete this address?')) {
+                                  const addrId = addressDetails.id;
+                                  setAddressDetails(null);
+                                  setIsEditingAddress(false);
+                                  localStorage.removeItem('sart_saved_delivery_address');
+
+                                  // Call backend API to permanently delete from database
+                                  try {
+                                    const token = userSession?.token || (typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('sart_user_session') || '{}')?.token : null);
+                                    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                                    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+                                    if (addrId) {
+                                      await fetch(`http://localhost:5000/api/user/addresses/${addrId}`, {
+                                        method: 'DELETE',
+                                        headers
+                                      });
+                                    }
+                                  } catch (err) { }
+
+                                  showToast('Address permanently deleted.');
+                                }
+                              }}
+                              title="Delete address"
+                            >
+                              DELETE
+                            </button>
+                          </div>
                         </div>
+
+                        <p className="address-text-body">
+                          {addressDetails.addressLine}
+                        </p>
+
+                        <p className="address-phone-number">
+                          {addressDetails.phone}
+                        </p>
+
                         <button
                           type="button"
-                          className="address-edit-btn"
-                          onClick={() => setIsEditingAddress(true)}
+                          className="btn-deliver-address-action"
+                          onClick={handleProceedToPayment}
                         >
-                          EDIT
+                          Deliver to this Address
                         </button>
                       </div>
-
-                      <p className="address-text-body">
-                        {addressDetails.addressLine}
-                      </p>
-
-                      <p className="address-phone-number">
-                        {addressDetails.phone}
-                      </p>
-
-                      <button
-                        type="button"
-                        className="btn-deliver-address-action"
-                        onClick={handleProceedToPayment}
-                      >
-                        Deliver to this Address
-                      </button>
-                    </div>
+                    ) : (
+                      <div style={{ padding: '24px', background: '#f8fafc', border: '1.5px dashed #cbd5e1', borderRadius: '12px', textAlign: 'center', margin: '12px 0' }}>
+                        <i className="fa-solid fa-location-dot" style={{ fontSize: '28px', color: '#94a3b8', marginBottom: '8px' }}></i>
+                        <p style={{ margin: '0 0 10px', fontSize: '13.5px', color: '#64748b', fontWeight: 600 }}>
+                          No delivery address selected. Please add an address to continue.
+                        </p>
+                        <button
+                          type="button"
+                          className="checkout-add-action-btn"
+                          style={{ margin: '0 auto', display: 'inline-flex' }}
+                          onClick={() => setIsAddingAddress(true)}
+                        >
+                          + ADD NEW ADDRESS
+                        </button>
+                      </div>
+                    )}
 
                     {/* Modal / Form for editing address if triggered */}
-                    {isEditingAddress && (
+                    {isEditingAddress && addressDetails && (
                       <div className="address-edit-inline-form">
                         <h4 style={{ margin: '0 0 10px', fontSize: '13px', fontWeight: 800 }}>Edit Delivery Address</h4>
                         <input
@@ -847,8 +952,37 @@ export default function CartPage() {
                             type="button"
                             className="btn-deliver-address-action"
                             style={{ width: 'auto', padding: '6px 16px' }}
-                            onClick={() => {
+                            onClick={async () => {
                               setIsEditingAddress(false);
+                              localStorage.setItem('sart_saved_delivery_address', JSON.stringify(addressDetails));
+
+                              // Sync with backend API
+                              try {
+                                const token = userSession?.token || (typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('sart_user_session') || '{}')?.token : null);
+                                const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                                if (token) headers['Authorization'] = `Bearer ${token}`;
+
+                                if (addressDetails.id) {
+                                  await fetch(`http://localhost:5000/api/user/addresses/${addressDetails.id}`, {
+                                    method: 'PUT',
+                                    headers,
+                                    body: JSON.stringify(addressDetails)
+                                  });
+                                } else {
+                                  const res = await fetch('http://localhost:5000/api/user/addresses', {
+                                    method: 'POST',
+                                    headers,
+                                    body: JSON.stringify(addressDetails)
+                                  });
+                                  if (res.ok) {
+                                    const r = await res.json();
+                                    if (r?.data?.id) {
+                                      setAddressDetails(prev => prev ? { ...prev, id: r.data.id } : null);
+                                    }
+                                  }
+                                }
+                              } catch (e) { }
+
                               showToast('Address updated.');
                             }}
                           >
@@ -858,6 +992,95 @@ export default function CartPage() {
                             type="button"
                             className="btn-back-to-cart"
                             onClick={() => setIsEditingAddress(false)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Modal / Form for adding a new address when clicking + ADD NEW ADDRESS */}
+                    {isAddingAddress && (
+                      <div className="address-edit-inline-form" style={{ marginTop: '16px', borderTop: '2px dashed #cbd5e1' }}>
+                        <h4 style={{ margin: '0 0 10px', fontSize: '13px', fontWeight: 800, color: '#8b1d7b' }}>
+                          + Add New Delivery Address
+                        </h4>
+                        <input
+                          type="text"
+                          className="checkout-input"
+                          placeholder="Full Name (e.g. John Doe)"
+                          value={newAddressForm.name}
+                          onChange={(e) => setNewAddressForm({ ...newAddressForm, name: e.target.value })}
+                          style={{ marginBottom: '8px' }}
+                        />
+                        <textarea
+                          className="checkout-textarea"
+                          placeholder="Complete Address (House/Flat No, Landmark, City, State, Pincode)"
+                          value={newAddressForm.addressLine}
+                          onChange={(e) => setNewAddressForm({ ...newAddressForm, addressLine: e.target.value })}
+                          style={{ marginBottom: '8px' }}
+                        />
+                        <input
+                          type="text"
+                          className="checkout-input"
+                          placeholder="10-digit Mobile Number"
+                          value={newAddressForm.phone}
+                          onChange={(e) => setNewAddressForm({ ...newAddressForm, phone: e.target.value })}
+                          style={{ marginBottom: '10px' }}
+                        />
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button
+                            type="button"
+                            className="btn-deliver-address-action"
+                            style={{ width: 'auto', padding: '6px 16px' }}
+                            onClick={async () => {
+                              if (!newAddressForm.name.trim() || !newAddressForm.addressLine.trim() || !newAddressForm.phone.trim()) {
+                                showToast('Please fill out name, address, and mobile number.');
+                                return;
+                              }
+                              const payload = {
+                                name: newAddressForm.name.trim(),
+                                addressLine: newAddressForm.addressLine.trim(),
+                                phone: newAddressForm.phone.trim()
+                              };
+
+                              setAddressDetails(payload);
+                              setIsAddingAddress(false);
+                              setNewAddressForm({ name: '', addressLine: '', phone: '' });
+                              localStorage.setItem('sart_saved_delivery_address', JSON.stringify(payload));
+
+                              // Save to backend database API
+                              try {
+                                const token = userSession?.token || (typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('sart_user_session') || '{}')?.token : null);
+                                const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                                if (token) headers['Authorization'] = `Bearer ${token}`;
+
+                                const res = await fetch('http://localhost:5000/api/user/addresses', {
+                                  method: 'POST',
+                                  headers,
+                                  body: JSON.stringify(payload)
+                                });
+                                if (res.ok) {
+                                  const r = await res.json();
+                                  if (r?.data?.id) {
+                                    setAddressDetails(prev => prev ? { ...prev, id: r.data.id } : null);
+                                    localStorage.setItem('sart_saved_delivery_address', JSON.stringify({ ...payload, id: r.data.id }));
+                                  }
+                                }
+                              } catch (e) { }
+
+                              showToast('New address added & selected.');
+                            }}
+                          >
+                            Save & Deliver Here
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-back-to-cart"
+                            onClick={() => {
+                              setIsAddingAddress(false);
+                              setNewAddressForm({ name: '', addressLine: '', phone: '' });
+                            }}
                           >
                             Cancel
                           </button>

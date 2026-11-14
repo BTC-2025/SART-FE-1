@@ -994,6 +994,7 @@ export default function RideBookingView({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  marginTop: '2px',
                   gap: '8px',
                   background: '#2a1373',
                   color: '#ffffff',

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import './FlightBookingView.css';
 import {
   FlightItem,
@@ -31,9 +31,36 @@ export default function FlightBookingView({
     return `${String(now.getDate()).padStart(2, '0')} ${months[now.getMonth()]}, ${now.getFullYear()}`;
   }, [dateOfJourney]);
   // Master list generated for the currently searched corridor
-  const rawFlights = useMemo(() => {
-    return getFlightsForRoute(source, destination);
-  }, [source, destination]);
+  const [flightsList, setFlightsList] = useState<FlightItem[]>(() => getFlightsForRoute(source, destination));
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchFlights = async () => {
+      try {
+        const cleanSrc = source.replace(/\s*-\s*[A-Z0-9]+$/i, '').trim();
+        const cleanDst = destination.replace(/\s*-\s*[A-Z0-9]+$/i, '').trim();
+        const dateQuery = dateOfJourney || new Date().toISOString().split('T')[0];
+
+        const res = await fetch(`http://localhost:5000/api/flights/search?origin=${encodeURIComponent(cleanSrc)}&destination=${encodeURIComponent(cleanDst)}&date=${encodeURIComponent(dateQuery)}`);
+        if (res.ok) {
+          const result = await res.json();
+          if (isMounted && result && result.success && Array.isArray(result.data) && result.data.length > 0) {
+            setFlightsList(result.data);
+            return;
+          }
+        }
+      } catch (e) { }
+
+      if (isMounted) {
+        setFlightsList(getFlightsForRoute(source, destination));
+      }
+    };
+
+    fetchFlights();
+    return () => { isMounted = false; };
+  }, [source, destination, dateOfJourney]);
+
+  const rawFlights = flightsList;
 
   // Selected date carousel tab
   const [selectedDateIdx, setSelectedDateIdx] = useState(0);

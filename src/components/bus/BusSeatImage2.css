@@ -1,0 +1,577 @@
+/* Complete Bus Seat Selection & Modal Styles matching Images 1, 2, 3, 4 */
+
+.bb-modal-two-col-layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 450px) 1fr;
+  gap: 20px;
+  padding: 16px 20px;
+  background: #f8fafc;
+  border-radius: 16px;
+  font-family: inherit;
+  color: #0f172a;
+}
+
+@media (max-width: 960px) {
+  .bb-modal-two-col-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =================== LEFT COLUMN: DECKS & SEATS =================== */
+.bb-deck-container-exact {
+  height: 540px;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  overflow-x: auto;
+}
+
+.bb-deck-card-exact {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+  min-width: 195px;
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-deck-header-exact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.bb-deck-title-exact {
+  margin-left: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.bb-steering-wheel-exact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+}
+
+.bb-bus-body-frame {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 12px 8px;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bb-sleeper-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bb-pairs-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bb-seat-pair-row {
+  display: flex;
+  gap: 6px;
+}
+
+.bb-seat-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  user-select: none;
+}
+
+/* Sleeper Box (Image 1 & Image 3) */
+.bb-sleeper-box {
+  width: 36px;
+  height: 94px;
+  border-radius: 6px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+}
+
+.bb-sleeper-box.available {
+  border: 1.6px solid #16a34a;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.bb-sleeper-box.available:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(22, 163, 74, 0.15);
+}
+
+.bb-sleeper-box.available .bb-sleeper-pillow {
+  position: absolute;
+  bottom: 4px;
+  width: 24px;
+  height: 5px;
+  border-radius: 3px;
+  background: #d1fae5;
+}
+
+/* Selected Sleeper (Image 1 Checkmark) */
+.bb-sleeper-box.selected {
+  border: 2px solid #059669;
+  background: #ecfdf5;
+  cursor: pointer;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+}
+
+.bb-sleeper-box.selected .bb-check-glyph {
+  color: #059669;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Sold Sleeper */
+.bb-sleeper-box.sold {
+  border: 1px solid #e2e8f0;
+  background: #edf2f7;
+  cursor: not-allowed;
+}
+
+/* Toilet Cubicle Box (Image 3) */
+.bb-toilet-box {
+  width: 36px;
+  height: 68px;
+  border-radius: 6px;
+  border: 1.5px dashed #3b82f6;
+  background: #eff6ff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  box-sizing: border-box;
+}
+
+.bb-toilet-text {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #1d4ed8;
+  letter-spacing: -0.2px;
+}
+
+.bb-sleeper-box.sold.women-sold {
+  border: 1px solid #fce7f3;
+  background: #fdf2f8;
+}
+
+.bb-sleeper-box.sold .bb-cross-glyph {
+  color: #93c5fd;
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.bb-sleeper-box.sold.women-sold .bb-cross-glyph {
+  color: #f472b6;
+}
+
+/* Seater Box (Image 1 & Image 3) */
+.bb-seater-box {
+  width: 34px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.bb-seater-box.available {
+  cursor: pointer;
+}
+
+.bb-seater-box.available:hover {
+  transform: translateY(-1px);
+}
+
+.bb-seater-box.selected {
+  cursor: pointer;
+}
+
+.bb-seater-box.sold {
+  cursor: not-allowed;
+}
+
+/* Seat Labels below */
+.bb-seat-price-sub {
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  margin-top: 3px;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.bb-seat-price-sub.selected {
+  color: #059669;
+  font-weight: 700;
+}
+
+.bb-seat-sold-sub {
+  font-size: 11px;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-top: 3px;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.bb-seat-sold-sub.women-sold {
+  color: #f472b6;
+}
+
+/* =================== RIGHT COLUMN: BUS DETAILS & GALLERY (Image 3) =================== */
+.bb-modal-right-col {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Header Info */
+.bb-right-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.bb-right-operator-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bb-primo-badge {
+  color: #1e3a8a;
+  font-style: italic;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.bb-right-route-time {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+.bb-right-bus-type {
+  font-size: 13px;
+  color: #475569;
+  margin-top: 2px;
+}
+
+.bb-right-rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #15803d;
+  color: #ffffff;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bb-right-reviews-count {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+  text-align: right;
+}
+
+/* Photos Carousel (Image 3) */
+.bb-bus-photos-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.bb-bus-photo-card {
+  width: 170px;
+  height: 100px;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+}
+
+.bb-bus-photo-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.bb-bus-photo-card:hover img {
+  transform: scale(1.05);
+}
+
+/* Sub-tabs Bar (Image 3) */
+.bb-right-subtabs-bar {
+  display: flex;
+  gap: 16px;
+  border-bottom: 1.5px solid #e2e8f0;
+  padding-bottom: 8px;
+  overflow-x: auto;
+}
+
+.bb-right-subtab-btn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px 2px;
+  position: relative;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.bb-right-subtab-btn.active {
+  color: #dc2626;
+  border-bottom: 2px solid #dc2626;
+  margin-bottom: -9.5px;
+}
+
+/* Highlights Grid (Image 3 Cards) */
+.bb-highlights-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.bb-hl-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bb-hl-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.bb-hl-sub {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.bb-exclusive-discount-banner {
+  background: #fefce8;
+  border: 1.5px solid #fde047;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bb-discount-badge {
+  background: #facc15;
+  color: #713f12;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+.bb-discount-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #854d0e;
+}
+
+/* =================== CHECKOUT FOOTER (Image 2) =================== */
+.bb-exact-checkout-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  margin-top: 10px;
+}
+
+.bb-exact-chips-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bb-exact-seats-title {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.bb-exact-chips-list {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Image 2 Chip Style: [ L-S4A • ₹444 ✕ ] */
+.bb-exact-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bb-exact-chip-remove {
+  background: none;
+  border: none;
+  color: #15803d;
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+.bb-exact-chip-remove:hover {
+  color: #b91c1c;
+}
+
+.bb-exact-fare-cta-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bb-exact-total-fare {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.bb-exact-continue-btn {
+  background: #16a34a;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bb-exact-continue-btn:hover:not(:disabled) {
+  background: #15803d;
+}
+
+.bb-exact-continue-btn:disabled {
+  background: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* =================== CONFIRMATION SCREEN (Image 4) =================== */
+.bb-img4-confirmed-view {
+  background: #ffffff;
+  padding: 24px 30px;
+  border-radius: 16px;
+}
+
+.bb-img4-header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.bb-img4-check-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #0f172a;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.bb-img4-cnf-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.bb-img4-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 14px;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.bb-img4-details-list strong {
+  color: #0f172a;
+}
+
+.bb-img4-done-btn {
+  margin-top: 24px;
+  background: #2a085c;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 32px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.bb-img4-done-btn:hover {
+  background: #3b0764;
+}
