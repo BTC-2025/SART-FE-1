@@ -229,3 +229,4 @@ export default function TrainScheduleModal({ train, onClose }: TrainScheduleModa
     </div>
   );
 }
+
