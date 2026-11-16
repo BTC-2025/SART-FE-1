@@ -60,7 +60,7 @@ export default function TrainPassengerDetailsModal({
   const [showErsPdfModal, setShowErsPdfModal] = useState(false);
 
   // Form state matching image 1
-  const [boardingStation, setBoardingStation] = useState(source || 'Perambur (PER)');
+  const [boardingStation, setBoardingStation] = useState(source || 'Type station name');
   const [isStationDropdownOpen, setIsStationDropdownOpen] = useState(false);
   const [stationSearchQuery, setStationSearchQuery] = useState('');
   const stationDropdownRef = useRef<HTMLDivElement>(null);
@@ -112,7 +112,6 @@ export default function TrainPassengerDetailsModal({
   const [currentAge, setCurrentAge] = useState('');
   const [currentNationality, setCurrentNationality] = useState('India');
   const [currentBerth, setCurrentBerth] = useState<'No Preference' | 'Lower' | 'Middle' | 'Upper' | 'Side Lower' | 'Side Upper'>('No Preference');
-  const [currentCatering, setCurrentCatering] = useState('Veg Food');
 
   const handleAddPassenger = () => {
     if (!currentName.trim()) return;
@@ -122,7 +121,6 @@ export default function TrainPassengerDetailsModal({
       gender: currentGender,
       nationality: currentNationality,
       berthPreference: currentBerth,
-      cateringOption: currentCatering
     };
     setPassengersList([...passengersList, newPax]);
     setCurrentName('');
@@ -130,7 +128,6 @@ export default function TrainPassengerDetailsModal({
     setCurrentBerth('No Preference');
     setCurrentGender('Male');
     setCurrentNationality('India');
-    setCurrentCatering('Veg Food');
   };
 
   const handleRemovePassenger = (idx: number) => {
@@ -748,30 +745,7 @@ export default function TrainPassengerDetailsModal({
                   </button>
                 </div>
 
-                {/* Catering Service Option Row */}
-                <div style={{ marginBottom: '14px', maxWidth: '240px' }}>
-                  <select
-                    value={currentCatering}
-                    onChange={(e) => setCurrentCatering(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '7px 12px',
-                      borderRadius: '4px',
-                      border: '1.5px solid #cbd5e1',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      color: '#0f172a',
-                      outline: 'none',
-                      background: '#ffffff',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <option value="Catering Service Option*">Catering Service Option*</option>
-                    <option value="Veg Food">Veg Food</option>
-                    <option value="Non-Veg Food">Non-Veg Food</option>
-                    <option value="No Food">No Food</option>
-                  </select>
-                </div>
+
 
                 {/* Bottom Action Links matching Image 2 */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '8px' }}>
@@ -1090,24 +1064,36 @@ export default function TrainPassengerDetailsModal({
                 </div>
               </div>
 
-              {/* Bottom Sticky Total and Proceed Button */}
+              {/* Bottom Right Actions: Back and Continue Buttons */}
               <div style={{
-                background: '#ffffff',
-                borderRadius: '12px',
-                padding: '16px 20px',
-                border: '1px solid #e2e8f0',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
+                justifyContent: 'flex-end',
+                gap: '12px',
+                marginTop: '16px',
+                marginBottom: '8px'
               }}>
-                <div>
-                  <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Total Payable ({passengersList.length} Pax)</div>
-                  <div style={{ fontSize: '24px', fontWeight: 900, color: '#0f172a' }}>
-                    ₹{totalPayable.toLocaleString('en-IN')}
-                  </div>
-                </div>
+                {/* Back Button */}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  style={{
+                    background: '#f8fafc',
+                    color: '#0f172a',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '4px',
+                    padding: '8px 22px',
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  Back
+                </button>
 
+                {/* Continue Button */}
                 <button
                   type="button"
                   onClick={() => {
@@ -1131,7 +1117,7 @@ export default function TrainPassengerDetailsModal({
                       onPassengerChange(finalList[0]);
                     }
 
-                    // Save pending booking details in localStorage for the dedicated payment page
+                    // Save pending booking details in localStorage for the review & payment pages
                     const pendingBooking = {
                       trainName,
                       trainNumber,
@@ -1160,28 +1146,27 @@ export default function TrainPassengerDetailsModal({
                       console.error('Error saving pending booking', e);
                     }
 
-                    // Redirect to dedicated payment page
-                    router.push('/home/ride/train/passenger-details/payment');
+                    // Navigate to review booking page
+                    router.push('/home/ride/train/passenger-details/reviewBooking');
                   }}
                   style={{
-                    background: '#2a1373',
+                    background: '#f97316',
                     color: '#ffffff',
                     border: 'none',
-                    padding: '12px 28px',
-                    borderRadius: '8px',
+                    borderRadius: '6px',
+                    padding: '8px 26px',
                     fontSize: '14px',
                     fontWeight: 800,
                     cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    boxShadow: '0 4px 12px rgba(42, 19, 115, 0.3)'
+                    boxShadow: '0 2px 6px rgba(249, 115, 22, 0.35)',
+                    transition: 'all 0.15s ease'
                   }}
                 >
-                  <i className="fa-solid fa-lock"></i>
-                  Pay & Confirm
+                  Continue
                 </button>
               </div>
+
+
             </>
           )}
         </div>
