@@ -11,6 +11,7 @@ import { bookingsApiClient, governmentTransitApi, BackendBooking } from '../../s
 import { GlobalBookingDetailModal } from './GlobalBookingDetailModal';
 import TrainTicketPdfModal, { TrainTicketModalData } from '../trains/TrainTicketPdfModal';
 import { BookingCardItem } from './BookingCardItem';
+import { TrainPnrStatusEnquiry } from '../trains/TrainPnrStatusEnquiry';
 
 export default function BookingsTab() {
   const pathname = usePathname();
@@ -407,110 +408,173 @@ export default function BookingsTab() {
 
           {/* TRACKING UI */}
           <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: '40px' }}>
-            <div style={{ width: '100%', maxWidth: '900px' }}>
+            <div style={{ width: '100%', maxWidth: '1000px' }}>
               {trackedBooking ? (
-                <div className="tracking-result-screen" style={{ width: '100%' }}>
-                  <div className="tracking-result-header">
-                    <button className="back-btn" onClick={() => setTrackedBooking(null)}>
-                      <i className="fa-solid fa-arrow-left"></i>
-                    </button>
-                    <div>
-                      <h4 className="tracking-subtitle">TRACKING RESULT</h4>
-                      <h2 className="tracking-title">{trackedBooking.title} - {trackedBooking.number}</h2>
-                      <p className="tracking-route">
-                        {trackedBooking.source} <i className="fa-solid fa-arrow-right"></i> {trackedBooking.destination}
-                      </p>
-                    </div>
-                  </div>
+                trackedBooking.type === 'train' || trackedBooking.title?.toLowerCase().includes('exp') || trackedBooking.title?.toLowerCase().includes('shatabdi') || Boolean(trackedBooking.number?.match(/^\d{5}$/)) ? (
+                  <TrainPnrStatusEnquiry
+                    booking={trackedBooking}
+                    onBack={() => setTrackedBooking(null)}
+                    onDownloadTicket={() => {
+                      let extra: any = {};
+                      try {
+                        if (trackedBooking.extraData) extra = typeof trackedBooking.extraData === 'string' ? JSON.parse(trackedBooking.extraData) : trackedBooking.extraData;
+                      } catch (e) { }
 
-                  <div className="timeline-card" style={{ marginTop: '24px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                      <div>
-                        <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>Status</p>
-                        <h3 style={{ margin: '4px 0 0 0', color: '#10b981', fontSize: '18px' }}>{trackedBooking.statusText}</h3>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>PNR / Booking ID</p>
-                        <h4 style={{ margin: '4px 0 0 0', fontSize: '16px' }}>{trackedBooking.pnr || trackedBooking.bookingId}</h4>
-                      </div>
-                    </div>
+                      const paxList = trackedBooking.passengers || extra.passengers || extra.allPassengers || [];
+                      const coach = trackedBooking.coach || extra.coach || 'C1';
+                      const startBerth = Number(trackedBooking.berthNo || extra.berthNo || 36);
 
-                    <div style={{ display: 'flex', gap: '24px', borderTop: '1px solid #e2e8f0', paddingTop: '16px', flexWrap: 'wrap' }}>
-                      <div style={{ flex: '1 1 45%' }}>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Departure</p>
-                        <p style={{ margin: '4px 0 0 0', fontWeight: 'bold' }}>{trackedBooking.sourceTime}, {trackedBooking.sourceDate}</p>
-                        <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>{trackedBooking.sourceCode} - {trackedBooking.sourcePlatform || 'Main Terminal'}</p>
-                      </div>
-                      <div style={{ flex: '1 1 45%' }}>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Arrival</p>
-                        <p style={{ margin: '4px 0 0 0', fontWeight: 'bold' }}>{trackedBooking.destinationTime}, {trackedBooking.destinationDate}</p>
-                        <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>{trackedBooking.destinationCode} - {trackedBooking.destinationPlatform || 'Main Terminal'}</p>
-                      </div>
-                    </div>
+                      const paxFormatted = paxList.length > 0
+                        ? paxList.map((p: any, i: number) => ({
+                          name: p.name || trackedBooking.passengerName || 'PASSENGER',
+                          age: p.age || 28,
+                          gender: p.gender || 'Male',
+                          bookingStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`,
+                          currentStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`
+                        }))
+                        : [{
+                          name: trackedBooking.passengerName || 'PASSENGER',
+                          age: 28,
+                          gender: 'Male',
+                          bookingStatus: `CNF/${coach}/${startBerth}/NC`,
+                          currentStatus: `CNF/${coach}/${startBerth}/NC`
+                        }];
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', borderTop: '1px solid #e2e8f0', paddingTop: '16px', marginTop: '16px' }}>
-                      <div>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Passenger Name</p>
-                        <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>{trackedBooking.passengerName}</p>
-                      </div>
-                      <div>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Seat / Allocation</p>
-                        <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>{trackedBooking.seatStatus}</p>
-                      </div>
-                      <div>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Travel Class</p>
-                        <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>Economy / General</p>
-                      </div>
-                      <div>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Baggage Allowance</p>
-                        <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>15 Kg (Check-in)</p>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                      <button style={{ flex: 1, padding: '10px', background: '#f97316', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <i className="fa-solid fa-download"></i> Download Ticket
+                      setSelectedTicketForPdf({
+                        pnr: trackedBooking.pnr || extra.pnr || `${Math.floor(1000000000 + Math.random() * 9000000000)}`,
+                        trainNumber: extra.trainNumber || trackedBooking.number?.replace(/\D/g, '') || '12007',
+                        trainName: extra.trainName || trackedBooking.title?.replace(/\(\d+\)/, '').trim() || 'Mas Mys Shatabdi',
+                        classCode: trackedBooking.classCode || extra.classCode || trackedBooking.subType || 'CC',
+                        source: extra.source || trackedBooking.source || 'Mgr Chennai Ctl (MAS)',
+                        sourceCode: extra.sourceCode || trackedBooking.sourceCode || 'MAS',
+                        sourceTime: extra.sourceTime || trackedBooking.sourceTime || '06:00 AM',
+                        sourceDate: extra.dateOfJourney || trackedBooking.sourceDate || '16 Nov, 2026',
+                        destination: extra.destination || trackedBooking.destination || 'Ksr Bengaluru (SBC)',
+                        destinationCode: extra.destinationCode || trackedBooking.destinationCode || 'SBC',
+                        destinationTime: extra.destinationTime || trackedBooking.destinationTime || '10:30 AM',
+                        destinationDate: extra.destinationDate || trackedBooking.destinationDate || trackedBooking.sourceDate || '16 Nov, 2026',
+                        boardingStation: extra.boardingStation || trackedBooking.boardingStation || trackedBooking.source || 'Mgr Chennai Ctl (MAS)',
+                        departureTime: extra.departureTime || trackedBooking.sourceTime || '06:00 AM',
+                        departureDate: extra.dateOfJourney || trackedBooking.sourceDate || '16 Nov, 2026',
+                        bookingDate: extra.dateOfJourney ? `${extra.dateOfJourney} | 07:05PM` : `${trackedBooking.sourceDate} 07:05 PM`,
+                        transactionId: trackedBooking.txnId || extra.txnId || extra.paymentDetails?.txnId || `${Date.now()}${Math.floor(10 + Math.random() * 90)}`,
+                        passengers: paxFormatted,
+                        fare: Number(extra.fare || (trackedBooking.transactionAmount ? (trackedBooking.transactionAmount - 12.7) : 1055)),
+                        convenienceFee: 11.80,
+                        insurancePremium: 0.90,
+                        totalFare: Number(trackedBooking.transactionAmount || extra.paymentDetails?.amount || 1067.25),
+                        autoPrint: false
+                      });
+                    }}
+                    onViewSchedule={() => {
+                      const tNum = trackedBooking.number?.replace(/\D/g, '') || '12007';
+                      router.push(`/home/ride/train/${tNum}`);
+                    }}
+                  />
+                ) : (
+                  <div className="tracking-result-screen" style={{ width: '100%', paddingLeft: '40px', paddingRight: '40px', boxSizing: 'border-box' }}>
+                    <div className="tracking-result-header">
+                      <button className="back-btn" onClick={() => setTrackedBooking(null)}>
+                        <i className="fa-solid fa-arrow-left"></i>
                       </button>
-                      <button
-                        onClick={() => {
-                          if (navigator.share) {
-                            navigator.share({
-                              title: `${trackedBooking.title} Status`,
-                              text: `Check out my journey status for ${trackedBooking.title} (${trackedBooking.number}) from ${trackedBooking.source} to ${trackedBooking.destination}. Status: ${trackedBooking.statusText}`,
-                              url: window.location.href,
-                            }).catch(console.error);
-                          } else {
-                            alert(`Sharing Status:\n${trackedBooking.title} (${trackedBooking.number})\n${trackedBooking.source} to ${trackedBooking.destination}\nStatus: ${trackedBooking.statusText}`);
-                          }
-                        }}
-                        style={{ flex: 1, padding: '10px', background: '#e2e8f0', color: '#334155', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                      >
-                        <i className="fa-solid fa-share-nodes"></i> Share Status
-                      </button>
+                      <div>
+                        <h4 className="tracking-subtitle">TRACKING RESULT</h4>
+                        <h2 className="tracking-title">{trackedBooking.title} - {trackedBooking.number}</h2>
+                        <p className="tracking-route">
+                          {trackedBooking.source} <i className="fa-solid fa-arrow-right"></i> {trackedBooking.destination}
+                        </p>
+                      </div>
                     </div>
 
-                    {trackedBooking.stops && trackedBooking.stops.length > 0 && (
-                      <div style={{ marginTop: '24px', padding: '16px', background: '#f8fafc', borderRadius: '8px' }}>
-                        <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#334155' }}>Live Journey Details</h4>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                          {trackedBooking.stops.map((stop, idx) => (
-                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                              <div style={{
-                                width: '12px', height: '12px', borderRadius: '50%',
-                                background: stop.status === 'past' ? '#cbd5e1' : stop.status === 'current' ? '#3b82f6' : '#fff',
-                                border: `2px solid ${stop.status === 'future' ? '#cbd5e1' : (stop.status === 'current' ? '#3b82f6' : '#cbd5e1')}`
-                              }}></div>
-                              <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ fontSize: '14px', color: stop.status === 'past' ? '#94a3b8' : '#0f172a', fontWeight: stop.status === 'current' ? 'bold' : 'normal' }}>{stop.name}</span>
-                                <span style={{ fontSize: '13px', color: stop.status === 'past' ? '#94a3b8' : '#64748b' }}>{stop.time}</span>
-                              </div>
-                            </div>
-                          ))}
+                    <div className="timeline-card" style={{ marginTop: '24px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+                        <div>
+                          <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>Status</p>
+                          <h3 style={{ margin: '4px 0 0 0', color: '#10b981', fontSize: '18px' }}>{trackedBooking.statusText}</h3>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>PNR / Booking ID</p>
+                          <h4 style={{ margin: '4px 0 0 0', fontSize: '16px' }}>{trackedBooking.pnr || trackedBooking.bookingId}</h4>
                         </div>
                       </div>
-                    )}
+
+                      <div style={{ display: 'flex', gap: '24px', borderTop: '1px solid #e2e8f0', paddingTop: '16px', flexWrap: 'wrap' }}>
+                        <div style={{ flex: '1 1 45%' }}>
+                          <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Departure</p>
+                          <p style={{ margin: '4px 0 0 0', fontWeight: 'bold' }}>{trackedBooking.sourceTime}, {trackedBooking.sourceDate}</p>
+                          <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>{trackedBooking.sourceCode} - {trackedBooking.sourcePlatform || 'Main Terminal'}</p>
+                        </div>
+                        <div style={{ flex: '1 1 45%' }}>
+                          <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Arrival</p>
+                          <p style={{ margin: '4px 0 0 0', fontWeight: 'bold' }}>{trackedBooking.destinationTime}, {trackedBooking.destinationDate}</p>
+                          <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>{trackedBooking.destinationCode} - {trackedBooking.destinationPlatform || 'Main Terminal'}</p>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', borderTop: '1px solid #e2e8f0', paddingTop: '16px', marginTop: '16px' }}>
+                        <div>
+                          <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Passenger Name</p>
+                          <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>{trackedBooking.passengerName}</p>
+                        </div>
+                        <div>
+                          <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Seat / Allocation</p>
+                          <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>{trackedBooking.seatStatus}</p>
+                        </div>
+                        <div>
+                          <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Travel Class</p>
+                          <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>Economy / General</p>
+                        </div>
+                        <div>
+                          <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Baggage Allowance</p>
+                          <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>15 Kg (Check-in)</p>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                        <button style={{ flex: 1, padding: '10px', background: '#f97316', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                          <i className="fa-solid fa-download"></i> Download Ticket
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (navigator.share) {
+                              navigator.share({
+                                title: `${trackedBooking.title} Status`,
+                                text: `Check out my journey status for ${trackedBooking.title} (${trackedBooking.number}) from ${trackedBooking.source} to ${trackedBooking.destination}. Status: ${trackedBooking.statusText}`,
+                                url: window.location.href,
+                              }).catch(console.error);
+                            } else {
+                              alert(`Sharing Status:\n${trackedBooking.title} (${trackedBooking.number})\n${trackedBooking.source} to ${trackedBooking.destination}\nStatus: ${trackedBooking.statusText}`);
+                            }
+                          }}
+                          style={{ flex: 1, padding: '10px', background: '#e2e8f0', color: '#334155', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                        >
+                          <i className="fa-solid fa-share-nodes"></i> Share Status
+                        </button>
+                      </div>
+
+                      {trackedBooking.stops && trackedBooking.stops.length > 0 && (
+                        <div style={{ marginTop: '24px', padding: '16px', background: '#f8fafc', borderRadius: '8px' }}>
+                          <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#334155' }}>Live Journey Details</h4>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {trackedBooking.stops.map((stop, idx) => (
+                              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{
+                                  width: '12px', height: '12px', borderRadius: '50%',
+                                  background: stop.status === 'past' ? '#cbd5e1' : stop.status === 'current' ? '#3b82f6' : '#fff',
+                                  border: `2px solid ${stop.status === 'future' ? '#cbd5e1' : (stop.status === 'current' ? '#3b82f6' : '#cbd5e1')}`
+                                }}></div>
+                                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between' }}>
+                                  <span style={{ fontSize: '14px', color: stop.status === 'past' ? '#94a3b8' : '#0f172a', fontWeight: stop.status === 'current' ? 'bold' : 'normal' }}>{stop.name}</span>
+                                  <span style={{ fontSize: '13px', color: stop.status === 'past' ? '#94a3b8' : '#64748b' }}>{stop.time}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )
               ) : (
                 <>
                   <div style={{ background: '#f0f9ff', maxWidth: '850px', margin: '0 auto', padding: '12px 24px', borderRadius: '16px' }}>
