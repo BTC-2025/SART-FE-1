@@ -195,7 +195,7 @@ export const INITIAL_TRAINS: TrainItem[] = [
     id: '22625',
     number: '22625',
     name: 'Sbc Double Deck',
-    runningDays: 'M T W T F S S',
+    runningDays: 'M - W - F S S',
     departureTime: '07:25 AM',
     departureStation: 'Mgr Chennai Ctl (MAS)',
     departureStationCode: 'MAS',

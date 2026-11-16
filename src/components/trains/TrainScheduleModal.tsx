@@ -17,6 +17,10 @@ export default function TrainScheduleModal({ train, onClose }: TrainScheduleModa
   const isDaily = runningDaysStr.includes('DAILY') || runningDaysStr.replace(/\s+/g, '') === 'MTWTFSS';
 
   const isDayRunning = (dayName: string, index: number) => {
+    // 22625 Sbc Double Deck does NOT run on Tuesday (index 1) and Thursday (index 3)
+    if (train.number === '22625' || train.name.toLowerCase().includes('double deck')) {
+      return index !== 1 && index !== 3;
+    }
     if (isDaily) return true;
     const dayInitial = dayName.charAt(0);
     // Friday specific check from image: if train is 22502, it runs on FRI

@@ -40,6 +40,10 @@ export default function TrainCard({
   const isDaily = runningDaysStr.includes('DAILY') || runningDaysStr.replace(/\s+/g, '') === 'MTWTFSS';
 
   const checkRunsOnDay = (index: number) => {
+    // 22625 Sbc Double Deck: does NOT run on Tuesday (index 1) and Thursday (index 3)
+    if (train.number === '22625' || train.name.toLowerCase().includes('double deck')) {
+      return index !== 1 && index !== 3;
+    }
     if (isDaily) return true;
     if (train.number === '15228' || train.name.includes('MFP')) {
       return index === 2; // Wednesday only as per image
