@@ -366,53 +366,18 @@ export default function TrainSearchBar({
         <div className="tb-field-divider"></div>
 
         {/* Date Field */}
-        <div className="tb-search-field tb-date-field" style={{ flex: '1.2', cursor: 'pointer' }} ref={calendarRef}>
-          <div className="tb-date-trigger-wrap" onClick={toggleCalendarPicker} title="Click to select journey date">
-            <i className="fa-regular fa-calendar-days tb-field-icon tb-cal-icon"></i>
+        <div className="tb-search-field tb-date-field" style={{ flex: '0 0 auto', minWidth: '130px', cursor: 'pointer' }} ref={calendarRef}>
+          <div className="tb-date-trigger-wrap" onClick={toggleCalendarPicker} title="Click to select journey date" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <i className="fa-regular fa-calendar-days tb-field-icon tb-cal-icon" style={{ fontSize: '18px', color: '#334155' }}></i>
             <div className="tb-field-content">
-              <span className="tb-field-label">Date of journey</span>
-              <div className="tb-date-display-row">
-                <span className="tb-date-text">{dateOfJourney}</span>
-                <i className={`fa-solid fa-chevron-${showCalendarPicker ? 'up' : 'down'} tb-date-chevron`}></i>
+              <span className="tb-field-label" style={{ fontSize: '10px', color: '#94a3b8', lineHeight: '1.2' }}>Date Of<br/>Journey</span>
+              <div className="tb-date-display-row" style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: '1px' }}>
+                <span className="tb-date-text" style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap' }}>
+                  {dateOfJourney}
+                </span>
+                <i className={`fa-solid fa-chevron-${showCalendarPicker ? 'up' : 'down'} tb-date-chevron`} style={{ fontSize: '10px', color: '#64748b' }}></i>
               </div>
             </div>
-          </div>
-
-          <div className="tb-quick-date-pills">
-            <button
-              type="button"
-              className="tb-date-pill"
-              onClick={(e) => {
-                e.stopPropagation();
-                const tom = new Date();
-                tom.setDate(tom.getDate() + 1);
-                setCalMonth(tom.getMonth());
-                setCalYear(tom.getFullYear());
-                const formatted = `${String(tom.getDate()).padStart(2, '0')} ${MONTH_SHORT[tom.getMonth()]}, ${tom.getFullYear()}`;
-                setDateOfJourney(formatted);
-                setSelectedDay(String(tom.getDate()).padStart(2, '0'));
-                setShowCalendarPicker(false);
-              }}
-            >
-              Tomorrow
-            </button>
-            <button
-              type="button"
-              className="tb-date-pill"
-              onClick={(e) => {
-                e.stopPropagation();
-                const da = new Date();
-                da.setDate(da.getDate() + 2);
-                setCalMonth(da.getMonth());
-                setCalYear(da.getFullYear());
-                const formatted = `${String(da.getDate()).padStart(2, '0')} ${MONTH_SHORT[da.getMonth()]}, ${da.getFullYear()}`;
-                setDateOfJourney(formatted);
-                setSelectedDay(String(da.getDate()).padStart(2, '0'));
-                setShowCalendarPicker(false);
-              }}
-            >
-              Day After
-            </button>
           </div>
 
           {showCalendarPicker && (
@@ -520,9 +485,67 @@ export default function TrainSearchBar({
           )}
         </div>
 
-        {/* All Classes & Quota Dropdown Buttons (Displayed only in Train mode, after the Date field) */}
+        {/* Tomorrow and Day After buttons placed beside the search inputs */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, margin: '0 4px' }}>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              const tom = new Date();
+              tom.setDate(tom.getDate() + 1);
+              setCalMonth(tom.getMonth());
+              setCalYear(tom.getFullYear());
+              const formatted = `${String(tom.getDate()).padStart(2, '0')} ${MONTH_SHORT[tom.getMonth()]}, ${tom.getFullYear()}`;
+              setDateOfJourney(formatted);
+              setSelectedDay(String(tom.getDate()).padStart(2, '0'));
+              setShowCalendarPicker(false);
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#3b0764',
+              fontSize: '12.5px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              padding: '6px 8px',
+              borderRadius: '6px',
+              transition: 'background 0.15s ease'
+            }}
+          >
+            Tomorrow
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              const da = new Date();
+              da.setDate(da.getDate() + 2);
+              setCalMonth(da.getMonth());
+              setCalYear(da.getFullYear());
+              const formatted = `${String(da.getDate()).padStart(2, '0')} ${MONTH_SHORT[da.getMonth()]}, ${da.getFullYear()}`;
+              setDateOfJourney(formatted);
+              setSelectedDay(String(da.getDate()).padStart(2, '0'));
+              setShowCalendarPicker(false);
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#3b0764',
+              fontSize: '12.5px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              padding: '6px 8px',
+              borderRadius: '6px',
+              transition: 'background 0.15s ease'
+            }}
+          >
+            Day After
+          </button>
+        </div>
+
+        {/* All Classes & Quota Dropdown Buttons (Displayed only in Train mode) */}
         {activeMode === 'train' && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0, margin: '0 4px' }}>
             {/* 1. All Classes Dropdown Button */}
             <div ref={classDropdownRef} style={{ position: 'relative' }}>
               <button
@@ -535,7 +558,7 @@ export default function TrainSearchBar({
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  padding: '8px 14px',
+                  padding: '7px 14px',
                   borderRadius: '6px',
                   border: showClassDropdown ? '1.5px solid #0070f3' : '1.5px solid #cbd5e1',
                   background: '#ffffff',
@@ -547,9 +570,9 @@ export default function TrainSearchBar({
                   transition: 'all 0.15s ease'
                 }}
               >
-                <i className="fa-solid fa-briefcase" style={{ color: '#2563eb', fontSize: '13px' }}></i>
+                <i className="fa-solid fa-briefcase" style={{ color: '#0070f3', fontSize: '14px' }}></i>
                 <span>{selectedClassFilter}</span>
-                <i className={`fa-solid fa-chevron-${showClassDropdown ? 'up' : 'down'}`} style={{ color: '#64748b', fontSize: '11px', marginLeft: '2px' }}></i>
+                <i className={`fa-solid fa-chevron-${showClassDropdown ? 'up' : 'down'}`} style={{ color: '#64748b', fontSize: '11px', marginLeft: '4px' }}></i>
               </button>
 
               {showClassDropdown && (
@@ -558,8 +581,8 @@ export default function TrainSearchBar({
                     position: 'absolute',
                     top: 'calc(100% + 4px)',
                     left: 0,
-                    width: '230px',
-                    maxHeight: '290px',
+                    width: '240px',
+                    maxHeight: '300px',
                     overflowY: 'auto',
                     background: '#ffffff',
                     borderRadius: '8px',
@@ -614,7 +637,7 @@ export default function TrainSearchBar({
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  padding: '8px 14px',
+                  padding: '7px 14px',
                   borderRadius: '6px',
                   border: showQuotaDropdown ? '1.5px solid #0070f3' : '1.5px solid #cbd5e1',
                   background: '#ffffff',
@@ -626,9 +649,9 @@ export default function TrainSearchBar({
                   transition: 'all 0.15s ease'
                 }}
               >
-                <i className="fa-solid fa-table-cells" style={{ color: '#2563eb', fontSize: '13px' }}></i>
+                <i className="fa-solid fa-table-cells" style={{ color: '#0070f3', fontSize: '14px' }}></i>
                 <span>{selectedQuotaFilter}</span>
-                <i className={`fa-solid fa-chevron-${showQuotaDropdown ? 'up' : 'down'}`} style={{ color: '#64748b', fontSize: '11px', marginLeft: '2px' }}></i>
+                <i className={`fa-solid fa-chevron-${showQuotaDropdown ? 'up' : 'down'}`} style={{ color: '#64748b', fontSize: '11px', marginLeft: '4px' }}></i>
               </button>
 
               {showQuotaDropdown && (
@@ -637,8 +660,8 @@ export default function TrainSearchBar({
                     position: 'absolute',
                     top: 'calc(100% + 4px)',
                     left: 0,
-                    width: '230px',
-                    maxHeight: '290px',
+                    width: '240px',
+                    maxHeight: '300px',
                     overflowY: 'auto',
                     background: '#ffffff',
                     borderRadius: '8px',
