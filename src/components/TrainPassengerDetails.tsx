@@ -43,6 +43,7 @@ interface TrainPassengerDetailsModalProps {
   }) => void;
   onClose: () => void;
   isConfirmed?: boolean;
+  isModal?: boolean;
 }
 
 export default function TrainPassengerDetailsModal({
@@ -66,7 +67,8 @@ export default function TrainPassengerDetailsModal({
   onPassengerChange,
   onConfirmBooking,
   onClose,
-  isConfirmed = false
+  isConfirmed = false,
+  isModal = true
 }: TrainPassengerDetailsModalProps) {
   const router = useRouter();
   const [showErsPdfModal, setShowErsPdfModal] = useState(false);
@@ -177,76 +179,65 @@ export default function TrainPassengerDetailsModal({
   const insuranceFee = travelInsurance === 'yes' ? 0.45 * (passengersList.length || 1) : 0;
   const totalPayable = Math.round(fare * (passengersList.length || 1) + (freeCancel ? 50 : 0) + convenienceFee + insuranceFee);
 
-  return (
+  const modalContent = (
     <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(15, 23, 42, 0.75)',
-      backdropFilter: 'blur(4px)',
-      zIndex: 10000,
+      background: '#f8fafc',
+      borderRadius: isModal ? '0px' : '8px',
+      maxWidth: isModal ? '100%' : '1440px',
+      width: '100%',
+      height: isModal ? '100vh' : 'auto',
+      maxHeight: isModal ? '100vh' : 'none',
+      overflowY: isModal ? 'auto' : 'visible',
+      boxShadow: isModal ? 'none' : '0 1px 3px rgba(0,0,0,0.05)',
       display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '0px'
+      flexDirection: 'column',
+      border: isModal ? 'none' : '1px solid #e2e8f0',
+      boxSizing: 'border-box'
     }}>
+      {/* Header */}
       <div style={{
-        background: '#f8fafc',
-        borderRadius: '0px',
-        maxWidth: '100%',
-        width: '100%',
-        height: '100vh',
-        maxHeight: '100vh',
-        overflowY: 'auto',
-        boxShadow: 'none',
+        padding: '16px 20px',
+        background: '#ffffff',
+        borderBottom: '1px solid #e2e8f0',
+        borderRadius: isModal ? '0' : '8px 8px 0 0',
         display: 'flex',
-        flexDirection: 'column'
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        position: isModal ? 'sticky' : 'relative',
+        top: 0,
+        zIndex: 10
       }}>
-        {/* Header */}
-        <div style={{
-          padding: '16px 20px',
-          background: '#ffffff',
-          borderBottom: '1px solid #e2e8f0',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          position: 'sticky',
-          top: 0,
-          zIndex: 10
-        }}>
-          <div>
-            <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>
-              {isConfirmed ? 'Booking Confirmed' : 'Passenger Details'}
-            </h2>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
-              {trainName} (#{trainNumber}) • Class: <span style={{ fontWeight: 700, color: '#dc2626' }}>{classCode}</span> • ₹{fare} / seat
-            </div>
+        <div>
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>
+            {isConfirmed ? 'Booking Confirmed' : 'Passenger Details'}
+          </h2>
+          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+            {trainName} (#{trainNumber}) • Class: <span style={{ fontWeight: 700, color: '#dc2626' }}>{classCode}</span> • ₹{fare} / seat
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            style={{
-              background: '#f1f5f9',
-              border: 'none',
-              borderRadius: '50%',
-              width: '32px',
-              height: '32px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              color: '#64748b',
-              fontSize: '16px'
-            }}
-          >
-            <i className="fa-solid fa-xmark"></i>
-          </button>
         </div>
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            background: '#f1f5f9',
+            border: 'none',
+            borderRadius: '50%',
+            width: '32px',
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            color: '#64748b',
+            fontSize: '16px'
+          }}
+        >
+          <i className="fa-solid fa-xmark"></i>
+        </button>
+      </div>
 
-        {/* Modal Body */}
-        <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      {/* Body */}
+      <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {isConfirmed ? (
             /* Confirmation View */
             <div style={{ background: '#ffffff', borderRadius: '14px', padding: '24px', textAlign: 'center', border: '1px solid #e2e8f0' }}>
@@ -1248,6 +1239,28 @@ export default function TrainPassengerDetailsModal({
           )}
         </div>
       </div>
+  );
+
+  if (!isModal) {
+    return modalContent;
+  }
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(15, 23, 42, 0.75)',
+      backdropFilter: 'blur(4px)',
+      zIndex: 10000,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '0px'
+    }}>
+      {modalContent}
     </div>
   );
 }

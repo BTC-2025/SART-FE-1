@@ -61,7 +61,18 @@ export default function TrainPassengerDetailsStandalonePage() {
       <Navbar />
       <SubNavbar />
 
-      <main style={{ flex: 1, padding: '20px 0' }}>
+      {/* Main Container: Centered with 60px left and right gap */}
+      <main style={{
+        flex: 1,
+        paddingLeft: '60px',
+        paddingRight: '60px',
+        paddingTop: '24px',
+        paddingBottom: '32px',
+        maxWidth: '1440px',
+        margin: '0 auto',
+        width: '100%',
+        boxSizing: 'border-box'
+      }}>
         <TrainPassengerDetailsModal
           trainName={trainName}
           trainNumber={trainNumber}
@@ -91,6 +102,7 @@ export default function TrainPassengerDetailsStandalonePage() {
           onConfirmBooking={() => {}}
           onClose={() => router.push('/home/ride/train')}
           isConfirmed={false}
+          isModal={false}
         />
       </main>
 
