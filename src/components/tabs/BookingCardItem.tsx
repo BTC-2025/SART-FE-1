@@ -23,7 +23,11 @@ export const BookingCardItem: React.FC<BookingCardProps> = ({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ width: '36px', height: '36px', background: '#f1f5f9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-            {booking.image ? (
+            {booking.type === 'train' || booking.title?.toLowerCase().includes('exp') || booking.title?.toLowerCase().includes('shatabdi') || booking.number?.match(/^\d{5}$/) ? (
+              <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <i className="fa-solid fa-train" style={{ fontSize: '18px', color: '#2563eb' }}></i>
+              </div>
+            ) : booking.image ? (
               <img src={booking.image} alt={booking.type} style={{ width: '24px', height: '24px', objectFit: 'contain' }} />
             ) : (
               <i className={`fa-solid ${booking.title.includes('AUTO') ? 'fa-motorcycle' : booking.title.includes('CRUISE') ? 'fa-ship' : booking.title.includes('EXPRESS') ? 'fa-train' : 'fa-plane'}`} style={{ color: '#0f172a' }}></i>

@@ -327,7 +327,7 @@ export default function TrainPassengerDetailsModal({
             {showErsPdfModal && (
               <TrainTicketPdfModal
                 ticket={{
-                  pnr: `291${Math.floor(1000000 + Math.random() * 9000000)}`,
+                  pnr: `486${Math.floor(1000000 + Math.random() * 9000000)}`,
                   trainNumber,
                   trainName,
                   classCode,
@@ -336,15 +336,16 @@ export default function TrainPassengerDetailsModal({
                   boardingStation,
                   departureTime: depTime,
                   departureDate: dateOfJourney,
-                  destinationTime: arrTime || '11:15 AM',
+                  destinationTime: arrTime || '10:30 AM',
                   destinationDate: dateOfJourney,
-                  bookingDate: `${dateOfJourney} 20:21:44 HRS`,
+                  bookingDate: `${dateOfJourney} | 07:05PM`,
+                  transactionId: `TXN${Date.now()}`,
                   passengers: (passengersList.length > 0 ? passengersList : [passenger]).map((p, idx) => ({
                     name: p.name || 'PASSENGER',
-                    age: p.age || 24,
-                    gender: p.gender || 'M',
-                    bookingStatus: `CNF/Coach S3/Berth ${24 + idx}/${p.berthPreference || 'LOWER'}`,
-                    currentStatus: `CNF/Coach S3/Berth ${24 + idx}/${p.berthPreference || 'LOWER'}`
+                    age: p.age || 28,
+                    gender: p.gender || 'Male',
+                    bookingStatus: `CNF/C1/${36 + idx * 2}/${p.berthPreference || 'NC'}`,
+                    currentStatus: `CNF/C1/${36 + idx * 2}/${p.berthPreference || 'NC'}`
                   })),
                   fare: fare * (passengersList.length || 1),
                   convenienceFee: 11.80,

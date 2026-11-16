@@ -41,6 +41,14 @@ export interface Booking {
   reportingTime?: string;
   address?: string;
   stops?: { name: string; time: string; status: 'past' | 'current' | 'future' }[];
+  extraData?: string;
+  passengers?: any[];
+  coach?: string;
+  berthNo?: string | number;
+  classCode?: string;
+  boardingStation?: string;
+  price?: number;
+  subType?: string;
 }
 
 // Helper to format live dates relative to today

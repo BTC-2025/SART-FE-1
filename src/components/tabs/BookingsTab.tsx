@@ -88,13 +88,23 @@ export default function BookingsTab() {
               duration: extra.duration || '4h 30m',
               bookingId: extra.bookingId || b.id,
               pnr: extra.pnr || extra.bookingId || b.id,
-              passengerName: extra.passengerName || 'sai',
+              passengerName: extra.passengerName || (extra.passengers?.[0]?.name) || 'sai',
               seatStatus: extra.seatStatus || (b.status === 'Active' ? 'Confirmed' : b.status),
               statusBadge: extra.statusBadge || (b.status === 'Active' ? 'CNF' : b.status === 'Completed' ? 'CMP' : 'CAN'),
               statusText: extra.statusText || (b.status === 'Active' ? 'Booking Confirmed • Running On Time' : b.details || 'Completed'),
               isActive: b.status === 'Active',
               isCancelled: b.status === 'Cancelled',
-              stops: extra.stops || []
+              stops: extra.stops || [],
+              extraData: b.extraData,
+              passengers: extra.passengers || (extra.passengerName ? [{ name: extra.passengerName, age: 28, gender: 'Male' }] : []),
+              coach: extra.coach || 'C1',
+              berthNo: extra.berthNo || 36,
+              classCode: extra.classCode || b.subType || 'CC',
+              boardingStation: extra.boardingStation || b.pickupLoc,
+              txnId: extra.paymentDetails?.txnId || extra.txnId || `TXN${Date.now()}`,
+              transactionAmount: b.cost || extra.paymentDetails?.amount || 1067.25,
+              email: extra.email,
+              mobile: extra.phone
             };
           });
           setBackendBookingsList(mapped);
@@ -584,48 +594,111 @@ export default function BookingsTab() {
                   key={idx}
                   booking={booking}
                   overviewTab={overviewTab}
-                  onViewDetails={(b) => setSelectedGlobalBooking(b)}
+                  onViewDetails={(b) => {
+                    if (b.type === 'train' || b.title?.toLowerCase().includes('shatabdi') || b.title?.toLowerCase().includes('exp') || b.number?.match(/^\d{5}$/)) {
+                      // Open the Train e-ticket modal for train bookings
+                      let extra: any = {};
+                      try {
+                        if (b.extraData) extra = typeof b.extraData === 'string' ? JSON.parse(b.extraData) : b.extraData;
+                      } catch (e) { }
+
+                      const paxList = b.passengers || extra.passengers || extra.allPassengers || [];
+                      const coach = b.coach || extra.coach || 'C1';
+                      const startBerth = Number(b.berthNo || extra.berthNo || 36);
+
+                      const paxFormatted = paxList.length > 0
+                        ? paxList.map((p: any, i: number) => ({
+                            name: p.name || b.passengerName || 'PASSENGER',
+                            age: p.age || 28,
+                            gender: p.gender || 'Male',
+                            bookingStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`,
+                            currentStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`
+                          }))
+                        : [{
+                            name: b.passengerName || 'PASSENGER',
+                            age: 28,
+                            gender: 'Male',
+                            bookingStatus: `CNF/${coach}/${startBerth}/NC`,
+                            currentStatus: `CNF/${coach}/${startBerth}/NC`
+                          }];
+
+                      setSelectedTicketForPdf({
+                        pnr: b.pnr || extra.pnr || '4863831884',
+                        trainNumber: extra.trainNumber || b.number?.replace(/\D/g, '') || '12007',
+                        trainName: extra.trainName || b.title?.replace(/\(\d+\)/, '').trim() || 'Mas Mys Shatabdi',
+                        classCode: b.classCode || extra.classCode || b.subType || 'CC',
+                        source: extra.source || b.source || 'Mgr Chennai Ctl (MAS)',
+                        sourceCode: extra.sourceCode || b.sourceCode || 'MAS',
+                        sourceTime: extra.sourceTime || b.sourceTime || '06:00 AM',
+                        sourceDate: extra.dateOfJourney || b.sourceDate || '16 Nov, 2026',
+                        destination: extra.destination || b.destination || 'Ksr Bengaluru (SBC)',
+                        destinationCode: extra.destinationCode || b.destinationCode || 'SBC',
+                        destinationTime: extra.destinationTime || b.destinationTime || '10:30 AM',
+                        destinationDate: extra.destinationDate || b.destinationDate || b.sourceDate || '16 Nov, 2026',
+                        boardingStation: extra.boardingStation || b.boardingStation || b.source || 'Mgr Chennai Ctl (MAS)',
+                        departureTime: extra.departureTime || b.sourceTime || '06:00 AM',
+                        departureDate: extra.dateOfJourney || b.sourceDate || '16 Nov, 2026',
+                        bookingDate: extra.dateOfJourney ? `${extra.dateOfJourney} | 07:05PM` : `${b.sourceDate} 07:05 PM`,
+                        transactionId: b.txnId || extra.paymentDetails?.txnId || extra.txnId || '100008927942324',
+                        passengers: paxFormatted,
+                        fare: Number(extra.fare || (b.transactionAmount ? (b.transactionAmount - 12.7) : 1055)),
+                        convenienceFee: 11.80,
+                        insurancePremium: 0.90,
+                        totalFare: Number(b.transactionAmount || extra.paymentDetails?.amount || 1067.25)
+                      });
+                    } else {
+                      setSelectedGlobalBooking(b);
+                    }
+                  }}
                   onDownloadTicket={(b) => {
-                    const extra = (b as any).extraData ? JSON.parse((b as any).extraData) : {};
-                    const allPax = (b as any).allPassengers || (extra.allPassengers) || [];
-                    const paxFormatted = allPax.length > 0
-                      ? allPax.map((p: any, i: number) => ({
-                          name: p.name || 'PASSENGER',
-                          age: p.age || 24,
-                          gender: p.gender || 'M',
-                          bookingStatus: `CNF/Coach S3/Berth ${24 + i}/${p.berthPreference || 'LOWER'}`,
-                          currentStatus: `CNF/Coach S3/Berth ${24 + i}/${p.berthPreference || 'LOWER'}`
+                    let extra: any = {};
+                    try {
+                      if (b.extraData) extra = typeof b.extraData === 'string' ? JSON.parse(b.extraData) : b.extraData;
+                    } catch (e) { }
+
+                    const paxList = b.passengers || extra.passengers || extra.allPassengers || [];
+                    const coach = b.coach || extra.coach || 'C1';
+                    const startBerth = Number(b.berthNo || extra.berthNo || 36);
+
+                    const paxFormatted = paxList.length > 0
+                      ? paxList.map((p: any, i: number) => ({
+                          name: p.name || b.passengerName || 'PASSENGER',
+                          age: p.age || 28,
+                          gender: p.gender || 'Male',
+                          bookingStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`,
+                          currentStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`
                         }))
                       : [{
                           name: b.passengerName || 'PASSENGER',
-                          age: 24,
-                          gender: 'M',
-                          bookingStatus: b.seatStatus || 'CNF/Coach S3/Berth 24',
-                          currentStatus: b.seatStatus || 'CNF/Coach S3/Berth 24'
+                          age: 28,
+                          gender: 'Male',
+                          bookingStatus: `CNF/${coach}/${startBerth}/NC`,
+                          currentStatus: `CNF/${coach}/${startBerth}/NC`
                         }];
 
                     setSelectedTicketForPdf({
-                      pnr: b.pnr || b.bookingId?.replace(/\D/g, '').padEnd(10, '0') || '2917590674',
-                      trainNumber: b.number?.replace(/\D/g, '') || '12992',
-                      trainName: b.title || 'EXP',
-                      classCode: b.seatStatus?.match(/\(([^)]+)\)/)?.[1] || 'SECOND SITTING (2S)',
-                      source: b.source || 'JAIPUR (JP)',
-                      sourceCode: b.sourceCode || 'JP',
-                      sourceTime: b.sourceTime || '14:10',
-                      sourceDate: b.sourceDate || '12-Sep-2026',
-                      destination: b.destination || 'FATEHNAGAR (FAN)',
-                      destinationCode: b.destinationCode || 'FAN',
-                      destinationTime: b.destinationTime || '20:09',
-                      destinationDate: b.destinationDate || b.sourceDate || '12-Sep-2026',
-                      boardingStation: b.source || 'JAIPUR (JP)',
-                      departureTime: b.sourceTime || '14:10',
-                      departureDate: b.sourceDate || '12-Sep-2026',
-                      bookingDate: `${b.sourceDate || '12-Sep-2026'} 20:21:44 HRS`,
+                      pnr: b.pnr || extra.pnr || '4863831884',
+                      trainNumber: extra.trainNumber || b.number?.replace(/\D/g, '') || '12007',
+                      trainName: extra.trainName || b.title?.replace(/\(\d+\)/, '').trim() || 'Mas Mys Shatabdi',
+                      classCode: b.classCode || extra.classCode || b.subType || 'CC',
+                      source: extra.source || b.source || 'Mgr Chennai Ctl (MAS)',
+                      sourceCode: extra.sourceCode || b.sourceCode || 'MAS',
+                      sourceTime: extra.sourceTime || b.sourceTime || '06:00 AM',
+                      sourceDate: extra.dateOfJourney || b.sourceDate || '16 Nov, 2026',
+                      destination: extra.destination || b.destination || 'Ksr Bengaluru (SBC)',
+                      destinationCode: extra.destinationCode || b.destinationCode || 'SBC',
+                      destinationTime: extra.destinationTime || b.destinationTime || '10:30 AM',
+                      destinationDate: extra.destinationDate || b.destinationDate || b.sourceDate || '16 Nov, 2026',
+                      boardingStation: extra.boardingStation || b.boardingStation || b.source || 'Mgr Chennai Ctl (MAS)',
+                      departureTime: extra.departureTime || b.sourceTime || '06:00 AM',
+                      departureDate: extra.dateOfJourney || b.sourceDate || '16 Nov, 2026',
+                      bookingDate: extra.dateOfJourney ? `${extra.dateOfJourney} | 07:05PM` : `${b.sourceDate} 07:05 PM`,
+                      transactionId: b.txnId || extra.paymentDetails?.txnId || extra.txnId || '100008927942324',
                       passengers: paxFormatted,
-                      fare: (b as any).transactionAmount || (b as any).price || 320,
+                      fare: Number(extra.fare || (b.transactionAmount ? (b.transactionAmount - 12.7) : 1055)),
                       convenienceFee: 11.80,
                       insurancePremium: 0.90,
-                      totalFare: ((b as any).transactionAmount || (b as any).price || 320) + 12.70
+                      totalFare: Number(b.transactionAmount || extra.paymentDetails?.amount || 1067.25)
                     });
                   }}
                   onCancelBooking={handleCancelBooking}

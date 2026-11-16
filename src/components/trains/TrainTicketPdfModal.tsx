@@ -22,6 +22,7 @@ export interface TrainTicketModalData {
   distance?: string;
   bookingDate?: string;
   transactionId?: string;
+  duration?: string;
   passengers: {
     name: string;
     age: string | number;
@@ -29,6 +30,7 @@ export interface TrainTicketModalData {
     bookingStatus?: string;
     currentStatus?: string;
     berth?: string;
+    policyNo?: string;
   }[];
   fare: number;
   convenienceFee?: number;
@@ -48,33 +50,34 @@ export default function TrainTicketPdfModal({ ticket, onClose }: TrainTicketPdfM
     window.print();
   };
 
-  const pnr = ticket.pnr || '2917590674';
-  const trainNo = ticket.trainNumber || '12992';
-  const trainName = ticket.trainName || 'JP UDZ EXP';
-  const classCode = ticket.classCode || 'SECOND SITTING (2S)';
-  const originStation = ticket.source || 'JAIPUR';
-  const originCode = ticket.sourceCode || (originStation.match(/\(([^)]+)\)/)?.[1] || 'JP');
+  const pnr = ticket.pnr || '4863831884';
+  const trainNo = ticket.trainNumber || '12007';
+  const trainName = ticket.trainName || 'Mas Mys Shatabdi';
+  const classCode = ticket.classCode || 'CC';
+  const originStation = ticket.source || 'Mgr Chennai Ctl (MAS)';
+  const originCode = ticket.sourceCode || (originStation.match(/\(([^)]+)\)/)?.[1] || 'MAS');
   const boardStation = ticket.boardingStation || originStation;
-  const boardCode = originCode;
-  const destStation = ticket.destination || 'FATEHNAGAR';
-  const destCode = ticket.destinationCode || (destStation.match(/\(([^)]+)\)/)?.[1] || 'FAN');
-  const depTime = ticket.departureTime || ticket.sourceTime || '14:10';
-  const depDate = ticket.departureDate || ticket.sourceDate || '12-Sep-2026';
-  const arrTime = ticket.destinationTime || '20:09';
+  const destStation = ticket.destination || 'Ksr Bengaluru (SBC)';
+  const destCode = ticket.destinationCode || (destStation.match(/\(([^)]+)\)/)?.[1] || 'SBC');
+  const depTime = ticket.departureTime || ticket.sourceTime || '06:00 AM';
+  const depDate = ticket.departureDate || ticket.sourceDate || '16 Nov, 2026';
+  const arrTime = ticket.destinationTime || '10:30 AM';
   const arrDate = ticket.destinationDate || depDate;
-  const quota = ticket.quota || 'GENERAL (GN)';
-  const distance = ticket.distance || '379 KM';
-  const bookingDate = ticket.bookingDate || `${depDate} 20:21:44 HRS`;
-  const txnId = ticket.transactionId || `100005${Math.floor(100000 + Math.random() * 900000)}`;
+  const duration = ticket.duration || '04h 30m';
+  const quota = ticket.quota || 'General';
+  const bookingDate = ticket.bookingDate || `${depDate} | 07:05PM`;
+  const txnId = ticket.transactionId || '100008927942324';
 
-  const ticketFare = ticket.fare || 320;
+  const ticketFare = ticket.fare || 1055;
   const convenienceFee = ticket.convenienceFee ?? 11.80;
   const insurance = ticket.insurancePremium ?? 0.90;
   const totalAmount = ticket.totalFare ?? (ticketFare + convenienceFee + insurance);
 
-  const paxList = ticket.passengers && ticket.passengers.length > 0
+  const rawPaxList = ticket.passengers && ticket.passengers.length > 0
     ? ticket.passengers
-    : [{ name: 'PASSENGER', age: 24, gender: 'M', bookingStatus: 'CNF/D8/61/WINDOW SIDE', currentStatus: 'CNF/D8/61/WINDOW SIDE' }];
+    : [{ name: 'PASSENGER', age: 28, gender: 'Male', bookingStatus: 'CNF/C1/36/NC', currentStatus: 'CNF/C1/36/NC' }];
+
+  const adultCount = rawPaxList.length;
 
   return (
     <div
@@ -97,14 +100,14 @@ export default function TrainTicketPdfModal({ ticket, onClose }: TrainTicketPdfM
       <div
         style={{
           width: '100%',
-          maxWidth: '820px',
+          maxWidth: '780px',
           background: '#ffffff',
-          borderRadius: '12px',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+          borderRadius: '8px',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.25)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          maxHeight: '94vh'
+          maxHeight: '96vh'
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -112,15 +115,15 @@ export default function TrainTicketPdfModal({ ticket, onClose }: TrainTicketPdfM
         <div style={{
           background: '#0f172a',
           color: '#ffffff',
-          padding: '12px 20px',
+          padding: '10px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           flexShrink: 0
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <i className="fa-solid fa-ticket" style={{ color: '#38bdf8' }}></i>
-            <span style={{ fontWeight: 800, fontSize: '15px', letterSpacing: '0.3px' }}>
+            <span style={{ fontWeight: 700, fontSize: '14px' }}>
               IRCTC Electronic Reservation Slip (ERS)
             </span>
           </div>
@@ -131,9 +134,9 @@ export default function TrainTicketPdfModal({ ticket, onClose }: TrainTicketPdfM
                 background: '#0284c7',
                 color: '#ffffff',
                 border: 'none',
-                padding: '6px 16px',
+                padding: '6px 14px',
                 borderRadius: '6px',
-                fontSize: '13px',
+                fontSize: '12px',
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'flex',
@@ -149,8 +152,8 @@ export default function TrainTicketPdfModal({ ticket, onClose }: TrainTicketPdfM
                 background: '#334155',
                 color: '#ffffff',
                 border: 'none',
-                width: '32px',
-                height: '32px',
+                width: '30px',
+                height: '30px',
                 borderRadius: '50%',
                 cursor: 'pointer',
                 display: 'flex',
@@ -164,236 +167,234 @@ export default function TrainTicketPdfModal({ ticket, onClose }: TrainTicketPdfM
           </div>
         </div>
 
-        {/* ERS Ticket Body (Replicating exact uploaded image) */}
-        <div style={{ padding: '24px 32px', overflowY: 'auto', background: '#ffffff', color: '#000000', fontFamily: 'Arial, sans-serif' }}>
-          {/* Header Title */}
-          <div style={{ textAlign: 'center', borderBottom: '1.5px solid #000000', paddingBottom: '6px', marginBottom: '14px' }}>
-            <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 900, letterSpacing: '0.5px' }}>
-              Electronic Reservation Slip (ERS) - Normal User
-            </h2>
-          </div>
-
-          {/* Logo Row: Indian Railways (Left) & IRCTC (Right) */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{
-                width: '46px',
-                height: '46px',
-                borderRadius: '50%',
-                border: '2px solid #1e3a8a',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: '#1e40af',
-                color: '#ffffff'
-              }}>
-                <i className="fa-solid fa-train" style={{ fontSize: '20px' }}></i>
+        {/* ERS Ticket Slip Content matching Image 2 */}
+        <div style={{ padding: '24px 28px', overflowY: 'auto', background: '#ffffff', color: '#1e293b', fontFamily: 'Arial, sans-serif' }}>
+          
+          {/* Top Navy Blue Booking Transaction ID Header */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '18px' }}>
+            <div style={{
+              display: 'inline-flex',
+              flexDirection: 'column',
+              background: '#1e3a8a',
+              color: '#ffffff',
+              borderRadius: '4px',
+              overflow: 'hidden',
+              minWidth: '280px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.08)'
+            }}>
+              <div style={{ display: 'flex', background: '#1e3a8a', padding: '5px 12px', fontSize: '10px', fontWeight: 700, textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
+                <span style={{ flex: 1.4 }}>Booking transaction ID</span>
+                <span style={{ flex: 1 }}>Transaction Status</span>
               </div>
-              <span style={{ fontSize: '10px', fontWeight: 700, color: '#1e3a8a', lineHeight: 1.2 }}>
-                INDIAN<br />RAILWAYS
-              </span>
-            </div>
-
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
-                <span style={{ fontSize: '22px', fontWeight: 900, color: '#1e3a8a', letterSpacing: '-1px' }}>IRCTC</span>
-                <span style={{ fontSize: '8px', color: '#64748b', fontWeight: 700, marginTop: '-2px' }}>CRIS / IT</span>
+              <div style={{ display: 'flex', background: '#ffffff', color: '#0f172a', padding: '6px 12px', fontSize: '12px', fontWeight: 800, textAlign: 'center' }}>
+                <span style={{ flex: 1.4 }}>{txnId}</span>
+                <span style={{ flex: 1 }}>Booked</span>
               </div>
             </div>
           </div>
 
-          {/* Journey Stations Flow */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr 1fr', alignItems: 'center', textAlign: 'center', marginBottom: '14px' }}>
-            <div>
-              <div style={{ fontSize: '11px', fontWeight: 700 }}>Booked from</div>
-              <div style={{ fontSize: '13px', fontWeight: 900, margin: '2px 0' }}>{originStation} ({originCode})</div>
-              <div style={{ fontSize: '11px', color: '#334155' }}>Start Date* {depDate}</div>
-            </div>
+          {/* Bordered Ticket Container */}
+          <div style={{ border: '1px solid #cbd5e1', borderRadius: '4px', padding: '16px' }}>
 
-            <div style={{ position: 'relative', padding: '0 8px' }}>
-              <div style={{
-                background: '#38bdf8',
-                color: '#ffffff',
-                padding: '4px 12px',
-                fontWeight: 900,
-                fontSize: '11px',
-                borderRadius: '3px',
-                marginBottom: '4px',
-                clipPath: 'polygon(0 0, 92% 0, 100% 50%, 92% 100%, 0 100%)'
-              }}>
-                Boarding At ➜
+            {/* Train Name and PNR Row */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '12px' }}>
+              <div style={{ fontSize: '15px', fontWeight: 900, color: '#0f172a', letterSpacing: '0.2px' }}>
+                {trainName.toUpperCase()} ({trainNo})
               </div>
-              <div style={{ fontSize: '12.5px', fontWeight: 900 }}>{boardStation} ({boardCode})</div>
-              <div style={{ fontSize: '11px', color: '#334155' }}>Departure* {depTime} {depDate}</div>
+              <div style={{ fontSize: '14px', fontWeight: 900, color: '#ea580c' }}>
+                PNR: {pnr}
+              </div>
             </div>
 
-            <div>
-              <div style={{ fontSize: '11px', fontWeight: 700 }}>To</div>
-              <div style={{ fontSize: '13px', fontWeight: 900, margin: '2px 0' }}>{destStation} ({destCode})</div>
-              <div style={{ fontSize: '11px', color: '#334155' }}>Arrival* {arrTime} {arrDate}</div>
-            </div>
-          </div>
+            {/* Stations and Time Row */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderTop: '1px solid #e2e8f0' }}>
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>
+                  {depTime} | {originStation.toUpperCase()}
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                  {depDate}
+                </div>
+              </div>
 
-          {/* PNR & Train Metadata Grid */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1.2fr 1.4fr 1.4fr',
-            borderTop: '1px solid #000000',
-            borderBottom: '1px solid #000000',
-            padding: '8px 0',
-            textAlign: 'center',
-            marginBottom: '14px',
-            rowGap: '6px'
-          }}>
-            <div>
-              <div style={{ fontSize: '10px', color: '#475569', fontWeight: 700 }}>PNR</div>
-              <div style={{ fontSize: '14px', fontWeight: 900, color: '#0284c7' }}>{pnr}</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '10px', color: '#475569', fontWeight: 700 }}>Train No./Name</div>
-              <div style={{ fontSize: '13px', fontWeight: 900, color: '#0284c7' }}>{trainNo}/{trainName}</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '10px', color: '#475569', fontWeight: 700 }}>Class</div>
-              <div style={{ fontSize: '12.5px', fontWeight: 900, color: '#0284c7' }}>{classCode}</div>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>—</span>
+                <span>{duration}</span>
+                <span>—</span>
+              </div>
+
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>
+                  {arrTime} | {destStation.toUpperCase()}
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                  {arrDate}
+                </div>
+              </div>
             </div>
 
-            <div>
-              <div style={{ fontSize: '10px', color: '#475569', fontWeight: 700 }}>Quota</div>
-              <div style={{ fontSize: '11px', fontWeight: 700 }}>{quota}</div>
+            {/* STATUS & Meta Row */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderTop: '1px solid #e2e8f0', fontSize: '11.5px', fontWeight: 700 }}>
+              <div>
+                <span style={{ color: '#0f172a' }}>STATUS: </span>
+                <span style={{ color: '#16a34a', fontWeight: 800 }}>BOOKED</span>
+              </div>
+              <div style={{ color: '#334155', textAlign: 'center' }}>
+                {adultCount} Adult{adultCount > 1 ? 's' : ''} | 0 Children | {classCode} | {quota}
+              </div>
+              <div style={{ color: '#334155', textAlign: 'right' }}>
+                Boarding Station: {boardStation}
+              </div>
             </div>
-            <div>
-              <div style={{ fontSize: '10px', color: '#475569', fontWeight: 700 }}>Distance</div>
-              <div style={{ fontSize: '11px', fontWeight: 700 }}>{distance}</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '10px', color: '#475569', fontWeight: 700 }}>Booking Date</div>
-              <div style={{ fontSize: '11px', fontWeight: 700 }}>{bookingDate}</div>
-            </div>
-          </div>
 
-          {/* Passenger Details Table */}
-          <div style={{ marginBottom: '14px' }}>
-            <div style={{ fontSize: '13px', fontWeight: 900, borderBottom: '1px solid #000000', paddingBottom: '2px', marginBottom: '4px' }}>
-              Passenger Details
+            {/* Passenger Information Header */}
+            <div style={{ borderTop: '1px solid #94a3b8', marginTop: '10px', paddingTop: '10px' }}>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>
+                Passenger Information
+              </div>
+
+              {/* Dynamic Passengers List */}
+              {rawPaxList.map((p, idx) => {
+                const parts = (p.bookingStatus || `CNF/C1/${36 + idx * 2}/NC`).split('/');
+                const coachVal = parts[1] || 'C1';
+                const berthVal = parts[2] || `${36 + idx * 2}`;
+                const berthPref = p.berth || (parts[3] && parts[3] !== 'NC' ? parts[3] : 'No preference');
+                const fullStatus = `CNF/${coachVal}/${berthVal}/NC`;
+                const policyNo = p.policyNo || `${pnr}${String(idx + 1).padStart(2, '0')}21102026`;
+
+                return (
+                  <div key={idx} style={{ padding: '8px 0', borderBottom: idx < rawPaxList.length - 1 ? '1px dashed #e2e8f0' : 'none' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>{idx + 1}</span>
+                      <span style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>{p.name.toUpperCase()}</span>
+                      <span style={{ fontSize: '12px', color: '#475569', fontWeight: 600 }}>{p.age} yrs | {p.gender}</span>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr 1fr 1.2fr 1.2fr', fontSize: '11px', marginTop: '4px', gap: '6px' }}>
+                      <div>
+                        <div style={{ color: '#64748b' }}>Booking Status</div>
+                        <div style={{ fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>{fullStatus}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: '#64748b' }}>Coach</div>
+                        <div style={{ fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>{coachVal}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: '#64748b' }}>Berth/WL No</div>
+                        <div style={{ fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>{berthVal}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: '#64748b' }}>Berth Type</div>
+                        <div style={{ fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>{berthPref}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: '#64748b' }}>Current Status</div>
+                        <div style={{ fontWeight: 800, color: '#16a34a', marginTop: '2px' }}>{fullStatus}</div>
+                      </div>
+                    </div>
+
+                    <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: '4px' }}>
+                      Policy No: <span style={{ color: '#1e293b', fontWeight: 600 }}>{policyNo}</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid #94a3b8' }}>
-                  <th style={{ padding: '4px 6px' }}>#</th>
-                  <th style={{ padding: '4px 6px' }}>Name</th>
-                  <th style={{ padding: '4px 6px', textAlign: 'center' }}>Age</th>
-                  <th style={{ padding: '4px 6px', textAlign: 'center' }}>Gender</th>
-                  <th style={{ padding: '4px 6px' }}>Booking Status</th>
-                  <th style={{ padding: '4px 6px' }}>Current Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paxList.map((p, pIdx) => {
-                  const bStatus = p.bookingStatus || `CNF/Coach S3/Berth ${24 + pIdx}/SL`;
-                  const cStatus = p.currentStatus || bStatus;
-                  return (
-                    <tr key={pIdx} style={{ borderBottom: '1px dashed #e2e8f0' }}>
-                      <td style={{ padding: '5px 6px' }}>{pIdx + 1}.</td>
-                      <td style={{ padding: '5px 6px', fontWeight: 700 }}>{p.name.toUpperCase()}</td>
-                      <td style={{ padding: '5px 6px', textAlign: 'center' }}>{p.age}</td>
-                      <td style={{ padding: '5px 6px', textAlign: 'center' }}>{p.gender ? p.gender.charAt(0).toUpperCase() : 'M'}</td>
-                      <td style={{ padding: '5px 6px' }}>{bStatus}</td>
-                      <td style={{ padding: '5px 6px', fontWeight: 700, color: '#16a34a' }}>{cStatus}</td>
+
+            {/* Split: Booking Details & Payment Details */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.1fr', gap: '20px', borderTop: '1px solid #94a3b8', marginTop: '14px', paddingTop: '10px' }}>
+              {/* Booking Details Left Table */}
+              <div>
+                <div style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', textAlign: 'center', background: '#f1f5f9', padding: '4px', marginBottom: '8px' }}>
+                  Booking Details
+                </div>
+                <table style={{ width: '100%', fontSize: '11px', borderCollapse: 'collapse' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ padding: '3px 0', color: '#475569' }}>PNR Number</td>
+                      <td style={{ textAlign: 'right', fontWeight: 700 }}>{pnr}</td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Transaction & Payment Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px', borderTop: '1px solid #000000', paddingTop: '10px', marginBottom: '14px' }}>
-            <div>
-              <div style={{ fontSize: '11px', fontWeight: 800, marginBottom: '2px' }}>
-                Transaction ID: {txnId}
+                    <tr>
+                      <td style={{ padding: '3px 0', color: '#475569' }}>Ticket Type</td>
+                      <td style={{ textAlign: 'right', fontWeight: 700 }}>E-ticket</td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: '3px 0', color: '#475569' }}>Booked On</td>
+                      <td style={{ textAlign: 'right', fontWeight: 700 }}>{bookingDate}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: '3px 0', color: '#475569' }}>Date of Boarding</td>
+                      <td style={{ textAlign: 'right', fontWeight: 700 }}>{depDate} | {depTime}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: '3px 0', color: '#475569' }}>Vikalp Status</td>
+                      <td style={{ textAlign: 'right', fontWeight: 700 }}>No</td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: '3px 0', color: '#475569' }}>Booked From</td>
+                      <td style={{ textAlign: 'right', fontWeight: 700, fontSize: '10.5px' }}>IRCTC Rail Connect 2.0(Android)</td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: '3px 0', color: '#475569' }}>Charting Status</td>
+                      <td style={{ textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>Chart Prepared</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', fontStyle: 'italic', marginBottom: '10px' }}>
-                IR recovers only 57% of cost of travel on an average.
-              </div>
 
-              <div style={{ fontSize: '12px', fontWeight: 900, marginBottom: '4px' }}>Payment Details</div>
-              <table style={{ width: '100%', fontSize: '11px', borderCollapse: 'collapse' }}>
-                <tbody>
-                  <tr>
-                    <td style={{ padding: '2px 0' }}>Ticket Fare</td>
-                    <td style={{ textAlign: 'right', fontWeight: 700 }}>₹ {ticketFare.toFixed(2)}</td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: '2px 0' }}>IRCTC Convenience Fee (Incl. of GST)</td>
-                    <td style={{ textAlign: 'right', fontWeight: 700 }}>₹ {convenienceFee.toFixed(2)}</td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: '2px 0' }}>Travel Insurance Premium (Incl. of GST)</td>
-                    <td style={{ textAlign: 'right', fontWeight: 700 }}>₹ {insurance.toFixed(2)}</td>
-                  </tr>
-                  <tr style={{ borderTop: '1px dashed #cbd5e1' }}>
-                    <td style={{ padding: '4px 0', fontWeight: 900 }}>Total Fare (all inclusive)</td>
-                    <td style={{ textAlign: 'right', fontWeight: 900, color: '#0f172a' }}>₹ {totalAmount.toFixed(2)}</td>
-                  </tr>
-                </tbody>
-              </table>
-              <div style={{ fontSize: '9px', color: '#64748b', marginTop: '4px' }}>PG Charges as applicable (Additional)</div>
+              {/* Payment Details Right Table */}
+              <div>
+                <div style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', textAlign: 'center', background: '#f1f5f9', padding: '4px', marginBottom: '8px' }}>
+                  Payment Details
+                </div>
+                <table style={{ width: '100%', fontSize: '11px', borderCollapse: 'collapse' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ padding: '3px 0', color: '#475569' }}>Payment Mode</td>
+                      <td style={{ textAlign: 'right', fontWeight: 600, fontSize: '10px' }}>
+                        Credit & Debit cards / Net Banking / UPI (Powered by PhonePe)
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: '3px 0', color: '#475569' }}>Convenience Fee (Incl. of GST)</td>
+                      <td style={{ textAlign: 'right', fontWeight: 700 }}>₹ {convenienceFee.toFixed(1)}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: '3px 0', color: '#475569' }}>Ticket Fare:</td>
+                      <td style={{ textAlign: 'right', fontWeight: 700 }}>₹ {ticketFare.toFixed(0)}</td>
+                    </tr>
+                    <tr style={{ borderTop: '1px dashed #cbd5e1' }}>
+                      <td style={{ padding: '6px 0', fontWeight: 900, fontSize: '12px' }}>Total Amount</td>
+                      <td style={{ textAlign: 'right', fontWeight: 900, fontSize: '13px', color: '#0f172a' }}>
+                        ₹ {totalAmount.toFixed(1)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
 
-            {/* QR Code Container */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{
-                width: '120px',
-                height: '120px',
-                border: '1px solid #000000',
-                padding: '4px',
-                background: '#ffffff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(`IRCTC:PNR=${pnr};TRAIN=${trainNo};PAX=${paxList.length};FARE=${totalAmount}`)}`}
-                  alt="IRCTC Ticket QR Code"
-                  style={{ width: '100%', height: '100%' }}
-                />
+            {/* Travel Insurance Section */}
+            <div style={{ marginTop: '14px', borderTop: '1px solid #cbd5e1', paddingTop: '8px' }}>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textAlign: 'center', background: '#f1f5f9', padding: '4px', marginBottom: '8px' }}>
+                Travel Insurance (Incl. of GST)
               </div>
-              <span style={{ fontSize: '9px', color: '#64748b', marginTop: '4px' }}>Scan for ERS verification</span>
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', fontSize: '10.5px', rowGap: '4px' }}>
+                <div><span style={{ color: '#475569' }}>Insurance Opted:</span> <strong>Yes</strong></div>
+                <div style={{ textAlign: 'right' }}><span style={{ color: '#475569' }}>Insurance Company:</span> <strong>M/s United India Insurance Co. Ltd.</strong></div>
+                <div><span style={{ color: '#475569' }}>Policy Issue date:</span> <strong>{bookingDate}</strong></div>
+                <div style={{ textAlign: 'right' }}><span style={{ color: '#475569' }}>Travel Insurance Premium (Incl. of GST):</span> <strong>{insurance.toFixed(1)}</strong></div>
+                <div><span style={{ color: '#475569' }}>Insurance (No of Psgn):</span> <strong>{adultCount}</strong></div>
+              </div>
+              <div style={{ fontSize: '9px', color: '#64748b', marginTop: '6px', lineHeight: 1.3 }}>
+                Click Insurance Company name to submit nomination details. Link will be highlighted once Policy is issued by respective Insurance Company.
+              </div>
             </div>
+
           </div>
 
-          {/* Legal and Terms Bullet Points */}
-          <div style={{
-            fontSize: '9.5px',
-            color: '#1e293b',
-            lineHeight: 1.4,
-            borderTop: '1px solid #000000',
-            paddingTop: '8px',
-            marginBottom: '10px'
-          }}>
-            <div>• Beware of fraudulent customer care number. For any assistance, use only the IRCTC e-ticketing Customer care number: <strong>14646</strong>.</div>
-            <div>• <strong>IRCTC Convenience Fee is charged per e-ticket irrespective of number of passengers on the ticket.</strong></div>
-            <div>• *The printed Departure and Arrival Times are liable to change. Please Check correct departure, arrival from Railway Station Enquiry or Dial 139 or SMS RAIL to 139.</div>
-            <div>• This ticket is booked on a personal User ID, its sale/purchase is an offence u/s 143 of the Railways Act, 1989.</div>
-            <div>• Prescribed original ID proof is required while travelling along with SMS/ VRM/ ERS otherwise will be treated as without ticket and penalized as per Railway Rules.</div>
-          </div>
-
-          {/* Footer Signature Box */}
-          <div style={{ border: '1.5px solid #000000', height: '48px', padding: '4px 8px', marginBottom: '10px' }}>
-            <span style={{ fontSize: '8px', color: '#64748b' }}>Passenger Verification / TTE Stamp & Remarks</span>
-          </div>
-
-          {/* GST Details Bottom Row */}
-          <div style={{ fontSize: '9px', color: '#475569', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px' }}>
-            <div><strong>Invoice Number:</strong> PS{pnr.slice(0, 8)}</div>
-            <div><strong>Supplier:</strong> Indian Railways</div>
-            <div><strong>GSTIN:</strong> 07AAAGM0289C1ZL</div>
-            <div><strong>SAC Code:</strong> 996421</div>
-          </div>
         </div>
       </div>
     </div>
   );
 }
-
