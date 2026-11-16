@@ -1182,34 +1182,6 @@ export default function TrainPassengerDetailsModal({
                   Pay & Confirm
                 </button>
               </div>
-                      freeCancel
-                    };
-
-                    if (typeof window !== 'undefined') {
-                      localStorage.setItem('sart_pending_train_booking', JSON.stringify(pendingBooking));
-                    }
-
-                    // Navigate directly to dedicated payment page
-                    router.push('/home/ride/train/payment');
-                  }}
-                  style={{
-                    padding: '12px 28px',
-                    background: '#2a1373',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '10px',
-                    fontWeight: 800,
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    boxShadow: '0 4px 12px rgba(42, 19, 115, 0.35)'
-                  }}
-                >
-                  <i className="fa-solid fa-lock"></i> Pay & Confirm
-                </button>
-              </div>
             </>
           )}
         </div>
