@@ -215,25 +215,7 @@ export default function TrainPassengerDetailsModal({
             {trainName} (#{trainNumber}) • Class: <span style={{ fontWeight: 700, color: '#dc2626' }}>{classCode}</span> • ₹{fare} / seat
           </div>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          style={{
-            background: '#f1f5f9',
-            border: 'none',
-            borderRadius: '50%',
-            width: '32px',
-            height: '32px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            color: '#64748b',
-            fontSize: '16px'
-          }}
-        >
-          <i className="fa-solid fa-xmark"></i>
-        </button>
+
       </div>
 
       {/* Body */}
@@ -585,7 +567,7 @@ export default function TrainPassengerDetailsModal({
             {/* 3. Passenger Details Card (IRCTC Style matching Image 2) */}
             <div style={{ background: '#ffffff', borderRadius: '8px', padding: '18px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-                {/* <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>Passenger Details</h3> */}
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>Passenger Details</h3>
                 <i className="fa-solid fa-chevron-up" style={{ color: '#64748b', fontSize: '13px' }}></i>
               </div>
 

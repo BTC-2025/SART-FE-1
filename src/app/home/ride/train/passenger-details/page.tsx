@@ -57,7 +57,7 @@ export default function TrainPassengerDetailsStandalonePage() {
   const initialBoardingStation = bookingData?.boardingStation || '';
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
       <Navbar />
       <SubNavbar />
 
@@ -71,7 +71,8 @@ export default function TrainPassengerDetailsStandalonePage() {
         maxWidth: '1440px',
         margin: '0 auto',
         width: '100%',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        overflow: 'visible'
       }}>
         <TrainPassengerDetailsModal
           trainName={trainName}
