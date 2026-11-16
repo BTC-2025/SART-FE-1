@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import SubNavbar from '@/components/SubNavbar';
 import Footer from '@/components/Footer';
 import { TrainApi } from '@/apis/trainApi';
+import TrainTicketPdfModal, { TrainTicketModalData } from '@/components/trains/TrainTicketPdfModal';
 
 export default function TrainFinalPaymentPage() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function TrainFinalPaymentPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [confirmedBookingData, setConfirmedBookingData] = useState<any>(null);
+  const [showTicketModal, setShowTicketModal] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -154,31 +156,65 @@ export default function TrainFinalPaymentPage() {
 
       const generatedPnr = resp?.data?.pnr || `${Math.floor(2000000000 + Math.random() * 8000000000)}`;
       const generatedBookingId = resp?.data?.bookingId || `TRN${Math.floor(100000 + Math.random() * 900000)}`;
+      const generatedTxnId = payload.paymentDetails?.txnId || `TXN${Date.now()}`;
+      const coachCode = resp?.data?.coach || 'C1';
+      const berthStart = resp?.data?.berthNo || 36;
 
       const confirmedRecord = {
-        id: `train-${Date.now()}`,
+        id: resp?.data?.id || `train-${Date.now()}`,
         title: payload.trainName,
         number: payload.trainNumber,
         type: 'Train',
         pnr: generatedPnr,
         bookingId: generatedBookingId,
+        txnId: generatedTxnId,
         source: payload.source,
         destination: payload.destination,
         sourceTime: payload.departureTime,
         destinationTime: arrTime || '10:30 AM',
         dateOfJourney: payload.dateOfJourney,
         sourceDate: payload.dateOfJourney,
+        passengers: payload.passengers,
         allPassengers: payload.passengers,
         passengerName: payload.passengers.map((p: any) => `${p.name} (${p.age || 24})`).join(', '),
         passengerPhone: payload.phone,
         passengerEmail: payload.email,
         boardingStation: payload.boardingStation,
         irctcId: payload.irctcId,
-        seatStatus: `Confirmed (${classCode} - Coach D8, Berth 24)`,
+        classCode: payload.classCode,
+        coach: coachCode,
+        berthNo: berthStart,
+        seatStatus: `Confirmed (${classCode} - Coach ${coachCode}, Berth ${berthStart})`,
         statusBadge: 'CNF',
         statusText: 'Ticket Confirmed',
         price: totalAmount,
+        cost: totalAmount,
         paymentMethod: 'IRCTC iPay',
+        paymentDetails: payload.paymentDetails,
+        extraData: JSON.stringify({
+          pnr: generatedPnr,
+          bookingId: generatedBookingId,
+          trainNumber: payload.trainNumber,
+          trainName: payload.trainName,
+          classCode: payload.classCode,
+          coach: coachCode,
+          berthNo: berthStart,
+          passengers: payload.passengers,
+          allPassengers: payload.passengers,
+          passengerName: payload.passengers[0]?.name,
+          email: payload.email,
+          phone: payload.phone,
+          irctcId: payload.irctcId,
+          boardingStation: payload.boardingStation,
+          source: payload.source,
+          destination: payload.destination,
+          dateOfJourney: payload.dateOfJourney,
+          departureTime: payload.departureTime,
+          seatStatus: `Confirmed (${classCode} - Coach ${coachCode}, Berth ${berthStart})`,
+          paymentDetails: payload.paymentDetails,
+          txnId: generatedTxnId,
+          fare: totalAmount
+        }),
         isActive: true,
         isCancelled: false
       };
@@ -361,24 +397,85 @@ export default function TrainFinalPaymentPage() {
               <p style={{ fontSize: '13px', color: '#475569', margin: '0 0 20px 0' }}>
                 Your ticket for <strong>{confirmedBookingData?.title || trainName} ({confirmedBookingData?.number || trainNumber})</strong> has been successfully booked and recorded in the database.
               </p>
-              <button
-                type="button"
-                onClick={() => router.push('/home/ride/train')}
-                style={{
-                  background: '#2a1373',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '10px 24px',
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  cursor: 'pointer'
-                }}
-              >
-                Done
-              </button>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowTicketModal(true)}
+                  style={{
+                    flex: 1,
+                    background: '#0284c7',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '10px 16px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <i className="fa-solid fa-file-invoice"></i> View Ticket
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push('/booking')}
+                  style={{
+                    flex: 1,
+                    background: '#2a1373',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '10px 24px',
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Done
+                </button>
+              </div>
             </div>
           </div>
+        )}
+
+        {/* View E-Ticket Slip Modal Right After Booking */}
+        {showTicketModal && confirmedBookingData && (
+          <TrainTicketPdfModal
+            ticket={{
+              pnr: confirmedBookingData.pnr,
+              trainNumber: confirmedBookingData.number || trainNumber,
+              trainName: confirmedBookingData.title || trainName,
+              classCode: confirmedBookingData.classCode || classCode,
+              source: confirmedBookingData.source || source,
+              sourceCode: sourceCode,
+              sourceTime: confirmedBookingData.sourceTime || depTime,
+              sourceDate: confirmedBookingData.sourceDate || dateOfJourney,
+              destination: confirmedBookingData.destination || destination,
+              destinationCode: destinationCode,
+              destinationTime: confirmedBookingData.destinationTime || arrTime,
+              destinationDate: confirmedBookingData.sourceDate || dateOfJourney,
+              boardingStation: confirmedBookingData.boardingStation || source,
+              departureTime: confirmedBookingData.sourceTime || depTime,
+              departureDate: confirmedBookingData.sourceDate || dateOfJourney,
+              bookingDate: `${dateOfJourney} | 07:05PM`,
+              transactionId: confirmedBookingData.txnId || `TXN${Date.now()}`,
+              passengers: (confirmedBookingData.passengers || passengers || []).map((p: any, idx: number) => ({
+                name: p.name || 'PASSENGER',
+                age: p.age || 28,
+                gender: p.gender || 'Male',
+                bookingStatus: `CNF/${confirmedBookingData.coach || 'C1'}/${(confirmedBookingData.berthNo || 36) + idx * 2}/${p.berthPreference || 'NC'}`,
+                currentStatus: `CNF/${confirmedBookingData.coach || 'C1'}/${(confirmedBookingData.berthNo || 36) + idx * 2}/${p.berthPreference || 'NC'}`
+              })),
+              fare: totalBaseFare,
+              convenienceFee: convenienceFee,
+              insurancePremium: travelInsurance,
+              totalFare: Number(totalFare)
+            }}
+            onClose={() => setShowTicketModal(false)}
+          />
         )}
 
         {/* Main Content Grid: Left Payment Tabs + Sub Options, Right Journey Summary & Fare */}

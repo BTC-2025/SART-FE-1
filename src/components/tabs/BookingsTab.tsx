@@ -132,10 +132,13 @@ export default function BookingsTab() {
           if (Array.isArray(parsed)) {
             setLocalBookings(parsed.map((b: any) => ({
               id: b.id || b.pnr || `BK-${Date.now()}`,
-              title: b.title || 'Bus Booking',
-              number: b.number || b.pnr || 'BUS',
-              type: 'bus',
-              image: 'https://img.icons8.com/fluency/96/bus.png',
+              title: b.title || 'Booking',
+              number: b.number || b.pnr || 'SART',
+              type: (b.type || 'bus').toLowerCase(),
+              image: (b.type || '').toLowerCase() === 'train' ? 'https://img.icons8.com/fluency/96/train.png' :
+                (b.type || '').toLowerCase() === 'flight' ? 'https://img.icons8.com/fluency/96/airplane-take-off.png' :
+                  (b.type || '').toLowerCase() === 'bus' ? 'https://img.icons8.com/fluency/96/bus.png' :
+                    'https://img.icons8.com/fluency/96/car.png',
               source: b.source || 'Chennai',
               sourceCode: b.sourceCode || (b.source ? b.source.slice(0, 3).toUpperCase() : 'MAA'),
               sourceTime: b.sourceTime || '10:00',
@@ -153,7 +156,17 @@ export default function BookingsTab() {
               statusText: b.isCancelled ? 'Cancelled' : 'Ticket Confirmed',
               isActive: !b.isCancelled,
               isCancelled: !!b.isCancelled,
-              stops: b.stops || []
+              stops: b.stops || [],
+              extraData: b.extraData || JSON.stringify(b),
+              passengers: b.allPassengers || b.passengers || (b.passengerName ? [{ name: b.passengerName, age: 28, gender: 'Male' }] : []),
+              coach: b.coach || 'C1',
+              berthNo: b.berthNo || 36,
+              classCode: b.classCode || 'CC',
+              boardingStation: b.boardingStation || b.source,
+              txnId: b.txnId || b.paymentDetails?.txnId || (b.paymentMethod ? `TXN${Date.now()}` : '100008927942324'),
+              transactionAmount: b.price || b.cost || 1067.25,
+              email: b.passengerEmail || b.email,
+              mobile: b.passengerPhone || b.mobile || b.phone
             })));
           }
         } catch (e) { }
@@ -608,19 +621,19 @@ export default function BookingsTab() {
 
                       const paxFormatted = paxList.length > 0
                         ? paxList.map((p: any, i: number) => ({
-                            name: p.name || b.passengerName || 'PASSENGER',
-                            age: p.age || 28,
-                            gender: p.gender || 'Male',
-                            bookingStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`,
-                            currentStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`
-                          }))
+                          name: p.name || b.passengerName || 'PASSENGER',
+                          age: p.age || 28,
+                          gender: p.gender || 'Male',
+                          bookingStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`,
+                          currentStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`
+                        }))
                         : [{
-                            name: b.passengerName || 'PASSENGER',
-                            age: 28,
-                            gender: 'Male',
-                            bookingStatus: `CNF/${coach}/${startBerth}/NC`,
-                            currentStatus: `CNF/${coach}/${startBerth}/NC`
-                          }];
+                          name: b.passengerName || 'PASSENGER',
+                          age: 28,
+                          gender: 'Male',
+                          bookingStatus: `CNF/${coach}/${startBerth}/NC`,
+                          currentStatus: `CNF/${coach}/${startBerth}/NC`
+                        }];
 
                       setSelectedTicketForPdf({
                         pnr: b.pnr || extra.pnr || '4863831884',
@@ -662,19 +675,19 @@ export default function BookingsTab() {
 
                     const paxFormatted = paxList.length > 0
                       ? paxList.map((p: any, i: number) => ({
-                          name: p.name || b.passengerName || 'PASSENGER',
-                          age: p.age || 28,
-                          gender: p.gender || 'Male',
-                          bookingStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`,
-                          currentStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`
-                        }))
+                        name: p.name || b.passengerName || 'PASSENGER',
+                        age: p.age || 28,
+                        gender: p.gender || 'Male',
+                        bookingStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`,
+                        currentStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`
+                      }))
                       : [{
-                          name: b.passengerName || 'PASSENGER',
-                          age: 28,
-                          gender: 'Male',
-                          bookingStatus: `CNF/${coach}/${startBerth}/NC`,
-                          currentStatus: `CNF/${coach}/${startBerth}/NC`
-                        }];
+                        name: b.passengerName || 'PASSENGER',
+                        age: 28,
+                        gender: 'Male',
+                        bookingStatus: `CNF/${coach}/${startBerth}/NC`,
+                        currentStatus: `CNF/${coach}/${startBerth}/NC`
+                      }];
 
                     setSelectedTicketForPdf({
                       pnr: b.pnr || extra.pnr || '4863831884',
