@@ -305,7 +305,7 @@ export default function TrainReviewBookingPage() {
 
               <button
                 type="button"
-                onClick={() => router.push('/home/ride/train/passenger-details/payment')}
+                onClick={() => router.push('/home/ride/train/PassengerDetails/reviewBooking/Payment')}
                 style={{
                   background: '#f97316',
                   border: 'none',
