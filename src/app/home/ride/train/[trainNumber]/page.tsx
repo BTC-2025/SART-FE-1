@@ -88,8 +88,10 @@ export default function TrainRouteHistoryPage() {
       (t) =>
         t.number.toUpperCase().includes(cleanSearch) ||
         t.name.toUpperCase().includes(cleanSearch) ||
-        t.from.toUpperCase().includes(cleanSearch) ||
-        t.to.toUpperCase().includes(cleanSearch)
+        (t.departureStation && t.departureStation.toUpperCase().includes(cleanSearch)) ||
+        (t.arrivalStation && t.arrivalStation.toUpperCase().includes(cleanSearch)) ||
+        (t.departureStationCode && t.departureStationCode.toUpperCase().includes(cleanSearch)) ||
+        (t.arrivalStationCode && t.arrivalStationCode.toUpperCase().includes(cleanSearch))
     );
     if (matched) {
       router.push(`/home/ride/train/${matched.number}`);
