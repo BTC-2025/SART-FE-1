@@ -65,9 +65,9 @@ export default function TrainPaymentPage() {
   };
 
   const totalAmount = bookingData?.totalAmount || bookingData?.fare || 600.4;
-  const trainName = bookingData?.trainName || 'Train Express';
-  const trainNumber = bookingData?.trainNumber || '12007';
-  const classCode = bookingData?.classCode || 'CC';
+  const trainName = bookingData?.trainName || '';
+  const trainNumber = bookingData?.trainNumber || '';
+  const classCode = bookingData?.classCode || '';
 
   const categories: PaymentCategory[] = [
     {
@@ -209,21 +209,21 @@ export default function TrainPaymentPage() {
     // 1. Call Backend API to confirm booking and persist in database
     try {
       const payload: any = {
-        trainNumber: bookingData?.trainNumber || '12007',
-        trainName: bookingData?.trainName || 'Train Express',
-        classCode: bookingData?.classCode || 'CC',
-        source: bookingData?.source || 'Chennai',
-        destination: bookingData?.destination || 'Bengaluru',
-        dateOfJourney: bookingData?.dateOfJourney || new Date().toLocaleDateString('en-GB'),
-        departureTime: bookingData?.depTime || '06:00 AM',
-        passengerName: bookingData?.passengers?.[0]?.name || 'Passenger',
-        passengers: bookingData?.passengers || [{ name: 'Passenger', age: '25', gender: 'Male', berthPreference: 'No Preference' }],
+        trainNumber: bookingData?.trainNumber || '',
+        trainName: bookingData?.trainName || '',
+        classCode: bookingData?.classCode || '',
+        source: bookingData?.source || '',
+        destination: bookingData?.destination || '',
+        dateOfJourney: bookingData?.dateOfJourney || new Date().toLocaleDateString(''),
+        departureTime: bookingData?.depTime || '',
+        passengerName: bookingData?.passengers?.[0]?.name || '',
+        passengers: bookingData?.passengers || [{ name: '', age: '', gender: '', berthPreference: '' }],
         email: bookingData?.email,
         phone: bookingData?.phone,
         irctcId: bookingData?.irctcId,
         boardingStation: bookingData?.boardingStation || bookingData?.source,
         paymentDetails: {
-          method: selectedCategory || 'debit_card',
+          method: selectedCategory || '',
           provider: chosenProvider,
           status: 'SUCCESS',
           amount: totalAmount,

@@ -254,8 +254,55 @@ export default function BookingsTab() {
       return;
     }
     const input = pnrInput.trim().toUpperCase();
+    const lowerInput = input.toLowerCase();
 
-    // 1. First check Government & Public Transit API adapter
+    // 1. FIRST check user's actual bookings (from SQLite backend and local storage)
+    let found = allBookingsSource.find(b => {
+      let extra: any = {};
+      try {
+        if (b.extraData) extra = typeof b.extraData === 'string' ? JSON.parse(b.extraData) : b.extraData;
+      } catch (e) {}
+      return (
+        b.pnr?.toLowerCase() === lowerInput ||
+        b.bookingId?.toLowerCase() === lowerInput ||
+        extra.pnr?.toLowerCase() === lowerInput ||
+        extra.bookingId?.toLowerCase() === lowerInput ||
+        b.number?.toLowerCase() === lowerInput ||
+        b.id?.toLowerCase() === lowerInput
+      );
+    });
+
+    if (!found && typeof window !== 'undefined') {
+      const globalStr = localStorage.getItem('sart_global_bookings');
+      if (globalStr) {
+        try {
+          const globals = JSON.parse(globalStr);
+          if (Array.isArray(globals)) {
+            found = globals.find((b: any) => {
+              let extra: any = {};
+              try {
+                if (b.extraData) extra = typeof b.extraData === 'string' ? JSON.parse(b.extraData) : b.extraData;
+              } catch (e) {}
+              return (
+                b.pnr?.toLowerCase() === lowerInput ||
+                b.bookingId?.toLowerCase() === lowerInput ||
+                extra.pnr?.toLowerCase() === lowerInput ||
+                extra.bookingId?.toLowerCase() === lowerInput ||
+                b.number?.toLowerCase() === lowerInput ||
+                b.id?.toLowerCase() === lowerInput
+              );
+            });
+          }
+        } catch (e) {}
+      }
+    }
+
+    if (found) {
+      setTrackedBooking(found);
+      return;
+    }
+
+    // 2. Fallback to Government & Public Transit API adapter if not found in local user bookings
     if (trackingType === 'Train — PNR') {
       const govtTrain = await governmentTransitApi.getTrainPnrStatus(input);
       if (govtTrain && govtTrain.success) {
@@ -264,28 +311,30 @@ export default function BookingsTab() {
           title: govtTrain.trainName,
           number: govtTrain.trainNumber,
           type: 'train',
-          image: 'https://img.icons8.com/fluency/96/train.png',
-          source: govtTrain.source,
-          sourceCode: 'NLR',
+          image: '/images/train_icon_logo.png',
+          source: govtTrain.originStation || govtTrain.source || 'Chennai',
+          sourceCode: govtTrain.sourceCode || (govtTrain.originStation ? govtTrain.originStation.slice(0, 4).toUpperCase() : 'MAS'),
           sourceTime: govtTrain.departureTime,
           sourceDate: govtTrain.journeyDate,
           destination: govtTrain.destination,
-          destinationCode: 'SC',
+          destinationCode: govtTrain.destinationCode || (govtTrain.destination ? govtTrain.destination.slice(0, 4).toUpperCase() : 'SBC'),
           destinationTime: govtTrain.arrivalTime,
           destinationDate: govtTrain.journeyDate,
-          duration: '10h 45m',
+          duration: govtTrain.duration || '4h 30m',
           bookingId: govtTrain.pnr,
           pnr: govtTrain.pnr,
-          passengerName: govtTrain.passengers[0]?.name || 'Passenger',
-          seatStatus: govtTrain.currentStatus,
+          passengerName: govtTrain.passengers?.[0]?.name || 'Passenger',
+          passengers: govtTrain.passengers || (govtTrain.passengerName ? [{ name: govtTrain.passengerName }] : []),
+          seatStatus: govtTrain.currentStatus || 'Confirmed',
           statusBadge: 'CNF',
-          statusText: `IRCTC Govt Verified: ${govtTrain.liveStatus.status}`,
+          statusText: govtTrain.liveStatus?.status ? `IRCTC Govt Verified: ${govtTrain.liveStatus.status}` : 'Running On Time',
+          transactionAmount: govtTrain.fare || 1067,
+          classCode: govtTrain.class || 'CC',
           isActive: true,
           isCancelled: false,
-          stops: [
-            { name: govtTrain.source, time: govtTrain.departureTime, status: 'past' },
-            { name: govtTrain.liveStatus.currentStation, time: '20:30', status: 'current' },
-            { name: govtTrain.liveStatus.nextStation, time: govtTrain.liveStatus.expectedArrival, status: 'future' },
+          stops: govtTrain.stops || [
+            { name: govtTrain.originStation || govtTrain.source, time: govtTrain.departureTime, status: 'past' },
+            { name: govtTrain.liveStatus?.currentStation || 'Midway Station', time: '20:30', status: 'current' },
             { name: govtTrain.destination, time: govtTrain.arrivalTime, status: 'future' }
           ]
         });
@@ -328,7 +377,7 @@ export default function BookingsTab() {
           title: govtBus.operator,
           number: govtBus.ticketNumber,
           type: 'bus',
-          image: 'https://img.icons8.com/fluency/96/bus.png',
+          image: '/images/bus_icon_logo.png',
           source: govtBus.sourceCity,
           sourceCode: 'HYD',
           sourceTime: govtBus.departureTime,
@@ -351,23 +400,7 @@ export default function BookingsTab() {
       }
     }
 
-    // 2. Check in backend list & local storage
-    const lowerInput = input.toLowerCase();
-    let found = allBookingsSource.find(b => b.pnr?.toLowerCase() === lowerInput || b.bookingId?.toLowerCase() === lowerInput);
-
-    if (!found && typeof window !== 'undefined') {
-      const globalStr = localStorage.getItem('sart_global_bookings');
-      if (globalStr) {
-        const globals = JSON.parse(globalStr);
-        found = globals.find((b: any) => b.pnr?.toLowerCase() === lowerInput || b.bookingId?.toLowerCase() === lowerInput);
-      }
-    }
-
-    if (found) {
-      setTrackedBooking(found);
-    } else {
-      setSearchError('No booking found for this tracking number. Ensure valid ID is provided.');
-    }
+    setSearchError('No booking found for this tracking number. Ensure valid ID is provided.');
   };
 
   if (notFoundService) {

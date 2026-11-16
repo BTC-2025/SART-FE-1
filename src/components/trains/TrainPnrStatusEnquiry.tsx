@@ -24,18 +24,24 @@ export const TrainPnrStatusEnquiry: React.FC<TrainPnrStatusEnquiryProps> = ({
   } catch (e) {}
 
   const pnr = booking.pnr || extra.pnr || booking.bookingId || '4863831884';
-  const trainNumber = extra.trainNumber || booking.number?.replace(/\D/g, '') || '12709';
-  const trainName = extra.trainName || booking.title?.replace(/\(\d+\)/, '').trim() || 'SIMHAPURI SF EXP';
-  const boardingDate = extra.dateOfJourney || booking.sourceDate || '16-11-2026';
-  const fromCode = booking.sourceCode || (booking.source ? booking.source.slice(0, 4).toUpperCase() : 'MAS');
-  const toCode = booking.destinationCode || (booking.destination ? booking.destination.slice(0, 4).toUpperCase() : 'SBC');
+  const trainNumber = extra.trainNumber || (booking.number && booking.number.match(/\d{4,5}/)?.[0]) || booking.title?.match(/\d{4,5}/)?.[0] || '12007';
+  const trainName = extra.trainName || booking.title?.replace(/\(\d+\)/g, '').replace(/\b\d{4,5}\b/g, '').trim() || 'Express Train';
+  const boardingDate = extra.dateOfJourney || booking.sourceDate || new Date().toISOString().split('T')[0];
+  const fromCode = booking.sourceCode || extra.sourceCode || (booking.source ? booking.source.slice(0, 4).toUpperCase() : 'MAS');
+  const toCode = booking.destinationCode || extra.destinationCode || (booking.destination ? booking.destination.slice(0, 4).toUpperCase() : 'SBC');
   const reservedUpto = toCode;
   const boardingPoint = fromCode;
   const classCode = booking.classCode || extra.classCode || booking.subType || 'CC';
 
-  const rawPaxList = booking.passengers || extra.passengers || extra.allPassengers || [
-    { name: booking.passengerName || 'Passenger 1', age: 28, gender: 'Male', berthPreference: 'GN' }
-  ];
+  const rawPaxList = (booking.passengers && booking.passengers.length > 0)
+    ? booking.passengers
+    : (extra.passengers && extra.passengers.length > 0)
+      ? extra.passengers
+      : (extra.allPassengers && extra.allPassengers.length > 0)
+        ? extra.allPassengers
+        : [
+          { name: booking.passengerName || extra.passengerName || 'Passenger 1', age: 28, gender: 'Male', berthPreference: 'GN' }
+        ];
 
   const coach = booking.coach || extra.coach || 'C1';
   const startBerth = Number(booking.berthNo || extra.berthNo || 36);
