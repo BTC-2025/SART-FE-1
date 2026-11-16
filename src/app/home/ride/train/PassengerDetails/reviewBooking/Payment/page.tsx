@@ -37,8 +37,10 @@ export default function TrainFinalPaymentPage() {
   if (!isLoaded) {
     return (
       <div style={{ minHeight: '100vh', background: '#ffffff', display: 'flex', flexDirection: 'column' }}>
-        <Navbar />
-        <SubNavbar />
+        <div style={{ position: 'sticky', top: 0, zIndex: 90, background: '#ffffff', width: '100%' }}>
+          <Navbar />
+          <SubNavbar />
+        </div>
         <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ fontSize: '14px', color: '#64748b' }}>Loading payment options...</div>
         </main>
@@ -241,8 +243,11 @@ export default function TrainFinalPaymentPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#ffffff', display: 'flex', flexDirection: 'column' }}>
-      <Navbar />
-      <SubNavbar />
+      {/* Sticky Header: Navbar + SubNavbar always stay together at top */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 90, background: '#ffffff', width: '100%' }}>
+        <Navbar />
+        <SubNavbar />
+      </div>
 
       {/* Main Container: Centered with 60px left and right gap */}
       <main style={{
@@ -256,7 +261,7 @@ export default function TrainFinalPaymentPage() {
         width: '100%',
         boxSizing: 'border-box'
       }}>
-        
+
         {/* Stepper Header (1 Passenger Details -> 2 Review Journey -> 3 Payment Active) */}
         <div style={{
           display: 'flex',
@@ -272,7 +277,7 @@ export default function TrainFinalPaymentPage() {
               width: '32px',
               height: '32px',
               borderRadius: '50%',
-              background: '#f97316',
+              background: '#391E84',
               color: '#ffffff',
               fontWeight: 800,
               fontSize: '13px',
@@ -293,7 +298,7 @@ export default function TrainFinalPaymentPage() {
               width: '32px',
               height: '32px',
               borderRadius: '50%',
-              background: '#f97316',
+              background: '#391E84',
               color: '#ffffff',
               fontWeight: 800,
               fontSize: '13px',
@@ -314,7 +319,7 @@ export default function TrainFinalPaymentPage() {
               width: '32px',
               height: '32px',
               borderRadius: '50%',
-              background: '#ea580c',
+              background: '#391e84',
               color: '#ffffff',
               fontWeight: 800,
               fontSize: '13px',
@@ -481,7 +486,7 @@ export default function TrainFinalPaymentPage() {
 
         {/* Main Content Grid: Left Payment Tabs + Sub Options, Right Journey Summary & Fare */}
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: '24px', alignItems: 'start' }}>
-          
+
           {/* Left Column: Payment Methods Box */}
           <div>
             <div style={{
@@ -565,7 +570,7 @@ export default function TrainFinalPaymentPage() {
                     }}>
                       IRCTC
                     </div>
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+                    <span style={{ width: '200px', fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
                       IRCTC iPay New
                     </span>
                   </div>
@@ -603,7 +608,7 @@ export default function TrainFinalPaymentPage() {
                 onClick={handlePayAndBook}
                 disabled={isProcessing}
                 style={{
-                  background: '#ea580c',
+                  background: '#391E84',
                   border: 'none',
                   borderRadius: '4px',
                   padding: '8px 48px',
@@ -611,7 +616,7 @@ export default function TrainFinalPaymentPage() {
                   fontWeight: 800,
                   color: '#ffffff',
                   cursor: isProcessing ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 2px 6px rgba(234, 88, 12, 0.35)'
+                  boxShadow: '0 2px 6px rgba(12, 105, 234, 0.35)'
                 }}
               >
                 {isProcessing ? 'Processing...' : 'Pay & Book'}
@@ -621,7 +626,7 @@ export default function TrainFinalPaymentPage() {
 
           {/* Right Column: JOURNEY SUMMARY & Fare Summary */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            
+
             {/* JOURNEY SUMMARY Box */}
             <div style={{
               background: '#ffffff',

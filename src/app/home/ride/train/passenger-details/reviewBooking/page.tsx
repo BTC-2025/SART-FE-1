@@ -29,8 +29,10 @@ export default function TrainReviewBookingPage() {
   if (!isLoaded) {
     return (
       <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
-        <Navbar />
-        <SubNavbar />
+        <div style={{ position: 'sticky', top: 0, zIndex: 90, background: '#ffffff', width: '100%' }}>
+          <Navbar />
+          <SubNavbar />
+        </div>
         <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ fontSize: '14px', color: '#64748b' }}>Loading review details...</div>
         </main>
@@ -81,8 +83,11 @@ export default function TrainReviewBookingPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
-      <Navbar />
-      <SubNavbar />
+      {/* Sticky Header: Navbar + SubNavbar always stay together at top */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 90, background: '#ffffff', width: '100%' }}>
+        <Navbar />
+        <SubNavbar />
+      </div>
 
       <main style={{ flex: 1, maxWidth: '1240px', margin: '0 auto', width: '100%', padding: '24px 16px' }}>
         

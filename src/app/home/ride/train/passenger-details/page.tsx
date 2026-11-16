@@ -30,8 +30,10 @@ export default function TrainPassengerDetailsStandalonePage() {
   if (!isLoaded) {
     return (
       <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
-        <Navbar />
-        <SubNavbar />
+        <div style={{ position: 'sticky', top: 0, zIndex: 90, background: '#ffffff', width: '100%' }}>
+          <Navbar />
+          <SubNavbar />
+        </div>
         <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ fontSize: '14px', color: '#64748b' }}>Loading journey details...</div>
         </main>
@@ -58,8 +60,11 @@ export default function TrainPassengerDetailsStandalonePage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
-      <Navbar />
-      <SubNavbar />
+      {/* Sticky Header: Navbar + SubNavbar always stay together at top */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 90, background: '#ffffff', width: '100%' }}>
+        <Navbar />
+        <SubNavbar />
+      </div>
 
       {/* Main Container: Centered with 60px left and right gap */}
       <main style={{

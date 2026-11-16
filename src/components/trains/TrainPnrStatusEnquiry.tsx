@@ -277,3 +277,4 @@ export const TrainPnrStatusEnquiry: React.FC<TrainPnrStatusEnquiryProps> = ({
     </div>
   );
 };
+
