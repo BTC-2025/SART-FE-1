@@ -95,7 +95,7 @@ export default function TrainPassengerDetailsModal({
 
   // Multiple passengers list support - only show when added
   const [passengersList, setPassengersList] = useState<TrainPassenger[]>(
-    passenger.name && passenger.name.trim().length > 0
+    passenger.name && passenger.name.trim().length > 0 && passenger.name !== 'PICHUKA VENKATA'
       ? [
         {
           name: passenger.name,
@@ -109,7 +109,7 @@ export default function TrainPassengerDetailsModal({
 
   // Sync passengersList when passenger prop updates (e.g. from localStorage)
   useEffect(() => {
-    if (passenger.name && passenger.name.trim().length > 0) {
+    if (passenger.name && passenger.name.trim().length > 0 && passenger.name !== 'PICHUKA VENKATA') {
       setPassengersList([
         {
           name: passenger.name,
@@ -145,8 +145,7 @@ export default function TrainPassengerDetailsModal({
   };
 
   const handleRemovePassenger = (idx: number) => {
-    if (passengersList.length <= 1) return;
-    setPassengersList(passengersList.filter((_, i) => i !== idx));
+    setPassengersList((prev) => prev.filter((_, i) => i !== idx));
   };
 
   const [autoUpgradation, setAutoUpgradation] = useState(false);
@@ -583,16 +582,30 @@ export default function TrainPassengerDetailsModal({
 
                 {/* Display Current Added Passengers */}
                 {passengersList.filter(p => p.name && p.name.trim().length > 0).map((pax, idx) => (
-                  <div key={idx} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '10px 14px',
-                    background: '#f8fafc',
-                    borderRadius: '6px',
-                    border: '1px solid #e2e8f0',
-                    marginBottom: '12px'
-                  }}>
+                  <div
+                    key={idx}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '10px 14px',
+                      background: '#f8fafc',
+                      borderRadius: '6px',
+                      border: '1px solid #e2e8f0',
+                      marginBottom: '12px',
+                      cursor: 'pointer',
+                      transition: 'background 0.15s ease'
+                    }}
+                    onClick={() => {
+                      // Allow selecting previous data into input fields
+                      setCurrentName(pax.name);
+                      setCurrentAge(String(pax.age || ''));
+                      setCurrentGender(pax.gender || 'Male');
+                      setCurrentNationality(pax.nationality || 'India');
+                      setCurrentBerth(pax.berthPreference || 'No Preference');
+                    }}
+                    title="Click to edit or load this passenger into input form"
+                  >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
                       <span style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
                         {idx + 1}. {pax.name}
@@ -611,8 +624,22 @@ export default function TrainPassengerDetailsModal({
                     </div>
                     <button
                       type="button"
-                      onClick={() => handleRemovePassenger(idx)}
-                      style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '16px', cursor: 'pointer', padding: '4px' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemovePassenger(idx);
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#64748b',
+                        fontSize: '18px',
+                        cursor: 'pointer',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
                       title="Remove passenger"
                     >
                       <i className="fa-solid fa-xmark"></i>
@@ -1114,20 +1141,36 @@ export default function TrainPassengerDetailsModal({
                   onClick={() => {
                     let finalList = [...passengersList];
                     if (finalList.length === 0 && currentName.trim()) {
+                      if (!currentAge.trim()) {
+                        alert('Please enter passenger age');
+                        return;
+                      }
                       finalList = [{
                         name: currentName.trim(),
-                        age: currentAge || '25',
+                        age: currentAge.trim(),
                         gender: currentGender,
                         nationality: currentNationality,
                         berthPreference: currentBerth,
-                        cateringOption: currentCatering
                       }];
                       setPassengersList(finalList);
                     }
                     if (finalList.length === 0) {
-                      alert('Please enter at least one passenger name');
+                      alert('Please add at least one passenger (Name, Age, Gender, Nationality, Berth preference are mandatory)');
                       return;
                     }
+                    if (!irctcUsername.trim()) {
+                      alert('IRCTC Username is mandatory. Please enter your IRCTC username.');
+                      return;
+                    }
+                    if (!email.trim() || !email.includes('@')) {
+                      alert('Contact Email is mandatory. Please enter a valid email address.');
+                      return;
+                    }
+                    if (!phoneNumber.trim() || phoneNumber.trim().length < 10) {
+                      alert('Contact Mobile Number (10 digits) is mandatory.');
+                      return;
+                    }
+
                     if (finalList.length > 0) {
                       onPassengerChange(finalList[0]);
                     }
@@ -1162,7 +1205,7 @@ export default function TrainPassengerDetailsModal({
                     }
 
                     // Navigate to review booking page
-                    router.push('/home/ride/train/passenger-details/reviewBooking');
+                    router.push('/home/ride/train/PassengerDetails/reviewBooking');
                   }}
                   style={{
                     background: '#f97316',

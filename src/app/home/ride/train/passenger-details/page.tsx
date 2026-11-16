@@ -52,8 +52,8 @@ export default function TrainPassengerDetailsStandalonePage() {
           arrTime={arrTime}
           passenger={
             bookingData?.passengers?.[0] || {
-              name: 'PICHUKA VENKATA',
-              age: '24',
+              name: '',
+              age: '',
               gender: 'Male',
               berthPreference: 'No Preference'
             }

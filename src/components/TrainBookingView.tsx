@@ -881,12 +881,7 @@ export default function TrainBookingView() {
                       dateOfJourney: dt,
                       depTime: tr.departureTime,
                       arrTime: tr.arrivalTime,
-                      passengers: [{
-                        name: passengerName || 'PICHUKA VENKATA',
-                        age: passengerAge || '24',
-                        gender: 'Male',
-                        berthPreference: passengerBerth || 'No Preference'
-                      }]
+                      passengers: []
                     };
                     try {
                       localStorage.setItem('sart_pending_train_booking', JSON.stringify(bookingPayload));

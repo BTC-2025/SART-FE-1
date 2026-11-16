@@ -36,18 +36,10 @@ export default function TrainReviewBookingPage() {
 
   const passengers = bookingData?.passengers && bookingData.passengers.length > 0
     ? bookingData.passengers
-    : [
-      {
-        name: 'PICHUKA VENKATA',
-        age: '24',
-        gender: 'Male',
-        nationality: 'India',
-        berthPreference: 'Aadhaar Verified'
-      }
-    ];
+    : [];
 
-  const email = bookingData?.email || 'pi******@gmail.com';
-  const phone = bookingData?.phone || '90******85';
+  const email = bookingData?.email || '';
+  const phone = bookingData?.phone || '';
 
   const ticketFare = Number(bookingData?.fare || 105);
   const totalBaseFare = ticketFare * (passengers.length || 1);
