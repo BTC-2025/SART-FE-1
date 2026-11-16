@@ -42,11 +42,12 @@ export default function TrainReviewBookingPage() {
   const trainName = bookingData?.trainName || 'Train Express';
   const trainNumber = bookingData?.trainNumber || '';
   const classCode = bookingData?.classCode || 'SL';
-  const source = bookingData?.source || '';
-  const destination = bookingData?.destination || '';
+  const source = bookingData?.source || 'Mgr Chennai Ctl (MAS)';
+  const destination = bookingData?.destination || 'Ksr Bengaluru (SBC)';
   const dateOfJourney = bookingData?.dateOfJourney || '';
   const depTime = bookingData?.depTime || '';
   const arrTime = bookingData?.arrTime || '';
+  const duration = bookingData?.duration || '';
   const boardingStation = bookingData?.boardingStation || source;
 
   const passengers = bookingData?.passengers && bookingData.passengers.length > 0
@@ -90,15 +91,15 @@ export default function TrainReviewBookingPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '36px',
-          marginBottom: '28px',
-          padding: '12px 0'
+          gap: '16px',
+          marginBottom: '20px',
+          padding: '8px 0'
         }}>
           {/* Step 1 */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '30px',
+              height: '30px',
               borderRadius: '50%',
               background: '#f97316',
               color: '#ffffff',
@@ -110,16 +111,16 @@ export default function TrainReviewBookingPage() {
             }}>
               1
             </div>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>Passenger Details</span>
+            <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#334155' }}>Passenger Details</span>
           </div>
 
-          <div style={{ width: '90px', height: '2px', background: '#f97316', marginTop: '-18px' }}></div>
+          <div style={{ width: '45px', height: '2px', background: '#f97316', marginTop: '-14px' }}></div>
 
           {/* Step 2 (Active with Glowing Ring) */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '30px',
+              height: '30px',
               borderRadius: '50%',
               background: '#ea580c',
               color: '#ffffff',
@@ -132,16 +133,16 @@ export default function TrainReviewBookingPage() {
             }}>
               2
             </div>
-            <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>Review Journey</span>
+            <span style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a' }}>Review Journey</span>
           </div>
 
-          <div style={{ width: '90px', height: '2px', background: '#cbd5e1', marginTop: '-18px' }}></div>
+          <div style={{ width: '45px', height: '2px', background: '#cbd5e1', marginTop: '-14px' }}></div>
 
           {/* Step 3 */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '30px',
+              height: '30px',
               borderRadius: '50%',
               background: '#cbd5e1',
               color: '#ffffff',
@@ -153,7 +154,7 @@ export default function TrainReviewBookingPage() {
             }}>
               3
             </div>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748b' }}>Payment</span>
+            <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#64748b' }}>Payment</span>
           </div>
         </div>
 
@@ -193,7 +194,7 @@ export default function TrainReviewBookingPage() {
 
                 {/* Duration Line */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
-                  <span>— {arrTime && depTime ? `${depTime} to ${arrTime}` : '02:13'} —</span>
+                  <span>— {duration || (arrTime && depTime ? `${depTime} to ${arrTime}` : '02:13')} —</span>
                 </div>
 
                 {/* Arrival */}

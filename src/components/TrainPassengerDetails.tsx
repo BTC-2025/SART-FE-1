@@ -74,7 +74,7 @@ export default function TrainPassengerDetailsModal({
   const [showErsPdfModal, setShowErsPdfModal] = useState(false);
 
   // Form state matching image 1
-  const [boardingStation, setBoardingStation] = useState(initialBoardingStation || source || 'Type station name');
+  const [boardingStation, setBoardingStation] = useState(initialBoardingStation || (source && source !== 'Type station name' ? source : 'Mgr Chennai Ctl (MAS)'));
   const [isStationDropdownOpen, setIsStationDropdownOpen] = useState(false);
   const [stationSearchQuery, setStationSearchQuery] = useState('');
   const stationDropdownRef = useRef<HTMLDivElement>(null);

@@ -876,11 +876,15 @@ export default function TrainBookingView() {
                       classCode: cl.code,
                       fare: cl.fare,
                       totalAmount: cl.fare,
-                      source,
-                      destination,
+                      source: source || tr.departureStation,
+                      sourceCode: tr.departureStationCode,
+                      destination: destination || tr.arrivalStation,
+                      destinationCode: tr.arrivalStationCode,
                       dateOfJourney: dt,
                       depTime: tr.departureTime,
                       arrTime: tr.arrivalTime,
+                      duration: tr.duration,
+                      boardingStation: tr.departureStation,
                       passengers: []
                     };
                     try {
