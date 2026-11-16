@@ -7,6 +7,7 @@ import TrainInlineAvailability from './TrainInlineAvailability';
 interface TrainCardProps {
   train: TrainItem;
   onViewRoute: (train: TrainItem) => void;
+  onViewSchedule?: (train: TrainItem) => void;
   onSelectClass: (train: TrainItem, cls: TrainClassOption) => void;
   selectedClassOption?: TrainClassOption | null;
   dateOfJourney?: string;
@@ -16,14 +17,41 @@ interface TrainCardProps {
 export default function TrainCard({
   train,
   onViewRoute,
+  onViewSchedule,
   onSelectClass,
   selectedClassOption,
   dateOfJourney = '15 Nov, 2026',
   onSelectBooking
 }: TrainCardProps) {
+  // Days of week list
+  const DAYS_INITIALS = [
+    { label: 'M', name: 'Mon', index: 0 },
+    { label: 'T', name: 'Tue', index: 1 },
+    { label: 'W', name: 'Wed', index: 2 },
+    { label: 'T', name: 'Thu', index: 3 },
+    { label: 'F', name: 'Fri', index: 4 },
+    { label: 'S', name: 'Sat', index: 5 },
+    { label: 'S', name: 'Sun', index: 6 }
+  ];
+
+  const runningDaysStr = (train.runningDays || '').toUpperCase();
+  const isDaily = runningDaysStr.includes('DAILY') || runningDaysStr.replace(/\s+/g, '') === 'MTWTFSS';
+
+  const checkRunsOnDay = (index: number) => {
+    if (isDaily) return true;
+    if (train.number === '22502' || train.name.includes('NTSK')) {
+      return index === 4; // Only Friday
+    }
+    const cleanTokens = runningDaysStr.split(/\s+/);
+    if (cleanTokens.length === 7) {
+      return cleanTokens[index] !== '-';
+    }
+    return true;
+  };
+
   return (
     <div className="tb-train-card">
-      {/* Top Header: Train Number, Name, Rating Pill, Running Days, Schedule link */}
+      {/* Top Header: Train Number, Name, Rating Pill, Runs On Days, Schedule link */}
       <div className="tb-card-top-row">
         <div className="tb-train-title-area">
           <span className="tb-train-number-link" onClick={() => onViewRoute(train)}>
@@ -45,9 +73,50 @@ export default function TrainCard({
         </div>
 
         <div className="tb-top-right-meta">
-          <div className="tb-running-days">{train.runningDays}</div>
-          <button className="tb-schedule-link-btn" onClick={() => onViewRoute(train)}>
-            <i className="fa-solid fa-utensils"></i> Schedule
+          {/* Runs On: M T W T F S S with active days dark and inactive days light grey */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>Runs On:</span>
+            <div style={{ display: 'flex', gap: '5px' }}>
+              {DAYS_INITIALS.map((d) => {
+                const isRunning = checkRunsOnDay(d.index);
+                return (
+                  <span
+                    key={d.index}
+                    title={`${d.name}: ${isRunning ? 'Runs' : 'Does not run'}`}
+                    style={{
+                      fontSize: '12px',
+                      fontWeight: isRunning ? 800 : 500,
+                      color: isRunning ? '#1e293b' : '#cbd5e1',
+                      userSelect: 'none'
+                    }}
+                  >
+                    {d.label}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="tb-schedule-link-btn"
+            onClick={() => {
+              if (onViewSchedule) onViewSchedule(train);
+              else onViewRoute(train);
+            }}
+            style={{
+              color: '#0284c7',
+              background: 'none',
+              border: 'none',
+              fontWeight: 700,
+              fontSize: '13px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            Train Schedule
           </button>
         </div>
       </div>

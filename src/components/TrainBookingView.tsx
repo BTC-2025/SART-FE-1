@@ -30,6 +30,7 @@ import TrainSearchBar from './trains/TrainSearchBar';
 import TrainFilterSidebar from './trains/TrainFilterSidebar';
 import TrainCard from './trains/TrainCard';
 import TrainRouteModal from './trains/TrainRouteModal';
+import TrainScheduleModal from './trains/TrainScheduleModal';
 import TrainAvailabilityCalendarModal from './trains/TrainAvailabilityCalendarModal';
 import { TrainApi } from '@/apis/trainApi';
 
@@ -327,6 +328,7 @@ export default function TrainBookingView() {
   });
 
   const [viewRouteTrain, setViewRouteTrain] = useState<TrainItem | null>(null);
+  const [viewScheduleTrain, setViewScheduleTrain] = useState<TrainItem | null>(null);
   const [selectedTrainCardClass, setSelectedTrainCardClass] = useState<Record<string, TrainClassOption | null>>({});
   const [bookingClassModal, setBookingClassModal] = useState<{ train: TrainItem; classOption: TrainClassOption } | null>(null);
   const [passengerName, setPassengerName] = useState('');
@@ -853,6 +855,9 @@ export default function TrainBookingView() {
                     // Navigate to full train history & live status page
                     router.push(`/home/ride/train/${t.number}`);
                   }}
+                  onViewSchedule={(t) => {
+                    setViewScheduleTrain(t);
+                  }}
                   onSelectClass={(t, cls) => {
                     setSelectedTrainCardClass((prev) => {
                       const current = prev[t.id];
@@ -877,6 +882,9 @@ export default function TrainBookingView() {
 
       {/* Route Timeline Modal */}
       {viewRouteTrain && <TrainRouteModal train={viewRouteTrain} onClose={() => setViewRouteTrain(null)} />}
+
+      {/* Train Schedule Modal (Matching Image 1) */}
+      {viewScheduleTrain && <TrainScheduleModal train={viewScheduleTrain} onClose={() => setViewScheduleTrain(null)} />}
 
       {/* Passenger Details & Booking Modal */}
       {bookingClassModal && (
