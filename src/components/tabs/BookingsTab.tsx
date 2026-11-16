@@ -11,6 +11,7 @@ import { bookingsApiClient, governmentTransitApi, BackendBooking } from '../../s
 import { GlobalBookingDetailModal } from './GlobalBookingDetailModal';
 import TrainTicketPdfModal, { TrainTicketModalData } from '../trains/TrainTicketPdfModal';
 import { BookingCardItem } from './BookingCardItem';
+import { TrainPnrStatusEnquiry } from '../trains/TrainPnrStatusEnquiry';
 
 export default function BookingsTab() {
   const pathname = usePathname();
@@ -73,9 +74,9 @@ export default function BookingsTab() {
               title: b.title,
               number: extra.number || b.subType?.toUpperCase() || 'SART-RES',
               type: b.type,
-              image: b.type === 'train' ? 'https://img.icons8.com/fluency/96/train.png' :
+              image: b.type === 'train' ? '/images/train_icon_logo.png' :
                 b.type === 'flight' ? 'https://img.icons8.com/fluency/96/airplane-take-off.png' :
-                  b.type === 'bus' ? 'https://img.icons8.com/fluency/96/bus.png' :
+                  b.type === 'bus' ? '/images/bus_icon_logo.png' :
                     'https://img.icons8.com/fluency/96/car.png',
               source: b.pickupLoc || extra.source || 'Bengaluru',
               sourceCode: extra.sourceCode || (b.pickupLoc ? b.pickupLoc.slice(0, 3).toUpperCase() : 'BLR'),
@@ -88,13 +89,23 @@ export default function BookingsTab() {
               duration: extra.duration || '4h 30m',
               bookingId: extra.bookingId || b.id,
               pnr: extra.pnr || extra.bookingId || b.id,
-              passengerName: extra.passengerName || 'sai',
+              passengerName: extra.passengerName || (extra.passengers?.[0]?.name) || 'sai',
               seatStatus: extra.seatStatus || (b.status === 'Active' ? 'Confirmed' : b.status),
               statusBadge: extra.statusBadge || (b.status === 'Active' ? 'CNF' : b.status === 'Completed' ? 'CMP' : 'CAN'),
               statusText: extra.statusText || (b.status === 'Active' ? 'Booking Confirmed • Running On Time' : b.details || 'Completed'),
               isActive: b.status === 'Active',
               isCancelled: b.status === 'Cancelled',
-              stops: extra.stops || []
+              stops: extra.stops || [],
+              extraData: b.extraData,
+              passengers: extra.passengers || (extra.passengerName ? [{ name: extra.passengerName, age: 28, gender: 'Male' }] : []),
+              coach: extra.coach || 'C1',
+              berthNo: extra.berthNo || 36,
+              classCode: extra.classCode || b.subType || 'CC',
+              boardingStation: extra.boardingStation || b.pickupLoc,
+              txnId: extra.paymentDetails?.txnId || extra.txnId || `TXN${Date.now()}`,
+              transactionAmount: b.cost || extra.paymentDetails?.amount || 1067.25,
+              email: extra.email,
+              mobile: extra.phone
             };
           });
           setBackendBookingsList(mapped);
@@ -122,10 +133,13 @@ export default function BookingsTab() {
           if (Array.isArray(parsed)) {
             setLocalBookings(parsed.map((b: any) => ({
               id: b.id || b.pnr || `BK-${Date.now()}`,
-              title: b.title || 'Bus Booking',
-              number: b.number || b.pnr || 'BUS',
-              type: 'bus',
-              image: 'https://img.icons8.com/fluency/96/bus.png',
+              title: b.title || 'Booking',
+              number: b.number || b.pnr || 'SART',
+              type: (b.type || 'bus').toLowerCase(),
+              image: (b.type || '').toLowerCase() === 'train' ? '/images/train_icon_logo.png' :
+                (b.type || '').toLowerCase() === 'flight' ? 'https://img.icons8.com/fluency/96/airplane-take-off.png' :
+                  (b.type || '').toLowerCase() === 'bus' ? '/images/bus_icon_logo.png' :
+                    'https://img.icons8.com/fluency/96/car.png',
               source: b.source || 'Chennai',
               sourceCode: b.sourceCode || (b.source ? b.source.slice(0, 3).toUpperCase() : 'MAA'),
               sourceTime: b.sourceTime || '10:00',
@@ -143,7 +157,17 @@ export default function BookingsTab() {
               statusText: b.isCancelled ? 'Cancelled' : 'Ticket Confirmed',
               isActive: !b.isCancelled,
               isCancelled: !!b.isCancelled,
-              stops: b.stops || []
+              stops: b.stops || [],
+              extraData: b.extraData || JSON.stringify(b),
+              passengers: b.allPassengers || b.passengers || (b.passengerName ? [{ name: b.passengerName, age: 28, gender: 'Male' }] : []),
+              coach: b.coach || 'C1',
+              berthNo: b.berthNo || 36,
+              classCode: b.classCode || 'CC',
+              boardingStation: b.boardingStation || b.source,
+              txnId: b.txnId || b.paymentDetails?.txnId || (b.paymentMethod ? `TXN${Date.now()}` : ''),
+              transactionAmount: b.price || b.cost || 1067.25,
+              email: b.passengerEmail || b.email,
+              mobile: b.passengerPhone || b.mobile || b.phone
             })));
           }
         } catch (e) { }
@@ -230,8 +254,55 @@ export default function BookingsTab() {
       return;
     }
     const input = pnrInput.trim().toUpperCase();
+    const lowerInput = input.toLowerCase();
 
-    // 1. First check Government & Public Transit API adapter
+    // 1. FIRST check user's actual bookings (from SQLite backend and local storage)
+    let found = allBookingsSource.find(b => {
+      let extra: any = {};
+      try {
+        if (b.extraData) extra = typeof b.extraData === 'string' ? JSON.parse(b.extraData) : b.extraData;
+      } catch (e) {}
+      return (
+        b.pnr?.toLowerCase() === lowerInput ||
+        b.bookingId?.toLowerCase() === lowerInput ||
+        extra.pnr?.toLowerCase() === lowerInput ||
+        extra.bookingId?.toLowerCase() === lowerInput ||
+        b.number?.toLowerCase() === lowerInput ||
+        b.id?.toLowerCase() === lowerInput
+      );
+    });
+
+    if (!found && typeof window !== 'undefined') {
+      const globalStr = localStorage.getItem('sart_global_bookings');
+      if (globalStr) {
+        try {
+          const globals = JSON.parse(globalStr);
+          if (Array.isArray(globals)) {
+            found = globals.find((b: any) => {
+              let extra: any = {};
+              try {
+                if (b.extraData) extra = typeof b.extraData === 'string' ? JSON.parse(b.extraData) : b.extraData;
+              } catch (e) {}
+              return (
+                b.pnr?.toLowerCase() === lowerInput ||
+                b.bookingId?.toLowerCase() === lowerInput ||
+                extra.pnr?.toLowerCase() === lowerInput ||
+                extra.bookingId?.toLowerCase() === lowerInput ||
+                b.number?.toLowerCase() === lowerInput ||
+                b.id?.toLowerCase() === lowerInput
+              );
+            });
+          }
+        } catch (e) {}
+      }
+    }
+
+    if (found) {
+      setTrackedBooking(found);
+      return;
+    }
+
+    // 2. Fallback to Government & Public Transit API adapter if not found in local user bookings
     if (trackingType === 'Train — PNR') {
       const govtTrain = await governmentTransitApi.getTrainPnrStatus(input);
       if (govtTrain && govtTrain.success) {
@@ -240,28 +311,30 @@ export default function BookingsTab() {
           title: govtTrain.trainName,
           number: govtTrain.trainNumber,
           type: 'train',
-          image: 'https://img.icons8.com/fluency/96/train.png',
-          source: govtTrain.source,
-          sourceCode: 'NLR',
+          image: '/images/train_icon_logo.png',
+          source: govtTrain.originStation || govtTrain.source || 'Chennai',
+          sourceCode: govtTrain.sourceCode || (govtTrain.originStation ? govtTrain.originStation.slice(0, 4).toUpperCase() : 'MAS'),
           sourceTime: govtTrain.departureTime,
           sourceDate: govtTrain.journeyDate,
           destination: govtTrain.destination,
-          destinationCode: 'SC',
+          destinationCode: govtTrain.destinationCode || (govtTrain.destination ? govtTrain.destination.slice(0, 4).toUpperCase() : 'SBC'),
           destinationTime: govtTrain.arrivalTime,
           destinationDate: govtTrain.journeyDate,
-          duration: '10h 45m',
+          duration: govtTrain.duration || '4h 30m',
           bookingId: govtTrain.pnr,
           pnr: govtTrain.pnr,
-          passengerName: govtTrain.passengers[0]?.name || 'Passenger',
-          seatStatus: govtTrain.currentStatus,
+          passengerName: govtTrain.passengers?.[0]?.name || 'Passenger',
+          passengers: govtTrain.passengers || (govtTrain.passengerName ? [{ name: govtTrain.passengerName }] : []),
+          seatStatus: govtTrain.currentStatus || 'Confirmed',
           statusBadge: 'CNF',
-          statusText: `IRCTC Govt Verified: ${govtTrain.liveStatus.status}`,
+          statusText: govtTrain.liveStatus?.status ? `IRCTC Govt Verified: ${govtTrain.liveStatus.status}` : 'Running On Time',
+          transactionAmount: govtTrain.fare || 1067,
+          classCode: govtTrain.class || 'CC',
           isActive: true,
           isCancelled: false,
-          stops: [
-            { name: govtTrain.source, time: govtTrain.departureTime, status: 'past' },
-            { name: govtTrain.liveStatus.currentStation, time: '20:30', status: 'current' },
-            { name: govtTrain.liveStatus.nextStation, time: govtTrain.liveStatus.expectedArrival, status: 'future' },
+          stops: govtTrain.stops || [
+            { name: govtTrain.originStation || govtTrain.source, time: govtTrain.departureTime, status: 'past' },
+            { name: govtTrain.liveStatus?.currentStation || 'Midway Station', time: '20:30', status: 'current' },
             { name: govtTrain.destination, time: govtTrain.arrivalTime, status: 'future' }
           ]
         });
@@ -304,7 +377,7 @@ export default function BookingsTab() {
           title: govtBus.operator,
           number: govtBus.ticketNumber,
           type: 'bus',
-          image: 'https://img.icons8.com/fluency/96/bus.png',
+          image: '/images/bus_icon_logo.png',
           source: govtBus.sourceCity,
           sourceCode: 'HYD',
           sourceTime: govtBus.departureTime,
@@ -327,23 +400,7 @@ export default function BookingsTab() {
       }
     }
 
-    // 2. Check in backend list & local storage
-    const lowerInput = input.toLowerCase();
-    let found = allBookingsSource.find(b => b.pnr?.toLowerCase() === lowerInput || b.bookingId?.toLowerCase() === lowerInput);
-
-    if (!found && typeof window !== 'undefined') {
-      const globalStr = localStorage.getItem('sart_global_bookings');
-      if (globalStr) {
-        const globals = JSON.parse(globalStr);
-        found = globals.find((b: any) => b.pnr?.toLowerCase() === lowerInput || b.bookingId?.toLowerCase() === lowerInput);
-      }
-    }
-
-    if (found) {
-      setTrackedBooking(found);
-    } else {
-      setSearchError('No booking found for this tracking number. Ensure valid ID is provided.');
-    }
+    setSearchError('No booking found for this tracking number. Ensure valid ID is provided.');
   };
 
   if (notFoundService) {
@@ -384,110 +441,173 @@ export default function BookingsTab() {
 
           {/* TRACKING UI */}
           <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: '40px' }}>
-            <div style={{ width: '100%', maxWidth: '900px' }}>
+            <div style={{ width: '100%', maxWidth: '1000px' }}>
               {trackedBooking ? (
-                <div className="tracking-result-screen" style={{ width: '100%' }}>
-                  <div className="tracking-result-header">
-                    <button className="back-btn" onClick={() => setTrackedBooking(null)}>
-                      <i className="fa-solid fa-arrow-left"></i>
-                    </button>
-                    <div>
-                      <h4 className="tracking-subtitle">TRACKING RESULT</h4>
-                      <h2 className="tracking-title">{trackedBooking.title} - {trackedBooking.number}</h2>
-                      <p className="tracking-route">
-                        {trackedBooking.source} <i className="fa-solid fa-arrow-right"></i> {trackedBooking.destination}
-                      </p>
-                    </div>
-                  </div>
+                trackedBooking.type === 'train' || trackedBooking.title?.toLowerCase().includes('exp') || trackedBooking.title?.toLowerCase().includes('shatabdi') || Boolean(trackedBooking.number?.match(/^\d{5}$/)) ? (
+                  <TrainPnrStatusEnquiry
+                    booking={trackedBooking}
+                    onBack={() => setTrackedBooking(null)}
+                    onDownloadTicket={() => {
+                      let extra: any = {};
+                      try {
+                        if (trackedBooking.extraData) extra = typeof trackedBooking.extraData === 'string' ? JSON.parse(trackedBooking.extraData) : trackedBooking.extraData;
+                      } catch (e) { }
 
-                  <div className="timeline-card" style={{ marginTop: '24px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                      <div>
-                        <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>Status</p>
-                        <h3 style={{ margin: '4px 0 0 0', color: '#10b981', fontSize: '18px' }}>{trackedBooking.statusText}</h3>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>PNR / Booking ID</p>
-                        <h4 style={{ margin: '4px 0 0 0', fontSize: '16px' }}>{trackedBooking.pnr || trackedBooking.bookingId}</h4>
-                      </div>
-                    </div>
+                      const paxList = trackedBooking.passengers || extra.passengers || extra.allPassengers || [];
+                      const coach = trackedBooking.coach || extra.coach || 'C1';
+                      const startBerth = Number(trackedBooking.berthNo || extra.berthNo || 36);
 
-                    <div style={{ display: 'flex', gap: '24px', borderTop: '1px solid #e2e8f0', paddingTop: '16px', flexWrap: 'wrap' }}>
-                      <div style={{ flex: '1 1 45%' }}>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Departure</p>
-                        <p style={{ margin: '4px 0 0 0', fontWeight: 'bold' }}>{trackedBooking.sourceTime}, {trackedBooking.sourceDate}</p>
-                        <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>{trackedBooking.sourceCode} - {trackedBooking.sourcePlatform || 'Main Terminal'}</p>
-                      </div>
-                      <div style={{ flex: '1 1 45%' }}>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Arrival</p>
-                        <p style={{ margin: '4px 0 0 0', fontWeight: 'bold' }}>{trackedBooking.destinationTime}, {trackedBooking.destinationDate}</p>
-                        <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>{trackedBooking.destinationCode} - {trackedBooking.destinationPlatform || 'Main Terminal'}</p>
-                      </div>
-                    </div>
+                      const paxFormatted = paxList.length > 0
+                        ? paxList.map((p: any, i: number) => ({
+                          name: p.name || trackedBooking.passengerName || 'PASSENGER',
+                          age: p.age || 28,
+                          gender: p.gender || 'Male',
+                          bookingStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`,
+                          currentStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`
+                        }))
+                        : [{
+                          name: trackedBooking.passengerName || 'PASSENGER',
+                          age: 28,
+                          gender: 'Male',
+                          bookingStatus: `CNF/${coach}/${startBerth}/NC`,
+                          currentStatus: `CNF/${coach}/${startBerth}/NC`
+                        }];
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', borderTop: '1px solid #e2e8f0', paddingTop: '16px', marginTop: '16px' }}>
-                      <div>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Passenger Name</p>
-                        <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>{trackedBooking.passengerName}</p>
-                      </div>
-                      <div>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Seat / Allocation</p>
-                        <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>{trackedBooking.seatStatus}</p>
-                      </div>
-                      <div>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Travel Class</p>
-                        <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>Economy / General</p>
-                      </div>
-                      <div>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Baggage Allowance</p>
-                        <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>15 Kg (Check-in)</p>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                      <button style={{ flex: 1, padding: '10px', background: '#f97316', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <i className="fa-solid fa-download"></i> Download Ticket
+                      setSelectedTicketForPdf({
+                        pnr: trackedBooking.pnr || extra.pnr || `${Math.floor(1000000000 + Math.random() * 9000000000)}`,
+                        trainNumber: extra.trainNumber || trackedBooking.number?.replace(/\D/g, '') || '12007',
+                        trainName: extra.trainName || trackedBooking.title?.replace(/\(\d+\)/, '').trim() || 'Mas Mys Shatabdi',
+                        classCode: trackedBooking.classCode || extra.classCode || trackedBooking.subType || 'CC',
+                        source: extra.source || trackedBooking.source || 'Mgr Chennai Ctl (MAS)',
+                        sourceCode: extra.sourceCode || trackedBooking.sourceCode || 'MAS',
+                        sourceTime: extra.sourceTime || trackedBooking.sourceTime || '06:00 AM',
+                        sourceDate: extra.dateOfJourney || trackedBooking.sourceDate || '16 Nov, 2026',
+                        destination: extra.destination || trackedBooking.destination || 'Ksr Bengaluru (SBC)',
+                        destinationCode: extra.destinationCode || trackedBooking.destinationCode || 'SBC',
+                        destinationTime: extra.destinationTime || trackedBooking.destinationTime || '10:30 AM',
+                        destinationDate: extra.destinationDate || trackedBooking.destinationDate || trackedBooking.sourceDate || '16 Nov, 2026',
+                        boardingStation: extra.boardingStation || trackedBooking.boardingStation || trackedBooking.source || 'Mgr Chennai Ctl (MAS)',
+                        departureTime: extra.departureTime || trackedBooking.sourceTime || '06:00 AM',
+                        departureDate: extra.dateOfJourney || trackedBooking.sourceDate || '16 Nov, 2026',
+                        bookingDate: extra.dateOfJourney ? `${extra.dateOfJourney} | 07:05PM` : `${trackedBooking.sourceDate} 07:05 PM`,
+                        transactionId: trackedBooking.txnId || extra.txnId || extra.paymentDetails?.txnId || `${Date.now()}${Math.floor(10 + Math.random() * 90)}`,
+                        passengers: paxFormatted,
+                        fare: Number(extra.fare || (trackedBooking.transactionAmount ? (trackedBooking.transactionAmount - 12.7) : 1055)),
+                        convenienceFee: 11.80,
+                        insurancePremium: 0.90,
+                        totalFare: Number(trackedBooking.transactionAmount || extra.paymentDetails?.amount || 1067.25),
+                        autoPrint: false
+                      });
+                    }}
+                    onViewSchedule={() => {
+                      const tNum = trackedBooking.number?.replace(/\D/g, '') || '12007';
+                      router.push(`/home/ride/train/${tNum}`);
+                    }}
+                  />
+                ) : (
+                  <div className="tracking-result-screen" style={{ width: '100%', paddingLeft: '40px', paddingRight: '40px', boxSizing: 'border-box' }}>
+                    <div className="tracking-result-header">
+                      <button className="back-btn" onClick={() => setTrackedBooking(null)}>
+                        <i className="fa-solid fa-arrow-left"></i>
                       </button>
-                      <button
-                        onClick={() => {
-                          if (navigator.share) {
-                            navigator.share({
-                              title: `${trackedBooking.title} Status`,
-                              text: `Check out my journey status for ${trackedBooking.title} (${trackedBooking.number}) from ${trackedBooking.source} to ${trackedBooking.destination}. Status: ${trackedBooking.statusText}`,
-                              url: window.location.href,
-                            }).catch(console.error);
-                          } else {
-                            alert(`Sharing Status:\n${trackedBooking.title} (${trackedBooking.number})\n${trackedBooking.source} to ${trackedBooking.destination}\nStatus: ${trackedBooking.statusText}`);
-                          }
-                        }}
-                        style={{ flex: 1, padding: '10px', background: '#e2e8f0', color: '#334155', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                      >
-                        <i className="fa-solid fa-share-nodes"></i> Share Status
-                      </button>
+                      <div>
+                        <h4 className="tracking-subtitle">TRACKING RESULT</h4>
+                        <h2 className="tracking-title">{trackedBooking.title} - {trackedBooking.number}</h2>
+                        <p className="tracking-route">
+                          {trackedBooking.source} <i className="fa-solid fa-arrow-right"></i> {trackedBooking.destination}
+                        </p>
+                      </div>
                     </div>
 
-                    {trackedBooking.stops && trackedBooking.stops.length > 0 && (
-                      <div style={{ marginTop: '24px', padding: '16px', background: '#f8fafc', borderRadius: '8px' }}>
-                        <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#334155' }}>Live Journey Details</h4>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                          {trackedBooking.stops.map((stop, idx) => (
-                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                              <div style={{
-                                width: '12px', height: '12px', borderRadius: '50%',
-                                background: stop.status === 'past' ? '#cbd5e1' : stop.status === 'current' ? '#3b82f6' : '#fff',
-                                border: `2px solid ${stop.status === 'future' ? '#cbd5e1' : (stop.status === 'current' ? '#3b82f6' : '#cbd5e1')}`
-                              }}></div>
-                              <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ fontSize: '14px', color: stop.status === 'past' ? '#94a3b8' : '#0f172a', fontWeight: stop.status === 'current' ? 'bold' : 'normal' }}>{stop.name}</span>
-                                <span style={{ fontSize: '13px', color: stop.status === 'past' ? '#94a3b8' : '#64748b' }}>{stop.time}</span>
-                              </div>
-                            </div>
-                          ))}
+                    <div className="timeline-card" style={{ marginTop: '24px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+                        <div>
+                          <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>Status</p>
+                          <h3 style={{ margin: '4px 0 0 0', color: '#10b981', fontSize: '18px' }}>{trackedBooking.statusText}</h3>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>PNR / Booking ID</p>
+                          <h4 style={{ margin: '4px 0 0 0', fontSize: '16px' }}>{trackedBooking.pnr || trackedBooking.bookingId}</h4>
                         </div>
                       </div>
-                    )}
+
+                      <div style={{ display: 'flex', gap: '24px', borderTop: '1px solid #e2e8f0', paddingTop: '16px', flexWrap: 'wrap' }}>
+                        <div style={{ flex: '1 1 45%' }}>
+                          <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Departure</p>
+                          <p style={{ margin: '4px 0 0 0', fontWeight: 'bold' }}>{trackedBooking.sourceTime}, {trackedBooking.sourceDate}</p>
+                          <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>{trackedBooking.sourceCode} - {trackedBooking.sourcePlatform || 'Main Terminal'}</p>
+                        </div>
+                        <div style={{ flex: '1 1 45%' }}>
+                          <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Arrival</p>
+                          <p style={{ margin: '4px 0 0 0', fontWeight: 'bold' }}>{trackedBooking.destinationTime}, {trackedBooking.destinationDate}</p>
+                          <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>{trackedBooking.destinationCode} - {trackedBooking.destinationPlatform || 'Main Terminal'}</p>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', borderTop: '1px solid #e2e8f0', paddingTop: '16px', marginTop: '16px' }}>
+                        <div>
+                          <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Passenger Name</p>
+                          <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>{trackedBooking.passengerName}</p>
+                        </div>
+                        <div>
+                          <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Seat / Allocation</p>
+                          <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>{trackedBooking.seatStatus}</p>
+                        </div>
+                        <div>
+                          <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Travel Class</p>
+                          <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>Economy / General</p>
+                        </div>
+                        <div>
+                          <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Baggage Allowance</p>
+                          <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', fontSize: '14px' }}>15 Kg (Check-in)</p>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                        <button style={{ flex: 1, padding: '10px', background: '#f97316', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                          <i className="fa-solid fa-download"></i> Download Ticket
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (navigator.share) {
+                              navigator.share({
+                                title: `${trackedBooking.title} Status`,
+                                text: `Check out my journey status for ${trackedBooking.title} (${trackedBooking.number}) from ${trackedBooking.source} to ${trackedBooking.destination}. Status: ${trackedBooking.statusText}`,
+                                url: window.location.href,
+                              }).catch(console.error);
+                            } else {
+                              alert(`Sharing Status:\n${trackedBooking.title} (${trackedBooking.number})\n${trackedBooking.source} to ${trackedBooking.destination}\nStatus: ${trackedBooking.statusText}`);
+                            }
+                          }}
+                          style={{ flex: 1, padding: '10px', background: '#e2e8f0', color: '#334155', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                        >
+                          <i className="fa-solid fa-share-nodes"></i> Share Status
+                        </button>
+                      </div>
+
+                      {trackedBooking.stops && trackedBooking.stops.length > 0 && (
+                        <div style={{ marginTop: '24px', padding: '16px', background: '#f8fafc', borderRadius: '8px' }}>
+                          <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#334155' }}>Live Journey Details</h4>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {trackedBooking.stops.map((stop, idx) => (
+                              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{
+                                  width: '12px', height: '12px', borderRadius: '50%',
+                                  background: stop.status === 'past' ? '#cbd5e1' : stop.status === 'current' ? '#3b82f6' : '#fff',
+                                  border: `2px solid ${stop.status === 'future' ? '#cbd5e1' : (stop.status === 'current' ? '#3b82f6' : '#cbd5e1')}`
+                                }}></div>
+                                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between' }}>
+                                  <span style={{ fontSize: '14px', color: stop.status === 'past' ? '#94a3b8' : '#0f172a', fontWeight: stop.status === 'current' ? 'bold' : 'normal' }}>{stop.name}</span>
+                                  <span style={{ fontSize: '13px', color: stop.status === 'past' ? '#94a3b8' : '#64748b' }}>{stop.time}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )
               ) : (
                 <>
                   <div style={{ background: '#f0f9ff', maxWidth: '850px', margin: '0 auto', padding: '12px 24px', borderRadius: '16px' }}>
@@ -584,48 +704,113 @@ export default function BookingsTab() {
                   key={idx}
                   booking={booking}
                   overviewTab={overviewTab}
-                  onViewDetails={(b) => setSelectedGlobalBooking(b)}
-                  onDownloadTicket={(b) => {
-                    const extra = (b as any).extraData ? JSON.parse((b as any).extraData) : {};
-                    const allPax = (b as any).allPassengers || (extra.allPassengers) || [];
-                    const paxFormatted = allPax.length > 0
-                      ? allPax.map((p: any, i: number) => ({
-                          name: p.name || 'PASSENGER',
-                          age: p.age || 24,
-                          gender: p.gender || 'M',
-                          bookingStatus: `CNF/Coach S3/Berth ${24 + i}/${p.berthPreference || 'LOWER'}`,
-                          currentStatus: `CNF/Coach S3/Berth ${24 + i}/${p.berthPreference || 'LOWER'}`
+                  onViewDetails={(b) => {
+                    if (b.type === 'train' || b.title?.toLowerCase().includes('shatabdi') || b.title?.toLowerCase().includes('exp') || b.number?.match(/^\d{5}$/)) {
+                      // Open the Train e-ticket modal for train bookings
+                      let extra: any = {};
+                      try {
+                        if (b.extraData) extra = typeof b.extraData === 'string' ? JSON.parse(b.extraData) : b.extraData;
+                      } catch (e) { }
+
+                      const paxList = b.passengers || extra.passengers || extra.allPassengers || [];
+                      const coach = b.coach || extra.coach || 'C1';
+                      const startBerth = Number(b.berthNo || extra.berthNo || 36);
+
+                      const paxFormatted = paxList.length > 0
+                        ? paxList.map((p: any, i: number) => ({
+                          name: p.name || b.passengerName || 'PASSENGER',
+                          age: p.age || 28,
+                          gender: p.gender || 'Male',
+                          bookingStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`,
+                          currentStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`
                         }))
-                      : [{
+                        : [{
                           name: b.passengerName || 'PASSENGER',
-                          age: 24,
-                          gender: 'M',
-                          bookingStatus: b.seatStatus || 'CNF/Coach S3/Berth 24',
-                          currentStatus: b.seatStatus || 'CNF/Coach S3/Berth 24'
+                          age: 28,
+                          gender: 'Male',
+                          bookingStatus: `CNF/${coach}/${startBerth}/NC`,
+                          currentStatus: `CNF/${coach}/${startBerth}/NC`
                         }];
 
+                      setSelectedTicketForPdf({
+                        pnr: b.pnr || extra.pnr || `${Math.floor(1000000000 + Math.random() * 9000000000)}`,
+                        trainNumber: extra.trainNumber || b.number?.replace(/\D/g, '') || '12007',
+                        trainName: extra.trainName || b.title?.replace(/\(\d+\)/, '').trim() || 'Mas Mys Shatabdi',
+                        classCode: b.classCode || extra.classCode || b.subType || 'CC',
+                        source: extra.source || b.source || 'Mgr Chennai Ctl (MAS)',
+                        sourceCode: extra.sourceCode || b.sourceCode || 'MAS',
+                        sourceTime: extra.sourceTime || b.sourceTime || '06:00 AM',
+                        sourceDate: extra.dateOfJourney || b.sourceDate || '16 Nov, 2026',
+                        destination: extra.destination || b.destination || 'Ksr Bengaluru (SBC)',
+                        destinationCode: extra.destinationCode || b.destinationCode || 'SBC',
+                        destinationTime: extra.destinationTime || b.destinationTime || '10:30 AM',
+                        destinationDate: extra.destinationDate || b.destinationDate || b.sourceDate || '16 Nov, 2026',
+                        boardingStation: extra.boardingStation || b.boardingStation || b.source || 'Mgr Chennai Ctl (MAS)',
+                        departureTime: extra.departureTime || b.sourceTime || '06:00 AM',
+                        departureDate: extra.dateOfJourney || b.sourceDate || '16 Nov, 2026',
+                        bookingDate: extra.dateOfJourney ? `${extra.dateOfJourney} | 07:05PM` : `${b.sourceDate} 07:05 PM`,
+                        transactionId: b.txnId || extra.txnId || extra.paymentDetails?.txnId || `${Date.now()}${Math.floor(10 + Math.random() * 90)}`,
+                        passengers: paxFormatted,
+                        fare: Number(extra.fare || (b.transactionAmount ? (b.transactionAmount - 12.7) : 1055)),
+                        convenienceFee: 11.80,
+                        insurancePremium: 0.90,
+                        totalFare: Number(b.transactionAmount || extra.paymentDetails?.amount || 1067.25),
+                        autoPrint: false
+                      });
+                    } else {
+                      setSelectedGlobalBooking(b);
+                    }
+                  }}
+                  onDownloadTicket={(b) => {
+                    let extra: any = {};
+                    try {
+                      if (b.extraData) extra = typeof b.extraData === 'string' ? JSON.parse(b.extraData) : b.extraData;
+                    } catch (e) { }
+
+                    const paxList = b.passengers || extra.passengers || extra.allPassengers || [];
+                    const coach = b.coach || extra.coach || 'C1';
+                    const startBerth = Number(b.berthNo || extra.berthNo || 36);
+
+                    const paxFormatted = paxList.length > 0
+                      ? paxList.map((p: any, i: number) => ({
+                        name: p.name || b.passengerName || 'PASSENGER',
+                        age: p.age || 28,
+                        gender: p.gender || 'Male',
+                        bookingStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`,
+                        currentStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`
+                      }))
+                      : [{
+                        name: b.passengerName || 'PASSENGER',
+                        age: 28,
+                        gender: 'Male',
+                        bookingStatus: `CNF/${coach}/${startBerth}/NC`,
+                        currentStatus: `CNF/${coach}/${startBerth}/NC`
+                      }];
+
                     setSelectedTicketForPdf({
-                      pnr: b.pnr || b.bookingId?.replace(/\D/g, '').padEnd(10, '0') || '2917590674',
-                      trainNumber: b.number?.replace(/\D/g, '') || '12992',
-                      trainName: b.title || 'EXP',
-                      classCode: b.seatStatus?.match(/\(([^)]+)\)/)?.[1] || 'SECOND SITTING (2S)',
-                      source: b.source || 'JAIPUR (JP)',
-                      sourceCode: b.sourceCode || 'JP',
-                      sourceTime: b.sourceTime || '14:10',
-                      sourceDate: b.sourceDate || '12-Sep-2026',
-                      destination: b.destination || 'FATEHNAGAR (FAN)',
-                      destinationCode: b.destinationCode || 'FAN',
-                      destinationTime: b.destinationTime || '20:09',
-                      destinationDate: b.destinationDate || b.sourceDate || '12-Sep-2026',
-                      boardingStation: b.source || 'JAIPUR (JP)',
-                      departureTime: b.sourceTime || '14:10',
-                      departureDate: b.sourceDate || '12-Sep-2026',
-                      bookingDate: `${b.sourceDate || '12-Sep-2026'} 20:21:44 HRS`,
+                      pnr: b.pnr || extra.pnr || `${Math.floor(1000000000 + Math.random() * 9000000000)}`,
+                      trainNumber: extra.trainNumber || b.number?.replace(/\D/g, '') || '12007',
+                      trainName: extra.trainName || b.title?.replace(/\(\d+\)/, '').trim() || 'Mas Mys Shatabdi',
+                      classCode: b.classCode || extra.classCode || b.subType || 'CC',
+                      source: extra.source || b.source || 'Mgr Chennai Ctl (MAS)',
+                      sourceCode: extra.sourceCode || b.sourceCode || 'MAS',
+                      sourceTime: extra.sourceTime || b.sourceTime || '06:00 AM',
+                      sourceDate: extra.dateOfJourney || b.sourceDate || '16 Nov, 2026',
+                      destination: extra.destination || b.destination || 'Ksr Bengaluru (SBC)',
+                      destinationCode: extra.destinationCode || b.destinationCode || 'SBC',
+                      destinationTime: extra.destinationTime || b.destinationTime || '10:30 AM',
+                      destinationDate: extra.destinationDate || b.destinationDate || b.sourceDate || '16 Nov, 2026',
+                      boardingStation: extra.boardingStation || b.boardingStation || b.source || 'Mgr Chennai Ctl (MAS)',
+                      departureTime: extra.departureTime || b.sourceTime || '06:00 AM',
+                      departureDate: extra.dateOfJourney || b.sourceDate || '16 Nov, 2026',
+                      bookingDate: extra.dateOfJourney ? `${extra.dateOfJourney} | 07:05PM` : `${b.sourceDate} 07:05 PM`,
+                      transactionId: b.txnId || extra.txnId || extra.paymentDetails?.txnId || `${Date.now()}${Math.floor(10 + Math.random() * 90)}`,
                       passengers: paxFormatted,
-                      fare: (b as any).transactionAmount || (b as any).price || 320,
+                      fare: Number(extra.fare || (b.transactionAmount ? (b.transactionAmount - 12.7) : 1055)),
                       convenienceFee: 11.80,
                       insurancePremium: 0.90,
-                      totalFare: ((b as any).transactionAmount || (b as any).price || 320) + 12.70
+                      totalFare: Number(b.transactionAmount || extra.paymentDetails?.amount || 1067.25),
+                      autoPrint: true
                     });
                   }}
                   onCancelBooking={handleCancelBooking}

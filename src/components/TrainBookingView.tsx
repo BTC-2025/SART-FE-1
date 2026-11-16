@@ -30,6 +30,7 @@ import TrainSearchBar from './trains/TrainSearchBar';
 import TrainFilterSidebar from './trains/TrainFilterSidebar';
 import TrainCard from './trains/TrainCard';
 import TrainRouteModal from './trains/TrainRouteModal';
+import TrainScheduleModal from './trains/TrainScheduleModal';
 import TrainAvailabilityCalendarModal from './trains/TrainAvailabilityCalendarModal';
 import { TrainApi } from '@/apis/trainApi';
 
@@ -307,24 +308,30 @@ export default function TrainBookingView() {
 
   const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
   const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
+  const [selectedClassFilter, setSelectedClassFilter] = useState('All Classes');
+  const [selectedQuotaFilter, setSelectedQuotaFilter] = useState('GENERAL');
   const [selectedQuota, setSelectedQuota] = useState<'general' | 'tatkal' | 'ladies' | 'senior'>('general');
   const [selectedDepTimeRanges, setSelectedDepTimeRanges] = useState<string[]>([]);
   const [selectedArrTimeRanges, setSelectedArrTimeRanges] = useState<string[]>([]);
   const [selectedDepStations, setSelectedDepStations] = useState<string[]>([]);
   const [selectedArrStations, setSelectedArrStations] = useState<string[]>([]);
+  const [selectedTrainTypes, setSelectedTrainTypes] = useState<string[]>([]);
   const [freeCancel, setFreeCancel] = useState(false);
 
   const [openAccordions, setOpenAccordions] = useState<Record<string, boolean>>({
-    availability: true,
-    ticketClass: true,
-    quota: false,
-    departureTime: false,
-    arrivalTime: false,
-    departingStations: false,
-    arrivingStations: false
+    quickFilters: true,
+    ticketTypes: true,
+    quota: true,
+    journeyClass: true,
+    arrivalIn: true,
+    departureFrom: true,
+    trainTypes: true,
+    stationsFrom: true,
+    stationsTo: true
   });
 
   const [viewRouteTrain, setViewRouteTrain] = useState<TrainItem | null>(null);
+  const [viewScheduleTrain, setViewScheduleTrain] = useState<TrainItem | null>(null);
   const [selectedTrainCardClass, setSelectedTrainCardClass] = useState<Record<string, TrainClassOption | null>>({});
   const [bookingClassModal, setBookingClassModal] = useState<{ train: TrainItem; classOption: TrainClassOption } | null>(null);
   const [passengerName, setPassengerName] = useState('');
@@ -437,9 +444,18 @@ export default function TrainBookingView() {
   let displayedTrains = [...corridorTrains];
   if (filterAvailable) displayedTrains = displayedTrains.filter((t) => t.classes.some((c) => c.statusType === 'available'));
   if (filterAC) displayedTrains = displayedTrains.filter((t) => t.classes.some((c) => ['1A', '2A', '3A', '3E', 'CC', 'EC', 'EA'].includes(c.code)));
-  if (filterTatkal || selectedQuota === 'tatkal') displayedTrains = displayedTrains.filter((t) => t.classes.some((c) => c.isTatkal));
+  if (filterTatkal || selectedQuota === 'tatkal' || selectedQuotaFilter === 'TATKAL' || selectedQuotaFilter === 'PREMIUM TATKAL') {
+    displayedTrains = displayedTrains.filter((t) => t.classes.some((c) => c.isTatkal));
+  }
   if (filterAltTrip) displayedTrains = displayedTrains.filter((t) => t.stops && t.stops.length > 3);
   if (selectedClasses.length > 0) displayedTrains = displayedTrains.filter((t) => t.classes.some((c) => selectedClasses.includes(c.code)));
+
+  // Filter by Top Search Bar All Classes dropdown
+  if (selectedClassFilter && selectedClassFilter !== 'All Classes') {
+    const codeMatch = selectedClassFilter.match(/\((.*?)\)/);
+    const targetCode = codeMatch ? codeMatch[1].toUpperCase() : selectedClassFilter.toUpperCase();
+    displayedTrains = displayedTrains.filter((t) => t.classes.some((c) => c.code.toUpperCase() === targetCode));
+  }
 
   if (selectedAvailability.length > 0) {
     displayedTrains = displayedTrains.filter((t) =>
@@ -463,6 +479,18 @@ export default function TrainBookingView() {
   }
   if (selectedArrStations.length > 0) {
     displayedTrains = displayedTrains.filter((t) => selectedArrStations.includes(t.arrivalStation) || selectedArrStations.includes(t.arrivalStationCode));
+  }
+
+  if (selectedTrainTypes.length > 0) {
+    displayedTrains = displayedTrains.filter((t) => {
+      const isSuf = t.name.toLowerCase().includes('sf') || t.name.toLowerCase().includes('superfast') || t.departureTag === 'SUF';
+      const isMex = t.name.toLowerCase().includes('exp') || t.name.toLowerCase().includes('mail') || t.departureTag === 'MEX';
+      const isOther = !isSuf && !isMex;
+      if (selectedTrainTypes.includes('SUF') && isSuf) return true;
+      if (selectedTrainTypes.includes('MEX') && isMex) return true;
+      if (selectedTrainTypes.includes('O') && isOther) return true;
+      return false;
+    });
   }
 
   if (sortBy === 'Duration') {
@@ -491,6 +519,8 @@ export default function TrainBookingView() {
     setSelectedArrTimeRanges([]);
     setSelectedDepStations([]);
     setSelectedArrStations([]);
+    setSelectedTrainTypes([]);
+    setFreeCancel(false);
   };
 
   const handleConfirmTicketBooking = async (bookingMeta?: {
@@ -671,6 +701,10 @@ export default function TrainBookingView() {
         handleModeChange={handleModeChange}
         onSearch={triggerSearchNavigation}
         INITIAL_MODE_ORDER={INITIAL_MODE_ORDER}
+        selectedClassFilter={selectedClassFilter}
+        setSelectedClassFilter={setSelectedClassFilter}
+        selectedQuotaFilter={selectedQuotaFilter}
+        setSelectedQuotaFilter={setSelectedQuotaFilter}
       />
 
       {/* Mode Views or Skeleton */}
@@ -742,6 +776,9 @@ export default function TrainBookingView() {
         <div className="tb-main-grid">
           {/* Left Filter Sidebar */}
           <TrainFilterSidebar
+            source={source}
+            destination={destination}
+            trains={corridorTrains}
             filterAvailable={filterAvailable}
             setFilterAvailable={setFilterAvailable}
             filterAC={filterAC}
@@ -764,6 +801,8 @@ export default function TrainBookingView() {
             setSelectedDepStations={setSelectedDepStations}
             selectedArrStations={selectedArrStations}
             setSelectedArrStations={setSelectedArrStations}
+            selectedTrainTypes={selectedTrainTypes}
+            setSelectedTrainTypes={setSelectedTrainTypes}
             openAccordions={openAccordions}
             toggleAccordion={toggleAccordion}
             availableDepartingStations={availableDepartingStations}
@@ -838,6 +877,9 @@ export default function TrainBookingView() {
                     // Navigate to full train history & live status page
                     router.push(`/home/ride/train/${t.number}`);
                   }}
+                  onViewSchedule={(t) => {
+                    setViewScheduleTrain(t);
+                  }}
                   onSelectClass={(t, cls) => {
                     setSelectedTrainCardClass((prev) => {
                       const current = prev[t.id];
@@ -850,8 +892,29 @@ export default function TrainBookingView() {
                   }}
                   onSelectBooking={(tr, cl, dt) => {
                     setDateOfJourney(dt);
-                    setBookingClassModal({ train: tr, classOption: cl });
-                    setBookingConfirmed(false);
+                    const bookingPayload = {
+                      trainName: tr.name,
+                      trainNumber: tr.number,
+                      classCode: cl.code,
+                      fare: cl.fare,
+                      totalAmount: cl.fare,
+                      source: source || tr.departureStation,
+                      sourceCode: tr.departureStationCode,
+                      destination: destination || tr.arrivalStation,
+                      destinationCode: tr.arrivalStationCode,
+                      dateOfJourney: dt,
+                      depTime: tr.departureTime,
+                      arrTime: tr.arrivalTime,
+                      duration: tr.duration,
+                      boardingStation: tr.departureStation,
+                      passengers: []
+                    };
+                    try {
+                      localStorage.setItem('sart_pending_train_booking', JSON.stringify(bookingPayload));
+                    } catch (e) {
+                      console.error('Error saving pending booking on select', e);
+                    }
+                    router.push('/home/ride/train/PassengerDetails');
                   }}
                 />
               );
@@ -862,6 +925,9 @@ export default function TrainBookingView() {
 
       {/* Route Timeline Modal */}
       {viewRouteTrain && <TrainRouteModal train={viewRouteTrain} onClose={() => setViewRouteTrain(null)} />}
+
+      {/* Train Schedule Modal (Matching Image 1) */}
+      {viewScheduleTrain && <TrainScheduleModal train={viewScheduleTrain} onClose={() => setViewScheduleTrain(null)} />}
 
       {/* Passenger Details & Booking Modal */}
       {bookingClassModal && (

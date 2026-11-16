@@ -65,9 +65,9 @@ export default function TrainPaymentPage() {
   };
 
   const totalAmount = bookingData?.totalAmount || bookingData?.fare || 600.4;
-  const trainName = bookingData?.trainName || 'Train Express';
-  const trainNumber = bookingData?.trainNumber || '12007';
-  const classCode = bookingData?.classCode || 'CC';
+  const trainName = bookingData?.trainName || '';
+  const trainNumber = bookingData?.trainNumber || '';
+  const classCode = bookingData?.classCode || '';
 
   const categories: PaymentCategory[] = [
     {
@@ -209,15 +209,15 @@ export default function TrainPaymentPage() {
     // 1. Call Backend API to confirm booking and persist in database
     try {
       const payload: any = {
-        trainNumber: bookingData?.trainNumber || '12007',
-        trainName: bookingData?.trainName || 'Train Express',
-        classCode: bookingData?.classCode || 'CC',
-        source: bookingData?.source || 'Chennai',
-        destination: bookingData?.destination || 'Bengaluru',
-        dateOfJourney: bookingData?.dateOfJourney || new Date().toLocaleDateString('en-GB'),
-        departureTime: bookingData?.depTime || '06:00 AM',
-        passengerName: bookingData?.passengers?.[0]?.name || 'Passenger',
-        passengers: bookingData?.passengers || [{ name: 'Passenger', age: '25', gender: 'Male', berthPreference: 'No Preference' }],
+        trainNumber: bookingData?.trainNumber || '',
+        trainName: bookingData?.trainName || '',
+        classCode: bookingData?.classCode || '',
+        source: bookingData?.source || '',
+        destination: bookingData?.destination || '',
+        dateOfJourney: bookingData?.dateOfJourney || new Date().toLocaleDateString(''),
+        departureTime: bookingData?.depTime || '',
+        passengerName: bookingData?.passengers?.[0]?.name || '',
+        passengers: bookingData?.passengers || [{ name: '', age: '', gender: '', berthPreference: '' }],
         email: bookingData?.email,
         phone: bookingData?.phone,
         irctcId: bookingData?.irctcId,
@@ -227,21 +227,23 @@ export default function TrainPaymentPage() {
           provider: chosenProvider,
           status: 'SUCCESS',
           amount: totalAmount,
-          txnId: `TXN${Date.now()}`
+          txnId: `${Date.now()}${Math.floor(10 + Math.random() * 90)}`
         },
         fare: totalAmount
       };
 
       const resp = await TrainApi.confirmBooking(payload);
 
-      const generatedPnr = resp?.data?.pnr || `${Math.floor(2000000000 + Math.random() * 8000000000)}`;
+      const generatedPnr = resp?.data?.pnr || `${Math.floor(1000000000 + Math.random() * 9000000000)}`;
+      const generatedTxnId = resp?.data?.txnId || payload.paymentDetails?.txnId || `${Date.now()}${Math.floor(10 + Math.random() * 90)}`;
 
       const confirmedRecord = {
-        id: `train-${Date.now()}`,
+        id: resp?.data?.id || `train-${Date.now()}`,
         title: payload.trainName,
         number: payload.trainNumber,
         type: 'Train',
         pnr: generatedPnr,
+        txnId: generatedTxnId,
         bookingId: resp?.data?.bookingId || `TRN${Math.floor(100000 + Math.random() * 900000)}`,
         source: payload.source,
         destination: payload.destination,

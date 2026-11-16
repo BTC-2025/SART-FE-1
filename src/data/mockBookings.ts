@@ -41,6 +41,14 @@ export interface Booking {
   reportingTime?: string;
   address?: string;
   stops?: { name: string; time: string; status: 'past' | 'current' | 'future' }[];
+  extraData?: string;
+  passengers?: any[];
+  coach?: string;
+  berthNo?: string | number;
+  classCode?: string;
+  boardingStation?: string;
+  price?: number;
+  subType?: string;
 }
 
 // Helper to format live dates relative to today
@@ -60,7 +68,7 @@ export const MOCK_BOOKINGS: Booking[] = [
     title: 'SIMHAPURI SF EX',
     number: '12709',
     type: 'train',
-    image: 'https://img.icons8.com/fluency/96/train.png',
+    image: '/images/train_icon_logo.png',
     source: 'Nellore',
     sourceCode: 'NLR',
     sourceTime: '19:00',
@@ -130,7 +138,7 @@ export const MOCK_BOOKINGS: Booking[] = [
     title: 'SMVB VSKP SF EX',
     number: '12846',
     type: 'train',
-    image: 'https://img.icons8.com/fluency/96/train.png',
+    image: '/images/train_icon_logo.png',
     source: 'SMVT Bengaluru',
     sourceCode: 'SMVB',
     sourceTime: '08:15',
@@ -200,7 +208,7 @@ export const MOCK_BOOKINGS: Booking[] = [
     title: 'Orange Travels AC Sleeper',
     number: 'AP09 8899',
     type: 'bus',
-    image: 'https://img.icons8.com/fluency/96/bus.png',
+    image: '/images/bus_icon_logo.png',
     source: 'Hyderabad',
     sourceCode: 'HYD',
     sourceTime: '22:00',

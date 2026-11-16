@@ -39,6 +39,10 @@ interface TrainSearchBarProps {
   handleModeChange: (mode: any) => void;
   onSearch: () => void;
   INITIAL_MODE_ORDER: { id: string; label: string; icon: string }[];
+  selectedClassFilter?: string;
+  setSelectedClassFilter?: (cls: string) => void;
+  selectedQuotaFilter?: string;
+  setSelectedQuotaFilter?: (quota: string) => void;
 }
 
 export default function TrainSearchBar({
@@ -76,8 +80,56 @@ export default function TrainSearchBar({
   setShowOtherRidesDropdown,
   handleModeChange,
   onSearch,
-  INITIAL_MODE_ORDER
+  INITIAL_MODE_ORDER,
+  selectedClassFilter = 'All Classes',
+  setSelectedClassFilter,
+  selectedQuotaFilter = 'GENERAL',
+  setSelectedQuotaFilter
 }: TrainSearchBarProps) {
+  const [showClassDropdown, setShowClassDropdown] = React.useState(false);
+  const [showQuotaDropdown, setShowQuotaDropdown] = React.useState(false);
+  const classDropdownRef = React.useRef<HTMLDivElement>(null);
+  const quotaDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleOutside = (e: MouseEvent) => {
+      if (classDropdownRef.current && !classDropdownRef.current.contains(e.target as Node)) {
+        setShowClassDropdown(false);
+      }
+      if (quotaDropdownRef.current && !quotaDropdownRef.current.contains(e.target as Node)) {
+        setShowQuotaDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, []);
+
+  const CLASS_OPTIONS = [
+    'All Classes',
+    'Anubhuti Class (EA)',
+    'AC First Class (1A)',
+    'Vistadome AC (EV)',
+    'Exec. Chair Car (EC)',
+    'AC 2 Tier (2A)',
+    'First Class (FC)',
+    'AC 3 Tier (3A)',
+    'AC 3 Economy (3E)',
+    'Vistadome Chair Car (VC)',
+    'AC Chair car (CC)',
+    'Sleeper (SL)',
+    'Vistadome Non AC (VS)',
+    'Second Sitting (2S)'
+  ];
+
+  const QUOTA_OPTIONS = [
+    'GENERAL',
+    'LADIES',
+    'LOWER BERTH/SR.CITIZEN',
+    'PERSON WITH DISABILITY',
+    'DUTY PASS',
+    'TATKAL',
+    'PREMIUM TATKAL'
+  ];
   const MONTH_NAMES = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
@@ -314,53 +366,18 @@ export default function TrainSearchBar({
         <div className="tb-field-divider"></div>
 
         {/* Date Field */}
-        <div className="tb-search-field tb-date-field" style={{ flex: '1.2', cursor: 'pointer' }} ref={calendarRef}>
-          <div className="tb-date-trigger-wrap" onClick={toggleCalendarPicker} title="Click to select journey date">
-            <i className="fa-regular fa-calendar-days tb-field-icon tb-cal-icon"></i>
+        <div className="tb-search-field tb-date-field" style={{ flex: '0 0 auto', minWidth: '130px', cursor: 'pointer' }} ref={calendarRef}>
+          <div className="tb-date-trigger-wrap" onClick={toggleCalendarPicker} title="Click to select journey date" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <i className="fa-regular fa-calendar-days tb-field-icon tb-cal-icon" style={{ fontSize: '18px', color: '#334155' }}></i>
             <div className="tb-field-content">
-              <span className="tb-field-label">Date of journey</span>
-              <div className="tb-date-display-row">
-                <span className="tb-date-text">{dateOfJourney}</span>
-                <i className={`fa-solid fa-chevron-${showCalendarPicker ? 'up' : 'down'} tb-date-chevron`}></i>
+              <span className="tb-field-label" style={{ fontSize: '10px', color: '#94a3b8', lineHeight: '1.2' }}>Date Of<br/>Journey</span>
+              <div className="tb-date-display-row" style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: '1px' }}>
+                <span className="tb-date-text" style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap' }}>
+                  {dateOfJourney}
+                </span>
+                <i className={`fa-solid fa-chevron-${showCalendarPicker ? 'up' : 'down'} tb-date-chevron`} style={{ fontSize: '10px', color: '#64748b' }}></i>
               </div>
             </div>
-          </div>
-
-          <div className="tb-quick-date-pills">
-            <button
-              type="button"
-              className="tb-date-pill"
-              onClick={(e) => {
-                e.stopPropagation();
-                const tom = new Date();
-                tom.setDate(tom.getDate() + 1);
-                setCalMonth(tom.getMonth());
-                setCalYear(tom.getFullYear());
-                const formatted = `${String(tom.getDate()).padStart(2, '0')} ${MONTH_SHORT[tom.getMonth()]}, ${tom.getFullYear()}`;
-                setDateOfJourney(formatted);
-                setSelectedDay(String(tom.getDate()).padStart(2, '0'));
-                setShowCalendarPicker(false);
-              }}
-            >
-              Tomorrow
-            </button>
-            <button
-              type="button"
-              className="tb-date-pill"
-              onClick={(e) => {
-                e.stopPropagation();
-                const da = new Date();
-                da.setDate(da.getDate() + 2);
-                setCalMonth(da.getMonth());
-                setCalYear(da.getFullYear());
-                const formatted = `${String(da.getDate()).padStart(2, '0')} ${MONTH_SHORT[da.getMonth()]}, ${da.getFullYear()}`;
-                setDateOfJourney(formatted);
-                setSelectedDay(String(da.getDate()).padStart(2, '0'));
-                setShowCalendarPicker(false);
-              }}
-            >
-              Day After
-            </button>
           </div>
 
           {showCalendarPicker && (
@@ -467,6 +484,227 @@ export default function TrainSearchBar({
             </div>
           )}
         </div>
+
+        {/* All Classes, GENERAL, Tomorrow, Day After: Displayed ONLY in Train mode */}
+        {activeMode === 'train' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0, margin: '0 4px' }}>
+            {/* 1. All Classes Dropdown Button */}
+            <div ref={classDropdownRef} style={{ position: 'relative' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowClassDropdown((prev) => !prev);
+                  setShowQuotaDropdown(false);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '7px 14px',
+                  borderRadius: '6px',
+                  border: showClassDropdown ? '1.5px solid #0070f3' : '1.5px solid #cbd5e1',
+                  background: '#ffffff',
+                  color: '#0f172a',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  boxShadow: showClassDropdown ? '0 0 0 3px rgba(0, 112, 243, 0.15)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <i className="fa-solid fa-briefcase" style={{ color: '#0070f3', fontSize: '14px' }}></i>
+                <span>{selectedClassFilter}</span>
+                <i className={`fa-solid fa-chevron-${showClassDropdown ? 'up' : 'down'}`} style={{ color: '#64748b', fontSize: '11px', marginLeft: '4px' }}></i>
+              </button>
+
+              {showClassDropdown && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 4px)',
+                    left: 0,
+                    width: '240px',
+                    maxHeight: '300px',
+                    overflowY: 'auto',
+                    background: '#ffffff',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                    zIndex: 99999,
+                    padding: '4px 0'
+                  }}
+                >
+                  {CLASS_OPTIONS.map((cls) => {
+                    const isSelected = selectedClassFilter === cls;
+                    return (
+                      <div
+                        key={cls}
+                        onClick={() => {
+                          if (setSelectedClassFilter) setSelectedClassFilter(cls);
+                          setShowClassDropdown(false);
+                        }}
+                        style={{
+                          padding: '9px 14px',
+                          fontSize: '13px',
+                          fontWeight: isSelected ? 800 : 500,
+                          color: isSelected ? '#ffffff' : '#1e293b',
+                          background: isSelected ? '#0070f3' : 'transparent',
+                          cursor: 'pointer',
+                          transition: 'background 0.1s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = '#f1f5f9';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        {cls}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* 2. Quota (General / Tatkal) Dropdown Button */}
+            <div ref={quotaDropdownRef} style={{ position: 'relative' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowQuotaDropdown((prev) => !prev);
+                  setShowClassDropdown(false);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '7px 14px',
+                  borderRadius: '6px',
+                  border: showQuotaDropdown ? '1.5px solid #0070f3' : '1.5px solid #cbd5e1',
+                  background: '#ffffff',
+                  color: '#0f172a',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  boxShadow: showQuotaDropdown ? '0 0 0 3px rgba(0, 112, 243, 0.15)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <i className="fa-solid fa-table-cells" style={{ color: '#0070f3', fontSize: '14px' }}></i>
+                <span>{selectedQuotaFilter}</span>
+                <i className={`fa-solid fa-chevron-${showQuotaDropdown ? 'up' : 'down'}`} style={{ color: '#64748b', fontSize: '11px', marginLeft: '4px' }}></i>
+              </button>
+
+              {showQuotaDropdown && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 4px)',
+                    left: 0,
+                    width: '240px',
+                    maxHeight: '300px',
+                    overflowY: 'auto',
+                    background: '#ffffff',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                    zIndex: 99999,
+                    padding: '4px 0'
+                  }}
+                >
+                  {QUOTA_OPTIONS.map((q) => {
+                    const isSelected = selectedQuotaFilter === q;
+                    return (
+                      <div
+                        key={q}
+                        onClick={() => {
+                          if (setSelectedQuotaFilter) setSelectedQuotaFilter(q);
+                          setShowQuotaDropdown(false);
+                        }}
+                        style={{
+                          padding: '9px 14px',
+                          fontSize: '13px',
+                          fontWeight: isSelected ? 800 : 500,
+                          color: isSelected ? '#ffffff' : '#1e293b',
+                          background: isSelected ? '#0070f3' : 'transparent',
+                          cursor: 'pointer',
+                          transition: 'background 0.1s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = '#f1f5f9';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        {q}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* 3. Tomorrow Button (after All Classes and GENERAL) */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                const tom = new Date();
+                tom.setDate(tom.getDate() + 1);
+                setCalMonth(tom.getMonth());
+                setCalYear(tom.getFullYear());
+                const formatted = `${String(tom.getDate()).padStart(2, '0')} ${MONTH_SHORT[tom.getMonth()]}, ${tom.getFullYear()}`;
+                setDateOfJourney(formatted);
+                setSelectedDay(String(tom.getDate()).padStart(2, '0'));
+                setShowCalendarPicker(false);
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#3b0764',
+                fontSize: '13px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                padding: '6px 8px',
+                borderRadius: '6px',
+                transition: 'background 0.15s ease'
+              }}
+            >
+              Tomorrow
+            </button>
+
+            {/* 4. Day After Button */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                const da = new Date();
+                da.setDate(da.getDate() + 2);
+                setCalMonth(da.getMonth());
+                setCalYear(da.getFullYear());
+                const formatted = `${String(da.getDate()).padStart(2, '0')} ${MONTH_SHORT[da.getMonth()]}, ${da.getFullYear()}`;
+                setDateOfJourney(formatted);
+                setSelectedDay(String(da.getDate()).padStart(2, '0'));
+                setShowCalendarPicker(false);
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#3b0764',
+                fontSize: '13px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                padding: '6px 8px',
+                borderRadius: '6px',
+                transition: 'background 0.15s ease'
+              }}
+            >
+              Day After
+            </button>
+          </div>
+        )}
 
         {/* Red Search Button */}
         <button className="tb-search-action-btn" onClick={onSearch} title="Search">
