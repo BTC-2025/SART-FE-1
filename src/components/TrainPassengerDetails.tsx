@@ -9,7 +9,9 @@ export interface TrainPassenger {
   name: string;
   age: string;
   gender: 'Male' | 'Female' | 'Transgender';
+  nationality?: string;
   berthPreference: 'No Preference' | 'Lower' | 'Middle' | 'Upper' | 'Side Lower' | 'Side Upper';
+  cateringOption?: string;
 }
 
 interface TrainPassengerDetailsModalProps {
@@ -108,7 +110,9 @@ export default function TrainPassengerDetailsModal({
   const [currentName, setCurrentName] = useState('');
   const [currentGender, setCurrentGender] = useState<'Male' | 'Female' | 'Transgender'>('Male');
   const [currentAge, setCurrentAge] = useState('');
+  const [currentNationality, setCurrentNationality] = useState('India');
   const [currentBerth, setCurrentBerth] = useState<'No Preference' | 'Lower' | 'Middle' | 'Upper' | 'Side Lower' | 'Side Upper'>('No Preference');
+  const [currentCatering, setCurrentCatering] = useState('Veg Food');
 
   const handleAddPassenger = () => {
     if (!currentName.trim()) return;
@@ -116,13 +120,17 @@ export default function TrainPassengerDetailsModal({
       name: currentName.trim(),
       age: currentAge || '25',
       gender: currentGender,
-      berthPreference: currentBerth
+      nationality: currentNationality,
+      berthPreference: currentBerth,
+      cateringOption: currentCatering
     };
     setPassengersList([...passengersList, newPax]);
     setCurrentName('');
     setCurrentAge('');
     setCurrentBerth('No Preference');
     setCurrentGender('Male');
+    setCurrentNationality('India');
+    setCurrentCatering('Veg Food');
   };
 
   const handleRemovePassenger = (idx: number) => {
@@ -546,107 +554,80 @@ export default function TrainPassengerDetailsModal({
                 </div>
               </div>
 
-              {/* 3. Select Passengers Card (Exact matching Image 1) */}
-              <div style={{ background: '#ffffff', borderRadius: '12px', padding: '16px', border: '1px solid #e2e8f0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>Select passengers</h3>
-                  <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>{passengersList.length} Added</span>
+              {/* 3. Passenger Details Card (IRCTC Style matching Image 2) */}
+              <div style={{ background: '#ffffff', borderRadius: '8px', padding: '18px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>Passenger Details</h3>
+                  <i className="fa-solid fa-chevron-up" style={{ color: '#64748b', fontSize: '13px' }}></i>
                 </div>
 
-                {/* Display Current Added Passengers (only when entered) */}
+                {/* Display Current Added Passengers */}
                 {passengersList.filter(p => p.name && p.name.trim().length > 0).map((pax, idx) => (
                   <div key={idx} style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '8px 12px',
+                    padding: '10px 14px',
                     background: '#f8fafc',
-                    borderRadius: '8px',
+                    borderRadius: '6px',
                     border: '1px solid #e2e8f0',
-                    marginBottom: '10px'
+                    marginBottom: '12px'
                   }}>
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
                         {idx + 1}. {pax.name}
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>
-                        {pax.gender || 'Male'} • {pax.age ? `${pax.age} yrs` : 'Age N/A'} • {pax.berthPreference || 'No Preference'}
-                      </div>
+                      </span>
+                      <span style={{ fontSize: '13px', color: '#475569', fontWeight: 600 }}>
+                        {pax.age} yrs • {pax.gender} • {pax.nationality || 'India'}
+                      </span>
+                      <span style={{ fontSize: '12px', background: '#e0f2fe', color: '#0284c7', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
+                        {pax.berthPreference}
+                      </span>
+                      {pax.cateringOption && (
+                        <span style={{ fontSize: '12px', background: '#fef3c7', color: '#b45309', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
+                          {pax.cateringOption}
+                        </span>
+                      )}
                     </div>
                     <button
                       type="button"
                       onClick={() => handleRemovePassenger(idx)}
-                      style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '13px', cursor: 'pointer' }}
+                      style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '16px', cursor: 'pointer', padding: '4px' }}
                       title="Remove passenger"
                     >
-                      <i className="fa-solid fa-trash-can"></i>
+                      <i className="fa-solid fa-xmark"></i>
                     </button>
                   </div>
                 ))}
 
-                {/* Name Input */}
-                <div style={{ marginBottom: '10px' }}>
+                {/* Passenger Form Input Row (Horizontal Grid matching Image 2) */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'minmax(180px, 1.4fr) 70px 110px 140px minmax(140px, 1.1fr) 28px',
+                  gap: '8px',
+                  alignItems: 'center',
+                  marginBottom: '10px'
+                }}>
+                  {/* Name Input */}
                   <input
                     type="text"
                     value={currentName}
                     onChange={(e) => setCurrentName(e.target.value)}
-                    placeholder="Name"
+                    placeholder="Passenger Name"
                     style={{
                       width: '100%',
-                      padding: '10px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid #cbd5e1',
+                      padding: '8px 12px',
+                      borderRadius: '4px',
+                      border: '1.5px solid #cbd5e1',
                       fontSize: '13px',
-                      outline: 'none'
+                      fontWeight: 600,
+                      color: '#0f172a',
+                      outline: 'none',
+                      background: '#ffffff'
                     }}
                   />
-                </div>
 
-                {/* Gender Radio Pills */}
-                <div style={{ marginBottom: '10px' }}>
-                  <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, marginBottom: '6px' }}>Gender</div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    {(['Male', 'Female', 'Others'] as const).map((g) => {
-                      const actualGender = g === 'Others' ? 'Transgender' : g;
-                      const isSelected = currentGender === actualGender;
-                      return (
-                        <button
-                          key={g}
-                          type="button"
-                          onClick={() => setCurrentGender(actualGender)}
-                          style={{
-                            flex: 1,
-                            padding: '8px 12px',
-                            borderRadius: '20px',
-                            border: `1.5px solid ${isSelected ? '#0284c7' : '#cbd5e1'}`,
-                            background: isSelected ? '#f0f9ff' : '#ffffff',
-                            color: isSelected ? '#0284c7' : '#334155',
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '6px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          <span>{g}</span>
-                          <span style={{
-                            width: '12px',
-                            height: '12px',
-                            borderRadius: '50%',
-                            border: `2px solid ${isSelected ? '#0284c7' : '#94a3b8'}`,
-                            display: 'inline-block',
-                            background: isSelected ? '#0284c7' : 'transparent'
-                          }}></span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Age Input */}
-                <div style={{ marginBottom: '10px' }}>
+                  {/* Age Input */}
                   <input
                     type="number"
                     value={currentAge}
@@ -654,68 +635,176 @@ export default function TrainPassengerDetailsModal({
                     placeholder="Age"
                     style={{
                       width: '100%',
-                      padding: '10px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid #cbd5e1',
+                      padding: '8px 8px',
+                      borderRadius: '4px',
+                      border: '1.5px solid #cbd5e1',
                       fontSize: '13px',
-                      outline: 'none'
+                      fontWeight: 600,
+                      color: '#0f172a',
+                      textAlign: 'center',
+                      outline: 'none',
+                      background: '#ffffff'
                     }}
                   />
-                </div>
 
-                {/* Berth Dropdown */}
-                <div style={{
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '8px',
-                  padding: '6px 12px',
-                  background: '#ffffff',
-                  marginBottom: '4px'
-                }}>
-                  <label style={{ display: 'block', fontSize: '10px', color: '#64748b', fontWeight: 600 }}>Berth</label>
+                  {/* Gender Select */}
+                  <select
+                    value={currentGender}
+                    onChange={(e) => setCurrentGender(e.target.value as any)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 8px',
+                      borderRadius: '4px',
+                      border: '1.5px solid #cbd5e1',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: '#0f172a',
+                      outline: 'none',
+                      background: '#ffffff',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Transgender">Transgender</option>
+                  </select>
+
+                  {/* Nationality Select */}
+                  <select
+                    value={currentNationality}
+                    onChange={(e) => setCurrentNationality(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 8px',
+                      borderRadius: '4px',
+                      border: '1.5px solid #cbd5e1',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: '#0f172a',
+                      outline: 'none',
+                      background: '#ffffff',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="India">India</option>
+                    <option value="Other">Other</option>
+                  </select>
+
+                  {/* Berth Preference Select */}
                   <select
                     value={currentBerth}
                     onChange={(e) => setCurrentBerth(e.target.value as any)}
                     style={{
                       width: '100%',
-                      border: 'none',
-                      outline: 'none',
+                      padding: '8px 8px',
+                      borderRadius: '4px',
+                      border: '1.5px solid #2563eb',
                       fontSize: '13px',
-                      fontWeight: 600,
-                      color: '#0f172a',
-                      background: 'transparent',
+                      fontWeight: 700,
+                      color: '#1e3a8a',
+                      outline: 'none',
+                      background: '#ffffff',
                       cursor: 'pointer'
                     }}
                   >
-                    <option value="No Preference">No Pref</option>
-                    <option value="Lower">Lower Berth</option>
-                    <option value="Middle">Middle Berth</option>
-                    <option value="Upper">Upper Berth</option>
+                    <option value="No Preference">No Preference</option>
+                    <option value="Lower">Lower</option>
+                    <option value="Middle">Middle</option>
+                    <option value="Upper">Upper</option>
                     <option value="Side Lower">Side Lower</option>
                     <option value="Side Upper">Side Upper</option>
                   </select>
-                </div>
-                <div style={{ fontSize: '10px', color: '#94a3b8', marginBottom: '12px' }}>
-                  Berth Preference not guaranteed
+
+                  {/* Clear / Reset action icon */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCurrentName('');
+                      setCurrentAge('');
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#94a3b8',
+                      cursor: 'pointer',
+                      fontSize: '15px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 0
+                    }}
+                    title="Clear row"
+                  >
+                    <i className="fa-solid fa-xmark"></i>
+                  </button>
                 </div>
 
-                {/* Add to passengers list button */}
-                <button
-                  type="button"
-                  onClick={handleAddPassenger}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    background: '#e2e8f0',
-                    color: '#334155',
-                    border: 'none',
-                    borderRadius: '20px',
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    cursor: 'pointer'
-                  }}
-                >
-                  Add to passengers list
-                </button>
+                {/* Catering Service Option Row */}
+                <div style={{ marginBottom: '14px', maxWidth: '240px' }}>
+                  <select
+                    value={currentCatering}
+                    onChange={(e) => setCurrentCatering(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '7px 12px',
+                      borderRadius: '4px',
+                      border: '1.5px solid #cbd5e1',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      color: '#0f172a',
+                      outline: 'none',
+                      background: '#ffffff',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="Catering Service Option*">Catering Service Option*</option>
+                    <option value="Veg Food">Veg Food</option>
+                    <option value="Non-Veg Food">Non-Veg Food</option>
+                    <option value="No Food">No Food</option>
+                  </select>
+                </div>
+
+                {/* Bottom Action Links matching Image 2 */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={handleAddPassenger}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#1d4ed8',
+                      fontWeight: 800,
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: 0
+                    }}
+                  >
+                    + Add Passenger/ Add Infant With Berth
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => alert('Infant under 5 years can be added without berth for free.')}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#1d4ed8',
+                      fontWeight: 800,
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      padding: 0
+                    }}
+                  >
+                    + Add Infant Without Berth
+                  </button>
+                </div>
+
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, marginTop: '6px' }}>
+                  *Children under 5 years of age shall be carried free and no purchase of any ticket is required. (If no separate berth is opted.)
+                </div>
               </div>
 
               {/* 4. Contact Details Card (Exact matching Image 1) */}
