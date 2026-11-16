@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 export default function TrainReviewBookingPage() {
   const router = useRouter();
   const [bookingData, setBookingData] = useState<any>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -21,17 +22,31 @@ export default function TrainReviewBookingPage() {
           console.error('Failed to parse pending booking', e);
         }
       }
+      setIsLoaded(true);
     }
   }, []);
 
-  const trainName = bookingData?.trainName || 'VIKRAMSIMHAPURI';
-  const trainNumber = bookingData?.trainNumber || '12743';
-  const classCode = bookingData?.classCode || '2S';
-  const source = bookingData?.source || 'NELLORE';
-  const destination = bookingData?.destination || 'CHIRALA';
-  const dateOfJourney = bookingData?.dateOfJourney || 'Wed, 18 Nov';
-  const depTime = bookingData?.depTime || '06:25';
-  const arrTime = bookingData?.arrTime || '08:38';
+  if (!isLoaded) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
+        <Navbar />
+        <SubNavbar />
+        <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ fontSize: '14px', color: '#64748b' }}>Loading review details...</div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const trainName = bookingData?.trainName || 'Train Express';
+  const trainNumber = bookingData?.trainNumber || '';
+  const classCode = bookingData?.classCode || 'SL';
+  const source = bookingData?.source || '';
+  const destination = bookingData?.destination || '';
+  const dateOfJourney = bookingData?.dateOfJourney || '';
+  const depTime = bookingData?.depTime || '';
+  const arrTime = bookingData?.arrTime || '';
   const boardingStation = bookingData?.boardingStation || source;
 
   const passengers = bookingData?.passengers && bookingData.passengers.length > 0
@@ -41,14 +56,14 @@ export default function TrainReviewBookingPage() {
   const email = bookingData?.email || '';
   const phone = bookingData?.phone || '';
 
-  const ticketFare = Number(bookingData?.fare || 105);
+  const ticketFare = Number(bookingData?.fare || 0);
   const totalBaseFare = ticketFare * (passengers.length || 1);
   const convenienceFee = bookingData?.paymentMode === 'upi' ? 11.80 : 17.70;
   const travelInsurance = bookingData?.travelInsurance === 'yes' ? 0.45 * (passengers.length || 1) : 0.45;
   const totalFare = (totalBaseFare + convenienceFee + travelInsurance).toFixed(2);
 
   const maskEmail = (mail: string) => {
-    if (!mail) return 'pi******@gmail.com';
+    if (!mail) return '';
     const [name, domain] = mail.split('@');
     if (!domain) return mail;
     const masked = name.length > 2 ? `${name.slice(0, 2)}******` : `${name}******`;
@@ -56,7 +71,7 @@ export default function TrainReviewBookingPage() {
   };
 
   const maskPhone = (ph: string) => {
-    if (!ph) return '90******85';
+    if (!ph) return '';
     if (ph.length >= 4) {
       return `${ph.slice(0, 2)}******${ph.slice(-2)}`;
     }
@@ -159,7 +174,7 @@ export default function TrainReviewBookingPage() {
               {/* Header: Train Name & Train Number & Location Icon */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
                 <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 900, color: '#0f172a', letterSpacing: '0.3px' }}>
-                  {trainName.toUpperCase()} ({trainNumber})
+                  {trainName.toUpperCase()} {trainNumber ? `(${trainNumber})` : ''}
                 </h2>
                 <i className="fa-solid fa-location-dot" style={{ fontSize: '17px', color: '#0f172a' }}></i>
               </div>
@@ -178,7 +193,7 @@ export default function TrainReviewBookingPage() {
 
                 {/* Duration Line */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
-                  <span>— 02:13 —</span>
+                  <span>— {arrTime && depTime ? `${depTime} to ${arrTime}` : '02:13'} —</span>
                 </div>
 
                 {/* Arrival */}
@@ -198,7 +213,7 @@ export default function TrainReviewBookingPage() {
                   color: '#16a34a',
                   letterSpacing: '0.2px'
                 }}>
-                  AVAILABLE-562
+                  AVAILABLE
                 </div>
               </div>
 
@@ -215,13 +230,13 @@ export default function TrainReviewBookingPage() {
               }}>
                 <span>{passengers.length} Adult</span>
                 <span>|</span>
-                <span>Second Sitting ({classCode})</span>
+                <span>Class: {classCode}</span>
                 <span>|</span>
                 <span>General</span>
                 <span>|</span>
                 <span>Boarding at {boardingStation}</span>
                 <span>|</span>
-                <span>Boarding Date: 18 Nov 2026 {depTime}</span>
+                <span>Boarding Date: {dateOfJourney} {depTime}</span>
               </div>
 
               {/* NTES note */}
@@ -249,24 +264,26 @@ export default function TrainReviewBookingPage() {
                 {passengers.map((pax: any, idx: number) => (
                   <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '13.5px', color: '#0f172a' }}>
                     <span style={{ fontWeight: 800, minWidth: '16px' }}>{idx + 1}</span>
-                    <span style={{ fontWeight: 900, textTransform: 'uppercase' }}>{pax.name || 'PICHUKA VENKATA'}</span>
+                    <span style={{ fontWeight: 900, textTransform: 'uppercase' }}>{pax.name}</span>
                     <span style={{ color: '#475569', fontSize: '12.5px', fontWeight: 500 }}>
-                      {pax.age || '24'} yrs (01 Feb 2002) | {pax.gender || 'Male'} | {pax.nationality || 'India'} | {pax.berthPreference || 'Aadhaar Verified'}
+                      {pax.age} yrs | {pax.gender || 'Male'} | {pax.nationality || 'India'} | {pax.berthPreference || 'No Preference'}
                     </span>
                   </div>
                 ))}
               </div>
 
               {/* Ticket Sent Notification */}
-              <div style={{
-                paddingTop: '12px',
-                borderTop: '1px solid #e2e8f0',
-                fontSize: '12.5px',
-                color: '#334155',
-                fontWeight: 600
-              }}>
-                Your ticket will be sent to <strong>{maskEmail(email)}</strong> / <strong>{maskPhone(phone)}</strong>
-              </div>
+              {(email || phone) && (
+                <div style={{
+                  paddingTop: '12px',
+                  borderTop: '1px solid #e2e8f0',
+                  fontSize: '12.5px',
+                  color: '#334155',
+                  fontWeight: 600
+                }}>
+                  Your ticket will be sent to <strong>{maskEmail(email)}</strong> / <strong>{maskPhone(phone)}</strong>
+                </div>
+              )}
             </div>
 
             {/* View Cancellation Policy Link */}

@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import SubNavbar from '@/components/SubNavbar';
 import Footer from '@/components/Footer';
-
 import { TrainApi } from '@/apis/trainApi';
 
 export default function TrainFinalPaymentPage() {
   const router = useRouter();
   const [bookingData, setBookingData] = useState<any>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState('irctc_ipay');
   const [selectedSubOption, setSelectedSubOption] = useState('irctc_ipay_new');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -28,19 +28,33 @@ export default function TrainFinalPaymentPage() {
           console.error('Failed to parse pending booking', e);
         }
       }
+      setIsLoaded(true);
     }
   }, []);
 
-  const trainName = bookingData?.trainName || 'VIKRAMSIMHAPURI';
-  const trainNumber = bookingData?.trainNumber || '12743';
-  const classCode = bookingData?.classCode || '2S';
-  const source = bookingData?.source || 'NELLORE';
-  const sourceCode = 'NLR';
-  const destination = bookingData?.destination || 'CHIRALA';
-  const destinationCode = 'CLX';
-  const dateOfJourney = bookingData?.dateOfJourney || 'Wed, 18 Nov';
-  const depTime = bookingData?.depTime || '06:25';
-  const arrTime = bookingData?.arrTime || '08:38';
+  if (!isLoaded) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#ffffff', display: 'flex', flexDirection: 'column' }}>
+        <Navbar />
+        <SubNavbar />
+        <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ fontSize: '14px', color: '#64748b' }}>Loading payment options...</div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const trainName = bookingData?.trainName || 'Train Express';
+  const trainNumber = bookingData?.trainNumber || '';
+  const classCode = bookingData?.classCode || 'SL';
+  const source = bookingData?.source || '';
+  const sourceCode = bookingData?.sourceCode || (source ? source.slice(0, 3).toUpperCase() : '');
+  const destination = bookingData?.destination || '';
+  const destinationCode = bookingData?.destinationCode || (destination ? destination.slice(0, 3).toUpperCase() : '');
+  const dateOfJourney = bookingData?.dateOfJourney || '';
+  const depTime = bookingData?.depTime || '';
+  const arrTime = bookingData?.arrTime || '';
   const boardingStation = bookingData?.boardingStation || source;
 
   const passengers = bookingData?.passengers && bookingData.passengers.length > 0
@@ -50,7 +64,7 @@ export default function TrainFinalPaymentPage() {
   const email = bookingData?.email || '';
   const phone = bookingData?.phone || '';
 
-  const ticketFare = Number(bookingData?.fare || 105);
+  const ticketFare = Number(bookingData?.fare || 0);
   const totalBaseFare = ticketFare * (passengers.length || 1);
   const convenienceFee = bookingData?.paymentMode === 'upi' ? 11.80 : 17.70;
   const travelInsurance = bookingData?.travelInsurance === 'yes' ? 0.45 * (passengers.length || 1) : 0.45;
@@ -151,7 +165,7 @@ export default function TrainFinalPaymentPage() {
         source: payload.source,
         destination: payload.destination,
         sourceTime: payload.departureTime,
-        destinationTime: arrTime || '08:38',
+        destinationTime: arrTime || '10:30 AM',
         dateOfJourney: payload.dateOfJourney,
         sourceDate: payload.dateOfJourney,
         allPassengers: payload.passengers,
@@ -532,7 +546,7 @@ export default function TrainFinalPaymentPage() {
               <div style={{ padding: '12px 14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
                   <span style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>
-                    {trainName.toUpperCase()}({trainNumber})
+                    {trainName.toUpperCase()} {trainNumber ? `(${trainNumber})` : ''}
                   </span>
                   <span style={{ fontSize: '12px', color: '#475569', fontWeight: 600 }}>
                     {dateOfJourney}
@@ -542,17 +556,17 @@ export default function TrainFinalPaymentPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '10px' }}>
                   <div>
                     <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>{source.toUpperCase()}</div>
-                    <div style={{ fontSize: '11px', color: '#64748b' }}>{sourceCode} ({depTime})</div>
+                    <div style={{ fontSize: '11px', color: '#64748b' }}>{sourceCode} {depTime ? `(${depTime})` : ''}</div>
                   </div>
                   <span style={{ color: '#94a3b8', fontSize: '12px' }}>—</span>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>{destination.toUpperCase()}</div>
-                    <div style={{ fontSize: '11px', color: '#64748b' }}>{destinationCode} ({arrTime})</div>
+                    <div style={{ fontSize: '11px', color: '#64748b' }}>{destinationCode} {arrTime ? `(${arrTime})` : ''}</div>
                   </div>
                 </div>
 
                 <div style={{ fontSize: '11px', fontWeight: 700, color: '#1e293b', borderTop: '1px solid #f1f5f9', paddingTop: '8px', marginBottom: '8px' }}>
-                  {passengers.length} Adult | Second Sitting ({classCode}) | GENERAL | {source.toUpperCase()} | Boarding Date: 18 Nov 2026 {depTime}
+                  {passengers.length} Adult | Class: {classCode} | GENERAL | {source.toUpperCase()} | Boarding Date: {dateOfJourney} {depTime}
                 </div>
 
                 {/* Passenger Details */}
@@ -560,17 +574,19 @@ export default function TrainFinalPaymentPage() {
                   <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>Passenger Details</div>
                   {passengers.map((p: any, idx: number) => (
                     <div key={idx} style={{ fontSize: '11.5px', color: '#334155' }}>
-                      {idx + 1}. <strong>{p.name || 'PICHUKA VENKATA'}</strong> {p.age || '24'} yrs | {p.gender || 'Male'}
+                      {idx + 1}. <strong>{p.name}</strong> {p.age} yrs | {p.gender || 'Male'}
                     </div>
                   ))}
                 </div>
 
                 {/* Contact Details */}
-                <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>
-                  <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>Contact Details</div>
-                  <div style={{ fontSize: '11px', color: '#475569' }}>Email: {email}</div>
-                  <div style={{ fontSize: '11px', color: '#475569' }}>Mobile: {phone}</div>
-                </div>
+                {(email || phone) && (
+                  <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>
+                    <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>Contact Details</div>
+                    {email && <div style={{ fontSize: '11px', color: '#475569' }}>Email: {email}</div>}
+                    {phone && <div style={{ fontSize: '11px', color: '#475569' }}>Mobile: {phone}</div>}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -626,4 +642,3 @@ export default function TrainFinalPaymentPage() {
     </div>
   );
 }
-

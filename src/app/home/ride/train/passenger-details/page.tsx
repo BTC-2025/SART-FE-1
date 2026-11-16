@@ -10,29 +10,45 @@ import TrainPassengerDetailsModal from '@/components/TrainPassengerDetails';
 export default function TrainPassengerDetailsStandalonePage() {
   const router = useRouter();
   const [bookingData, setBookingData] = useState<any>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('sart_pending_train_booking');
       if (saved) {
         try {
-          setBookingData(JSON.parse(saved));
+          const parsed = JSON.parse(saved);
+          setBookingData(parsed);
         } catch (e) {
           console.error('Error loading booking data', e);
         }
       }
+      setIsLoaded(true);
     }
   }, []);
 
-  const trainName = bookingData?.trainName || 'VIKRAMSIMHAPURI';
-  const trainNumber = bookingData?.trainNumber || '12743';
-  const classCode = bookingData?.classCode || '2S';
-  const fare = Number(bookingData?.fare || 105);
-  const source = bookingData?.source || 'NELLORE';
-  const destination = bookingData?.destination || 'CHIRALA';
-  const dateOfJourney = bookingData?.dateOfJourney || 'Wed, 18 Nov';
-  const depTime = bookingData?.depTime || '06:25';
-  const arrTime = bookingData?.arrTime || '08:38';
+  if (!isLoaded) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
+        <Navbar />
+        <SubNavbar />
+        <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ fontSize: '14px', color: '#64748b' }}>Loading journey details...</div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const trainName = bookingData?.trainName || '';
+  const trainNumber = bookingData?.trainNumber || '';
+  const classCode = bookingData?.classCode || '';
+  const fare = Number(bookingData?.fare || 0);
+  const source = bookingData?.source || '';
+  const destination = bookingData?.destination || '';
+  const dateOfJourney = bookingData?.dateOfJourney || '';
+  const depTime = bookingData?.depTime || '';
+  const arrTime = bookingData?.arrTime || '';
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
@@ -70,4 +86,3 @@ export default function TrainPassengerDetailsStandalonePage() {
     </div>
   );
 }
-
