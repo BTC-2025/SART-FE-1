@@ -1,34 +1,40 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ALL_CHENNAI_BANGALORE_TRAINS, EXPANDED_CORRIDOR_TRAINS, INITIAL_TRAINS, TrainItem } from '@/components/trainData';
+import { TRAIN_12007_FULL_SCHEDULE, TrainStopScheduleItem } from '@/components/trains/train12007ScheduleData';
+import Footer from '@/components/Footer';
+import './TrainLiveRoute.css';
 
 export default function TrainRouteHistoryPage() {
   const params = useParams();
   const router = useRouter();
-  const trainNumberParam = params?.trainNumber ? String(params.trainNumber) : '20607';
+  const trainNumberParam = params?.trainNumber ? String(params.trainNumber) : '12007';
 
   // Search input for train number or name
   const [searchInput, setSearchInput] = useState(trainNumberParam);
   const [selectedCoachPF, setSelectedCoachPF] = useState<string | null>(null);
-  const [expandedNonStopping, setExpandedNonStopping] = useState<{ [key: number]: boolean }>({});
   const [activeTab, setActiveTab] = useState<'schedule' | 'map'>('schedule');
 
-  // Find train in master train catalog
+  // Ref for scrolling to the end of the page
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Find train in master catalog
   const allMasterTrains = [
     ...ALL_CHENNAI_BANGALORE_TRAINS,
     ...EXPANDED_CORRIDOR_TRAINS,
     ...INITIAL_TRAINS
   ];
 
-  const currentTrain = allMasterTrains.find(
-    (t) => t.number === trainNumberParam || t.id === trainNumberParam
-  ) || allMasterTrains.find((t) => t.number === '20607') || ALL_CHENNAI_BANGALORE_TRAINS[0];
+  const currentTrain =
+    allMasterTrains.find((t) => t.number === trainNumberParam || t.id === trainNumberParam) ||
+    allMasterTrains.find((t) => t.number === '12007') ||
+    ALL_CHENNAI_BANGALORE_TRAINS[0];
 
-  // Live progress simulation: train is currently between Katpadi Jn and KSR Bengaluru
-  const currentStationIndex = 1; // 0-indexed: departed stop 1
-  const targetUserStation = currentTrain.stops[2] || currentTrain.stops[currentTrain.stops.length - 1];
+  const isTrain12007 = trainNumberParam === '12007' || currentTrain.number === '12007';
+  const scheduleData: TrainStopScheduleItem[] = isTrain12007 ? TRAIN_12007_FULL_SCHEDULE : TRAIN_12007_FULL_SCHEDULE;
 
   // Coach layouts by train type
   const getCoachPositions = (train: TrainItem) => {
@@ -46,168 +52,109 @@ export default function TrainRouteHistoryPage() {
         { type: 'TC', label: 'E2', code: 'EC', pos: 10 }
       ];
     }
-    // Express / Superfast standard rake (as shown in user coach position modal)
+    // Shatabdi / Express standard rake
     return [
       { type: 'ENG', label: 'ENG', code: 'ENG', pos: 0 },
       { type: 'SLRD', label: 'SLRD', code: 'SLRD', pos: 1, isDivyangjan: true },
       { type: 'GEN', label: 'GEN', code: 'GEN', pos: 2 },
       { type: 'GEN', label: 'GEN', code: 'GEN', pos: 3 },
-      { type: 'SL', label: 'S1', code: 'SL', pos: 4 },
-      { type: 'SL', label: 'S2', code: 'SL', pos: 5 },
-      { type: 'SL', label: 'S3', code: 'SL', pos: 6 },
-      { type: 'SL', label: 'S4', code: 'SL', pos: 7 },
-      { type: 'SL', label: 'S5', code: 'SL', pos: 8 },
-      { type: 'SL', label: 'S6', code: 'SL', pos: 9 },
+      { type: 'CC', label: 'C1', code: 'CC', pos: 4 },
+      { type: 'CC', label: 'C2', code: 'CC', pos: 5 },
+      { type: 'CC', label: 'C3', code: 'CC', pos: 6 },
+      { type: 'CC', label: 'C4', code: 'CC', pos: 7 },
+      { type: 'CC', label: 'C5', code: 'CC', pos: 8 },
+      { type: 'CC', label: 'C6', code: 'CC', pos: 9 },
       { type: 'PC', label: 'PC', code: 'PC', pos: 10 },
-      { type: '3E', label: 'M1', code: '3E', pos: 11 },
-      { type: '3E', label: 'M2', code: '3E', pos: 12 },
-      { type: '3A', label: 'B1', code: '3A', pos: 13 },
-      { type: '3A', label: 'B2', code: '3A', pos: 14 },
-      { type: '3A', label: 'B3', code: '3A', pos: 15 },
-      { type: '3A', label: 'B4', code: '3A', pos: 16 },
-      { type: '2A', label: 'A1', code: '2A', pos: 17 },
-      { type: '2A', label: 'A2', code: '2A', pos: 18 },
-      { type: '1A', label: 'H1', code: '1A', pos: 19 },
-      { type: 'GEN', label: 'GEN', code: 'GEN', pos: 20 },
-      { type: 'GEN', label: 'GEN', code: 'GEN', pos: 21 },
-      { type: 'LPR', label: 'LPR', code: 'LPR', pos: 22 }
+      { type: 'EC', label: 'E1', code: 'EC', pos: 11 },
+      { type: 'EC', label: 'E2', code: 'EC', pos: 12 },
+      { type: 'EA', label: 'EA', code: 'EA', pos: 13 },
+      { type: 'GEN', label: 'GEN', code: 'GEN', pos: 14 },
+      { type: 'LPR', label: 'LPR', code: 'LPR', pos: 15 }
     ];
   };
 
   const coaches = getCoachPositions(currentTrain);
 
-  // Non-stopping intermediate stations between major halts
-  const getIntermediateNonStopping = (idx: number) => {
-    if (idx === 0) {
-      return [
-        { name: 'Perambur (PER)', km: '4 KMs' },
-        { name: 'Villivakkam (VLK)', km: '9 KMs' },
-        { name: 'Avadi (AVD)', km: '21 KMs' },
-        { name: 'Tiruvallur (TRL)', km: '42 KMs' },
-        { name: 'Arakkonam Jn (AJJ)', km: '69 KMs' },
-        { name: 'Walajah Road (WJR)', km: '105 KMs' }
-      ];
-    } else if (idx === 1) {
-      return [
-        { name: 'Gudiyattam (GYM)', km: '155 KMs' },
-        { name: 'Ambur (AB)', km: '182 KMs' },
-        { name: 'Vaniyambadi (VN)', km: '198 KMs' },
-        { name: 'Jolarpettai Jn (JTJ)', km: '214 KMs' },
-        { name: 'Kuppam (KPN)', km: '255 KMs' },
-        { name: 'Bangarapet Jn (BWT)', km: '289 KMs' },
-        { name: 'Whitefield (WFD)', km: '336 KMs' },
-        { name: 'Krishnarajapuram (KJM)', km: '345 KMs' },
-        { name: 'Bengaluru Cant (BNC)', km: '355 KMs' }
-      ];
-    }
-    return [
-      { name: 'Kengeri (KGI)', km: '371 KMs' },
-      { name: 'Bidadi (BID)', km: '389 KMs' },
-      { name: 'Ramanagaram (RMGM)', km: '404 KMs' },
-      { name: 'Channapatna (CPT)', km: '415 KMs' },
-      { name: 'Maddur (MAD)', km: '433 KMs' },
-      { name: 'Mandya (MYA)', km: '452 KMs' }
-    ];
-  };
-
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchInput.trim()) return;
+    const cleanSearch = searchInput.trim().toUpperCase();
     const matched = allMasterTrains.find(
       (t) =>
-        t.number.includes(searchInput.trim()) ||
-        t.name.toLowerCase().includes(searchInput.trim().toLowerCase())
+        t.number.toUpperCase().includes(cleanSearch) ||
+        t.name.toUpperCase().includes(cleanSearch) ||
+        t.from.toUpperCase().includes(cleanSearch) ||
+        t.to.toUpperCase().includes(cleanSearch)
     );
     if (matched) {
       router.push(`/home/ride/train/${matched.number}`);
     } else {
-      router.push(`/home/ride/train/${searchInput.trim()}`);
+      router.push(`/home/ride/train/${cleanSearch}`);
     }
   };
-
-  const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const scrollToBottom = () => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    } else {
-      window.scrollTo({
-        top: document.documentElement.scrollHeight || document.body.scrollHeight,
+    }
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
         behavior: 'smooth'
       });
+    }
+    if (typeof window !== 'undefined') {
+      const mainContent = document.querySelector('.web-main-content');
+      if (mainContent) {
+        mainContent.scrollTo({ top: mainContent.scrollHeight, behavior: 'smooth' });
+      }
     }
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', color: '#1e293b', fontFamily: 'inherit', paddingBottom: '60px', position: 'relative' }}>
+    <div
+      ref={scrollContainerRef}
+      className="web-app-layout tlr-page-wrapper"
+      style={{
+        height: '100vh',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        WebkitOverflowScrolling: 'touch'
+      }}
+    >
       {/* Floating Scroll to Bottom Button */}
       <button
-        onClick={scrollToBottom}
         type="button"
+        className="tlr-scroll-bottom-btn"
+        onClick={scrollToBottom}
         title="Scroll to bottom"
-        style={{
-          position: 'fixed',
-          right: '24px',
-          bottom: '24px',
-          width: '46px',
-          height: '46px',
-          borderRadius: '50%',
-          background: '#2a1373',
-          color: '#ffffff',
-          border: 'none',
-          boxShadow: '0 4px 14px rgba(42, 19, 115, 0.4)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '18px',
-          zIndex: 999,
-          transition: 'transform 0.2s, background 0.2s'
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.08)')}
-        onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
       >
         <i className="fa-solid fa-arrow-down"></i>
       </button>
 
-      {/* Top Banner Navigation Bar */}
-      <div
-        style={{
-          background: '#2a1373',
-          color: '#ffffff',
-          padding: '16px 28px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          boxShadow: '0 4px 12px rgba(42, 19, 115, 0.35)',
-          position: 'sticky',
-          top: 0,
-          zIndex: 40
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      {/* Top Dark Violet Navbar */}
+      <div className="tlr-navbar">
+        <div className="tlr-nav-left">
           <button
-            onClick={() => router.push('/home/ride/train')}
+            onClick={() => router.back()}
             style={{
               background: 'none',
               border: 'none',
-              color: '#ffffff',
-              fontSize: '18px',
-              cursor: 'pointer',
-              padding: '4px',
-              display: 'flex',
-              alignItems: 'center'
+              color: 'white',
+              fontSize: '20px',
+              cursor: 'pointer'
             }}
+            title="Go Back"
           >
             <i className="fa-solid fa-chevron-left"></i>
           </button>
           <div>
-            <h1 style={{ margin: 0, fontSize: '18px', fontWeight: 900, letterSpacing: '0.5px' }}>
-              {currentTrain.number} {currentTrain.name.toUpperCase()} ROUTE &amp; LIVE STATUS
+            <h1 style={{ fontSize: '18px', fontWeight: 800, margin: 0, letterSpacing: '0.5px' }}>
+              {currentTrain.number} {currentTrain.name.toUpperCase()} ROUTE & LIVE STATUS
             </h1>
-            <div style={{ fontSize: '11px', color: '#cbd5e1', marginTop: '2px' }}>
+            <p style={{ fontSize: '11px', color: '#cbd5e1', margin: '2px 0 0 0' }}>
               Full train history starting to ending • Real-time station tracking
-            </div>
+            </p>
           </div>
         </div>
 
@@ -215,480 +162,348 @@ export default function TrainRouteHistoryPage() {
           <button
             onClick={() => setActiveTab('schedule')}
             style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeTab === 'schedule' ? '#ffffff' : 'rgba(255,255,255,0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              borderRadius: '6px',
+              background: activeTab === 'schedule' ? '#ffffff' : 'rgba(255,255,255,0.1)',
               color: activeTab === 'schedule' ? '#2a1373' : '#ffffff',
-              fontWeight: 800,
+              border: 'none',
+              fontWeight: 700,
               fontSize: '12px',
               cursor: 'pointer'
             }}
           >
-            <i className="fa-solid fa-list-ol" style={{ marginRight: '6px' }}></i> Route Schedule
+            <i className="fa-solid fa-list-check"></i>
+            Route Schedule
           </button>
           <button
             onClick={() => setActiveTab('map')}
             style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeTab === 'map' ? '#ffffff' : 'rgba(255,255,255,0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              borderRadius: '6px',
+              background: activeTab === 'map' ? '#ffffff' : 'rgba(255,255,255,0.1)',
               color: activeTab === 'map' ? '#2a1373' : '#ffffff',
-              fontWeight: 800,
+              border: 'none',
+              fontWeight: 700,
               fontSize: '12px',
               cursor: 'pointer'
             }}
           >
-            <i className="fa-solid fa-map-location-dot" style={{ marginRight: '6px' }}></i> Google Map View
+            <i className="fa-solid fa-map-location-dot"></i>
+            Google Map View
           </button>
         </div>
       </div>
 
-      {/* Train Search Input Box & Current Train Display matching user layout */}
-      <div style={{ background: '#ffffff', padding: '16px 28px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px', flexWrap: 'wrap' }}>
-        <form onSubmit={handleSearchSubmit} style={{ width: '480px', maxWidth: '100%' }}>
-          <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-            Train No. / Name
-          </label>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              border: '1.5px solid #2a1373',
-              borderRadius: '24px',
-              padding: '6px 14px',
-              background: '#ffffff',
-              boxShadow: '0 1px 3px rgba(42, 19, 115, 0.08)'
-            }}
+      {/* Main Content Area */}
+      <div style={{ padding: '24px 32px 40px', maxWidth: '1440px', margin: '0 auto', width: '100%', flex: 1 }}>
+        {/* Train Search Bar with Train No & Name beside */}
+        <div style={{ marginBottom: '20px' }}>
+          <form
+            onSubmit={handleSearchSubmit}
+            style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}
           >
-            <input
-              type="text"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Enter Train Number or Train Name"
+            <div style={{ position: 'relative', width: '100%', maxWidth: '340px' }}>
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Train No. / Name"
+                style={{
+                  width: '100%',
+                  padding: '10px 42px 10px 18px',
+                  borderRadius: '24px',
+                  border: '1.5px solid #2a1373',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  outline: 'none',
+                  background: '#ffffff',
+                  boxShadow: '0 2px 6px rgba(42, 19, 115, 0.08)'
+                }}
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                {searchInput && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchInput('')}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#94a3b8',
+                      cursor: 'pointer',
+                      fontSize: '12px'
+                    }}
+                  >
+                    <i className="fa-solid fa-xmark"></i>
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#2a1373',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  <i className="fa-solid fa-magnifying-glass"></i>
+                </button>
+              </div>
+            </div>
+
+            {/* Display train number and train name beside the search input */}
+            <div
               style={{
-                width: '100%',
-                border: 'none',
-                outline: 'none',
-                fontSize: '15px',
-                fontWeight: 700,
-                color: '#0f172a'
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                background: '#ffffff',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                border: '1px solid #e2e8f0',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
               }}
-            />
-            {searchInput && (
-              <i
-                className="fa-solid fa-xmark"
-                onClick={() => setSearchInput('')}
-                style={{ color: '#94a3b8', cursor: 'pointer', marginRight: '10px' }}
-              ></i>
-            )}
-            <button type="submit" style={{ background: 'none', border: 'none', color: '#2a1373', cursor: 'pointer', fontSize: '16px' }}>
-              <i className="fa-solid fa-magnifying-glass"></i>
-            </button>
-          </div>
-        </form>
-
-        {/* Train Number and Train Name beside the search box */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', background: '#f8fafc', padding: '10px 18px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-          <div
-            style={{
-              background: '#2a1373',
-              color: '#ffffff',
-              padding: '6px 14px',
-              borderRadius: '8px',
-              fontWeight: 900,
-              fontSize: '16px',
-              letterSpacing: '0.5px'
-            }}
-          >
-            {currentTrain.number}
-          </div>
-          <div>
-            <div style={{ fontSize: '15px', fontWeight: 900, color: '#0f172a' }}>
-              {currentTrain.name.toUpperCase()}
+            >
+              <span
+                style={{
+                  background: '#2a1373',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '12px',
+                  padding: '3px 8px',
+                  borderRadius: '12px'
+                }}
+              >
+                {currentTrain.number}
+              </span>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>
+                {currentTrain.name}
+              </span>
             </div>
-            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
-              {currentTrain.departureStation} ({currentTrain.departureStationCode}) → {currentTrain.arrivalStation} ({currentTrain.arrivalStationCode})
-            </div>
-          </div>
+          </form>
         </div>
-      </div>
 
-      {/* Live Running Status Banner */}
-      <div style={{ padding: '16px 28px' }}>
+        {/* Live Running Status Banner */}
         <div
           style={{
-            background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+            background: 'linear-gradient(90deg, #0284c7 0%, #0369a1 100%)',
             color: '#ffffff',
             borderRadius: '12px',
             padding: '18px 24px',
+            marginBottom: '20px',
+            boxShadow: '0 4px 14px rgba(2, 132, 199, 0.25)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            boxShadow: '0 4px 12px rgba(2, 132, 199, 0.25)',
-            marginBottom: '20px'
+            flexWrap: 'wrap',
+            gap: '16px'
           }}
         >
           <div>
-            <div style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.9 }}>
-              LIVE TRAIN RUNNING STATUS • Start Date : 15-Nov-2026
+            <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.9 }}>
+              LIVE TRAIN RUNNING STATUS • START DATE : 16-NOV-2026
             </div>
-            <div style={{ fontSize: '20px', fontWeight: 900, marginTop: '4px' }}>
-              {currentTrain.departureStationCode} → {currentTrain.arrivalStationCode} ({currentTrain.name})
+            <div style={{ fontSize: '20px', fontWeight: 800, marginTop: '4px' }}>
+              MAS → MYS ({currentTrain.name})
             </div>
-            <div style={{ fontSize: '13px', marginTop: '6px', color: '#bae6fd', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ background: '#22c55e', color: 'white', padding: '2px 8px', borderRadius: '4px', fontWeight: 800, fontSize: '11px' }}>
-                ON TIME
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+              <span
+                style={{
+                  background: '#ef4444',
+                  color: 'white',
+                  fontWeight: 800,
+                  fontSize: '11px',
+                  padding: '2px 8px',
+                  borderRadius: '4px'
+                }}
+              >
+                DELAYED BY 8M
               </span>
-              <span>Currently near: <strong>Katpadi Jn (KPD)</strong> • Speed: 88 km/h</span>
+              <span style={{ fontSize: '13px', fontWeight: 600 }}>
+                Crossed at Kuppam (KPN) • Updated 9:26 AM November 16
+              </span>
             </div>
           </div>
 
           <div
             style={{
               background: 'rgba(255, 255, 255, 0.15)',
-              borderRadius: '10px',
+              backdropFilter: 'blur(8px)',
               padding: '12px 20px',
+              borderRadius: '8px',
               textAlign: 'right'
             }}
           >
-            <div style={{ fontSize: '11px', color: '#e0f2fe' }}>ETA to your station:</div>
-            <div style={{ fontSize: '18px', fontWeight: 900, color: '#ffffff' }}>
-              {targetUserStation.station} ({targetUserStation.code})
-            </div>
-            <div style={{ fontSize: '13px', fontWeight: 800, color: '#fef08a', marginTop: '2px' }}>
-              Reaching in: 1 hr 45 min • {targetUserStation.arr}
+            <div style={{ fontSize: '11px', opacity: 0.9 }}>Delay Status:</div>
+            <div style={{ fontSize: '16px', fontWeight: 800 }}>Late 8 min</div>
+            <div style={{ fontSize: '11px', opacity: 0.85, marginTop: '2px' }}>
+              Reaching Mysuru in 3 hrs 19 min
             </div>
           </div>
         </div>
 
-        {/* Tab 1: Full Route Schedule with Intermediate and Non-Stopping stations */}
-        {activeTab === 'schedule' ? (
-          <div style={{ background: '#ffffff', borderRadius: '14px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+        {/* Train Timetable Card (RailMitra 12007 Style) */}
+        <div
+          style={{
+            background: '#ffffff',
+            borderRadius: '8px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
+            overflow: 'hidden',
+            border: '1px solid #e2e8f0',
+            marginBottom: '32px'
+          }}
+        >
+          {/* Table Header matching RailMitra */}
+          <div className="tlr-table-header">
+            <div>Arrival</div>
+            <div>Station Name</div>
+            <div>Day</div>
+            <div>Halt</div>
+            <div>Departure</div>
+          </div>
 
-            {/* Header row */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '140px 60px 1fr 150px',
-                background: '#f1f5f9',
-                padding: '12px 20px',
-                fontSize: '12px',
-                fontWeight: 800,
-                color: '#475569',
-                textTransform: 'uppercase',
-                borderBottom: '1px solid #cbd5e1'
-              }}
-            >
-              <div>Arrival</div>
-              <div style={{ textAlign: 'center' }}>Track</div>
-              <div>Station Details</div>
-              <div style={{ textAlign: 'right' }}>Departure &amp; Status</div>
-            </div>
+          {/* List of Stations */}
+          <div className="tlr-table-body">
+            {scheduleData.map((item, idx) => {
+              const isFirst = idx === 0;
+              const isLast = idx === scheduleData.length - 1;
+              const isCurrent = Boolean(item.isCurrentCrossed);
 
-            {/* Stops list with railway track line */}
-            <div style={{ position: 'relative' }}>
-              {/* Continuous Blue Railway Track from Start to End */}
-              <div
-                style={{
-                  position: 'absolute',
-                  left: '168px', // Centered inside the 60px track column (140px + 20px padding + (60 - 24) / 2 = 178px approx; let's position accurately)
-                  top: '20px',
-                  bottom: '20px',
-                  width: '24px',
-                  pointerEvents: 'none',
-                  zIndex: 1
-                }}
-              >
-                {/* Parallel Blue Steel Rails */}
-                <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '4px', background: '#0284c7', borderRadius: '2px', boxShadow: '0 0 4px rgba(2, 132, 199, 0.4)' }}></div>
-                <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: '4px', background: '#0284c7', borderRadius: '2px', boxShadow: '0 0 4px rgba(2, 132, 199, 0.4)' }}></div>
-
-                {/* Wooden Ties / Sleepers repeating along the track */}
+              return (
                 <div
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    bottom: 0,
-                    left: '-3px',
-                    right: '-3px',
-                    backgroundImage: 'repeating-linear-gradient(to bottom, #78350f 0px, #78350f 4px, transparent 4px, transparent 20px)',
-                    zIndex: 0
-                  }}
-                ></div>
-              </div>
+                  key={idx}
+                  className={`tlr-station-row ${item.isHalt ? 'major-halt' : 'minor-stop'} ${isCurrent ? 'current-location-row' : ''}`}
+                >
+                  {/* Column 1: Arrival */}
+                  <div className="tlr-col-arr">
+                    {item.arr === 'Start' ? (
+                      <span className="tlr-start-tag">Start</span>
+                    ) : item.arr === '--' ? (
+                      <span style={{ color: '#94a3b8' }}>--</span>
+                    ) : (
+                      <>
+                        <div className="tlr-arr-time">{item.arr}</div>
+                        {item.delay && <div className="tlr-arr-delay">{item.delay}</div>}
+                      </>
+                    )}
+                  </div>
 
-              {currentTrain.stops.map((stop, idx) => {
-                const isPassed = idx <= currentStationIndex;
-                const isCurrent = idx === currentStationIndex;
-                const isLast = idx === currentTrain.stops.length - 1;
-                const nonStopping = getIntermediateNonStopping(idx);
-                const isExpanded = Boolean(expandedNonStopping[idx]);
-
-                return (
-                  <React.Fragment key={idx}>
+                  {/* Column 2: Station Name with Continuous Track & Node */}
+                  <div className="tlr-col-station">
+                    {/* Continuous vertical track */}
                     <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: '140px 60px 1fr 150px',
-                        padding: '18px 20px',
-                        borderBottom: '1px solid #f1f5f9',
-                        alignItems: 'center',
-                        background: '#ffffff',
-                        position: 'relative'
-                      }}
-                    >
-                      {/* Arrival info */}
-                      <div>
-                        <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
-                          {stop.arr === '--' ? 'START (SRC)' : stop.arr}
-                        </div>
-                        {stop.arr !== '--' && (
-                          <div style={{ fontSize: '11px', color: '#16a34a', fontWeight: 700, marginTop: '2px' }}>
-                            On Time
-                          </div>
-                        )}
+                      className={`tlr-track-line ${isFirst ? 'is-first' : ''} ${isLast ? 'is-last' : ''}`}
+                    />
+
+                    {/* Node / Train Icon */}
+                    {isCurrent ? (
+                      <div className="tlr-station-node current" title="Train currently here">
+                        <i className="fa-solid fa-train"></i>
                       </div>
+                    ) : (
+                      <div className={`tlr-station-node ${item.isHalt ? 'major' : 'minor'}`} />
+                    )}
 
-                      {/* Station Node / Single Train Icon on current station */}
-                      <div
-                        style={{
-                          position: 'relative',
-                          width: '44px',
-                          height: '100%',
-                          minHeight: '60px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          zIndex: 2
-                        }}
-                      >
-                        {isCurrent ? (
-                          /* Only ONE Train Icon showing live location */
-                          <div
-                            style={{
-                              width: '32px',
-                              height: '32px',
-                              borderRadius: '50%',
-                              background: '#0284c7',
-                              border: '2.5px solid #ffffff',
-                              boxShadow: '0 0 14px rgba(2, 132, 199, 0.9)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: '#ffffff',
-                              fontSize: '13px',
-                              zIndex: 4,
-                              position: 'relative'
-                            }}
-                            title={`Train currently here: ${stop.station}`}
-                          >
-                            <i className="fa-solid fa-train-subway"></i>
-                          </div>
-                        ) : (
-                          /* Station point / stop node on the track */
-                          <div
-                            style={{
-                              width: '14px',
-                              height: '14px',
-                              borderRadius: '50%',
-                              background: isPassed ? '#1e3a8a' : '#ffffff',
-                              border: `3px solid ${isPassed ? '#1e3a8a' : '#94a3b8'}`,
-                              zIndex: 3,
-                              position: 'relative',
-                              boxShadow: '0 1px 3px rgba(0,0,0,0.15)'
-                            }}
-                          ></div>
+                    {/* Station Name & Details */}
+                    <div className="tlr-station-details">
+                      <div className="tlr-station-header-line">
+                        <span className="tlr-station-name">
+                          {item.station} {item.code ? `(${item.code})` : ''}
+                        </span>
+
+                        {item.isHalt && item.pf && item.pf !== '--' && (
+                          <span className="tlr-pf-badge">{item.pf}</span>
                         )}
-                      </div>
 
-                      {/* Station Details */}
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
-                            {stop.station.toUpperCase()}
-                          </span>
-                          <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>
-                            ({stop.code})
-                          </span>
-                          <span
-                            style={{
-                              background: '#f59e0b',
-                              color: '#ffffff',
-                              fontSize: '10px',
-                              fontWeight: 800,
-                              padding: '2px 6px',
-                              borderRadius: '4px'
-                            }}
-                          >
-                            PF {idx + 1}*
-                          </span>
-
-                          {/* Coach Position Button */}
+                        {item.isHalt && (
                           <button
                             type="button"
-                            onClick={() => setSelectedCoachPF(`${stop.station} (${stop.code})`)}
-                            style={{
-                              background: '#2563eb',
-                              color: '#ffffff',
-                              border: 'none',
-                              borderRadius: '6px',
-                              padding: '4px 10px',
-                              fontSize: '11px',
-                              fontWeight: 700,
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '4px'
-                            }}
+                            className="tlr-coach-btn"
+                            onClick={() => setSelectedCoachPF(item.station)}
                           >
-                            <i className="fa-solid fa-train"></i> Coach Position
+                            <i className="fa-solid fa-train-subway"></i> Coach Position
                           </button>
-                        </div>
-
-                        <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
-                          {stop.distance || `${idx * 130} KMs`} • {stop.halt}
-                        </div>
-
-                        {/* Toggle Intermediate Non-Stopping Stations */}
-                        {!isLast && (
-                          <div
-                            onClick={() =>
-                              setExpandedNonStopping({
-                                ...expandedNonStopping,
-                                [idx]: !isExpanded
-                              })
-                            }
-                            style={{
-                              fontSize: '12px',
-                              color: '#d97706',
-                              fontWeight: 700,
-                              marginTop: '6px',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '6px'
-                            }}
-                          >
-                            <span>{stop.distance || '120 KMs'} ⇓ Non-Stopping Stations ({nonStopping.length})</span>
-                            <i className={`fa-solid fa-chevron-${isExpanded ? 'up' : 'down'}`} style={{ fontSize: '10px' }}></i>
-                          </div>
                         )}
                       </div>
 
-                      {/* Departure info */}
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
-                          {stop.dep === '--' ? 'DESTINATION (DST)' : stop.dep}
-                        </div>
-                        {stop.dep !== '--' && (
-                          <div style={{ fontSize: '11px', color: '#16a34a', fontWeight: 700, marginTop: '2px' }}>
-                            On Time
-                          </div>
+                      <div className="tlr-station-subtext">
+                        {item.distance}
+                        {item.isCurrentCrossed && (
+                          <span style={{ marginLeft: '8px', color: '#0284c7', fontWeight: 700 }}>
+                            • Train Crossed Recently
+                          </span>
                         )}
                       </div>
                     </div>
+                  </div>
 
-                    {/* Collapsible non-stopping intermediate stations in LINE BY LINE layout */}
-                    {isExpanded && !isLast && (
-                      <div style={{ background: '#ffffff', borderBottom: '1px solid #f1f5f9', padding: '14px 20px 14px 220px' }}>
-                        <div style={{ fontSize: '11px', color: '#b45309', fontWeight: 800, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-                          Intermediate Stations Passed Without Halt (Line by Line):
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          {nonStopping.map((ns, nsIdx) => (
-                            <div
-                              key={nsIdx}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                width: '200px',
-                                padding: '7px 12px',
-                                background: '#ffffff',
-                                borderRadius: '8px',
+                  {/* Column 3: Day */}
+                  <div className="tlr-col-day">
+                    <div className="tlr-day-main">{item.day}</div>
+                    <div className="tlr-day-sub">{item.date}</div>
+                  </div>
 
-                                fontSize: '12px',
-                                color: '#78350f',
-                                boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
-                              }}
-                            >
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                <i className="fa-solid fa-circle-dot" style={{ color: '#d97706', fontSize: '9px', flexShrink: 0 }}></i>
-                                <span style={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={ns.name}>{ns.name}</span>
-                              </div>
-                              <span style={{ fontWeight: 800, color: '#b45309', fontSize: '11px', flexShrink: 0, marginLeft: '6px' }}>{ns.km}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                  {/* Column 4: Halt */}
+                  <div className="tlr-col-halt">
+                    {item.halt}
+                  </div>
+
+                  {/* Column 5: Departure */}
+                  <div className="tlr-col-dep">
+                    {item.dep === 'End' ? (
+                      <span className="tlr-start-tag" style={{ background: '#64748b' }}>End</span>
+                    ) : item.dep === '--' ? (
+                      <span style={{ color: '#94a3b8' }}>--</span>
+                    ) : (
+                      <>
+                        <div style={{ color: '#0f172a' }}>{item.dep}</div>
+                        {item.delay && (
+                          <div
+                            className={`tlr-delay-tag ${item.delay === 'RT' ? 'ontime' : ''}`}
+                          >
+                            {item.delay}
+                          </div>
+                        )}
+                      </>
                     )}
-                  </React.Fragment>
-                );
-              })}
-            </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        ) : (
-          /* Tab 2: Embedded Google Map & Real-time Live Directions */
-          <div style={{ background: '#ffffff', borderRadius: '14px', border: '1px solid #e2e8f0', padding: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
-            <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
-                  Live Railway Route Map &amp; Directions
-                </h3>
-                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748b' }}>
-                  Tracking route from {currentTrain.departureStation} to {currentTrain.arrivalStation}
-                </p>
-              </div>
-              <a
-                href={`https://www.google.com/maps/dir/${encodeURIComponent(currentTrain.departureStation)}/${encodeURIComponent(currentTrain.arrivalStation)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  background: '#2a1373',
-                  color: 'white',
-                  textDecoration: 'none',
-                  padding: '8px 16px',
-                  borderRadius: '8px',
-                  fontWeight: 700,
-                  fontSize: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
-              >
-                <i className="fa-solid fa-diamond-turn-right"></i> Open Live Directions in Google Maps
-              </a>
-            </div>
-
-            {/* Embedded interactive Google Map iframe */}
-            <div style={{ width: '100%', height: '550px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #cbd5e1' }}>
-              <iframe
-                title="Google Maps Train Route"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                loading="lazy"
-                src={`https://maps.google.com/maps?q=${encodeURIComponent(currentTrain.departureStation + ' to ' + currentTrain.arrivalStation)}&t=&z=9&ie=UTF8&iwloc=&output=embed`}
-              ></iframe>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
 
-      {/* Coach Position Modal matching Screenshot 6 */}
+      {/* Global SART Footer at the end of the page */}
+      <Footer />
+
+      {/* Coach Position Modal */}
       {selectedCoachPF && (
         <div
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(15, 23, 42, 0.75)',
-            backdropFilter: 'blur(4px)',
-            zIndex: 10000,
+            background: 'rgba(15, 23, 42, 0.6)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            zIndex: 9999,
             padding: '20px'
           }}
           onClick={() => setSelectedCoachPF(null)}
@@ -697,33 +512,38 @@ export default function TrainRouteHistoryPage() {
             style={{
               background: '#ffffff',
               borderRadius: '16px',
-              maxWidth: '900px',
+              padding: '24px 28px',
+              maxWidth: '850px',
               width: '100%',
-              padding: '24px',
-              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)'
+              boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Orange Title Bar matching Screenshot */}
             <div
               style={{
-                background: '#f59e0b',
-                color: '#ffffff',
-                padding: '14px 20px',
-                borderRadius: '10px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                marginBottom: '24px'
+                marginBottom: '20px'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px', fontWeight: 800 }}>
-                <span style={{ background: '#0284c7', padding: '2px 6px', borderRadius: '4px', fontSize: '11px' }}>BETA</span>
-                Coach Position : {currentTrain.number} | {selectedCoachPF.toUpperCase()} | 15-Nov | PF : 1*
+              <div>
+                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                  Coach Position at {selectedCoachPF}
+                </h3>
+                <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>
+                  Train No: {currentTrain.number} • Platform Coach Arrangement
+                </p>
               </div>
               <button
                 onClick={() => setSelectedCoachPF(null)}
-                style={{ background: 'none', border: 'none', color: '#ffffff', fontSize: '18px', cursor: 'pointer' }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '18px',
+                  color: '#64748b',
+                  cursor: 'pointer'
+                }}
               >
                 <i className="fa-solid fa-xmark"></i>
               </button>
@@ -742,7 +562,14 @@ export default function TrainRouteHistoryPage() {
                       minWidth: '54px'
                     }}
                   >
-                    <span style={{ fontSize: '10px', color: '#64748b', fontWeight: 700, marginBottom: '4px' }}>
+                    <span
+                      style={{
+                        fontSize: '10px',
+                        color: '#64748b',
+                        fontWeight: 700,
+                        marginBottom: '4px'
+                      }}
+                    >
                       {c.type}
                     </span>
                     <div
@@ -763,8 +590,19 @@ export default function TrainRouteHistoryPage() {
                     >
                       {c.label}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginTop: '4px', fontSize: '10px', color: '#64748b' }}>
-                      {c.isDivyangjan && <i className="fa-solid fa-wheelchair" style={{ color: '#2563eb' }}></i>}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '2px',
+                        marginTop: '4px',
+                        fontSize: '10px',
+                        color: '#64748b'
+                      }}
+                    >
+                      {c.isDivyangjan && (
+                        <i className="fa-solid fa-wheelchair" style={{ color: '#2563eb' }}></i>
+                      )}
                       <span>{c.pos}</span>
                     </div>
                   </div>
@@ -772,11 +610,29 @@ export default function TrainRouteHistoryPage() {
               </div>
             </div>
 
-            <div style={{ fontSize: '12px', color: '#ef4444', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '20px' }}>
+            <div
+              style={{
+                fontSize: '12px',
+                color: '#ef4444',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                marginBottom: '20px'
+              }}
+            >
               <i className="fa-solid fa-wheelchair"></i> Divyangjan Coach at Position : 1
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                borderTop: '1px solid #f1f5f9',
+                paddingTop: '16px'
+              }}
+            >
               <span style={{ fontSize: '12px', color: '#64748b' }}>
                 Note - Data shown with (*) are dynamic in nature and may change.
               </span>
@@ -799,9 +655,9 @@ export default function TrainRouteHistoryPage() {
           </div>
         </div>
       )}
+
       {/* Anchor for Scrolling to Bottom */}
       <div ref={bottomRef} style={{ height: '1px' }}></div>
     </div>
   );
 }
-

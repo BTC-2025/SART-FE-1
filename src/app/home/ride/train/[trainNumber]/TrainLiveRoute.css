@@ -1,0 +1,402 @@
+/* ============================================================================
+   TRAIN LIVE ROUTE & RUNNING STATUS STYLES (RailMitra 12007 Full Timetable Style)
+   ============================================================================ */
+
+.tlr-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-family: inherit;
+  position: relative;
+}
+
+/* Scroll to bottom floating button */
+.tlr-scroll-bottom-btn {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #2a1373;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 14px rgba(42, 19, 115, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  z-index: 999;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.tlr-scroll-bottom-btn:hover {
+  transform: scale(1.08);
+  background: #1e0e54;
+}
+
+/* Top Banner Header */
+.tlr-navbar {
+  background: #2a1373;
+  color: #ffffff;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(42, 19, 115, 0.35);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.tlr-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tlr-back-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.tlr-nav-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.tlr-nav-subtext {
+  font-size: 11px;
+  color: #cbd5e1;
+  margin-top: 2px;
+}
+
+.tlr-nav-tabs {
+  display: flex;
+  gap: 10px;
+}
+
+.tlr-tab-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+
+.tlr-tab-btn.active {
+  background: #ffffff;
+  color: #2a1373;
+}
+
+.tlr-tab-btn:not(.active) {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+/* Search bar area */
+.tlr-search-section {
+  background: #ffffff;
+  padding: 16px 28px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.tlr-search-form {
+  width: 480px;
+  max-width: 100%;
+}
+
+.tlr-search-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 4px;
+}
+
+.tlr-search-input-box {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #2a1373;
+  border-radius: 24px;
+  padding: 6px 14px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(42, 19, 115, 0.08);
+}
+
+.tlr-search-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tlr-train-badge-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #f8fafc;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.tlr-train-number-pill {
+  background: #2a1373;
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+
+/* Running status banner */
+.tlr-content-area {
+  padding: 16px 28px 40px;
+  flex: 1;
+}
+
+.tlr-status-banner {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* Table Card matching RailMitra Design */
+.tlr-table-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.tlr-table-header {
+  display: grid;
+  grid-template-columns: 140px 1fr 140px 140px 140px;
+  background: #33477a; /* Exact dark slate-navy from RailMitra screenshot */
+  color: #ffffff;
+  padding: 14px 20px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.tlr-table-body {
+  position: relative;
+}
+
+/* Vertical Continuous Blue Transit Line running through station nodes */
+.tlr-transit-line {
+  position: absolute;
+  left: 204px; /* Precisely centered over the node dot inside column 2 */
+  top: 24px;
+  bottom: 24px;
+  width: 3px;
+  background: #3b82f6;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Stop Row */
+.tlr-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 140px 140px 140px;
+  padding: 12px 20px;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+  position: relative;
+  transition: background 0.15s ease;
+}
+
+.tlr-row:hover {
+  background: #f8fafc;
+}
+
+.tlr-row.halt-major {
+  background: #ffffff;
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.tlr-row.halt-intermediate {
+  background: #f8f9fa;
+  font-size: 12px;
+}
+
+.tlr-row.current-crossed {
+  background: #eff6ff;
+}
+
+/* Column 1: Arrival */
+.tlr-col-arrival {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+/* Column 2: Station Node & Info */
+.tlr-col-station {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+}
+
+.tlr-station-node {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #3b82f6;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.tlr-station-node.major {
+  width: 14px;
+  height: 14px;
+  border: 3.5px solid #1e3a8a;
+  background: #ffffff;
+}
+
+.tlr-station-node.current {
+  width: 22px;
+  height: 22px;
+  background: #2563eb;
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 10px;
+}
+
+.tlr-station-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.tlr-station-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tlr-station-name-major {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.tlr-station-name-intermediate {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.tlr-pf-badge {
+  background: #ea580c;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.tlr-coach-btn {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tlr-station-subtext {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Column 3: Day */
+.tlr-col-day {
+  font-size: 12px;
+  color: #475569;
+}
+
+.tlr-day-main {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tlr-day-sub {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* Column 4: Halt */
+.tlr-col-halt {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* Column 5: Departure */
+.tlr-col-dep {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tlr-delay-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #dc2626;
+  margin-top: 2px;
+}
+
+.tlr-delay-tag.ontime {
+  color: #16a34a;
+}
+
