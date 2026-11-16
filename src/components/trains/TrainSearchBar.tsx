@@ -485,65 +485,7 @@ export default function TrainSearchBar({
           )}
         </div>
 
-        {/* Tomorrow and Day After buttons placed beside the search inputs */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, margin: '0 4px' }}>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              const tom = new Date();
-              tom.setDate(tom.getDate() + 1);
-              setCalMonth(tom.getMonth());
-              setCalYear(tom.getFullYear());
-              const formatted = `${String(tom.getDate()).padStart(2, '0')} ${MONTH_SHORT[tom.getMonth()]}, ${tom.getFullYear()}`;
-              setDateOfJourney(formatted);
-              setSelectedDay(String(tom.getDate()).padStart(2, '0'));
-              setShowCalendarPicker(false);
-            }}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#3b0764',
-              fontSize: '12.5px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              padding: '6px 8px',
-              borderRadius: '6px',
-              transition: 'background 0.15s ease'
-            }}
-          >
-            Tomorrow
-          </button>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              const da = new Date();
-              da.setDate(da.getDate() + 2);
-              setCalMonth(da.getMonth());
-              setCalYear(da.getFullYear());
-              const formatted = `${String(da.getDate()).padStart(2, '0')} ${MONTH_SHORT[da.getMonth()]}, ${da.getFullYear()}`;
-              setDateOfJourney(formatted);
-              setSelectedDay(String(da.getDate()).padStart(2, '0'));
-              setShowCalendarPicker(false);
-            }}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#3b0764',
-              fontSize: '12.5px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              padding: '6px 8px',
-              borderRadius: '6px',
-              transition: 'background 0.15s ease'
-            }}
-          >
-            Day After
-          </button>
-        </div>
-
-        {/* All Classes & Quota Dropdown Buttons (Displayed only in Train mode) */}
+        {/* All Classes, GENERAL, Tomorrow, Day After: Displayed ONLY in Train mode */}
         {activeMode === 'train' && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0, margin: '0 4px' }}>
             {/* 1. All Classes Dropdown Button */}
@@ -678,6 +620,91 @@ export default function TrainSearchBar({
                         key={q}
                         onClick={() => {
                           if (setSelectedQuotaFilter) setSelectedQuotaFilter(q);
+                          setShowQuotaDropdown(false);
+                        }}
+                        style={{
+                          padding: '9px 14px',
+                          fontSize: '13px',
+                          fontWeight: isSelected ? 800 : 500,
+                          color: isSelected ? '#ffffff' : '#1e293b',
+                          background: isSelected ? '#0070f3' : 'transparent',
+                          cursor: 'pointer',
+                          transition: 'background 0.1s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = '#f1f5f9';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        {q}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* 3. Tomorrow Button (after All Classes and GENERAL) */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                const tom = new Date();
+                tom.setDate(tom.getDate() + 1);
+                setCalMonth(tom.getMonth());
+                setCalYear(tom.getFullYear());
+                const formatted = `${String(tom.getDate()).padStart(2, '0')} ${MONTH_SHORT[tom.getMonth()]}, ${tom.getFullYear()}`;
+                setDateOfJourney(formatted);
+                setSelectedDay(String(tom.getDate()).padStart(2, '0'));
+                setShowCalendarPicker(false);
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#3b0764',
+                fontSize: '13px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                padding: '6px 8px',
+                borderRadius: '6px',
+                transition: 'background 0.15s ease'
+              }}
+            >
+              Tomorrow
+            </button>
+
+            {/* 4. Day After Button */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                const da = new Date();
+                da.setDate(da.getDate() + 2);
+                setCalMonth(da.getMonth());
+                setCalYear(da.getFullYear());
+                const formatted = `${String(da.getDate()).padStart(2, '0')} ${MONTH_SHORT[da.getMonth()]}, ${da.getFullYear()}`;
+                setDateOfJourney(formatted);
+                setSelectedDay(String(da.getDate()).padStart(2, '0'));
+                setShowCalendarPicker(false);
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#3b0764',
+                fontSize: '13px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                padding: '6px 8px',
+                borderRadius: '6px',
+                transition: 'background 0.15s ease'
+              }}
+            >
+              Day After
+            </button>
+          </div>
+        )}
                           setShowQuotaDropdown(false);
                         }}
                         style={{
