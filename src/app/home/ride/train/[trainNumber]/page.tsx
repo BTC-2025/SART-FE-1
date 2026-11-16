@@ -245,50 +245,74 @@ export default function TrainRouteHistoryPage() {
         </div>
       </div>
 
-      {/* Train Search Input Box matching user screenshot */}
-      <div style={{ background: '#ffffff', padding: '16px 28px', borderBottom: '1px solid #e2e8f0' }}>
-        <form onSubmit={handleSearchSubmit} style={{ maxWidth: '600px', display: 'flex', gap: '10px' }}>
-          <div style={{ flex: 1, position: 'relative' }}>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-              Train No. / Name
-            </label>
-            <div
+      {/* Train Search Input Box & Current Train Display matching user layout */}
+      <div style={{ background: '#ffffff', padding: '16px 28px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px', flexWrap: 'wrap' }}>
+        <form onSubmit={handleSearchSubmit} style={{ width: '480px', maxWidth: '100%' }}>
+          <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+            Train No. / Name
+          </label>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              border: '1.5px solid #2a1373',
+              borderRadius: '24px',
+              padding: '6px 14px',
+              background: '#ffffff',
+              boxShadow: '0 1px 3px rgba(42, 19, 115, 0.08)'
+            }}
+          >
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Enter Train Number or Train Name"
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                border: '1.5px solid #2a1373',
-                borderRadius: '8px',
-                padding: '6px 12px',
-                background: '#ffffff'
+                width: '100%',
+                border: 'none',
+                outline: 'none',
+                fontSize: '15px',
+                fontWeight: 700,
+                color: '#0f172a'
               }}
-            >
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Enter Train Number or Train Name "
-                style={{
-                  width: '100%',
-                  border: 'none',
-                  outline: 'none',
-                  fontSize: '15px',
-                  fontWeight: 700,
-                  color: '#0f172a'
-                }}
-              />
-              {searchInput && (
-                <i
-                  className="fa-solid fa-xmark"
-                  onClick={() => setSearchInput('')}
-                  style={{ color: '#94a3b8', cursor: 'pointer', marginRight: '10px' }}
-                ></i>
-              )}
-              <button type="submit" style={{ background: 'none', border: 'none', color: '#2a1373', cursor: 'pointer', fontSize: '16px' }}>
-                <i className="fa-solid fa-magnifying-glass"></i>
-              </button>
-            </div>
+            />
+            {searchInput && (
+              <i
+                className="fa-solid fa-xmark"
+                onClick={() => setSearchInput('')}
+                style={{ color: '#94a3b8', cursor: 'pointer', marginRight: '10px' }}
+              ></i>
+            )}
+            <button type="submit" style={{ background: 'none', border: 'none', color: '#2a1373', cursor: 'pointer', fontSize: '16px' }}>
+              <i className="fa-solid fa-magnifying-glass"></i>
+            </button>
           </div>
         </form>
+
+        {/* Train Number and Train Name beside the search box */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', background: '#f8fafc', padding: '10px 18px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <div
+            style={{
+              background: '#2a1373',
+              color: '#ffffff',
+              padding: '6px 14px',
+              borderRadius: '8px',
+              fontWeight: 900,
+              fontSize: '16px',
+              letterSpacing: '0.5px'
+            }}
+          >
+            {currentTrain.number}
+          </div>
+          <div>
+            <div style={{ fontSize: '15px', fontWeight: 900, color: '#0f172a' }}>
+              {currentTrain.name.toUpperCase()}
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
+              {currentTrain.departureStation} ({currentTrain.departureStationCode}) → {currentTrain.arrivalStation} ({currentTrain.arrivalStationCode})
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Live Running Status Banner */}
