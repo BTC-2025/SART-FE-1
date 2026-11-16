@@ -23,6 +23,7 @@ export interface TrainTicketModalData {
   bookingDate?: string;
   transactionId?: string;
   duration?: string;
+  autoPrint?: boolean;
   passengers: {
     name: string;
     age: string | number;
@@ -49,6 +50,16 @@ export default function TrainTicketPdfModal({ ticket, onClose }: TrainTicketPdfM
   const handlePrint = () => {
     window.print();
   };
+
+  // If user clicked "Download Ticket", auto trigger print / save dialog after render
+  React.useEffect(() => {
+    if (ticket?.autoPrint) {
+      const timer = setTimeout(() => {
+        window.print();
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [ticket]);
 
   const pnr = ticket.pnr || `${Math.floor(1000000000 + Math.random() * 9000000000)}`;
   const trainNo = ticket.trainNumber || '12007';

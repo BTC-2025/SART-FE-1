@@ -89,7 +89,13 @@ export const BookingCardItem: React.FC<BookingCardProps> = ({
       </div>
 
       <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>
-        Booking ID {booking.bookingId}
+        {isTrain ? (
+          <span>
+            PNR <strong style={{ color: '#0f172a', fontWeight: 'bold' }}>{booking.pnr || booking.bookingId?.replace(/\D/g, '') || '4863831884'}</strong>
+          </span>
+        ) : (
+          <span>Booking ID {booking.bookingId}</span>
+        )}
       </div>
 
       {overviewTab === 'cancelled' ? (

@@ -657,7 +657,8 @@ export default function BookingsTab() {
                         fare: Number(extra.fare || (b.transactionAmount ? (b.transactionAmount - 12.7) : 1055)),
                         convenienceFee: 11.80,
                         insurancePremium: 0.90,
-                        totalFare: Number(b.transactionAmount || extra.paymentDetails?.amount || 1067.25)
+                        totalFare: Number(b.transactionAmount || extra.paymentDetails?.amount || 1067.25),
+                        autoPrint: false
                       });
                     } else {
                       setSelectedGlobalBooking(b);
@@ -711,7 +712,8 @@ export default function BookingsTab() {
                       fare: Number(extra.fare || (b.transactionAmount ? (b.transactionAmount - 12.7) : 1055)),
                       convenienceFee: 11.80,
                       insurancePremium: 0.90,
-                      totalFare: Number(b.transactionAmount || extra.paymentDetails?.amount || 1067.25)
+                      totalFare: Number(b.transactionAmount || extra.paymentDetails?.amount || 1067.25),
+                      autoPrint: true
                     });
                   }}
                   onCancelBooking={handleCancelBooking}
