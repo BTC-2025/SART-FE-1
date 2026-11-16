@@ -138,7 +138,16 @@ export default function TrainPassengerDetailsModal({
     setPassengersList(passengersList.filter((_, i) => i !== idx));
   };
 
-  const totalPayable = fare * (passengersList.length || 1) + (freeCancel ? 50 : 0);
+  const [autoUpgradation, setAutoUpgradation] = useState(false);
+  const [confirmBerthsOnly, setConfirmBerthsOnly] = useState(false);
+  const [reservationChoice, setReservationChoice] = useState('Reservation Choice');
+  const [preferredCoach, setPreferredCoach] = useState('');
+  const [travelInsurance, setTravelInsurance] = useState<'yes' | 'no'>('yes');
+  const [paymentMode, setPaymentMode] = useState<'cards_netbanking' | 'upi'>('cards_netbanking');
+
+  const convenienceFee = paymentMode === 'cards_netbanking' ? 15 : 10;
+  const insuranceFee = travelInsurance === 'yes' ? 0.45 * (passengersList.length || 1) : 0;
+  const totalPayable = Math.round(fare * (passengersList.length || 1) + (freeCancel ? 50 : 0) + convenienceFee + insuranceFee);
 
   return (
     <div style={{
@@ -913,11 +922,179 @@ export default function TrainPassengerDetailsModal({
                 </div>
               </div>
 
+              {/* 5. Other Preferences Card (Matching Image 1) */}
+              <div style={{ background: '#ffffff', borderRadius: '8px', padding: '18px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>Other Preferences</h3>
+                  <i className="fa-solid fa-chevron-up" style={{ color: '#64748b', fontSize: '13px' }}></i>
+                </div>
+
+                {/* Checkboxes Row */}
+                <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', marginBottom: '14px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+                    <input
+                      type="checkbox"
+                      checked={autoUpgradation}
+                      onChange={(e) => setAutoUpgradation(e.target.checked)}
+                      style={{ width: '16px', height: '16px', accentColor: '#2563eb' }}
+                    />
+                    <span>Consider for Auto Upgradation (In higher class you may or may not get lower berth)</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+                    <input
+                      type="checkbox"
+                      checked={confirmBerthsOnly}
+                      onChange={(e) => setConfirmBerthsOnly(e.target.checked)}
+                      style={{ width: '16px', height: '16px', accentColor: '#2563eb' }}
+                    />
+                    <span>Book only if confirm berths are allotted.</span>
+                  </label>
+                </div>
+
+                {/* Reservation Choice Dropdown */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', maxWidth: '360px' }}>
+                  <div style={{ flex: 1, border: '1.5px solid #cbd5e1', borderRadius: '4px', padding: '7px 10px', background: '#ffffff' }}>
+                    <select
+                      value={reservationChoice}
+                      onChange={(e) => setReservationChoice(e.target.value)}
+                      style={{
+                        width: '100%',
+                        border: 'none',
+                        outline: 'none',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: '#0f172a',
+                        background: 'transparent',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <option value="Reservation Choice">Reservation Choice</option>
+                      <option value="None">None</option>
+                      <option value="Book, only if all berths are allotted in same coach">Book, only if all berths are allotted in same coach</option>
+                      <option value="Book, only if at least 1 lower berth is allotted">Book, only if at least 1 lower berth is allotted</option>
+                      <option value="Book, only if 2 lower berths are allotted">Book, only if 2 lower berths are allotted</option>
+                    </select>
+                  </div>
+                  <i className="fa-solid fa-circle-info" style={{ color: '#16a34a', fontSize: '16px' }} title="Reservation choice info"></i>
+                </div>
+
+                {/* Preferred Coach No. Input */}
+                <div style={{ maxWidth: '360px', marginBottom: '16px' }}>
+                  <input
+                    type="text"
+                    value={preferredCoach}
+                    onChange={(e) => setPreferredCoach(e.target.value)}
+                    placeholder="Preferred Coach No."
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '4px',
+                      border: '1.5px solid #cbd5e1',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+
+                {/* Travel Insurance Section */}
+                <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '14px' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>
+                    Travel Insurance (Incl. of GST){' '}
+                    <span style={{ fontSize: '12px', fontWeight: 500, color: '#475569' }}>
+                      Do you want to take Travel Insurance (₹0.45/person)?
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '28px', flexWrap: 'wrap' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: '#1e293b' }}>
+                      <input
+                        type="radio"
+                        name="travelInsurance"
+                        value="yes"
+                        checked={travelInsurance === 'yes'}
+                        onChange={() => setTravelInsurance('yes')}
+                        style={{ accentColor: '#ea580c', width: '16px', height: '16px' }}
+                      />
+                      <span>
+                        Yes, and I accept the{' '}
+                        <a href="#insurance-terms" onClick={(e) => e.preventDefault()} style={{ color: '#0284c7', textDecoration: 'none' }}>
+                          terms & conditions
+                        </a>
+                      </span>
+                    </label>
+
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: '#475569' }}>
+                      <input
+                        type="radio"
+                        name="travelInsurance"
+                        value="no"
+                        checked={travelInsurance === 'no'}
+                        onChange={() => setTravelInsurance('no')}
+                        style={{ accentColor: '#ea580c', width: '16px', height: '16px' }}
+                      />
+                      <span>No, I don&apos;t want travel insurance</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* 6. Payment Mode Card (Matching Image 1) */}
+              <div style={{ background: '#ffffff', borderRadius: '8px', padding: '18px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>Payment Mode</h3>
+                  <i className="fa-solid fa-chevron-up" style={{ color: '#64748b', fontSize: '13px' }}></i>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  {/* Option 1: Credit & Debit Cards / Net Banking / Wallets / EMI */}
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="paymentMode"
+                      value="cards_netbanking"
+                      checked={paymentMode === 'cards_netbanking'}
+                      onChange={() => setPaymentMode('cards_netbanking')}
+                      style={{ accentColor: '#ea580c', width: '16px', height: '16px', marginTop: '2px' }}
+                    />
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+                        Pay through Credit & Debit Cards / Net Banking / Wallets / EMI / UPI_CC / UPI_CL / Rewards and Others
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                        Convenience Fee: ₹15/- + GST
+                      </div>
+                    </div>
+                  </label>
+
+                  {/* Option 2: BHIM/UPI */}
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="paymentMode"
+                      value="upi"
+                      checked={paymentMode === 'upi'}
+                      onChange={() => setPaymentMode('upi')}
+                      style={{ accentColor: '#ea580c', width: '16px', height: '16px', marginTop: '2px' }}
+                    />
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+                        Pay through BHIM/UPI
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                        Convenience Fee: ₹10/- + GST
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
               {/* Bottom Sticky Total and Proceed Button */}
               <div style={{
                 background: '#ffffff',
                 borderRadius: '12px',
-                padding: '16px',
+                padding: '16px 20px',
                 border: '1px solid #e2e8f0',
                 display: 'flex',
                 alignItems: 'center',
@@ -926,7 +1103,7 @@ export default function TrainPassengerDetailsModal({
               }}>
                 <div>
                   <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Total Payable ({passengersList.length} Pax)</div>
-                  <div style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a' }}>
+                  <div style={{ fontSize: '24px', fontWeight: 900, color: '#0f172a' }}>
                     ₹{totalPayable.toLocaleString('en-IN')}
                   </div>
                 </div>
@@ -940,7 +1117,9 @@ export default function TrainPassengerDetailsModal({
                         name: currentName.trim(),
                         age: currentAge || '25',
                         gender: currentGender,
-                        berthPreference: currentBerth
+                        nationality: currentNationality,
+                        berthPreference: currentBerth,
+                        cateringOption: currentCatering
                       }];
                       setPassengersList(finalList);
                     }
@@ -969,6 +1148,40 @@ export default function TrainPassengerDetailsModal({
                       phone: phoneNumber.trim(),
                       irctcId: irctcUsername.trim(),
                       boardingStation: boardingStation.trim(),
+                      travelInsurance,
+                      paymentMode,
+                      autoUpgradation,
+                      confirmBerthsOnly,
+                      preferredCoach
+                    };
+                    try {
+                      localStorage.setItem('sart_pending_train_booking', JSON.stringify(pendingBooking));
+                    } catch (e) {
+                      console.error('Error saving pending booking', e);
+                    }
+
+                    // Redirect to dedicated payment page
+                    router.push('/home/ride/train/passenger-details/payment');
+                  }}
+                  style={{
+                    background: '#2a1373',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '12px 28px',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 12px rgba(42, 19, 115, 0.3)'
+                  }}
+                >
+                  <i className="fa-solid fa-lock"></i>
+                  Pay & Confirm
+                </button>
+              </div>
                       freeCancel
                     };
 
