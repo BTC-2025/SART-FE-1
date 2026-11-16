@@ -705,33 +705,6 @@ export default function TrainSearchBar({
             </button>
           </div>
         )}
-                          setShowQuotaDropdown(false);
-                        }}
-                        style={{
-                          padding: '9px 14px',
-                          fontSize: '13px',
-                          fontWeight: isSelected ? 800 : 500,
-                          color: isSelected ? '#ffffff' : '#1e293b',
-                          background: isSelected ? '#0070f3' : 'transparent',
-                          cursor: 'pointer',
-                          transition: 'background 0.1s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!isSelected) e.currentTarget.style.background = '#f1f5f9';
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isSelected) e.currentTarget.style.background = 'transparent';
-                        }}
-                      >
-                        {q}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Red Search Button */}
         <button className="tb-search-action-btn" onClick={onSearch} title="Search">
