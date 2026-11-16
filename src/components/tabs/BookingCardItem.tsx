@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Booking } from '../../data/mockBookings';
+import { TRAIN_CARD_ICON, BUS_CARD_ICON } from '../../data/bookingIcons';
 
 interface BookingCardProps {
   booking: Booking;
@@ -18,19 +19,46 @@ export const BookingCardItem: React.FC<BookingCardProps> = ({
   onDownloadTicket,
   onCancelBooking
 }) => {
+  const isTrain =
+    booking.type === 'train' ||
+    booking.title?.toLowerCase().includes('shatabdi') ||
+    booking.title?.toLowerCase().includes('exp') ||
+    booking.title?.toLowerCase().includes('sf ex') ||
+    Boolean(booking.number?.match(/^\d{5}$/));
+
+  const isBus =
+    booking.type === 'bus' ||
+    booking.title?.toLowerCase().includes('bus') ||
+    booking.title?.toLowerCase().includes('volvo') ||
+    booking.title?.toLowerCase().includes('travels') ||
+    booking.title?.toLowerCase().includes('scania') ||
+    booking.number?.startsWith('BUS');
+
   return (
     <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: '36px', height: '36px', background: '#f1f5f9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-            {booking.type === 'train' || booking.title?.toLowerCase().includes('exp') || booking.title?.toLowerCase().includes('shatabdi') || booking.number?.match(/^\d{5}$/) ? (
-              <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <i className="fa-solid fa-train" style={{ fontSize: '18px', color: '#2563eb' }}></i>
-              </div>
+          <div style={{ width: '38px', height: '38px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+            {isTrain ? (
+              <img
+                src={TRAIN_CARD_ICON}
+                alt="Train"
+                style={{ width: '26px', height: '26px', objectFit: 'contain' }}
+              />
+            ) : isBus ? (
+              <img
+                src={BUS_CARD_ICON}
+                alt="Bus"
+                style={{ width: '26px', height: '26px', objectFit: 'contain' }}
+              />
             ) : booking.image ? (
-              <img src={booking.image} alt={booking.type} style={{ width: '24px', height: '24px', objectFit: 'contain' }} />
+              <img
+                src={booking.image}
+                alt={booking.type}
+                style={{ width: '24px', height: '24px', objectFit: 'contain' }}
+              />
             ) : (
-              <i className={`fa-solid ${booking.title.includes('AUTO') ? 'fa-motorcycle' : booking.title.includes('CRUISE') ? 'fa-ship' : booking.title.includes('EXPRESS') ? 'fa-train' : 'fa-plane'}`} style={{ color: '#0f172a' }}></i>
+              <i className={`fa-solid ${booking.title.includes('AUTO') ? 'fa-motorcycle' : booking.title.includes('CRUISE') ? 'fa-ship' : 'fa-car'}`} style={{ color: '#0f172a' }}></i>
             )}
           </div>
           <div>

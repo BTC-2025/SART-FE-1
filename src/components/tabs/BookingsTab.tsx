@@ -73,9 +73,9 @@ export default function BookingsTab() {
               title: b.title,
               number: extra.number || b.subType?.toUpperCase() || 'SART-RES',
               type: b.type,
-              image: b.type === 'train' ? 'https://img.icons8.com/fluency/96/train.png' :
+              image: b.type === 'train' ? '/images/train_icon_logo.png' :
                 b.type === 'flight' ? 'https://img.icons8.com/fluency/96/airplane-take-off.png' :
-                  b.type === 'bus' ? 'https://img.icons8.com/fluency/96/bus.png' :
+                  b.type === 'bus' ? '/images/bus_icon_logo.png' :
                     'https://img.icons8.com/fluency/96/car.png',
               source: b.pickupLoc || extra.source || 'Bengaluru',
               sourceCode: extra.sourceCode || (b.pickupLoc ? b.pickupLoc.slice(0, 3).toUpperCase() : 'BLR'),
@@ -135,9 +135,9 @@ export default function BookingsTab() {
               title: b.title || 'Booking',
               number: b.number || b.pnr || 'SART',
               type: (b.type || 'bus').toLowerCase(),
-              image: (b.type || '').toLowerCase() === 'train' ? 'https://img.icons8.com/fluency/96/train.png' :
+              image: (b.type || '').toLowerCase() === 'train' ? '/images/train_icon_logo.png' :
                 (b.type || '').toLowerCase() === 'flight' ? 'https://img.icons8.com/fluency/96/airplane-take-off.png' :
-                  (b.type || '').toLowerCase() === 'bus' ? 'https://img.icons8.com/fluency/96/bus.png' :
+                  (b.type || '').toLowerCase() === 'bus' ? '/images/bus_icon_logo.png' :
                     'https://img.icons8.com/fluency/96/car.png',
               source: b.source || 'Chennai',
               sourceCode: b.sourceCode || (b.source ? b.source.slice(0, 3).toUpperCase() : 'MAA'),
