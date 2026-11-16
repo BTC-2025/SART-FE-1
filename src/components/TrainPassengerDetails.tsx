@@ -640,14 +640,14 @@ export default function TrainPassengerDetailsModal({
                     onChange={(e) => setCurrentAge(e.target.value)}
                     placeholder="Age"
                     style={{
-                      width: '100%',
+                      width: '70px',
                       padding: '8px 8px',
                       borderRadius: '4px',
                       border: '1.5px solid #cbd5e1',
                       fontSize: '13px',
                       fontWeight: 600,
                       color: '#0f172a',
-                      textAlign: 'center',
+                      // textAlign: 'center',
                       outline: 'none',
                       background: '#ffffff'
                     }}
@@ -701,7 +701,7 @@ export default function TrainPassengerDetailsModal({
                     value={currentBerth}
                     onChange={(e) => setCurrentBerth(e.target.value as any)}
                     style={{
-                      width: '100%',
+                      width: '300px',
                       padding: '8px 8px',
                       borderRadius: '4px',
                       border: '1.5px solid #2563eb',
@@ -855,6 +855,7 @@ export default function TrainPassengerDetailsModal({
                         cursor: 'pointer'
                       }}
                     >
+                      <option value="Select State">Select State</option>
                       <option value="Karnataka">Karnataka</option>
                       <option value="Tamil Nadu">Tamil Nadu</option>
                       <option value="Andhra Pradesh">Andhra Pradesh</option>
