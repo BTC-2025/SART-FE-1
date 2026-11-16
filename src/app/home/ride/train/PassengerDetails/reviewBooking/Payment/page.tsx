@@ -49,7 +49,7 @@ export default function TrainFinalPaymentPage() {
     );
   }
 
-  const trainName = bookingData?.trainName || 'Train Express';
+  const trainName = bookingData?.trainName || '';
   const trainNumber = bookingData?.trainNumber || '';
   const classCode = bookingData?.classCode || 'SL';
   const source = bookingData?.source || '';
@@ -262,17 +262,18 @@ export default function TrainFinalPaymentPage() {
         boxSizing: 'border-box'
       }}>
 
-        {/* Stepper Header (1 Passenger Details -> 2 Review Journey -> 3 Payment Active) */}
+        {/* Stepper Header (1 Passenger Details -> 2 Review Journey -> 3 Payment Active) - Width: 700px */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          gap: '40px',
-          marginBottom: '28px',
+          justifyContent: 'space-between',
+          width: '100%',
+          maxWidth: '700px',
+          margin: '0 auto 28px auto',
           padding: '8px 0'
         }}>
           {/* Step 1 */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', minWidth: '120px' }}>
             <div style={{
               width: '32px',
               height: '32px',
@@ -287,13 +288,13 @@ export default function TrainFinalPaymentPage() {
             }}>
               1
             </div>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>Passenger Details</span>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#334155', whiteSpace: 'nowrap' }}>Passenger Details</span>
           </div>
 
-          <div style={{ width: '120px', height: '2px', background: '#f97316', marginTop: '-18px' }}></div>
+          <div style={{ flex: 1, height: '2px', background: '#391E84', marginTop: '-20px', marginInline: '8px' }}></div>
 
           {/* Step 2 */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', minWidth: '120px' }}>
             <div style={{
               width: '32px',
               height: '32px',
@@ -308,29 +309,29 @@ export default function TrainFinalPaymentPage() {
             }}>
               2
             </div>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>Review Journey</span>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#334155', whiteSpace: 'nowrap' }}>Review Journey</span>
           </div>
 
-          <div style={{ width: '120px', height: '2px', background: '#f97316', marginTop: '-18px' }}></div>
+          <div style={{ flex: 1, height: '2px', background: '#391E84', marginTop: '-20px', marginInline: '8px' }}></div>
 
           {/* Step 3 (Active) */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', minWidth: '120px' }}>
             <div style={{
               width: '32px',
               height: '32px',
               borderRadius: '50%',
-              background: '#391e84',
+              background: '#391E84',
               color: '#ffffff',
               fontWeight: 800,
               fontSize: '13px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 0 0 4px rgba(234, 88, 12, 0.25)'
+              boxShadow: '0 0 0 4px rgba(57, 30, 132, 0.25)'
             }}>
               3
             </div>
-            <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>Payment</span>
+            <span style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap' }}>Payment</span>
           </div>
         </div>
 
@@ -542,43 +543,15 @@ export default function TrainFinalPaymentPage() {
               {/* Right Sub-Column: Selected Option Content Area */}
               <div style={{ padding: '20px', background: '#ffffff' }}>
                 {selectedMethod === 'irctc_ipay' && (
-                  <div
-                    onClick={() => setSelectedSubOption('irctc_ipay_new')}
-                    style={{
-                      border: selectedSubOption === 'irctc_ipay_new' ? '1.5px solid #cbd5e1' : '1px solid #e2e8f0',
-                      borderRadius: '4px',
-                      padding: '12px 18px',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      cursor: 'pointer',
-                      background: '#ffffff',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
-                    }}
-                  >
-                    <div style={{
-                      width: '26px',
-                      height: '26px',
-                      borderRadius: '50%',
-                      background: '#0284c7',
-                      color: '#ffffff',
-                      fontSize: '9px',
-                      fontWeight: 900,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      IRCTC
-                    </div>
-                    <span style={{ width: '200px', fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
-                      IRCTC iPay New
-                    </span>
+
+                  <div>
                   </div>
+
+
                 )}
 
                 {selectedMethod !== 'irctc_ipay' && (
-                  <div style={{ padding: '20px 0', color: '#64748b', fontSize: '13px' }}>
-                    Select preferred gateway and click <strong>Pay & Book</strong> to proceed securely.
+                  <div>
                   </div>
                 )}
               </div>
@@ -616,7 +589,7 @@ export default function TrainFinalPaymentPage() {
                   fontWeight: 800,
                   color: '#ffffff',
                   cursor: isProcessing ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 2px 6px rgba(12, 105, 234, 0.35)'
+                  boxShadow: '0 2px 6px rgba(57, 30, 132, 0.35)'
                 }}
               >
                 {isProcessing ? 'Processing...' : 'Pay & Book'}

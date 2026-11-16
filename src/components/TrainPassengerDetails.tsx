@@ -1200,7 +1200,7 @@ export default function TrainPassengerDetailsModal({
                   router.push('/home/ride/train/PassengerDetails/reviewBooking');
                 }}
                 style={{
-                  background: '#f97316',
+                  background: '#391E84',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '6px',
@@ -1208,7 +1208,7 @@ export default function TrainPassengerDetailsModal({
                   fontSize: '14px',
                   fontWeight: 800,
                   cursor: 'pointer',
-                  boxShadow: '0 2px 6px rgba(249, 115, 22, 0.35)',
+                  boxShadow: '0 2px 6px rgba(57, 30, 132, 0.35)',
                   transition: 'all 0.15s ease'
                 }}
               >

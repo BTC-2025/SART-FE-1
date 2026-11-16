@@ -41,11 +41,11 @@ export default function TrainReviewBookingPage() {
     );
   }
 
-  const trainName = bookingData?.trainName || 'Train Express';
+  const trainName = bookingData?.trainName || '';
   const trainNumber = bookingData?.trainNumber || '';
-  const classCode = bookingData?.classCode || 'SL';
-  const source = bookingData?.source || 'Mgr Chennai Ctl (MAS)';
-  const destination = bookingData?.destination || 'Ksr Bengaluru (SBC)';
+  const classCode = bookingData?.classCode || '';
+  const source = bookingData?.source || '';
+  const destination = bookingData?.destination || '';
   const dateOfJourney = bookingData?.dateOfJourney || '';
   const depTime = bookingData?.depTime || '';
   const arrTime = bookingData?.arrTime || '';
@@ -90,23 +90,24 @@ export default function TrainReviewBookingPage() {
       </div>
 
       <main style={{ flex: 1, maxWidth: '1240px', margin: '0 auto', width: '100%', padding: '24px 16px' }}>
-        
-        {/* Stepper Header (1 Passenger Details -> 2 Review Journey -> 3 Payment) */}
+
+        {/* Stepper Header (1 Passenger Details -> 2 Review Journey -> 3 Payment) - Width: 700px */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          gap: '16px',
-          marginBottom: '20px',
+          justifyContent: 'space-between',
+          width: '100%',
+          maxWidth: '700px',
+          margin: '0 auto 24px auto',
           padding: '8px 0'
         }}>
           {/* Step 1 */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', minWidth: '120px' }}>
             <div style={{
-              width: '30px',
-              height: '30px',
+              width: '32px',
+              height: '32px',
               borderRadius: '50%',
-              background: '#f97316',
+              background: '#391E84',
               color: '#ffffff',
               fontWeight: 800,
               fontSize: '13px',
@@ -116,38 +117,38 @@ export default function TrainReviewBookingPage() {
             }}>
               1
             </div>
-            <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#334155' }}>Passenger Details</span>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#334155', whiteSpace: 'nowrap' }}>Passenger Details</span>
           </div>
 
-          <div style={{ width: '45px', height: '2px', background: '#f97316', marginTop: '-14px' }}></div>
+          <div style={{ flex: 1, height: '2px', background: '#391E84', marginTop: '-20px', marginInline: '8px' }}></div>
 
           {/* Step 2 (Active with Glowing Ring) */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', minWidth: '120px' }}>
             <div style={{
-              width: '30px',
-              height: '30px',
+              width: '32px',
+              height: '32px',
               borderRadius: '50%',
-              background: '#ea580c',
+              background: '#391E84',
               color: '#ffffff',
               fontWeight: 800,
               fontSize: '13px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 0 0 4px rgba(234, 88, 12, 0.25)'
+              boxShadow: '0 0 0 4px rgba(57, 30, 132, 0.25)'
             }}>
               2
             </div>
-            <span style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a' }}>Review Journey</span>
+            <span style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap' }}>Review Journey</span>
           </div>
 
-          <div style={{ width: '45px', height: '2px', background: '#cbd5e1', marginTop: '-14px' }}></div>
+          <div style={{ flex: 1, height: '2px', background: '#cbd5e1', marginTop: '-20px', marginInline: '8px' }}></div>
 
           {/* Step 3 */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', minWidth: '120px' }}>
             <div style={{
-              width: '30px',
-              height: '30px',
+              width: '32px',
+              height: '32px',
               borderRadius: '50%',
               background: '#cbd5e1',
               color: '#ffffff',
@@ -159,16 +160,16 @@ export default function TrainReviewBookingPage() {
             }}>
               3
             </div>
-            <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#64748b' }}>Payment</span>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', whiteSpace: 'nowrap' }}>Payment</span>
           </div>
         </div>
 
         {/* Main Grid: Left Journey & Passenger Details, Right Fare Summary */}
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 350px', gap: '20px', alignItems: 'start' }}>
-          
+
           {/* Left Column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            
+
             {/* Train & Journey Card matching reference image */}
             <div style={{
               background: '#ffffff',
@@ -322,7 +323,7 @@ export default function TrainReviewBookingPage() {
                 type="button"
                 onClick={() => router.push('/home/ride/train/PassengerDetails/reviewBooking/Payment')}
                 style={{
-                  background: '#f97316',
+                  background: '#391E84',
                   border: 'none',
                   borderRadius: '4px',
                   padding: '8px 28px',
@@ -330,7 +331,7 @@ export default function TrainReviewBookingPage() {
                   fontWeight: 800,
                   color: '#ffffff',
                   cursor: 'pointer',
-                  boxShadow: '0 2px 6px rgba(249, 115, 22, 0.35)'
+                  boxShadow: '0 2px 6px rgba(57, 30, 132, 0.35)'
                 }}
               >
                 Continue
@@ -339,9 +340,9 @@ export default function TrainReviewBookingPage() {
 
           </div>
 
-          {/* Right Column: Fare Summary Card in Navbar Purple #2a1373 */}
+          {/* Right Column: Fare Summary Card in #391E84 */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            
+
             <div style={{
               background: '#ffffff',
               borderRadius: '6px',
@@ -370,9 +371,9 @@ export default function TrainReviewBookingPage() {
                 </div>
               </div>
 
-              {/* Total Fare Bar matching Navbar purple #2a1373 */}
+              {/* Total Fare Bar matching theme #391E84 */}
               <div style={{
-                background: '#2a1373',
+                background: '#391E84',
                 color: '#ffffff',
                 padding: '14px 18px',
                 display: 'flex',
