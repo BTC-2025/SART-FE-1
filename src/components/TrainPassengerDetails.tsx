@@ -746,7 +746,7 @@ export default function TrainPassengerDetailsModal({
                     <option value="Other">Other</option>
                   </select>
 
-                  {/* Berth Preference Select */}
+                  {/* Berth Preference Select (Optional - Defaults to No Preference) */}
                   <select
                     value={currentBerth}
                     onChange={(e) => setCurrentBerth(e.target.value as any)}
@@ -754,10 +754,10 @@ export default function TrainPassengerDetailsModal({
                       width: '300px',
                       padding: '8px 8px',
                       borderRadius: '4px',
-                      border: '1.5px solid #2563eb',
+                      border: '1.5px solid #cbd5e1',
                       fontSize: '13px',
-                      fontWeight: 700,
-                      color: '#1e3a8a',
+                      fontWeight: 600,
+                      color: '#0f172a',
                       outline: 'none',
                       background: '#ffffff',
                       cursor: 'pointer'
@@ -1164,7 +1164,7 @@ export default function TrainPassengerDetailsModal({
                       setPassengersList(finalList);
                     }
                     if (finalList.length === 0) {
-                      alert('Please add at least one passenger (Name, Age, Gender, Nationality, Berth preference are mandatory)');
+                      alert('Please add at least one passenger (Name, Age, and Gender are required)');
                       return;
                     }
                     if (!irctcUsername.trim()) {
