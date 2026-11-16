@@ -107,6 +107,20 @@ export default function TrainPassengerDetailsModal({
       : []
   );
 
+  // Sync passengersList when passenger prop updates (e.g. from localStorage)
+  useEffect(() => {
+    if (passenger.name && passenger.name.trim().length > 0) {
+      setPassengersList([
+        {
+          name: passenger.name,
+          age: passenger.age || '',
+          gender: passenger.gender || 'Male',
+          berthPreference: (passenger.berthPreference as any) || 'No Preference'
+        }
+      ]);
+    }
+  }, [passenger.name, passenger.age, passenger.gender, passenger.berthPreference]);
+
   const [currentName, setCurrentName] = useState('');
   const [currentGender, setCurrentGender] = useState<'Male' | 'Female' | 'Transgender'>('Male');
   const [currentAge, setCurrentAge] = useState('');

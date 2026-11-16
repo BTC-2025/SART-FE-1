@@ -870,8 +870,30 @@ export default function TrainBookingView() {
                   }}
                   onSelectBooking={(tr, cl, dt) => {
                     setDateOfJourney(dt);
-                    setBookingClassModal({ train: tr, classOption: cl });
-                    setBookingConfirmed(false);
+                    const bookingPayload = {
+                      trainName: tr.name,
+                      trainNumber: tr.number,
+                      classCode: cl.code,
+                      fare: cl.fare,
+                      totalAmount: cl.fare,
+                      source,
+                      destination,
+                      dateOfJourney: dt,
+                      depTime: tr.departureTime,
+                      arrTime: tr.arrivalTime,
+                      passengers: [{
+                        name: passengerName || 'PICHUKA VENKATA',
+                        age: passengerAge || '24',
+                        gender: 'Male',
+                        berthPreference: passengerBerth || 'No Preference'
+                      }]
+                    };
+                    try {
+                      localStorage.setItem('sart_pending_train_booking', JSON.stringify(bookingPayload));
+                    } catch (e) {
+                      console.error('Error saving pending booking on select', e);
+                    }
+                    router.push('/home/ride/train/PassengerDetails');
                   }}
                 />
               );
