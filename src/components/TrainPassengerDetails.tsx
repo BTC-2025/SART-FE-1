@@ -641,7 +641,7 @@ export default function TrainPassengerDetailsModal({
               {/* Passenger Form Input Row (Horizontal Grid matching Image 2) */}
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'minmax(180px, 1.4fr) 70px 110px 140px minmax(140px, 1.1fr) 28px',
+                gridTemplateColumns: 'minmax(180px, 1.4fr) 80px 100px 100px minmax(140px, 1.1fr) 28px',
                 gap: '8px',
                 alignItems: 'center',
                 marginBottom: '10px'
@@ -665,27 +665,26 @@ export default function TrainPassengerDetailsModal({
                   }}
                 />
 
-                {/* Age Input */}
+                {/* Age Input (1st: 80px) */}
                 <input
                   type="number"
                   value={currentAge}
                   onChange={(e) => setCurrentAge(e.target.value)}
                   placeholder="Age"
                   style={{
-                    width: '70px',
+                    width: '100%',
                     padding: '8px 8px',
                     borderRadius: '4px',
                     border: '1.5px solid #cbd5e1',
                     fontSize: '13px',
                     fontWeight: 600,
                     color: '#0f172a',
-                    // textAlign: 'center',
                     outline: 'none',
                     background: '#ffffff'
                   }}
                 />
 
-                {/* Gender Select */}
+                {/* Gender Select (2nd: 100px) */}
                 <select
                   value={currentGender}
                   onChange={(e) => setCurrentGender(e.target.value as any)}
@@ -707,7 +706,7 @@ export default function TrainPassengerDetailsModal({
                   <option value="Transgender">Transgender</option>
                 </select>
 
-                {/* Nationality Select */}
+                {/* Nationality Select (3rd: 100px) */}
                 <select
                   value={currentNationality}
                   onChange={(e) => setCurrentNationality(e.target.value)}
