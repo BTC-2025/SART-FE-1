@@ -307,6 +307,8 @@ export default function TrainBookingView() {
 
   const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
   const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
+  const [selectedClassFilter, setSelectedClassFilter] = useState('All Classes');
+  const [selectedQuotaFilter, setSelectedQuotaFilter] = useState('GENERAL');
   const [selectedQuota, setSelectedQuota] = useState<'general' | 'tatkal' | 'ladies' | 'senior'>('general');
   const [selectedDepTimeRanges, setSelectedDepTimeRanges] = useState<string[]>([]);
   const [selectedArrTimeRanges, setSelectedArrTimeRanges] = useState<string[]>([]);
@@ -437,9 +439,18 @@ export default function TrainBookingView() {
   let displayedTrains = [...corridorTrains];
   if (filterAvailable) displayedTrains = displayedTrains.filter((t) => t.classes.some((c) => c.statusType === 'available'));
   if (filterAC) displayedTrains = displayedTrains.filter((t) => t.classes.some((c) => ['1A', '2A', '3A', '3E', 'CC', 'EC', 'EA'].includes(c.code)));
-  if (filterTatkal || selectedQuota === 'tatkal') displayedTrains = displayedTrains.filter((t) => t.classes.some((c) => c.isTatkal));
+  if (filterTatkal || selectedQuota === 'tatkal' || selectedQuotaFilter === 'TATKAL' || selectedQuotaFilter === 'PREMIUM TATKAL') {
+    displayedTrains = displayedTrains.filter((t) => t.classes.some((c) => c.isTatkal));
+  }
   if (filterAltTrip) displayedTrains = displayedTrains.filter((t) => t.stops && t.stops.length > 3);
   if (selectedClasses.length > 0) displayedTrains = displayedTrains.filter((t) => t.classes.some((c) => selectedClasses.includes(c.code)));
+
+  // Filter by Top Search Bar All Classes dropdown
+  if (selectedClassFilter && selectedClassFilter !== 'All Classes') {
+    const codeMatch = selectedClassFilter.match(/\((.*?)\)/);
+    const targetCode = codeMatch ? codeMatch[1].toUpperCase() : selectedClassFilter.toUpperCase();
+    displayedTrains = displayedTrains.filter((t) => t.classes.some((c) => c.code.toUpperCase() === targetCode));
+  }
 
   if (selectedAvailability.length > 0) {
     displayedTrains = displayedTrains.filter((t) =>
@@ -671,6 +682,10 @@ export default function TrainBookingView() {
         handleModeChange={handleModeChange}
         onSearch={triggerSearchNavigation}
         INITIAL_MODE_ORDER={INITIAL_MODE_ORDER}
+        selectedClassFilter={selectedClassFilter}
+        setSelectedClassFilter={setSelectedClassFilter}
+        selectedQuotaFilter={selectedQuotaFilter}
+        setSelectedQuotaFilter={setSelectedQuotaFilter}
       />
 
       {/* Mode Views or Skeleton */}

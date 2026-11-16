@@ -39,6 +39,10 @@ interface TrainSearchBarProps {
   handleModeChange: (mode: any) => void;
   onSearch: () => void;
   INITIAL_MODE_ORDER: { id: string; label: string; icon: string }[];
+  selectedClassFilter?: string;
+  setSelectedClassFilter?: (cls: string) => void;
+  selectedQuotaFilter?: string;
+  setSelectedQuotaFilter?: (quota: string) => void;
 }
 
 export default function TrainSearchBar({
@@ -76,8 +80,56 @@ export default function TrainSearchBar({
   setShowOtherRidesDropdown,
   handleModeChange,
   onSearch,
-  INITIAL_MODE_ORDER
+  INITIAL_MODE_ORDER,
+  selectedClassFilter = 'All Classes',
+  setSelectedClassFilter,
+  selectedQuotaFilter = 'GENERAL',
+  setSelectedQuotaFilter
 }: TrainSearchBarProps) {
+  const [showClassDropdown, setShowClassDropdown] = React.useState(false);
+  const [showQuotaDropdown, setShowQuotaDropdown] = React.useState(false);
+  const classDropdownRef = React.useRef<HTMLDivElement>(null);
+  const quotaDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleOutside = (e: MouseEvent) => {
+      if (classDropdownRef.current && !classDropdownRef.current.contains(e.target as Node)) {
+        setShowClassDropdown(false);
+      }
+      if (quotaDropdownRef.current && !quotaDropdownRef.current.contains(e.target as Node)) {
+        setShowQuotaDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, []);
+
+  const CLASS_OPTIONS = [
+    'All Classes',
+    'Anubhuti Class (EA)',
+    'AC First Class (1A)',
+    'Vistadome AC (EV)',
+    'Exec. Chair Car (EC)',
+    'AC 2 Tier (2A)',
+    'First Class (FC)',
+    'AC 3 Tier (3A)',
+    'AC 3 Economy (3E)',
+    'Vistadome Chair Car (VC)',
+    'AC Chair car (CC)',
+    'Sleeper (SL)',
+    'Vistadome Non AC (VS)',
+    'Second Sitting (2S)'
+  ];
+
+  const QUOTA_OPTIONS = [
+    'GENERAL',
+    'LADIES',
+    'LOWER BERTH/SR.CITIZEN',
+    'PERSON WITH DISABILITY',
+    'DUTY PASS',
+    'TATKAL',
+    'PREMIUM TATKAL'
+  ];
   const MONTH_NAMES = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
@@ -467,6 +519,169 @@ export default function TrainSearchBar({
             </div>
           )}
         </div>
+
+        {/* All Classes & Quota Dropdown Buttons (Displayed only in Train mode, after the Date field) */}
+        {activeMode === 'train' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+            {/* 1. All Classes Dropdown Button */}
+            <div ref={classDropdownRef} style={{ position: 'relative' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowClassDropdown((prev) => !prev);
+                  setShowQuotaDropdown(false);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 14px',
+                  borderRadius: '6px',
+                  border: showClassDropdown ? '1.5px solid #0070f3' : '1.5px solid #cbd5e1',
+                  background: '#ffffff',
+                  color: '#0f172a',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  boxShadow: showClassDropdown ? '0 0 0 3px rgba(0, 112, 243, 0.15)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <i className="fa-solid fa-briefcase" style={{ color: '#2563eb', fontSize: '13px' }}></i>
+                <span>{selectedClassFilter}</span>
+                <i className={`fa-solid fa-chevron-${showClassDropdown ? 'up' : 'down'}`} style={{ color: '#64748b', fontSize: '11px', marginLeft: '2px' }}></i>
+              </button>
+
+              {showClassDropdown && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 4px)',
+                    left: 0,
+                    width: '230px',
+                    maxHeight: '290px',
+                    overflowY: 'auto',
+                    background: '#ffffff',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                    zIndex: 99999,
+                    padding: '4px 0'
+                  }}
+                >
+                  {CLASS_OPTIONS.map((cls) => {
+                    const isSelected = selectedClassFilter === cls;
+                    return (
+                      <div
+                        key={cls}
+                        onClick={() => {
+                          if (setSelectedClassFilter) setSelectedClassFilter(cls);
+                          setShowClassDropdown(false);
+                        }}
+                        style={{
+                          padding: '9px 14px',
+                          fontSize: '13px',
+                          fontWeight: isSelected ? 800 : 500,
+                          color: isSelected ? '#ffffff' : '#1e293b',
+                          background: isSelected ? '#0070f3' : 'transparent',
+                          cursor: 'pointer',
+                          transition: 'background 0.1s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = '#f1f5f9';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        {cls}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* 2. Quota (General / Tatkal) Dropdown Button */}
+            <div ref={quotaDropdownRef} style={{ position: 'relative' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowQuotaDropdown((prev) => !prev);
+                  setShowClassDropdown(false);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 14px',
+                  borderRadius: '6px',
+                  border: showQuotaDropdown ? '1.5px solid #0070f3' : '1.5px solid #cbd5e1',
+                  background: '#ffffff',
+                  color: '#0f172a',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  boxShadow: showQuotaDropdown ? '0 0 0 3px rgba(0, 112, 243, 0.15)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <i className="fa-solid fa-table-cells" style={{ color: '#2563eb', fontSize: '13px' }}></i>
+                <span>{selectedQuotaFilter}</span>
+                <i className={`fa-solid fa-chevron-${showQuotaDropdown ? 'up' : 'down'}`} style={{ color: '#64748b', fontSize: '11px', marginLeft: '2px' }}></i>
+              </button>
+
+              {showQuotaDropdown && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 4px)',
+                    left: 0,
+                    width: '230px',
+                    maxHeight: '290px',
+                    overflowY: 'auto',
+                    background: '#ffffff',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                    zIndex: 99999,
+                    padding: '4px 0'
+                  }}
+                >
+                  {QUOTA_OPTIONS.map((q) => {
+                    const isSelected = selectedQuotaFilter === q;
+                    return (
+                      <div
+                        key={q}
+                        onClick={() => {
+                          if (setSelectedQuotaFilter) setSelectedQuotaFilter(q);
+                          setShowQuotaDropdown(false);
+                        }}
+                        style={{
+                          padding: '9px 14px',
+                          fontSize: '13px',
+                          fontWeight: isSelected ? 800 : 500,
+                          color: isSelected ? '#ffffff' : '#1e293b',
+                          background: isSelected ? '#0070f3' : 'transparent',
+                          cursor: 'pointer',
+                          transition: 'background 0.1s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = '#f1f5f9';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        {q}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Red Search Button */}
         <button className="tb-search-action-btn" onClick={onSearch} title="Search">
