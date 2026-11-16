@@ -50,7 +50,7 @@ export default function TrainTicketPdfModal({ ticket, onClose }: TrainTicketPdfM
     window.print();
   };
 
-  const pnr = ticket.pnr || '4863831884';
+  const pnr = ticket.pnr || `${Math.floor(1000000000 + Math.random() * 9000000000)}`;
   const trainNo = ticket.trainNumber || '12007';
   const trainName = ticket.trainName || 'Mas Mys Shatabdi';
   const classCode = ticket.classCode || 'CC';
@@ -66,7 +66,7 @@ export default function TrainTicketPdfModal({ ticket, onClose }: TrainTicketPdfM
   const duration = ticket.duration || '04h 30m';
   const quota = ticket.quota || 'General';
   const bookingDate = ticket.bookingDate || `${depDate} | 07:05PM`;
-  const txnId = ticket.transactionId || '100008927942324';
+  const txnId = ticket.transactionId || `${Date.now()}${Math.floor(10 + Math.random() * 90)}`;
 
   const ticketFare = ticket.fare || 1055;
   const convenienceFee = ticket.convenienceFee ?? 11.80;
@@ -169,7 +169,7 @@ export default function TrainTicketPdfModal({ ticket, onClose }: TrainTicketPdfM
 
         {/* ERS Ticket Slip Content matching Image 2 */}
         <div style={{ padding: '24px 28px', overflowY: 'auto', background: '#ffffff', color: '#1e293b', fontFamily: 'Arial, sans-serif' }}>
-          
+
           {/* Top Navy Blue Booking Transaction ID Header */}
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '18px' }}>
             <div style={{

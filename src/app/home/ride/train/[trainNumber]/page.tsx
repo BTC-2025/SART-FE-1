@@ -215,64 +215,7 @@ export default function TrainRouteHistoryPage() {
             onSubmit={handleSearchSubmit}
             style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}
           >
-            <div style={{ position: 'relative', width: '100%', maxWidth: '340px' }}>
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Train No. / Name"
-                style={{
-                  width: '100%',
-                  padding: '10px 42px 10px 18px',
-                  borderRadius: '24px',
-                  border: '1.5px solid #2a1373',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  outline: 'none',
-                  background: '#ffffff',
-                  boxShadow: '0 2px 6px rgba(42, 19, 115, 0.08)'
-                }}
-              />
-              <div
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-              >
-                {searchInput && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchInput('')}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#94a3b8',
-                      cursor: 'pointer',
-                      fontSize: '12px'
-                    }}
-                  >
-                    <i className="fa-solid fa-xmark"></i>
-                  </button>
-                )}
-                <button
-                  type="submit"
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#2a1373',
-                    cursor: 'pointer',
-                    fontSize: '14px'
-                  }}
-                >
-                  <i className="fa-solid fa-magnifying-glass"></i>
-                </button>
-              </div>
-            </div>
+
 
             {/* Display train number and train name beside the search input */}
             <div

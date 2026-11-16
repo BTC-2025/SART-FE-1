@@ -49,7 +49,7 @@ export const BookingCardItem: React.FC<BookingCardProps> = ({
               <img
                 src={BUS_CARD_ICON}
                 alt="Bus"
-                style={{ width: '26px', height: '26px', objectFit: 'contain' }}
+                style={{ width: '66px', height: '66px', objectFit: 'cover' }}
               />
             ) : booking.image ? (
               <img

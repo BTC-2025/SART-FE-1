@@ -143,7 +143,7 @@ export default function TrainFinalPaymentPage() {
           provider: chosenProvider,
           status: 'SUCCESS',
           amount: totalAmount,
-          txnId: `TXN${Date.now()}`
+          txnId: `${Date.now()}${Math.floor(10 + Math.random() * 90)}`
         },
         fare: totalAmount
       };
@@ -154,9 +154,10 @@ export default function TrainFinalPaymentPage() {
         return null;
       });
 
-      const generatedPnr = resp?.data?.pnr || `${Math.floor(2000000000 + Math.random() * 8000000000)}`;
+      // Strictly 10-digit PNR and strictly 15-digit numeric Transaction ID
+      const generatedPnr = resp?.data?.pnr || `${Math.floor(1000000000 + Math.random() * 9000000000)}`;
       const generatedBookingId = resp?.data?.bookingId || `TRN${Math.floor(100000 + Math.random() * 900000)}`;
-      const generatedTxnId = payload.paymentDetails?.txnId || `TXN${Date.now()}`;
+      const generatedTxnId = resp?.data?.txnId || payload.paymentDetails?.txnId || `${Date.now()}${Math.floor(10 + Math.random() * 90)}`;
       const coachCode = resp?.data?.coach || 'C1';
       const berthStart = resp?.data?.berthNo || 36;
 

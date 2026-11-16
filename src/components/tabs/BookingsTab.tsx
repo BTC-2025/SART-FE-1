@@ -163,7 +163,7 @@ export default function BookingsTab() {
               berthNo: b.berthNo || 36,
               classCode: b.classCode || 'CC',
               boardingStation: b.boardingStation || b.source,
-              txnId: b.txnId || b.paymentDetails?.txnId || (b.paymentMethod ? `TXN${Date.now()}` : '100008927942324'),
+              txnId: b.txnId || b.paymentDetails?.txnId || (b.paymentMethod ? `TXN${Date.now()}` : ''),
               transactionAmount: b.price || b.cost || 1067.25,
               email: b.passengerEmail || b.email,
               mobile: b.passengerPhone || b.mobile || b.phone
@@ -636,7 +636,7 @@ export default function BookingsTab() {
                         }];
 
                       setSelectedTicketForPdf({
-                        pnr: b.pnr || extra.pnr || '4863831884',
+                        pnr: b.pnr || extra.pnr || `${Math.floor(1000000000 + Math.random() * 9000000000)}`,
                         trainNumber: extra.trainNumber || b.number?.replace(/\D/g, '') || '12007',
                         trainName: extra.trainName || b.title?.replace(/\(\d+\)/, '').trim() || 'Mas Mys Shatabdi',
                         classCode: b.classCode || extra.classCode || b.subType || 'CC',
@@ -652,7 +652,7 @@ export default function BookingsTab() {
                         departureTime: extra.departureTime || b.sourceTime || '06:00 AM',
                         departureDate: extra.dateOfJourney || b.sourceDate || '16 Nov, 2026',
                         bookingDate: extra.dateOfJourney ? `${extra.dateOfJourney} | 07:05PM` : `${b.sourceDate} 07:05 PM`,
-                        transactionId: b.txnId || extra.paymentDetails?.txnId || extra.txnId || '100008927942324',
+                        transactionId: b.txnId || extra.txnId || extra.paymentDetails?.txnId || `${Date.now()}${Math.floor(10 + Math.random() * 90)}`,
                         passengers: paxFormatted,
                         fare: Number(extra.fare || (b.transactionAmount ? (b.transactionAmount - 12.7) : 1055)),
                         convenienceFee: 11.80,
@@ -690,7 +690,7 @@ export default function BookingsTab() {
                       }];
 
                     setSelectedTicketForPdf({
-                      pnr: b.pnr || extra.pnr || '4863831884',
+                      pnr: b.pnr || extra.pnr || `${Math.floor(1000000000 + Math.random() * 9000000000)}`,
                       trainNumber: extra.trainNumber || b.number?.replace(/\D/g, '') || '12007',
                       trainName: extra.trainName || b.title?.replace(/\(\d+\)/, '').trim() || 'Mas Mys Shatabdi',
                       classCode: b.classCode || extra.classCode || b.subType || 'CC',
@@ -706,7 +706,7 @@ export default function BookingsTab() {
                       departureTime: extra.departureTime || b.sourceTime || '06:00 AM',
                       departureDate: extra.dateOfJourney || b.sourceDate || '16 Nov, 2026',
                       bookingDate: extra.dateOfJourney ? `${extra.dateOfJourney} | 07:05PM` : `${b.sourceDate} 07:05 PM`,
-                      transactionId: b.txnId || extra.paymentDetails?.txnId || extra.txnId || '100008927942324',
+                      transactionId: b.txnId || extra.txnId || extra.paymentDetails?.txnId || `${Date.now()}${Math.floor(10 + Math.random() * 90)}`,
                       passengers: paxFormatted,
                       fare: Number(extra.fare || (b.transactionAmount ? (b.transactionAmount - 12.7) : 1055)),
                       convenienceFee: 11.80,

@@ -227,21 +227,23 @@ export default function TrainPaymentPage() {
           provider: chosenProvider,
           status: 'SUCCESS',
           amount: totalAmount,
-          txnId: `TXN${Date.now()}`
+          txnId: `${Date.now()}${Math.floor(10 + Math.random() * 90)}`
         },
         fare: totalAmount
       };
 
       const resp = await TrainApi.confirmBooking(payload);
 
-      const generatedPnr = resp?.data?.pnr || `${Math.floor(2000000000 + Math.random() * 8000000000)}`;
+      const generatedPnr = resp?.data?.pnr || `${Math.floor(1000000000 + Math.random() * 9000000000)}`;
+      const generatedTxnId = resp?.data?.txnId || payload.paymentDetails?.txnId || `${Date.now()}${Math.floor(10 + Math.random() * 90)}`;
 
       const confirmedRecord = {
-        id: `train-${Date.now()}`,
+        id: resp?.data?.id || `train-${Date.now()}`,
         title: payload.trainName,
         number: payload.trainNumber,
         type: 'Train',
         pnr: generatedPnr,
+        txnId: generatedTxnId,
         bookingId: resp?.data?.bookingId || `TRN${Math.floor(100000 + Math.random() * 900000)}`,
         source: payload.source,
         destination: payload.destination,
