@@ -1,6 +1,6 @@
 /**
  * Frontend Master & Transactional Train Booking API Client
- * Connects frontend flows to backend endpoints (/api/trains & /api/bookings).
+ * Connects frontend flows to backend endpoints (/api/trains & /api/transit).
  */
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -8,7 +8,8 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 export interface TrainPassengerPayload {
   name: string;
   age: number | string;
-  gender?: 'Male' | 'Female';
+  gender?: 'Male' | 'Female' | 'Transgender';
+  nationality?: string;
   berthPreference?: string;
 }
 
@@ -20,9 +21,14 @@ export interface TrainConfirmBookingPayload {
   sourceCode?: string;
   destination: string;
   destinationCode?: string;
-  travelDate: string;
+  dateOfJourney?: string;
+  travelDate?: string;
   departureTime?: string;
   arrivalTime?: string;
+  passengerName?: string;
+  passengerAge?: number | string;
+  gender?: string;
+  berthPreference?: string;
   passenger?: TrainPassengerPayload;
   passengers?: TrainPassengerPayload[];
   email?: string;
@@ -30,12 +36,13 @@ export interface TrainConfirmBookingPayload {
   irctcId?: string;
   boardingStation?: string;
   paymentDetails?: any;
+  freeCancel?: boolean;
   fare: number;
 }
 
 export const TrainApi = {
   /**
-   * Search Trains from backend /api/trains/search
+   * 1. Search Trains from backend GET /api/trains/search?origin=...&destination=...&date=...
    */
   async searchTrains(origin: string, destination: string, date?: string) {
     const qOrigin = encodeURIComponent(origin.trim());
@@ -51,7 +58,7 @@ export const TrainApi = {
   },
 
   /**
-   * Get Train Schedule & Route Stops from backend
+   * 2. Get Train Schedule & Route Stops from backend GET /api/trains/:trainNumber/schedule
    */
   async getTrainSchedule(trainNumber: string) {
     const res = await fetch(`${API_BASE}/api/trains/${encodeURIComponent(trainNumber)}/schedule`);
@@ -63,7 +70,8 @@ export const TrainApi = {
   },
 
   /**
-   * Confirm booking in backend /api/trains/confirm-booking
+   * 3. Confirm booking in backend POST /api/trains/confirm-booking
+   * Commits booking to backend database, generates official 10-digit PNR, returns booking record
    */
   async confirmBooking(payload: TrainConfirmBookingPayload, userId?: string) {
     const res = await fetch(`${API_BASE}/api/trains/confirm-booking`, {
@@ -81,21 +89,42 @@ export const TrainApi = {
   },
 
   /**
-   * Cancel ticket in backend /api/trains/cancel-ticket
+   * 4. Cancel ticket in backend POST /api/trains/cancel-ticket
    */
-  async cancelTicket(bookingId: string, pnr?: string, userId?: string) {
+  async cancelTicket(bookingId: string, pnr?: string, reason?: string, userId?: string) {
     const res = await fetch(`${API_BASE}/api/trains/cancel-ticket`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         ...(userId ? { 'x-user-id': userId } : {})
       },
-      body: JSON.stringify({ bookingId, pnr })
+      body: JSON.stringify({ bookingId, pnr, reason })
     });
     if (!res.ok) {
       throw new Error('Failed to cancel train ticket on backend');
     }
     return res.json();
+  },
+
+  /**
+   * 5. Live NTES GPS Tracking GET /api/trains/live/:trainNumber
+   */
+  async getLiveStatus(trainNumber: string) {
+    const res = await fetch(`${API_BASE}/api/trains/live/${encodeURIComponent(trainNumber)}`);
+    if (!res.ok) {
+      throw new Error(`Failed to get live status for train ${trainNumber}`);
+    }
+    return res.json();
+  },
+
+  /**
+   * 6. Live Government PNR Status GET /api/transit/train/pnr/:pnr
+   */
+  async getPnrStatus(pnr: string) {
+    const res = await fetch(`${API_BASE}/api/transit/train/pnr/${encodeURIComponent(pnr)}`);
+    if (!res.ok) {
+      throw new Error(`Failed to get PNR status for ${pnr}`);
+    }
+    return res.json();
   }
 };
-
