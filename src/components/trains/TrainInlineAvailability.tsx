@@ -24,33 +24,76 @@ export default function TrainInlineAvailability({
   const sampleDates = (() => {
     const isAvailClass = selectedClass.statusType === 'available';
     const baseFare = selectedClass.fare;
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const daysShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-    if (activeQuota === 'Senior Citizen' || activeQuota === 'Ladies') {
-      return [
-        { date: '15 Nov', day: 'Sun', status: 'Not Available', statusType: 'not_available', subtext: '', fare: baseFare, canBook: false },
-        { date: '16 Nov', day: 'Mon', status: 'Not Available', statusType: 'not_available', subtext: '', fare: baseFare, canBook: false, isNextDate: true },
-        { date: '17 Nov', day: 'Tue', status: 'Not Available', statusType: 'not_available', subtext: '', fare: baseFare, canBook: false },
-        { date: '18 Nov', day: 'Wed', status: 'Not Available', statusType: 'not_available', subtext: '', fare: baseFare, canBook: false }
-      ];
+    let baseDate = new Date();
+    if (dateOfJourney) {
+      const parts = dateOfJourney.replace(/,/g, '').split(' ');
+      if (parts.length >= 3) {
+        const d = parseInt(parts[0], 10);
+        const m = months.findIndex((x) => x.toLowerCase() === parts[1].toLowerCase());
+        const y = parseInt(parts[2], 10);
+        if (!isNaN(d) && m !== -1 && !isNaN(y)) {
+          baseDate = new Date(y, m, d);
+        }
+      } else {
+        const parsed = new Date(dateOfJourney);
+        if (!isNaN(parsed.getTime())) {
+          baseDate = parsed;
+        }
+      }
     }
 
-    if (activeQuota === 'Tatkal') {
-      const tatkalFare = Math.round(baseFare * 1.25);
-      return [
-        { date: '15 Nov', day: 'Sun', status: 'AVL 120', statusType: 'available', subtext: 'Available', fare: tatkalFare, canBook: true },
-        { date: '16 Nov', day: 'Mon', status: 'AVL 119', statusType: 'available', subtext: 'Available', fare: tatkalFare, canBook: true },
-        { date: '17 Nov', day: 'Tue', status: 'WL 4', statusType: 'wl', subtext: '52% Chance', fare: tatkalFare, canBook: true },
-        { date: '18 Nov', day: 'Wed', status: 'WL 1', statusType: 'wl', subtext: '55% Chance', fare: tatkalFare, canBook: true }
-      ];
-    }
+    const items = [];
+    for (let i = 0; i < 4; i++) {
+      const cur = new Date(baseDate);
+      cur.setDate(cur.getDate() + i);
+      const dateStr = `${cur.getDate()} ${months[cur.getMonth()]}`;
+      const dayStr = daysShort[cur.getDay()];
+      const fullDate = `${dateStr}, ${cur.getFullYear()}`;
 
-    // General quota (Images 1, 3)
-    return [
-      { date: '15 Nov', day: 'Sun', status: isAvailClass ? selectedClass.status : 'WL 18', statusType: isAvailClass ? 'available' : 'wl', subtext: isAvailClass ? 'Available' : '39% Chance', fare: baseFare, canBook: true },
-      { date: '16 Nov', day: 'Mon', status: 'WL 41', statusType: 'wl', subtext: 'Low Chance', fare: baseFare, canBook: true },
-      { date: '17 Nov', day: 'Tue', status: 'WL 32', statusType: 'wl', subtext: 'Low Chance', fare: baseFare, canBook: true },
-      { date: '18 Nov', day: 'Wed', status: 'WL 18', statusType: 'wl', subtext: '55% Chance', fare: baseFare, canBook: true }
-    ];
+      if (activeQuota === 'Senior Citizen' || activeQuota === 'Ladies') {
+        items.push({
+          date: dateStr,
+          day: dayStr,
+          fullDate,
+          status: 'Not Available',
+          statusType: 'not_available',
+          subtext: '',
+          fare: baseFare,
+          canBook: false,
+          isNextDate: i === 1
+        });
+      } else if (activeQuota === 'Tatkal') {
+        const tatkalFare = Math.round(baseFare * 1.25);
+        items.push({
+          date: dateStr,
+          day: dayStr,
+          fullDate,
+          status: i === 0 ? (isAvailClass ? selectedClass.status : 'AVL 120') : i === 1 ? 'AVL 119' : `WL ${i * 2}`,
+          statusType: i < 2 ? 'available' : 'wl',
+          subtext: i < 2 ? 'Available' : '52% Chance',
+          fare: tatkalFare,
+          canBook: true,
+          isNextDate: i === 1
+        });
+      } else {
+        // General quota
+        items.push({
+          date: dateStr,
+          day: dayStr,
+          fullDate,
+          status: i === 0 ? (selectedClass.status || 'AVL 55') : i === 1 ? 'WL 41' : i === 2 ? 'WL 32' : 'WL 18',
+          statusType: i === 0 ? (selectedClass.statusType || 'available') : 'wl',
+          subtext: i === 0 ? (isAvailClass ? 'Available' : '39% Chance') : i === 1 ? 'Low Chance' : i === 2 ? 'Low Chance' : '55% Chance',
+          fare: baseFare,
+          canBook: true,
+          isNextDate: i === 1
+        });
+      }
+    }
+    return items;
   })();
 
   return (
@@ -104,7 +147,7 @@ export default function TrainInlineAvailability({
                     <button
                       type="button"
                       className="tb-inline-book-btn"
-                      onClick={() => onSelectBooking(train, selectedClass, `${item.date}, 2026`)}
+                      onClick={() => onSelectBooking(train, selectedClass, item.fullDate)}
                     >
                       <span className="tb-inline-book-title">Book</span>
                       <span className="tb-inline-book-fare">₹{item.fare}</span>

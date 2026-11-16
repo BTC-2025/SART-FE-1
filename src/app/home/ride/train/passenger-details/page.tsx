@@ -49,6 +49,12 @@ export default function TrainPassengerDetailsStandalonePage() {
   const dateOfJourney = bookingData?.dateOfJourney || '';
   const depTime = bookingData?.depTime || '';
   const arrTime = bookingData?.arrTime || '';
+  const duration = bookingData?.duration || '';
+  const initialPassengers = bookingData?.passengers || [];
+  const initialEmail = bookingData?.email || '';
+  const initialPhone = bookingData?.phone || '';
+  const initialIrctcId = bookingData?.irctcId || '';
+  const initialBoardingStation = bookingData?.boardingStation || '';
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
@@ -66,14 +72,20 @@ export default function TrainPassengerDetailsStandalonePage() {
           dateOfJourney={dateOfJourney}
           depTime={depTime}
           arrTime={arrTime}
+          duration={duration}
           passenger={
-            bookingData?.passengers?.[0] || {
+            initialPassengers?.[0] || {
               name: '',
               age: '',
               gender: 'Male',
               berthPreference: 'No Preference'
             }
           }
+          initialPassengers={initialPassengers}
+          initialEmail={initialEmail}
+          initialPhone={initialPhone}
+          initialIrctcId={initialIrctcId}
+          initialBoardingStation={initialBoardingStation}
           freeCancel={false}
           onPassengerChange={() => {}}
           onConfirmBooking={() => {}}

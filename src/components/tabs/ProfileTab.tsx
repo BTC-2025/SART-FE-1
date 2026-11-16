@@ -214,8 +214,8 @@ export default function ProfileTab() {
 
   if (!mounted) return null;
 
-  const initial = profile.name ? profile.name.trim().charAt(0).toUpperCase() : 'P';
-  const firstName = profile.name ? profile.name.split(' ')[0].toUpperCase() : 'PICHUKA';
+  const initial = profile.name ? profile.name.trim().charAt(0).toUpperCase() : '';
+  const firstName = profile.name ? profile.name.split(' ')[0].toUpperCase() : '';
 
   return (
     <section className={`tab-screen ${activeTab === 'profile' ? 'active' : ''}`} id="tab-profile">

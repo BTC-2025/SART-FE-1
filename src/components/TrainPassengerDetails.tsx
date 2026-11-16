@@ -8,7 +8,7 @@ import { POPULAR_CITIES } from './trainData';
 export interface TrainPassenger {
   name: string;
   age: string;
-  gender: 'Male' | 'Female' | 'Transgender';
+  gender: 'Male' | 'Female' | 'Transgender' | '';
   nationality?: string;
   berthPreference: 'No Preference' | 'Lower' | 'Middle' | 'Upper' | 'Side Lower' | 'Side Upper';
   cateringOption?: string;
@@ -24,7 +24,13 @@ interface TrainPassengerDetailsModalProps {
   dateOfJourney: string;
   depTime?: string;
   arrTime?: string;
+  duration?: string;
   passenger: TrainPassenger;
+  initialPassengers?: TrainPassenger[];
+  initialEmail?: string;
+  initialPhone?: string;
+  initialIrctcId?: string;
+  initialBoardingStation?: string;
   freeCancel?: boolean;
   onPassengerChange: (p: TrainPassenger) => void;
   onConfirmBooking: (bookingMeta?: {
@@ -49,7 +55,13 @@ export default function TrainPassengerDetailsModal({
   dateOfJourney,
   depTime = '12:05 AM',
   arrTime,
+  duration,
   passenger,
+  initialPassengers,
+  initialEmail,
+  initialPhone,
+  initialIrctcId,
+  initialBoardingStation,
   freeCancel = false,
   onPassengerChange,
   onConfirmBooking,
@@ -60,14 +72,14 @@ export default function TrainPassengerDetailsModal({
   const [showErsPdfModal, setShowErsPdfModal] = useState(false);
 
   // Form state matching image 1
-  const [boardingStation, setBoardingStation] = useState(source || 'Type station name');
+  const [boardingStation, setBoardingStation] = useState(initialBoardingStation || source || 'Type station name');
   const [isStationDropdownOpen, setIsStationDropdownOpen] = useState(false);
   const [stationSearchQuery, setStationSearchQuery] = useState('');
   const stationDropdownRef = useRef<HTMLDivElement>(null);
 
-  const [irctcUsername, setIrctcUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [irctcUsername, setIrctcUsername] = useState(initialIrctcId || '');
+  const [email, setEmail] = useState(initialEmail || '');
+  const [phoneNumber, setPhoneNumber] = useState(initialPhone || '');
   const [stateOfResidence, setStateOfResidence] = useState('');
   const [shareWhatsApp, setShareWhatsApp] = useState(true);
 
@@ -94,22 +106,28 @@ export default function TrainPassengerDetailsModal({
   });
 
   // Multiple passengers list support - only show when added
-  const [passengersList, setPassengersList] = useState<TrainPassenger[]>(
-    passenger.name && passenger.name.trim().length > 0 && passenger.name !== 'PICHUKA VENKATA'
-      ? [
+  const [passengersList, setPassengersList] = useState<TrainPassenger[]>(() => {
+    if (initialPassengers && initialPassengers.length > 0) {
+      return initialPassengers.filter((p) => p.name && p.name.trim().length > 0);
+    }
+    if (passenger && passenger.name && passenger.name.trim().length > 0 && passenger.name !== '') {
+      return [
         {
           name: passenger.name,
           age: passenger.age || '',
           gender: passenger.gender || 'Male',
           berthPreference: (passenger.berthPreference as any) || 'No Preference'
         }
-      ]
-      : []
-  );
+      ];
+    }
+    return [];
+  });
 
   // Sync passengersList when passenger prop updates (e.g. from localStorage)
   useEffect(() => {
-    if (passenger.name && passenger.name.trim().length > 0 && passenger.name !== 'PICHUKA VENKATA') {
+    if (initialPassengers && initialPassengers.length > 0) {
+      setPassengersList(initialPassengers.filter((p) => p.name && p.name.trim().length > 0));
+    } else if (passenger.name && passenger.name.trim().length > 0 && passenger.name !== '') {
       setPassengersList([
         {
           name: passenger.name,
@@ -119,7 +137,7 @@ export default function TrainPassengerDetailsModal({
         }
       ]);
     }
-  }, [passenger.name, passenger.age, passenger.gender, passenger.berthPreference]);
+  }, [passenger.name, passenger.age, passenger.gender, passenger.berthPreference, initialPassengers]);
 
   const [currentName, setCurrentName] = useState('');
   const [currentGender, setCurrentGender] = useState<'Male' | 'Female' | 'Transgender'>('Male');
@@ -1187,6 +1205,7 @@ export default function TrainPassengerDetailsModal({
                       dateOfJourney,
                       depTime,
                       arrTime,
+                      duration: duration || '',
                       passengers: finalList,
                       email: email.trim(),
                       phone: phoneNumber.trim(),

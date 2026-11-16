@@ -110,43 +110,7 @@ export default function CartPage() {
     fetchBackendAddress();
   }, [userSession]);
 
-  const [savedAddresses, setSavedAddresses] = useState<UserAddressItem[]>([
-    {
-      id: 'addr_1',
-      name: 'Sai',
-      phone: '9988664422',
-      flat: 'Flat 102, Sunrise Apts',
-      area: 'Fast street, Near Bus Stand',
-      cityStateZip: 'Vellore, Tamil Nadu, 632001',
-      type: 'Home',
-      lat: 12.9165,
-      lng: 79.1325
-    },
-    {
-      id: 'addr_2',
-      name: 'VENKATA VASANTH KUMAR PICHUKA',
-      phone: '9032932985',
-      altPhone: '',
-      flat: 'Beta softnet, EB KOOT ROAD',
-      area: 'Near JPM Kalyana Mandapam, Thiruvallam',
-      cityStateZip: 'Vellore, Tamil Nadu, 632515',
-      type: 'Work',
-      lat: 12.9812,
-      lng: 79.2234
-    },
-    {
-      id: 'addr_3',
-      name: 'VENKATA VASANTH KUMAR PICHUKA',
-      phone: '9032932985',
-      altPhone: '',
-      flat: 'Beside clinic, National Highway 40',
-      area: 'Near IndianOil Petrol Bunk, Thiruvallam',
-      cityStateZip: 'Vellore, Tamil Nadu, 632515',
-      type: 'Home',
-      lat: 12.9791,
-      lng: 79.2198
-    }
-  ]);
+  const [savedAddresses, setSavedAddresses] = useState<UserAddressItem[]>([]);
 
   // Address form draft state
   const [addressForm, setAddressForm] = useState<{
@@ -161,10 +125,10 @@ export default function CartPage() {
     lng: number;
   }>({
     flat: '',
-    area: 'National Highway 40, Kugaiyanallore, Near Aslam Bunk, Thiruvallam',
-    cityStateZip: 'Vellore, Tamil Nadu, 632515',
-    name: 'VENKATA VASANTH KUMAR PICHUKA',
-    phone: '9032932985',
+    area: '',
+    cityStateZip: '',
+    name: '',
+    phone: '',
     altPhone: '',
     type: 'Home',
     lat: 12.9785,

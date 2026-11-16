@@ -1,2 +1,2 @@
-export { default } from '../passenger-details/reviewBooking/page';
+export { default } from '../../passenger-details/reviewBooking/page';
 
