@@ -36,6 +36,11 @@ export default function TrainRouteHistoryPage() {
   const isTrain12007 = trainNumberParam === '12007' || currentTrain.number === '12007';
   const scheduleData: TrainStopScheduleItem[] = isTrain12007 ? TRAIN_12007_FULL_SCHEDULE : TRAIN_12007_FULL_SCHEDULE;
 
+  // Identify index where the train currently is (Kuppam - index 56)
+  const currentCrossedIdx = scheduleData.findIndex((s) => s.isCurrentCrossed) !== -1
+    ? scheduleData.findIndex((s) => s.isCurrentCrossed)
+    : 56;
+
   // Coach layouts by train type
   const getCoachPositions = (train: TrainItem) => {
     if (train.trainType === 'VB' || train.name.toLowerCase().includes('vande')) {
@@ -359,16 +364,7 @@ export default function TrainRouteHistoryPage() {
         </div>
 
         {/* Train Timetable Card (RailMitra 12007 Style) */}
-        <div
-          style={{
-            background: '#ffffff',
-            borderRadius: '8px',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
-            overflow: 'hidden',
-            border: '1px solid #e2e8f0',
-            marginBottom: '32px'
-          }}
-        >
+        <div className="tlr-table-card" style={{ marginBottom: '32px' }}>
           {/* Table Header matching RailMitra */}
           <div className="tlr-table-header">
             <div>Arrival</div>
@@ -383,7 +379,14 @@ export default function TrainRouteHistoryPage() {
             {scheduleData.map((item, idx) => {
               const isFirst = idx === 0;
               const isLast = idx === scheduleData.length - 1;
-              const isCurrent = Boolean(item.isCurrentCrossed);
+              const isCurrent = idx === currentCrossedIdx;
+              const isPassed = idx < currentCrossedIdx;
+              const isFuture = idx > currentCrossedIdx;
+
+              // Top track is passed if current or passed
+              const topTrackPassed = idx <= currentCrossedIdx;
+              // Bottom track is passed only if strictly before current
+              const bottomTrackPassed = idx < currentCrossedIdx;
 
               return (
                 <div
@@ -404,21 +407,38 @@ export default function TrainRouteHistoryPage() {
                     )}
                   </div>
 
-                  {/* Column 2: Station Name with Continuous Track & Node */}
+                  {/* Column 2: Station Name with Route Track & Node */}
                   <div className="tlr-col-station">
-                    {/* Continuous vertical track */}
-                    <div
-                      className={`tlr-track-line ${isFirst ? 'is-first' : ''} ${isLast ? 'is-last' : ''}`}
-                    />
-
-                    {/* Node / Train Icon */}
-                    {isCurrent ? (
-                      <div className="tlr-station-node current" title="Train currently here">
-                        <i className="fa-solid fa-train"></i>
-                      </div>
-                    ) : (
-                      <div className={`tlr-station-node ${item.isHalt ? 'major' : 'minor'}`} />
+                    {/* Top track half (incoming from previous station) */}
+                    {!isFirst && (
+                      <div
+                        className={`tlr-track-segment-top ${topTrackPassed ? 'track-passed' : 'track-future'}`}
+                      />
                     )}
+
+                    {/* Bottom track half (outgoing to next station) */}
+                    {!isLast && (
+                      <div
+                        className={`tlr-track-segment-bottom ${bottomTrackPassed ? 'track-passed' : 'track-future'}`}
+                      />
+                    )}
+
+                    {/* Station Node / Point:
+                        - Past station: Solid blue dot
+                        - Current crossed station: Pulsing train icon badge
+                        - Future station: Hollow circle with blue border
+                    */}
+                    <div className="tlr-node-wrapper">
+                      {isCurrent ? (
+                        <div className="tlr-node-current" title="Train currently here">
+                          <i className="fa-solid fa-train"></i>
+                        </div>
+                      ) : isPassed ? (
+                        <div className={`tlr-node-passed ${item.isHalt ? 'major' : 'minor'}`} />
+                      ) : (
+                        <div className={`tlr-node-future ${item.isHalt ? 'major' : 'minor'}`} />
+                      )}
+                    </div>
 
                     {/* Station Name & Details */}
                     <div className="tlr-station-details">
@@ -443,10 +463,10 @@ export default function TrainRouteHistoryPage() {
                       </div>
 
                       <div className="tlr-station-subtext">
-                        {item.distance}
-                        {item.isCurrentCrossed && (
-                          <span style={{ marginLeft: '8px', color: '#0284c7', fontWeight: 700 }}>
-                            • Train Crossed Recently
+                        <span>{item.distance}</span>
+                        {isCurrent && (
+                          <span className="tlr-crossed-badge">
+                            • Crossed at {item.dep || item.arr}
                           </span>
                         )}
                       </div>
@@ -472,7 +492,7 @@ export default function TrainRouteHistoryPage() {
                       <span style={{ color: '#94a3b8' }}>--</span>
                     ) : (
                       <>
-                        <div style={{ color: '#0f172a' }}>{item.dep}</div>
+                        <div className="tlr-dep-time">{item.dep}</div>
                         {item.delay && (
                           <div
                             className={`tlr-delay-tag ${item.delay === 'RT' ? 'ontime' : ''}`}
