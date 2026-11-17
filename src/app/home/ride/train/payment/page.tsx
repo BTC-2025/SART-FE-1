@@ -255,6 +255,9 @@ export default function TrainPaymentPage() {
         passengerEmail: payload.email,
         boardingStation: payload.boardingStation,
         irctcId: payload.irctcId,
+        classCode: payload.classCode,
+        isTatkal: Boolean(bookingData?.isTatkal),
+        fare: Number(bookingData?.fare || 0),
         seatStatus: `Confirmed (${classCode} - Coach D8, Berth 24)`,
         statusBadge: 'CNF',
         statusText: 'Ticket Confirmed',
@@ -264,13 +267,29 @@ export default function TrainPaymentPage() {
         isCancelled: false
       };
 
-      // Save to localStorage for instant Bookings tab retrieval
+      // Save to localStorage for instant Bookings tab retrieval and persistent seat adjustment
       if (typeof window !== 'undefined') {
         const existing = localStorage.getItem('sart_global_bookings');
         const list = existing ? JSON.parse(existing) : [];
         list.unshift(confirmedRecord);
         localStorage.setItem('sart_global_bookings', JSON.stringify(list));
         localStorage.removeItem('sart_pending_train_booking');
+
+        try {
+          const adjKey = 'sart_train_seat_adjustments';
+          const savedAdjs = JSON.parse(localStorage.getItem(adjKey) || '[]');
+          savedAdjs.push({
+            id: String(resp?.data?.txnId || payload.paymentDetails?.txnId || `TXN${Date.now()}`),
+            trainNumber: String(payload.trainNumber),
+            classCode: String(payload.classCode),
+            isTatkal: Boolean(bookingData?.isTatkal),
+            fare: Number(bookingData?.fare || 0),
+            seatsBooked: payload.passengers?.length || 1,
+            dateOfJourney: String(payload.dateOfJourney),
+            timestamp: Date.now()
+          });
+          localStorage.setItem(adjKey, JSON.stringify(savedAdjs));
+        } catch (_) {}
       }
 
       setConfirmedBooking(confirmedRecord);

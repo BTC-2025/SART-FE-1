@@ -1,0 +1,341 @@
+/* ==========================================================================
+   Flight PNR Status Enquiry Stylesheet (Matches IndiGo Official Reference)
+   ========================================================================== */
+
+.fl-pnr-container {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #1e293b;
+  box-sizing: border-box;
+}
+
+/* Top Back Navigation Bar */
+.fl-pnr-top-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.fl-pnr-back-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.fl-pnr-back-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #000080;
+}
+
+.fl-pnr-nav-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* Main Ticket Card */
+.fl-pnr-card {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  padding: 0 0 20px 0;
+  box-sizing: border-box;
+}
+
+/* Brand Top Header Row */
+.fl-pnr-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 3px solid #000080; /* IndiGo brand blue bar */
+}
+
+.fl-pnr-brand-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.fl-pnr-brand-logo {
+  font-size: 32px;
+  font-weight: 900;
+  color: #000080;
+  letter-spacing: -1px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.fl-pnr-brand-go {
+  color: #0084ff;
+}
+
+.fl-pnr-ref-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.fl-pnr-ref-label {
+  font-size: 16px;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.fl-pnr-ref-code {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: 0.5px;
+}
+
+.fl-pnr-account-wrap {
+  font-size: 15px;
+  color: #334155;
+  font-weight: 500;
+}
+
+.fl-pnr-account-text {
+  letter-spacing: 0.2px;
+}
+
+/* Status Table */
+.fl-pnr-table-wrap {
+  width: 100%;
+}
+
+.fl-pnr-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fl-pnr-table thead tr {
+  background: #e2e8f0;
+}
+
+.fl-pnr-table th {
+  padding: 9px 16px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #334155;
+  text-align: left;
+  border-right: 1px solid #cbd5e1;
+}
+
+.fl-pnr-table th:last-child {
+  border-right: none;
+}
+
+.fl-pnr-table tbody td {
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.fl-pnr-table tbody td:last-child {
+  border-right: none;
+}
+
+.fl-pnr-status-confirmed {
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: 0.5px;
+}
+
+.fl-pnr-status-approved {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Disclaimer Note */
+.fl-pnr-disclaimer {
+  font-size: 12px;
+  color: #475569;
+  padding: 8px 16px 12px;
+  margin: 0;
+  line-height: 1.4;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Passenger Bar & Actions */
+.fl-pnr-pax-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #e2e8f0;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.fl-pnr-pax-count-label {
+  padding: 10px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.fl-pnr-pax-actions {
+  display: flex;
+}
+
+.fl-pnr-action-btn {
+  border: none;
+  background: #000080;
+  color: #ffffff;
+  padding: 10px 24px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fl-pnr-action-btn.check-in {
+  background: #1e40af;
+  border-right: 1px solid rgba(255, 255, 255, 0.25);
+  text-decoration: underline;
+}
+
+.fl-pnr-action-btn.check-in:hover {
+  background: #1d4ed8;
+}
+
+.fl-pnr-action-btn.flight-status {
+  background: #000080;
+}
+
+.fl-pnr-action-btn.flight-status:hover {
+  background: #000066;
+}
+
+/* Passenger ID & Barcode Row */
+.fl-pnr-id-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.fl-pnr-barcode-box {
+  width: 170px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+}
+
+.fl-pnr-barcode-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.fl-pnr-passenger-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Flights Heading */
+.fl-pnr-flights-bar {
+  background: #e2e8f0;
+  padding: 9px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1e293b;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+/* Flights Table */
+.fl-pnr-flights-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.fl-pnr-flights-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fl-pnr-flights-table thead tr {
+  background: #ffffff;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.fl-pnr-flights-table th {
+  padding: 10px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1e293b;
+  text-align: left;
+  line-height: 1.3;
+  border-right: 1px solid #e2e8f0;
+  vertical-align: top;
+}
+
+.fl-pnr-flights-table th:last-child {
+  border-right: none;
+}
+
+.fl-pnr-sub-th {
+  font-weight: 500;
+  color: #64748b;
+  font-size: 11.5px;
+}
+
+.fl-pnr-flights-table tbody tr {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.fl-pnr-flights-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.fl-pnr-flights-table td {
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #1e293b;
+  border-right: 1px solid #e2e8f0;
+  vertical-align: top;
+}
+
+.fl-pnr-flights-table td:last-child {
+  border-right: none;
+}
+
+.fl-pnr-cell-date {
+  font-weight: 600;
+  color: #334155;
+}
+
+.fl-pnr-cell-time {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.fl-pnr-flight-num {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.fl-pnr-aircraft-type {
+  font-size: 11.5px;
+  color: #64748b;
+  font-weight: 500;
+}

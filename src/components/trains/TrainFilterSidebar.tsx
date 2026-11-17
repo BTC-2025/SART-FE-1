@@ -40,8 +40,8 @@ export interface TrainFilterSidebarProps {
 }
 
 export default function TrainFilterSidebar({
-  source = 'Katpadi',
-  destination = 'Nellore',
+  source = '',
+  destination = '',
   trains = [],
   filterAvailable,
   setFilterAvailable,
@@ -80,8 +80,8 @@ export default function TrainFilterSidebar({
     return clean || fallback;
   };
 
-  const srcCityName = formatCity(source, 'Katpadi');
-  const destCityName = formatCity(destination, 'Nellore');
+  const srcCityName = formatCity(source, '');
+  const destCityName = formatCity(destination, '');
 
   // Dynamic counts calculation based on trains or fallback to user image reference counts
   const totalTrains = trains.length || 21;

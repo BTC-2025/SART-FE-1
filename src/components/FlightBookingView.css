@@ -106,6 +106,7 @@
     opacity: 0;
     transform: translateX(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -665,7 +666,7 @@
 .fb-results-col {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 4px;
 }
 
 .fb-results-heading-row {
@@ -936,35 +937,44 @@
 }
 
 .fb-fare-price {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 900;
   color: #0f172a;
+  letter-spacing: -0.3px;
 }
 
 .fb-fare-promo-tag {
-  font-size: 10px;
+  font-size: 11px;
   color: #15803d;
   font-weight: 700;
-  margin-top: 2px;
+  margin-top: 3px;
   text-align: right;
 }
 
 .fb-view-fares-btn {
   margin-top: 8px;
-  padding: 8px 18px;
-  background: transparent;
+  padding: 8px 24px;
+  background: #ffffff;
   color: #0084ff;
-  border: 1.5px solid #0084ff;
-  border-radius: 8px;
-  font-size: 13px;
+  border: 2px solid #0084ff;
+  border-radius: 10px;
+  font-size: 14px;
   font-weight: 800;
+  letter-spacing: 0.5px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 132, 255, 0.08);
 }
 
 .fb-view-fares-btn:hover {
-  background: #0084ff;
-  color: #ffffff;
+  background: #f0f7ff;
+  border-color: #0070d9;
+  color: #0070d9;
+  box-shadow: 0 3px 8px rgba(0, 132, 255, 0.18);
 }
 
 /* Card Bottom Footer */
@@ -1106,6 +1116,7 @@
     opacity: 0;
     transform: scale(0.96) translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -1427,3 +1438,50 @@
   color: #431407;
 }
 
+/* ---------------- 3-Card Horizontal Scroll Fare Grid ---------------- */
+.fb-fare-cards-scroll-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 28px) / 3);
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 10px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #00baf2 #e0f2fe;
+}
+
+.fb-fare-cards-scroll-grid::-webkit-scrollbar {
+  height: 6px;
+}
+
+.fb-fare-cards-scroll-grid::-webkit-scrollbar-track {
+  background: #e0f2fe;
+  border-radius: 4px;
+}
+
+.fb-fare-cards-scroll-grid::-webkit-scrollbar-thumb {
+  background: #00baf2;
+  border-radius: 4px;
+}
+
+.fb-fare-cards-scroll-grid::-webkit-scrollbar-thumb:hover {
+  background: #0284c7;
+}
+
+.fb-fare-card-item {
+  scroll-snap-align: start;
+}
+
+@media (max-width: 1024px) {
+  .fb-fare-cards-scroll-grid {
+    grid-auto-columns: calc((100% - 14px) / 2);
+  }
+}
+
+@media (max-width: 640px) {
+  .fb-fare-cards-scroll-grid {
+    grid-auto-columns: 88%;
+  }
+}

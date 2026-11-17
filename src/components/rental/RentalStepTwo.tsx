@@ -172,11 +172,11 @@ export default function RentalStepTwo({
                 navigator.geolocation.getCurrentPosition(
                   () => {
                     setIsLocating(false);
-                    setUserLocationName('Near Current GPS (Accurate)');
+                    setUserLocationName('Near Current GPS');
                   },
                   () => {
                     setIsLocating(false);
-                    setUserLocationName('Bengaluru (Indiranagar)');
+                    setUserLocationName('');
                   }
                 );
               } else {

@@ -1,0 +1,1187 @@
+/* ==========================================================================
+   Flight Seat Selection Stylesheet - 4000px Panoramic 3-Stage Fuselage
+   (Matches IndiGo Official Stages 1, 2, and 3 Reference Images)
+   ========================================================================== */
+
+.fss-page-container {
+  min-height: 100vh;
+  background-color: #f1f5f9;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #1a202c;
+  display: flex;
+  flex-direction: column;
+}
+
+.fss-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.fss-main-wrapper {
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px 16px 50px;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+/* 2-Column Responsive Layout */
+.fss-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .fss-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   LEFT COLUMN: CORRIDOR, STAGE CONTROLS, 4000PX SCROLLING FUSELAGE
+   ========================================================================== */
+.fss-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: hidden;
+}
+
+/* Top Corridor Bar (Image 2) */
+.fss-corridor-bar {
+  background-color: #000080;
+  color: #ffffff;
+  border-radius: 28px;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 128, 0.18);
+}
+
+.fss-corridor-airport {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.fss-corridor-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #bae6fd;
+}
+
+.fss-corridor-line::before,
+.fss-corridor-line::after {
+  content: "";
+  display: inline-block;
+  width: 50px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Legend Row */
+.fss-legend-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 2px 0;
+  font-size: 12px;
+  color: #475569;
+  font-weight: 600;
+}
+
+.fss-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fss-legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.fss-legend-dot.assigned {
+  background-color: #ffffff;
+  border: 1.5px solid #0084ff;
+  position: relative;
+}
+
+.fss-legend-dot.assigned::after {
+  content: "";
+  position: absolute;
+  right: -2px;
+  top: 15%;
+  width: 4px;
+  height: 70%;
+  background: #38bdf8;
+  border-radius: 0 2px 2px 0;
+}
+
+.fss-legend-dot.non-reclining {
+  background-color: #ffffff;
+  border: 1px dashed #94a3b8;
+}
+
+.fss-legend-dot.occupied {
+  background-color: #cbd5e1;
+}
+
+.fss-legend-dot.free {
+  background-color: #ffffff;
+  border: 1.5px solid #cbd5e1;
+}
+
+.fss-legend-dot.extra-legroom {
+  background-color: #ffffff;
+  border: 1.5px solid #22c55e;
+}
+
+/* ==========================================================================
+   MINI AIRCRAFT OVERVIEW SLIDER STRIP (Stages 1, 2, and 3 Navigator)
+   ========================================================================== */
+.fss-mini-track-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.fss-mini-track-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.fss-mini-track {
+  position: relative;
+  height: 28px;
+  background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid #cbd5e1;
+}
+
+/* Silhouette dot groups representing stages */
+.fss-mini-stage-segments {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 20px;
+}
+
+.fss-mini-segment {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.fss-mini-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.fss-mini-dot.front {
+  background: #38bdf8;
+}
+
+.fss-mini-dot.wings {
+  background: #60a5fa;
+}
+
+.fss-mini-dot.exit {
+  background: #22c55e;
+}
+
+/* Slider Thumb Handle with pointer indicator (Images 2 & 3) */
+.fss-mini-slider-thumb {
+  position: absolute;
+  top: 1px;
+  width: 36px;
+  height: 24px;
+  background: #000080;
+  color: #ffffff;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 128, 0.35);
+  transition: left 0.15s ease-out;
+  pointer-events: none;
+}
+
+/* Stage Jump Buttons */
+.fss-stage-pills-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.fss-stage-btns-group {
+  display: flex;
+  gap: 8px;
+}
+
+.fss-stage-btn {
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 20px;
+  padding: 5px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fss-stage-btn:hover {
+  border-color: #0084ff;
+  color: #0084ff;
+  background: #f0f7ff;
+}
+
+.fss-stage-btn.active {
+  background: #000080;
+  border-color: #000080;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 128, 0.25);
+}
+
+.fss-scroll-arrows-group {
+  display: flex;
+  gap: 6px;
+}
+
+.fss-scroll-arrow-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s ease;
+}
+
+.fss-scroll-arrow-btn:hover {
+  background: #f0f7ff;
+  border-color: #0084ff;
+  color: #0084ff;
+}
+
+/* 4000PX SCROLLABLE AIRCRAFT FUSELAGE */
+.fss-airplane-viewport {
+  background: #0066cc;
+  /* Exact vibrant blue backdrop matching Image 2 */
+  border: none;
+  box-shadow: none;
+  border-radius: 20px;
+  padding: 30px 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: #0084ff #e2e8f0;
+}
+
+/* Custom Styled Smooth Scrollbar */
+.fss-airplane-viewport::-webkit-scrollbar {
+  height: 10px;
+}
+
+.fss-airplane-viewport::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 6px;
+}
+
+.fss-airplane-viewport::-webkit-scrollbar-thumb {
+  background: #0084ff;
+  border-radius: 6px;
+}
+
+.fss-airplane-viewport::-webkit-scrollbar-thumb:hover {
+  background: #000080;
+}
+
+/* Canvas holding wings and fuselage */
+.fss-airplane-canvas {
+  position: relative;
+  width: max-content;
+  min-width: 100%;
+  padding: 40px 10px;
+  box-sizing: border-box;
+}
+
+/* Large Aircraft Wings (Positioned in Stage 2 Middle: after exit) */
+.fss-stage2-top-wing {
+  position: absolute;
+  top: -46px;
+  left: 0;
+  width: 100%;
+  height: 48px;
+  background: linear-gradient(180deg, rgba(226, 232, 240, 0.9) 0%, rgba(241, 245, 249, 0.4) 100%);
+  clip-path: polygon(6% 0%, 94% 0%, 100% 100%, 0% 100%);
+  border-top: 2.5px solid #94a3b8;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.fss-stage2-top-wing span {
+  font-size: 11px;
+  font-weight: 900;
+  color: #64748b;
+  letter-spacing: 5px;
+}
+
+.fss-stage2-bottom-wing {
+  position: absolute;
+  bottom: -46px;
+  left: 0;
+  width: 100%;
+  height: 48px;
+  background: linear-gradient(0deg, rgba(226, 232, 240, 0.9) 0%, rgba(241, 245, 249, 0.4) 100%);
+  clip-path: polygon(0% 0%, 100% 0%, 94% 100%, 6% 100%);
+  border-bottom: 2.5px solid #94a3b8;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.fss-stage2-bottom-wing span {
+  font-size: 11px;
+  font-weight: 900;
+  color: #2068cd;
+  letter-spacing: 5px;
+}
+
+/* Outer Fuselage Border Wrapper */
+.fss-fuselage-border-wrapper {
+  background: transparent;
+  padding: 0;
+  width: max-content;
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: 200px 30px 30px 200px / 50% 30px 30px 50%;
+  border: none;
+  clip-path: none;
+  filter: none;
+}
+
+/* Airplane Fuselage Body Shell */
+.fss-fuselage-body {
+  width: max-content;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 200px 30px 30px 200px / 50% 30px 30px 50%;
+  border: none;
+  clip-path: none;
+  box-shadow: none;
+  padding: 16px 20px 16px 24px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   STAGE 1: FRONT CABIN (NOSE, COCKPIT, ROWS 1-12) - Image 2
+   ========================================================================== */
+.fss-stage-front-wrap {
+  display: flex;
+  align-items: center;
+  position: relative;
+  border-right: none;
+  padding-right: 14px;
+}
+
+/* Nosecone & Cockpit Windshield */
+.fss-nose-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-left: 20px;
+  padding-right: 18px;
+  border-right: 1.5px dashed #cbd5e1;
+  user-select: none;
+}
+
+.fss-nose-label {
+  font-size: 13px;
+  font-weight: 900;
+  color: #475569;
+  letter-spacing: 1px;
+}
+
+/* Cockpit Image in Front of Cabin (Full Square Image as in 2nd image) */
+.fss-cockpit-img-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+}
+
+.fss-cockpit-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 4px;
+}
+
+/* Forward Service Galley (STAFF / WC) */
+.fss-fwd-service {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 200px;
+  padding: 0 14px;
+  border-right: 1.5px dashed #cbd5e1;
+  align-items: center;
+}
+
+.fss-staff-box {
+  width: 52px;
+  height: 40px;
+  background: #94a3b8;
+  color: #ffffff;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.5px;
+}
+
+.fss-wc-box {
+  width: 52px;
+  height: 40px;
+  background: #93c5fd;
+  color: #0369a1;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.5px;
+}
+
+.fss-boarding-chevrons {
+  color: #0284c7;
+  font-size: 16px;
+  font-weight: 900;
+  display: flex;
+  gap: 4px;
+}
+
+.fss-boarding-chevrons-top,
+.fss-boarding-chevrons-bot {
+  color: #0284c7;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* XL Business Class Enclosure (Rows 1-3) */
+.fss-xl-box {
+  border: 2px solid #22c55e;
+  border-radius: 16px;
+  padding: 12px 14px;
+  position: relative;
+  background: rgba(34, 197, 94, 0.02);
+  margin: 0 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 220px;
+  box-sizing: border-box;
+}
+
+.fss-xl-badge-top {
+  position: absolute;
+  top: -11px;
+  left: 12px;
+  background: #22c55e;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 2px 10px;
+  border-radius: 5px;
+  letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+.fss-xl-badge-bottom {
+  position: absolute;
+  bottom: -11px;
+  left: 12px;
+  background: #22c55e;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 2px 10px;
+  border-radius: 5px;
+  letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+.fss-xl-grid {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.fss-xl-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 196px;
+}
+
+.fss-xl-seat {
+  width: 50px;
+  height: 58px;
+  background: #000080;
+  border: 2px solid #000066;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 14px rgba(0, 0, 128, 0.28);
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.fss-xl-seat::before,
+.fss-xl-seat::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 66%;
+  background: #64748b;
+  border-radius: 4px;
+  top: 17%;
+}
+
+.fss-xl-seat::before {
+  left: -5px;
+}
+
+.fss-xl-seat::after {
+  right: -5px;
+}
+
+.fss-xl-seat:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 128, 0.35);
+  border-color: #38bdf8;
+}
+
+.fss-xl-seat.assigned {
+  background: #0284c7;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.45);
+}
+
+.fss-xl-seat.occupied {
+  background: #cbd5e1;
+  color: transparent;
+  border-color: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.fss-xl-aisle {
+  height: 60px;
+}
+
+/* Exit Divider with Door Separator */
+.fss-exit-divider {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 210px;
+  align-items: center;
+  padding: 0 8px;
+  position: relative;
+}
+
+.fss-exit-tag {
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  user-select: none;
+}
+
+.fss-exit-text-simple {
+  font-size: 10px;
+  font-weight: 800;
+  color: #64748b;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.fss-door-line {
+  width: 3px;
+  height: 52px;
+  background: #94a3b8;
+  border-radius: 2px;
+}
+
+/* Stage Label Header (Displayed above rows in the canvas) */
+.fss-stage-badge {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000080;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 14px;
+  border-radius: 12px;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   SEAT COLUMNS & REALISTIC AIRPLANE SEAT PILLS (Images 2 & 3)
+   ========================================================================== */
+.fss-seats-block {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 0 8px;
+}
+
+.fss-seat-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.fss-seat-bank-3 {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Authentic Rounded Rectangle Airplane Seat (Images 2 & 3) */
+.fss-seat-btn {
+  width: 38px;
+  height: 40px;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.15s ease;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.fss-seat-btn:hover:not(:disabled) {
+  border-color: #0084ff;
+  color: #0084ff;
+  background: #f0f7ff;
+  transform: scale(1.08);
+  box-shadow: 0 3px 10px rgba(0, 132, 255, 0.22);
+  z-index: 5;
+}
+
+/* Occupied Seat (Images 2 & 3: solid gray block, no text) */
+.fss-seat-btn.occupied {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+  color: transparent;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Extra Legroom Seat (Images 2 & 3: green outline like 36B, 37B, 38B, 39B) */
+.fss-seat-btn.extra-legroom {
+  border: 1.5px solid #22c55e;
+  color: #15803d;
+  background: #ffffff;
+}
+
+.fss-seat-btn.extra-legroom:hover:not(:disabled) {
+  border-color: #16a34a;
+  background: #f0fdf4;
+}
+
+/* Assigned / Selected Seat with Official Blue Vertical Tab (Image 3) */
+.fss-seat-btn.assigned {
+  background: #ffffff;
+  border: 1.5px solid #0084ff;
+  color: #000080;
+  box-shadow: 0 0 0 2px rgba(0, 132, 255, 0.2);
+}
+
+.fss-seat-btn.assigned::after {
+  content: "";
+  position: absolute;
+  right: -2px;
+  top: 15%;
+  width: 5px;
+  height: 70%;
+  background: #38bdf8;
+  border-radius: 0 3px 3px 0;
+}
+
+/* Assigned by currently active passenger */
+.fss-seat-btn.assigned-current {
+  background: #e0f2fe;
+  border-color: #0084ff;
+  color: #000080;
+  font-weight: 900;
+}
+
+/* Central Aisle with Row Number */
+.fss-aisle-row-num {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748b;
+  user-select: none;
+}
+
+/* Exit Header/Footer for rows with exits */
+.fss-exit-header {
+  font-size: 10px;
+  font-weight: 800;
+  color: #475569;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* STAGE 2: MIDDLE / OVERWING CABIN (ROWS 13 TO 23) */
+.fss-stage-middle-wrap {
+  display: flex;
+  align-items: center;
+  position: relative;
+  border-right: none;
+  padding: 0 14px;
+}
+
+/* ==========================================================================
+   STAGE 3: REAR CABIN (ROWS 24 TO 39, EXACTLY MATCHES IMAGE 3)
+   ========================================================================== */
+.fss-stage-rear-wrap {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-left: 14px;
+}
+
+/* Rear Galley & Tail Area */
+.fss-aft-service {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 200px;
+  padding: 0 14px;
+  border-left: 1.5px dashed #cbd5e1;
+  align-items: center;
+}
+
+.fss-tail-cone {
+  width: 24px;
+  height: 100px;
+  background: linear-gradient(90deg, #ffffff 0%, #f1f5f9 100%);
+  border-radius: 0 18px 18px 0;
+  border-right: 2px solid #94a3b8;
+}
+
+/* ==========================================================================
+   BOTTOM NOTE & ACTIONS
+   ========================================================================== */
+.fss-note-box {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 12.5px;
+  color: #0369a1;
+  line-height: 1.5;
+}
+
+.fss-note-title {
+  font-weight: 800;
+  margin-bottom: 2px;
+  color: #0c4a6e;
+}
+
+.fss-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.fss-back-btn {
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  color: #334155;
+  border-radius: 10px;
+  padding: 11px 26px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.fss-back-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.fss-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fss-skip-btn {
+  background: #ffffff;
+  border: 1.5px solid #0084ff;
+  color: #0084ff;
+  border-radius: 10px;
+  padding: 11px 24px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.fss-skip-btn:hover {
+  background: #f0f7ff;
+}
+
+.fss-continue-btn {
+  background: #000080;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 36px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 128, 0.25);
+  transition: all 0.15s ease;
+}
+
+.fss-continue-btn:hover {
+  background: #000066;
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   RIGHT COLUMN: BAGGAGE, PASSENGER ASSIGNMENTS & BENEFITS
+   ========================================================================== */
+.fss-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  position: sticky;
+  top: 90px;
+}
+
+.fss-baggage-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.fss-pax-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.fss-pax-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+
+.fss-pax-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fss-pax-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.fss-pax-item:hover {
+  border-color: #0084ff;
+  background: #f8fafc;
+}
+
+.fss-pax-item.active {
+  border-color: #0084ff;
+  background: #f0f7ff;
+}
+
+.fss-pax-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.fss-pax-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.fss-pax-type {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.fss-pax-seat-badge {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.fss-pax-seat-badge.unassigned {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.fss-price-summary-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fss-price-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.fss-price-value {
+  font-size: 18px;
+  font-weight: 900;
+  color: #000080;
+}
+
+.fss-benefits-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fss-benefits-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.fss-benefit-fare-hold {
+  background: #000080;
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(0, 0, 128, 0.2);
+}
+
+.fss-fare-hold-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.fss-fare-hold-sub {
+  font-size: 11px;
+  color: #93c5fd;
+}
+
+.fss-fare-hold-price {
+  font-size: 26px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.1;
+  margin: 2px 0;
+}
+
+.fss-fare-hold-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.fss-fare-hold-icon {
+  font-size: 26px;
+  color: #38bdf8;
+}
+
+.fss-fare-hold-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-top: 2px;
+}
+
+.fss-fare-hold-terms {
+  font-size: 9px;
+  color: #cbd5e1;
+}
+
+.fss-benefit-hotel {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 14px 18px;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fss-hotel-title {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.fss-hotel-sub {
+  font-size: 10.5px;
+  color: #e0f2fe;
+  margin: 0;
+}
+
+.fss-hotel-discount {
+  font-size: 13px;
+  font-weight: 800;
+  color: #fef08a;
+  margin-top: 4px;
+}
+
+.fss-benefit-sightseeing {
+  background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 14px 18px;
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fss-sight-title {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.fss-sight-sub {
+  font-size: 10.5px;
+  color: #ccfbf1;
+  margin: 0;
+}

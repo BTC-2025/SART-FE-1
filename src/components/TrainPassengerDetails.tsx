@@ -1166,11 +1166,28 @@ export default function TrainPassengerDetailsModal({
                     onPassengerChange(finalList[0]);
                   }
 
+                  // Read prior status if present
+                  let prevStatus = '';
+                  let prevStatusType = '';
+                  let prevIsTatkal = false;
+                  try {
+                    const prior = localStorage.getItem('sart_pending_train_booking');
+                    if (prior) {
+                      const pObj = JSON.parse(prior);
+                      prevStatus = pObj.status || '';
+                      prevStatusType = pObj.statusType || '';
+                      prevIsTatkal = Boolean(pObj.isTatkal);
+                    }
+                  } catch (_) {}
+
                   // Save pending booking details in localStorage for the review & payment pages
                   const pendingBooking = {
                     trainName,
                     trainNumber,
                     classCode,
+                    isTatkal: prevIsTatkal,
+                    status: prevStatus,
+                    statusType: prevStatusType,
                     fare,
                     totalAmount: totalPayable,
                     source,
