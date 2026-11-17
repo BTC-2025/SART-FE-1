@@ -89,9 +89,9 @@ export default function TrainReviewBookingPage() {
         <SubNavbar />
       </div>
 
-      <main style={{ flex: 1, maxWidth: '1240px', margin: '0 auto', width: '100%', padding: '24px 16px' }}>
+      <main style={{ flex: 1, maxWidth: '1440px', margin: '0 auto', width: '100%', padding: '24px 20px', boxSizing: 'border-box' }}>
 
-        {/* Stepper Header (1 Passenger Details -> 2 Review Journey -> 3 Payment) - Width: 700px */}
+        {/* Stepper Header (1 Passenger Details -> 2 Review Journey -> 3 Payment) - Width: 500px */}
         <div style={{
           display: 'flex',
           alignItems: 'center',

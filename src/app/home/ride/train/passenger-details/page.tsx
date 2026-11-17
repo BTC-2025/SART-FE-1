@@ -66,11 +66,11 @@ export default function TrainPassengerDetailsStandalonePage() {
         <SubNavbar />
       </div>
 
-      {/* Main Container: Centered with 60px left and right gap */}
+      {/* Main Container: Centered with 20px left and right gap */}
       <main style={{
         flex: 1,
-        paddingLeft: '60px',
-        paddingRight: '60px',
+        paddingLeft: '20px',
+        paddingRight: '20px',
         paddingTop: '24px',
         paddingBottom: '32px',
         maxWidth: '1440px',

@@ -400,17 +400,143 @@ export default function TrainBookingView() {
     return [];
   }, [backendTrains]);
 
+  // Persistent seat adjustments: reduce AVL (e.g. 396 -> 395) or increase WL (e.g. 32 -> 33) across refreshes
+  const adjustedCorridorTrains = useMemo(() => {
+    if (!corridorTrains || corridorTrains.length === 0) return [];
+    if (typeof window === 'undefined') return corridorTrains;
+
+    let adjustments: any[] = [];
+    try {
+      const saved = localStorage.getItem('sart_train_seat_adjustments');
+      if (saved) {
+        adjustments = JSON.parse(saved);
+      }
+    } catch (_) {}
+
+    try {
+      const globalBookings = localStorage.getItem('sart_global_bookings');
+      if (globalBookings) {
+        const parsed = JSON.parse(globalBookings);
+        if (Array.isArray(parsed)) {
+          parsed.forEach((gb) => {
+            if (gb.type?.toLowerCase() === 'train' && !gb.isCancelled) {
+              const gbId = gb.txnId || gb.bookingId || gb.pnr;
+              if (!adjustments.some((a) => a.id === gbId)) {
+                adjustments.push({
+                  id: gbId,
+                  trainNumber: String(gb.number),
+                  classCode: String(gb.classCode),
+                  seatsBooked: Array.isArray(gb.passengers) ? gb.passengers.length : (Array.isArray(gb.allPassengers) ? gb.allPassengers.length : 1),
+                  fare: Number(gb.price || gb.cost || 0)
+                });
+              }
+            }
+          });
+        }
+      }
+    } catch (_) {}
+
+    if (adjustments.length === 0) {
+      return corridorTrains;
+    }
+
+    return corridorTrains.map((train) => {
+      const trainDigits = String(train.number || train.id || '').replace(/\D/g, '');
+      const trainAdjs = adjustments.filter((a) => {
+        const aNum = String(a.trainNumber || a.number || '').trim();
+        const aDigits = aNum.replace(/\D/g, '');
+        if (trainDigits && aDigits && trainDigits === aDigits) return true;
+        if (aNum && (aNum === String(train.number) || aNum === String(train.id))) return true;
+        if (a.trainName && train.name && a.trainName.toLowerCase().trim() === train.name.toLowerCase().trim()) return true;
+        if (a.title && train.name && a.title.toLowerCase().includes(train.name.toLowerCase())) return true;
+        return false;
+      });
+
+      if (trainAdjs.length === 0) return train;
+
+      const newClasses = train.classes.map((cls) => {
+        const matchingAdjs = trainAdjs.filter((a) => {
+          const aCode = String(a.classCode || a.subType || '').trim().toUpperCase();
+          const targetCode = String(cls.code || '').trim().toUpperCase();
+          if (aCode !== targetCode) {
+            const cleanACode = aCode.replace(/[^A-Z0-9]/g, '');
+            const cleanTCode = targetCode.replace(/[^A-Z0-9]/g, '');
+            if (!cleanACode.includes(cleanTCode) && !cleanTCode.includes(cleanACode)) {
+              return false;
+            }
+          }
+          if (typeof a.isTatkal === 'boolean' && typeof cls.isTatkal === 'boolean') {
+            if (a.isTatkal !== cls.isTatkal) return false;
+          }
+          if (a.fare && cls.fare && Math.abs(Number(a.fare) - Number(cls.fare)) > 25 && typeof a.isTatkal === 'boolean' && typeof cls.isTatkal === 'boolean') {
+            return false;
+          }
+          return true;
+        });
+
+        if (matchingAdjs.length === 0) return cls;
+
+        const totalBooked = matchingAdjs.reduce((sum, a) => sum + (Number(a.seatsBooked) || 1), 0);
+        if (totalBooked <= 0) return cls;
+
+        let newStatus = cls.status;
+        let newStatusType = cls.statusType;
+
+        // 1. Available seats -> REDUCE count (e.g. AVL 396 -> AVL 395, or AVL 12 -> AVL 11)
+        if (cls.statusType === 'available' || cls.status.toUpperCase().includes('AVL') || cls.status.toUpperCase().includes('AVAILABLE')) {
+          const numMatch = cls.status.match(/\d+/);
+          if (numMatch) {
+            const baseCount = parseInt(numMatch[0], 10);
+            const remaining = baseCount - totalBooked;
+            if (remaining > 0) {
+              newStatus = cls.status.replace(/\d+/, String(remaining));
+            } else {
+              newStatusType = 'wl';
+              newStatus = `WL ${Math.abs(remaining) + 1}`;
+            }
+          } else {
+            const remaining = Math.max(0, 10 - totalBooked);
+            newStatus = remaining > 0 ? `AVL ${remaining}` : 'WL 1';
+            if (remaining <= 0) newStatusType = 'wl';
+          }
+        }
+        // 2. Waiting list -> INCREASE count (e.g. WL 32 -> WL 33, or PQWL 3 -> PQWL 4)
+        else if (cls.statusType === 'wl' || cls.status.toUpperCase().includes('WL') || cls.status.toUpperCase().includes('WAITING') || cls.status.toUpperCase().includes('PQWL') || cls.status.toUpperCase().includes('RLWL') || cls.status.toUpperCase().includes('GNWL')) {
+          const numMatch = cls.status.match(/\d+/);
+          if (numMatch) {
+            const baseWl = parseInt(numMatch[0], 10);
+            const updatedWl = baseWl + totalBooked;
+            newStatus = cls.status.replace(/\d+/, String(updatedWl));
+          } else {
+            newStatus = `WL ${1 + totalBooked}`;
+          }
+        }
+
+        return {
+          ...cls,
+          status: newStatus,
+          statusType: newStatusType
+        };
+      });
+
+      return {
+        ...train,
+        classes: newClasses
+      };
+    });
+  }, [corridorTrains]);
+
   const availableDepartingStations = useMemo(() => {
     const map = new Map<string, string>();
-    corridorTrains.forEach((t) => map.set(t.departureStation, t.departureStationCode));
+    adjustedCorridorTrains.forEach((t) => map.set(t.departureStation, t.departureStationCode));
     return Array.from(map.entries()).map(([name, code]) => ({ name, code }));
-  }, [corridorTrains]);
+  }, [adjustedCorridorTrains]);
 
   const availableArrivingStations = useMemo(() => {
     const map = new Map<string, string>();
-    corridorTrains.forEach((t) => map.set(t.arrivalStation, t.arrivalStationCode));
+    adjustedCorridorTrains.forEach((t) => map.set(t.arrivalStation, t.arrivalStationCode));
     return Array.from(map.entries()).map(([name, code]) => ({ name, code }));
-  }, [corridorTrains]);
+  }, [adjustedCorridorTrains]);
 
   const parseTimeToMinutes = (timeStr: string): number => {
     if (!timeStr) return 0;
@@ -441,7 +567,7 @@ export default function TrainBookingView() {
     }
   };
 
-  let displayedTrains = [...corridorTrains];
+  let displayedTrains = [...adjustedCorridorTrains];
   if (filterAvailable) displayedTrains = displayedTrains.filter((t) => t.classes.some((c) => c.statusType === 'available'));
   if (filterAC) displayedTrains = displayedTrains.filter((t) => t.classes.some((c) => ['1A', '2A', '3A', '3E', 'CC', 'EC', 'EA'].includes(c.code)));
   if (filterTatkal || selectedQuota === 'tatkal' || selectedQuotaFilter === 'TATKAL' || selectedQuotaFilter === 'PREMIUM TATKAL') {
@@ -778,7 +904,7 @@ export default function TrainBookingView() {
           <TrainFilterSidebar
             source={source}
             destination={destination}
-            trains={corridorTrains}
+            trains={adjustedCorridorTrains}
             filterAvailable={filterAvailable}
             setFilterAvailable={setFilterAvailable}
             filterAC={filterAC}
@@ -896,6 +1022,9 @@ export default function TrainBookingView() {
                       trainName: tr.name,
                       trainNumber: tr.number,
                       classCode: cl.code,
+                      isTatkal: Boolean(cl.isTatkal),
+                      status: cl.status,
+                      statusType: cl.statusType,
                       fare: cl.fare,
                       totalAmount: cl.fare,
                       source: source || tr.departureStation,

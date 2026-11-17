@@ -698,13 +698,15 @@ export default function HomeTab() {
               {/* Divider */}
               <div className="hero-h-divider"></div>
 
-              {/* 2. Leaving From */}
+              {/* 2. Leaving From / Location */}
               <div className="hero-h-cell hero-h-from-cell" ref={fromRef}>
                 <div className="hero-h-icon">
                   <i className="fa-solid fa-location-arrow"></i>
                 </div>
                 <div className="hero-h-input-wrap">
-                  <span className="hero-h-label">Leaving From</span>
+                  <span className="hero-h-label">
+                    {selectedCategory === 'parking' ? 'Parking Location' : selectedCategory === 'rental' ? 'Pickup Location' : 'Leaving From'}
+                  </span>
                   <input
                     type="text"
                     className="hero-h-input"
@@ -720,7 +722,13 @@ export default function HomeTab() {
                         handleExecuteSearch();
                       }
                     }}
-                    placeholder="Enter city or terminal"
+                    placeholder={
+                      selectedCategory === 'parking'
+                        ? 'Enter city, area or landmark'
+                        : selectedCategory === 'rental'
+                        ? 'Enter pickup city or location'
+                        : 'Enter city or terminal'
+                    }
                   />
                 </div>
 
@@ -756,73 +764,76 @@ export default function HomeTab() {
                 )}
               </div>
 
-              {/* Swap Button */}
-              <button
-                type="button"
-                className="hero-h-swap-btn"
-                onClick={handleSwapCities}
-                title="Swap Locations"
-              >
-                <i className="fa-solid fa-right-left"></i>
-              </button>
+              {/* Swap Button & Going To (Hidden for Rentals & Parkings) */}
+              {selectedCategory !== 'rental' && selectedCategory !== 'parking' && (
+                <>
+                  <button
+                    type="button"
+                    className="hero-h-swap-btn"
+                    onClick={handleSwapCities}
+                    title="Swap Locations"
+                  >
+                    <i className="fa-solid fa-right-left"></i>
+                  </button>
 
-              {/* 3. Going To */}
-              <div className="hero-h-cell hero-h-to-cell" ref={toRef}>
-                <div className="hero-h-icon">
-                  <i className="fa-solid fa-location-dot"></i>
-                </div>
-                <div className="hero-h-input-wrap">
-                  <span className="hero-h-label">Going To</span>
-                  <input
-                    type="text"
-                    className="hero-h-input"
-                    value={toCity}
-                    onChange={(e) => {
-                      setToCity(e.target.value);
-                      setShowToDropdown(true);
-                    }}
-                    onFocus={() => setShowToDropdown(true)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        setShowToDropdown(false);
-                        handleExecuteSearch();
-                      }
-                    }}
-                    placeholder="Enter destination"
-                  />
-                </div>
-
-                {showToDropdown && (
-                  <div className="hero-suggestions-popup">
-                    <div className="hero-suggestions-header">
-                      <span>Popular Cities</span>
-                      <i className="fa-solid fa-city"></i>
+                  <div className="hero-h-cell hero-h-to-cell" ref={toRef}>
+                    <div className="hero-h-icon">
+                      <i className="fa-solid fa-location-dot"></i>
                     </div>
-                    <div className="hero-suggestions-list">
-                      {POPULAR_CITIES.filter(c =>
-                        !toCity || c.name.toLowerCase().includes(toCity.toLowerCase()) || c.code.toLowerCase().includes(toCity.toLowerCase())
-                      ).map(c => (
-                        <div
-                          key={`to-${c.code}`}
-                          className="hero-city-item"
-                          onClick={() => {
-                            setToCity(`${c.name} (${c.code})`);
+                    <div className="hero-h-input-wrap">
+                      <span className="hero-h-label">Going To</span>
+                      <input
+                        type="text"
+                        className="hero-h-input"
+                        value={toCity}
+                        onChange={(e) => {
+                          setToCity(e.target.value);
+                          setShowToDropdown(true);
+                        }}
+                        onFocus={() => setShowToDropdown(true)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
                             setShowToDropdown(false);
-                          }}
-                        >
-                          <div className="hero-city-icon">
-                            <i className="fa-solid fa-location-dot"></i>
-                          </div>
-                          <div className="hero-city-info">
-                            <span className="hero-city-name">{c.name} ({c.code})</span>
-                            <span className="hero-city-state">{c.state}</span>
-                          </div>
-                        </div>
-                      ))}
+                            handleExecuteSearch();
+                          }
+                        }}
+                        placeholder="Enter destination"
+                      />
                     </div>
+
+                    {showToDropdown && (
+                      <div className="hero-suggestions-popup">
+                        <div className="hero-suggestions-header">
+                          <span>Popular Cities</span>
+                          <i className="fa-solid fa-city"></i>
+                        </div>
+                        <div className="hero-suggestions-list">
+                          {POPULAR_CITIES.filter(c =>
+                            !toCity || c.name.toLowerCase().includes(toCity.toLowerCase()) || c.code.toLowerCase().includes(toCity.toLowerCase())
+                          ).map(c => (
+                            <div
+                              key={`to-${c.code}`}
+                              className="hero-city-item"
+                              onClick={() => {
+                                setToCity(`${c.name} (${c.code})`);
+                                setShowToDropdown(false);
+                              }}
+                            >
+                              <div className="hero-city-icon">
+                                <i className="fa-solid fa-location-dot"></i>
+                              </div>
+                              <div className="hero-city-info">
+                                <span className="hero-city-name">{c.name} ({c.code})</span>
+                                <span className="hero-city-state">{c.state}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </>
+              )}
 
               {/* Divider */}
               <div className="hero-h-divider"></div>

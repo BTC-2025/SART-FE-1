@@ -12,6 +12,213 @@ import { GlobalBookingDetailModal } from './GlobalBookingDetailModal';
 import TrainTicketPdfModal, { TrainTicketModalData } from '../trains/TrainTicketPdfModal';
 import { BookingCardItem } from './BookingCardItem';
 import { TrainPnrStatusEnquiry } from '../trains/TrainPnrStatusEnquiry';
+import { FlightPnrStatusEnquiry } from '../FlightPnrStatusEnquiry';
+import { FlightBoardingPassModal, FlightBoardingPassData } from '../FlightBoardingPassModal';
+
+// Helper: check if a booking is a flight
+const isFlightBooking = (b: Booking | any): boolean => {
+  if (!b) return false;
+  const typeLower = (b.type || '').toLowerCase();
+  if (typeLower === 'flight' || typeLower === 'aeroplane' || typeLower === 'air') return true;
+  if (b.airline) return true;
+  const titleLower = (b.title || '').toLowerCase();
+  if (
+    titleLower.includes('air india') ||
+    titleLower.includes('indigo') ||
+    titleLower.includes('vistara') ||
+    titleLower.includes('spicejet') ||
+    titleLower.includes('akasa') ||
+    titleLower.includes('flight') ||
+    titleLower.includes('airways')
+  ) {
+    return true;
+  }
+  const num = (b.number || '').trim().toUpperCase();
+  if (
+    num.startsWith('UK') ||
+    num.startsWith('6E') ||
+    num.startsWith('IX') ||
+    num.startsWith('AI') ||
+    num.startsWith('SG') ||
+    num.startsWith('QP')
+  ) {
+    return true;
+  }
+  const bId = (b.bookingId || '').trim().toUpperCase();
+  if (bId.startsWith('FLT') || (b.pnr && (b.pnr.startsWith('UK') || b.pnr.startsWith('6E') || b.pnr.startsWith('IX')))) {
+    return true;
+  }
+  return false;
+};
+
+// Helper: check if a booking is a train
+const isTrainBooking = (b: Booking | any): boolean => {
+  if (!b || isFlightBooking(b)) return false;
+  const typeLower = (b.type || '').toLowerCase();
+  if (typeLower === 'train') return true;
+  const titleLower = (b.title || '').toLowerCase();
+  if (
+    titleLower.includes('shatabdi') ||
+    titleLower.includes('vande bharat') ||
+    titleLower.includes('rajdhani') ||
+    titleLower.includes('garib rath') ||
+    titleLower.includes('duronto') ||
+    titleLower.includes('express') ||
+    titleLower.includes('exp') ||
+    titleLower.includes('sf ex') ||
+    titleLower.includes('intercity') ||
+    titleLower.includes('passenger') ||
+    titleLower.includes('mail')
+  ) {
+    return true;
+  }
+  if (b.number?.match(/^\d{5}$/)) return true;
+  return false;
+};
+
+// Helper: format FlightBoardingPassData from any Booking
+const formatFlightBoardingPass = (b: Booking | any, autoPrint = false): FlightBoardingPassData => {
+  let extra: any = {};
+  try {
+    if (b.extraData) extra = typeof b.extraData === 'string' ? JSON.parse(b.extraData) : b.extraData;
+  } catch (e) {}
+
+  let airline = b.airline || extra.airline;
+  let flightNo = b.flightNo || extra.flightNo || b.number;
+
+  if (!airline && b.title) {
+    const lower = b.title.toLowerCase();
+    if (lower.includes('air india express')) {
+      airline = 'Air India Express';
+    } else if (lower.includes('air india')) {
+      airline = 'Air India';
+    } else if (lower.includes('indigo')) {
+      airline = 'IndiGo';
+    } else if (lower.includes('vistara')) {
+      airline = 'Vistara';
+    } else if (lower.includes('spicejet')) {
+      airline = 'SpiceJet';
+    } else if (lower.includes('akasa')) {
+      airline = 'Akasa Air';
+    } else {
+      airline = b.title.split('(')[0].trim() || 'IndiGo';
+    }
+  }
+  if (!airline) airline = 'IndiGo';
+
+  if (!flightNo && b.title && b.title.includes('(')) {
+    const match = b.title.match(/\(([^)]+)\)/);
+    if (match) flightNo = match[1];
+  }
+  if (!flightNo) flightNo = b.number || '6E6031';
+
+  // Map common airport codes to city names
+  const AIRPORT_MAP: Record<string, { city: string; code: string }> = {
+    HYD: { city: 'HYDERABAD', code: 'HYD' },
+    CHE: { city: 'CHENNAI', code: 'MAA' },
+    MAA: { city: 'CHENNAI', code: 'MAA' },
+    DEL: { city: 'DELHI', code: 'DEL' },
+    BLR: { city: 'BENGALURU', code: 'BLR' },
+    BEN: { city: 'BENGALURU', code: 'BLR' },
+    BOM: { city: 'MUMBAI', code: 'BOM' },
+    MUM: { city: 'MUMBAI', code: 'BOM' },
+    CCU: { city: 'KOLKATA', code: 'CCU' },
+    GOI: { city: 'GOA', code: 'GOI' },
+    SXR: { city: 'SRINAGAR', code: 'SXR' },
+    IXC: { city: 'CHANDIGARH', code: 'IXC' },
+    PNQ: { city: 'PUNE', code: 'PNQ' },
+    AMD: { city: 'AHMEDABAD', code: 'AMD' },
+    COK: { city: 'KOCHI', code: 'COK' },
+  };
+
+  let rawSrc = b.source || 'SRINAGAR';
+  let srcCity = rawSrc;
+  let srcCode = b.sourceCode || '';
+  if (rawSrc.includes('(')) {
+    const match = rawSrc.match(/(.*?)\s*\((.*?)\)/);
+    if (match) {
+      srcCity = match[1].trim();
+      if (!srcCode) srcCode = match[2].trim();
+    }
+  }
+  const cleanSrcKey = (srcCode || srcCity).trim().toUpperCase();
+  if (AIRPORT_MAP[cleanSrcKey]) {
+    srcCity = AIRPORT_MAP[cleanSrcKey].city;
+    srcCode = AIRPORT_MAP[cleanSrcKey].code;
+  }
+  if (!srcCode) srcCode = srcCity.slice(0, 3).toUpperCase();
+
+  let rawDst = b.destination || 'DELHI';
+  let dstCity = rawDst;
+  let dstCode = b.destinationCode || '';
+  if (rawDst.includes('(')) {
+    const match = rawDst.match(/(.*?)\s*\((.*?)\)/);
+    if (match) {
+      dstCity = match[1].trim();
+      if (!dstCode) dstCode = match[2].trim();
+    }
+  }
+  const cleanDstKey = (dstCode || dstCity).trim().toUpperCase();
+  if (AIRPORT_MAP[cleanDstKey]) {
+    dstCity = AIRPORT_MAP[cleanDstKey].city;
+    dstCode = AIRPORT_MAP[cleanDstKey].code;
+  }
+  if (!dstCode) dstCode = dstCity.slice(0, 3).toUpperCase();
+
+  // Passenger Name
+  let paxName = b.passengerName || (b.passenger && b.passenger.fullName) || (b.passengers && b.passengers[0]?.name);
+  let paxTitle = b.passengerTitle || (b.passenger && b.passenger.title) || 'MR';
+  if (!paxName) {
+    if (b.firstName || b.lastName) {
+      paxName = `${b.firstName || ''} ${b.lastName || ''}`.trim();
+    } else {
+      paxName = 'FAYAZ AHMAD KAKROO';
+    }
+  }
+
+  // Seat
+  let seat = b.assignedSeat || b.seatStatus || extra.seat || '4E';
+  const seatMatch = seat.match(/[0-9]+[A-F]/i);
+  if (seatMatch) {
+    seat = seatMatch[0].toUpperCase();
+  } else if (!seat || seat.includes('Economy') || seat.includes('Standard')) {
+    seat = '4E';
+  }
+
+  const gate = (b.gate ? String(b.gate).replace(/\D/g, '') : '') || extra.gate || '06';
+  const zone = b.boardingZone || extra.boardingZone || 'Zone 3';
+  const depTime = b.sourceTime || extra.sourceTime || '19:05';
+
+  let depDate = b.sourceDate || b.dateOfJourney || extra.dateOfJourney || '25 JUL 2026';
+  if (depDate.toLowerCase() === 'today') {
+    const now = new Date();
+    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    depDate = `${String(now.getDate()).padStart(2, '0')} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  }
+
+  const pnr = b.pnr || b.bookingId || extra.pnr || 'UK228355';
+
+  return {
+    airline,
+    flightNo: flightNo.replace(/\s+/g, ''),
+    sourceCity: srcCity.toUpperCase(),
+    sourceAirport: srcCode.toUpperCase(),
+    destinationCity: dstCity.toUpperCase(),
+    destinationAirport: dstCode.toUpperCase(),
+    passengerName: paxName,
+    passengerTitle: paxTitle,
+    seatCode: seat,
+    gate: gate.padStart(2, '0'),
+    boardingZone: zone,
+    boardingTime: `${depTime.replace(':', '')} Hrs`,
+    departureTime: `${depTime} hrs`,
+    departureDate: depDate,
+    pnr: pnr.toUpperCase(),
+    sequenceNo: b.sequenceNo || extra.sequenceNo || '0004',
+    services: b.services || extra.services || 'NIL',
+    autoPrint
+  };
+};
 
 export default function BookingsTab() {
   const pathname = usePathname();
@@ -49,6 +256,7 @@ export default function BookingsTab() {
   const [overviewTab, setOverviewTab] = useState<'upcoming' | 'past' | 'cancelled'>('upcoming');
   const [selectedGlobalBooking, setSelectedGlobalBooking] = useState<Booking | null>(null);
   const [selectedTicketForPdf, setSelectedTicketForPdf] = useState<TrainTicketModalData | null>(null);
+  const [selectedFlightTicket, setSelectedFlightTicket] = useState<FlightBoardingPassData | null>(null);
   const [showMoreDestinations, setShowMoreDestinations] = useState(false);
   const [showAllBookings, setShowAllBookings] = useState(false);
 
@@ -75,7 +283,7 @@ export default function BookingsTab() {
               number: extra.number || b.subType?.toUpperCase() || 'SART-RES',
               type: b.type,
               image: b.type === 'train' ? '/images/train_icon_logo.png' :
-                b.type === 'flight' ? 'https://img.icons8.com/fluency/96/airplane-take-off.png' :
+                (b.type === 'flight' || b.type === 'aeroplane') ? '/flight-icon.png' :
                   b.type === 'bus' ? '/images/bus_icon_logo.png' :
                     'https://img.icons8.com/fluency/96/car.png',
               source: b.pickupLoc || extra.source || 'Bengaluru',
@@ -137,7 +345,7 @@ export default function BookingsTab() {
               number: b.number || b.pnr || 'SART',
               type: (b.type || 'bus').toLowerCase(),
               image: (b.type || '').toLowerCase() === 'train' ? '/images/train_icon_logo.png' :
-                (b.type || '').toLowerCase() === 'flight' ? 'https://img.icons8.com/fluency/96/airplane-take-off.png' :
+                ((b.type || '').toLowerCase() === 'flight' || (b.type || '').toLowerCase() === 'aeroplane') ? '/flight-icon.png' :
                   (b.type || '').toLowerCase() === 'bus' ? '/images/bus_icon_logo.png' :
                     'https://img.icons8.com/fluency/96/car.png',
               source: b.source || 'Chennai',
@@ -348,7 +556,7 @@ export default function BookingsTab() {
           title: `${govtFlight.airline} (${govtFlight.flightNumber})`,
           number: govtFlight.flightNumber,
           type: 'aeroplane',
-          image: 'https://img.icons8.com/fluency/96/airplane-take-off.png',
+          image: '/flight-icon.png',
           source: govtFlight.origin,
           sourceCode: 'BLR',
           sourceTime: govtFlight.scheduledDeparture,
@@ -443,7 +651,16 @@ export default function BookingsTab() {
           <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: '40px' }}>
             <div style={{ width: '100%', maxWidth: '1000px' }}>
               {trackedBooking ? (
-                trackedBooking.type === 'train' || trackedBooking.title?.toLowerCase().includes('exp') || trackedBooking.title?.toLowerCase().includes('shatabdi') || Boolean(trackedBooking.number?.match(/^\d{5}$/)) ? (
+                isFlightBooking(trackedBooking) || (trackingType === 'Airline — Flight Number') ? (
+                  <FlightPnrStatusEnquiry
+                    booking={trackedBooking}
+                    onBack={() => setTrackedBooking(null)}
+                    onCheckIn={() => {
+                      setSelectedFlightTicket(formatFlightBoardingPass(trackedBooking, false));
+                    }}
+                    onFlightStatus={() => alert(`Flight Status: Running on scheduled time.`)}
+                  />
+                ) : isTrainBooking(trackedBooking) ? (
                   <TrainPnrStatusEnquiry
                     booking={trackedBooking}
                     onBack={() => setTrackedBooking(null)}
@@ -705,7 +922,9 @@ export default function BookingsTab() {
                   booking={booking}
                   overviewTab={overviewTab}
                   onViewDetails={(b) => {
-                    if (b.type === 'train' || b.title?.toLowerCase().includes('shatabdi') || b.title?.toLowerCase().includes('exp') || b.number?.match(/^\d{5}$/)) {
+                    if (isFlightBooking(b)) {
+                      setSelectedFlightTicket(formatFlightBoardingPass(b, false));
+                    } else if (isTrainBooking(b)) {
                       // Open the Train e-ticket modal for train bookings
                       let extra: any = {};
                       try {
@@ -762,56 +981,62 @@ export default function BookingsTab() {
                     }
                   }}
                   onDownloadTicket={(b) => {
-                    let extra: any = {};
-                    try {
-                      if (b.extraData) extra = typeof b.extraData === 'string' ? JSON.parse(b.extraData) : b.extraData;
-                    } catch (e) { }
+                    if (isFlightBooking(b)) {
+                      setSelectedFlightTicket(formatFlightBoardingPass(b, true));
+                    } else if (isTrainBooking(b)) {
+                      let extra: any = {};
+                      try {
+                        if (b.extraData) extra = typeof b.extraData === 'string' ? JSON.parse(b.extraData) : b.extraData;
+                      } catch (e) { }
 
-                    const paxList = b.passengers || extra.passengers || extra.allPassengers || [];
-                    const coach = b.coach || extra.coach || 'C1';
-                    const startBerth = Number(b.berthNo || extra.berthNo || 36);
+                      const paxList = b.passengers || extra.passengers || extra.allPassengers || [];
+                      const coach = b.coach || extra.coach || 'C1';
+                      const startBerth = Number(b.berthNo || extra.berthNo || 36);
 
-                    const paxFormatted = paxList.length > 0
-                      ? paxList.map((p: any, i: number) => ({
-                        name: p.name || b.passengerName || 'PASSENGER',
-                        age: p.age || 28,
-                        gender: p.gender || 'Male',
-                        bookingStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`,
-                        currentStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`
-                      }))
-                      : [{
-                        name: b.passengerName || 'PASSENGER',
-                        age: 28,
-                        gender: 'Male',
-                        bookingStatus: `CNF/${coach}/${startBerth}/NC`,
-                        currentStatus: `CNF/${coach}/${startBerth}/NC`
-                      }];
+                      const paxFormatted = paxList.length > 0
+                        ? paxList.map((p: any, i: number) => ({
+                          name: p.name || b.passengerName || 'PASSENGER',
+                          age: p.age || 28,
+                          gender: p.gender || 'Male',
+                          bookingStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`,
+                          currentStatus: `CNF/${coach}/${startBerth + i * 2}/${p.berthPreference || 'NC'}`
+                        }))
+                        : [{
+                          name: b.passengerName || 'PASSENGER',
+                          age: 28,
+                          gender: 'Male',
+                          bookingStatus: `CNF/${coach}/${startBerth}/NC`,
+                          currentStatus: `CNF/${coach}/${startBerth}/NC`
+                        }];
 
-                    setSelectedTicketForPdf({
-                      pnr: b.pnr || extra.pnr || `${Math.floor(1000000000 + Math.random() * 9000000000)}`,
-                      trainNumber: extra.trainNumber || b.number?.replace(/\D/g, '') || '12007',
-                      trainName: extra.trainName || b.title?.replace(/\(\d+\)/, '').trim() || 'Mas Mys Shatabdi',
-                      classCode: b.classCode || extra.classCode || b.subType || 'CC',
-                      source: extra.source || b.source || 'Mgr Chennai Ctl (MAS)',
-                      sourceCode: extra.sourceCode || b.sourceCode || 'MAS',
-                      sourceTime: extra.sourceTime || b.sourceTime || '06:00 AM',
-                      sourceDate: extra.dateOfJourney || b.sourceDate || '16 Nov, 2026',
-                      destination: extra.destination || b.destination || 'Ksr Bengaluru (SBC)',
-                      destinationCode: extra.destinationCode || b.destinationCode || 'SBC',
-                      destinationTime: extra.destinationTime || b.destinationTime || '10:30 AM',
-                      destinationDate: extra.destinationDate || b.destinationDate || b.sourceDate || '16 Nov, 2026',
-                      boardingStation: extra.boardingStation || b.boardingStation || b.source || 'Mgr Chennai Ctl (MAS)',
-                      departureTime: extra.departureTime || b.sourceTime || '06:00 AM',
-                      departureDate: extra.dateOfJourney || b.sourceDate || '16 Nov, 2026',
-                      bookingDate: extra.dateOfJourney ? `${extra.dateOfJourney} | 07:05PM` : `${b.sourceDate} 07:05 PM`,
-                      transactionId: b.txnId || extra.txnId || extra.paymentDetails?.txnId || `${Date.now()}${Math.floor(10 + Math.random() * 90)}`,
-                      passengers: paxFormatted,
-                      fare: Number(extra.fare || (b.transactionAmount ? (b.transactionAmount - 12.7) : 1055)),
-                      convenienceFee: 11.80,
-                      insurancePremium: 0.90,
-                      totalFare: Number(b.transactionAmount || extra.paymentDetails?.amount || 1067.25),
-                      autoPrint: true
-                    });
+                      setSelectedTicketForPdf({
+                        pnr: b.pnr || extra.pnr || `${Math.floor(1000000000 + Math.random() * 9000000000)}`,
+                        trainNumber: extra.trainNumber || b.number?.replace(/\D/g, '') || '12007',
+                        trainName: extra.trainName || b.title?.replace(/\(\d+\)/, '').trim() || 'Mas Mys Shatabdi',
+                        classCode: b.classCode || extra.classCode || b.subType || 'CC',
+                        source: extra.source || b.source || 'Mgr Chennai Ctl (MAS)',
+                        sourceCode: extra.sourceCode || b.sourceCode || 'MAS',
+                        sourceTime: extra.sourceTime || b.sourceTime || '06:00 AM',
+                        sourceDate: extra.dateOfJourney || b.sourceDate || '16 Nov, 2026',
+                        destination: extra.destination || b.destination || 'Ksr Bengaluru (SBC)',
+                        destinationCode: extra.destinationCode || b.destinationCode || 'SBC',
+                        destinationTime: extra.destinationTime || b.destinationTime || '10:30 AM',
+                        destinationDate: extra.destinationDate || b.destinationDate || b.sourceDate || '16 Nov, 2026',
+                        boardingStation: extra.boardingStation || b.boardingStation || b.source || 'Mgr Chennai Ctl (MAS)',
+                        departureTime: extra.departureTime || b.sourceTime || '06:00 AM',
+                        departureDate: extra.dateOfJourney || b.sourceDate || '16 Nov, 2026',
+                        bookingDate: extra.dateOfJourney ? `${extra.dateOfJourney} | 07:05PM` : `${b.sourceDate} 07:05 PM`,
+                        transactionId: b.txnId || extra.txnId || extra.paymentDetails?.txnId || `${Date.now()}${Math.floor(10 + Math.random() * 90)}`,
+                        passengers: paxFormatted,
+                        fare: Number(extra.fare || (b.transactionAmount ? (b.transactionAmount - 12.7) : 1055)),
+                        convenienceFee: 11.80,
+                        insurancePremium: 0.90,
+                        totalFare: Number(b.transactionAmount || extra.paymentDetails?.amount || 1067.25),
+                        autoPrint: true
+                      });
+                    } else {
+                      setSelectedGlobalBooking(b);
+                    }
                   }}
                   onCancelBooking={handleCancelBooking}
                 />
@@ -1159,6 +1384,14 @@ export default function BookingsTab() {
         <TrainTicketPdfModal
           ticket={selectedTicketForPdf}
           onClose={() => setSelectedTicketForPdf(null)}
+        />
+      )}
+
+      {/* Flight Boarding Pass Printable Modal */}
+      {selectedFlightTicket && (
+        <FlightBoardingPassModal
+          data={selectedFlightTicket}
+          onClose={() => setSelectedFlightTicket(null)}
         />
       )}
     </section>

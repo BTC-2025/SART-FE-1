@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import './FlightBookingView.css';
 import {
   FlightItem,
@@ -24,12 +25,150 @@ export default function FlightBookingView({
   destination,
   dateOfJourney
 }: FlightBookingViewProps) {
+  const router = useRouter();
+
   const effectiveDate = useMemo(() => {
     if (dateOfJourney) return dateOfJourney;
     const now = new Date();
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return `${String(now.getDate()).padStart(2, '0')} ${months[now.getMonth()]}, ${now.getFullYear()}`;
   }, [dateOfJourney]);
+
+  // Travelers & Cabin Class state
+  const [adults, setAdults] = useState<number>(1);
+  const [seniors, setSeniors] = useState<number>(0);
+  const [children, setChildren] = useState<number>(0);
+  const [infants, setInfants] = useState<number>(0);
+  const [cabinClass, setCabinClass] = useState<'Economy' | 'Premium Economy' | 'Business'>('Economy');
+  const [specialFare, setSpecialFare] = useState<string>('6Exclusive');
+  const [showTravelerPopup, setShowTravelerPopup] = useState<boolean>(false);
+
+  // Sync with localStorage ('sart_flight_travellers') and custom events
+  useEffect(() => {
+    const loadFromStorage = () => {
+      if (typeof window !== 'undefined') {
+        try {
+          const saved = localStorage.getItem('sart_flight_travellers');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed.adultCount !== undefined) setAdults(Number(parsed.adultCount) || 1);
+            if (parsed.seniorCount !== undefined) setSeniors(Number(parsed.seniorCount) || 0);
+            if (parsed.childCount !== undefined) setChildren(Number(parsed.childCount) || 0);
+            if (parsed.infantCount !== undefined) setInfants(Number(parsed.infantCount) || 0);
+            if (parsed.cabinClass) setCabinClass(parsed.cabinClass);
+            if (parsed.specialFare) setSpecialFare(parsed.specialFare);
+          }
+        } catch (e) {
+          console.error('Failed to load travellers in FlightBookingView', e);
+        }
+      }
+    };
+
+    loadFromStorage();
+
+    const handleCustomChange = (e: any) => {
+      if (e.detail) {
+        if (e.detail.adultCount !== undefined) setAdults(Number(e.detail.adultCount) || 1);
+        if (e.detail.seniorCount !== undefined) setSeniors(Number(e.detail.seniorCount) || 0);
+        if (e.detail.childCount !== undefined) setChildren(Number(e.detail.childCount) || 0);
+        if (e.detail.infantCount !== undefined) setInfants(Number(e.detail.infantCount) || 0);
+        if (e.detail.cabinClass) setCabinClass(e.detail.cabinClass);
+        if (e.detail.specialFare) setSpecialFare(e.detail.specialFare);
+      }
+    };
+
+    window.addEventListener('sart_flight_travellers_changed', handleCustomChange);
+    window.addEventListener('storage', loadFromStorage);
+    return () => {
+      window.removeEventListener('sart_flight_travellers_changed', handleCustomChange);
+      window.removeEventListener('storage', loadFromStorage);
+    };
+  }, []);
+
+  const syncTravellersToStorage = (newAdults: number, newSeniors: number, newChildren: number, newInfants: number, newClass?: any) => {
+    if (typeof window !== 'undefined') {
+      const payload = {
+        adultCount: newAdults,
+        seniorCount: newSeniors,
+        childCount: newChildren,
+        infantCount: newInfants,
+        cabinClass: newClass || cabinClass,
+        specialFare,
+        totalPassengers: newAdults + newSeniors + newChildren + newInfants
+      };
+      localStorage.setItem('sart_flight_travellers', JSON.stringify(payload));
+      window.dispatchEvent(new CustomEvent('sart_flight_travellers_changed', { detail: payload }));
+    }
+  };
+
+  const totalTravelers = adults + seniors + children + infants;
+  const passengerCounts = useMemo(() => ({
+    adults,
+    seniors,
+    children,
+    infants
+  }), [adults, seniors, children, infants]);
+
+  // Pricing calculation based on user requested passenger types:
+  // - Adult: 100% of base fare
+  // - Senior Citizen (>60 years): 10% concession (90% of base fare)
+  // - Children (2 to 12 years): 25% concession (75% of base fare)
+  // - Infant (under 2 years): flat nominal / ~20% of base fare (min ₹800, max ₹1500)
+  const calculateFlightPrice = (baseAdultFare: number, counts: { adults: number; seniors: number; children: number; infants: number }) => {
+    const a = Math.max(0, counts.adults || 0);
+    const s = Math.max(0, counts.seniors || 0);
+    const c = Math.max(0, counts.children || 0);
+    const inf = Math.max(0, counts.infants || 0);
+
+    if (a + s + c + inf === 0) return baseAdultFare;
+
+    const adultPart = a * baseAdultFare;
+    const seniorPart = s * Math.round(baseAdultFare * 0.90);
+    const childPart = c * Math.round(baseAdultFare * 0.75);
+    const infantPart = inf * Math.min(1500, Math.max(800, Math.round(baseAdultFare * 0.20)));
+
+    return adultPart + seniorPart + childPart + infantPart;
+  };
+
+  const passengerSummaryText = useMemo(() => {
+    const parts: string[] = [];
+    if (adults > 0) parts.push(`${adults} Adult${adults > 1 ? 's' : ''}`);
+    if (seniors > 0) parts.push(`${seniors} Senior${seniors > 1 ? 's' : ''}`);
+    if (children > 0) parts.push(`${children} Child${children > 1 ? 'ren' : ''}`);
+    if (infants > 0) parts.push(`${infants} Infant${infants > 1 ? 's' : ''}`);
+    return parts.length > 0 ? parts.join(', ') : '1 Adult';
+  }, [adults, seniors, children, infants]);
+
+  const travelerSummary = `${totalTravelers} Traveler${totalTravelers > 1 ? 's' : ''}${totalTravelers > 1 ? ` (${passengerSummaryText})` : ''}, ${cabinClass}`;
+
+  const handleProceedToPassengerDetails = (selectedFlight: FlightItem, chosenFare: any) => {
+    if (typeof window !== 'undefined') {
+      const pending = {
+        airline: selectedFlight.airline,
+        flightNo: selectedFlight.flightNo,
+        source: source.split('-')[0].trim(),
+        sourceAirport: selectedFlight.depAirportCode,
+        destination: destination.split('-')[0].trim(),
+        destinationAirport: selectedFlight.arrAirportCode,
+        depTime: selectedFlight.depTime,
+        arrTime: selectedFlight.arrTime,
+        fare: chosenFare.price,
+        totalFare: chosenFare.price,
+        fareTier: chosenFare.tag,
+        dateOfJourney: effectiveDate,
+        travelers: {
+          adults,
+          seniors,
+          children,
+          infants,
+          total: totalTravelers,
+          summary: passengerSummaryText
+        }
+      };
+      localStorage.setItem('sart_pending_flight_booking', JSON.stringify(pending));
+    }
+    router.push('/home/ride/flight/PassengerDetails');
+  };
   // Master list generated for the currently searched corridor
   const [flightsList, setFlightsList] = useState<FlightItem[]>(() => getFlightsForRoute(source, destination));
 
@@ -74,10 +213,10 @@ export default function FlightBookingView({
       d.setDate(d.getDate() + i);
       return {
         label: `${daysShort[d.getDay()]}, ${monthsShort[d.getMonth()]} ${d.getDate()}`,
-        fare: faresList[i % faresList.length]
+        fare: calculateFlightPrice(faresList[i % faresList.length], passengerCounts)
       };
     });
-  }, []);
+  }, [passengerCounts]);
 
   // Sorting
   const [sortBy, setSortBy] = useState<'cheapest' | 'nonstop' | 'prefer' | 'departure'>('cheapest');
@@ -221,6 +360,10 @@ export default function FlightBookingView({
 
   const layoverAirportsList = ['Bengaluru', 'Hyderabad', 'Kochi', 'Madurai', 'Mumbai'];
 
+  // Expanded flight for fare options breakdown (Images 1 & 2)
+  const [expandedFlightId, setExpandedFlightId] = useState<string | null>(null);
+  const [selectedFareMap, setSelectedFareMap] = useState<Record<string, string>>({});
+
   // Booked modal state
   const [selectedFlightModal, setSelectedFlightModal] = useState<FlightItem | null>(null);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
@@ -237,25 +380,15 @@ export default function FlightBookingView({
     phone: '+91 9876543210'
   });
 
-  // Travelers & Cabin Class state
-  const [adults, setAdults] = useState<number>(1);
-  const [children, setChildren] = useState<number>(0);
-  const [infants, setInfants] = useState<number>(0);
-  const [cabinClass, setCabinClass] = useState<'Economy' | 'Premium Economy' | 'Business'>('Economy');
-  const [showTravelerPopup, setShowTravelerPopup] = useState<boolean>(false);
-
   // Modal toggle for "More flight details" popup
   const [detailedFlightModal, setDetailedFlightModal] = useState<FlightItem | null>(null);
-
-  const totalTravelers = adults + children + infants;
-  const travelerSummary = `${totalTravelers} Traveler${totalTravelers > 1 ? 's' : ''}, ${cabinClass}`;
 
   return (
     <div className="fb-container">
       {/* ---------------- Top Travelers & Class Bar (Directly below mode icons) ---------------- */}
       <div className="fb-traveler-class-bar">
         <div className="fb-traveler-trigger-container">
-          <button
+          {/* <button
             type="button"
             className="fb-traveler-trigger-btn"
             onClick={() => setShowTravelerPopup(prev => !prev)}
@@ -268,7 +401,7 @@ export default function FlightBookingView({
               <span className="fb-trigger-value">{travelerSummary}</span>
             </div>
             <i className={`fa-solid fa-chevron-${showTravelerPopup ? 'up' : 'down'} fb-trigger-arrow`}></i>
-          </button>
+          </button> */}
 
           {/* Interactive Travelers & Class Selector Popup */}
           {showTravelerPopup && (
@@ -295,16 +428,57 @@ export default function FlightBookingView({
                   <div className="fb-stepper-control">
                     <button
                       type="button"
-                      disabled={adults <= 1}
-                      onClick={() => setAdults(prev => Math.max(1, prev - 1))}
+                      disabled={adults <= 1 && seniors <= 0}
+                      onClick={() => {
+                        const next = Math.max(0, adults - 1);
+                        setAdults(next);
+                        syncTravellersToStorage(next, seniors, children, infants);
+                      }}
                     >
                       −
                     </button>
                     <span className="fb-stepper-val">{adults}</span>
                     <button
                       type="button"
-                      disabled={adults >= 9}
-                      onClick={() => setAdults(prev => Math.min(9, prev + 1))}
+                      disabled={totalTravelers >= 9}
+                      onClick={() => {
+                        const next = Math.min(9, adults + 1);
+                        setAdults(next);
+                        syncTravellersToStorage(next, seniors, children, infants);
+                      }}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Senior Citizen (>60 years) */}
+                <div className="fb-pax-count-row">
+                  <div>
+                    <span className="fb-pax-type-title">Senior Citizen</span>
+                    <span className="fb-pax-type-sub">&gt;60 years (10% concession)</span>
+                  </div>
+                  <div className="fb-stepper-control">
+                    <button
+                      type="button"
+                      disabled={seniors <= 0}
+                      onClick={() => {
+                        const next = Math.max(0, seniors - 1);
+                        setSeniors(next);
+                        syncTravellersToStorage(adults, next, children, infants);
+                      }}
+                    >
+                      −
+                    </button>
+                    <span className="fb-stepper-val">{seniors}</span>
+                    <button
+                      type="button"
+                      disabled={totalTravelers >= 9}
+                      onClick={() => {
+                        const next = Math.min(9, seniors + 1);
+                        setSeniors(next);
+                        syncTravellersToStorage(adults, next, children, infants);
+                      }}
                     >
                       +
                     </button>
@@ -315,21 +489,29 @@ export default function FlightBookingView({
                 <div className="fb-pax-count-row">
                   <div>
                     <span className="fb-pax-type-title">Children</span>
-                    <span className="fb-pax-type-sub">2 - 12 years</span>
+                    <span className="fb-pax-type-sub">2 - 12 years (25% concession)</span>
                   </div>
                   <div className="fb-stepper-control">
                     <button
                       type="button"
                       disabled={children <= 0}
-                      onClick={() => setChildren(prev => Math.max(0, prev - 1))}
+                      onClick={() => {
+                        const next = Math.max(0, children - 1);
+                        setChildren(next);
+                        syncTravellersToStorage(adults, seniors, next, infants);
+                      }}
                     >
                       −
                     </button>
                     <span className="fb-stepper-val">{children}</span>
                     <button
                       type="button"
-                      disabled={children >= 6}
-                      onClick={() => setChildren(prev => Math.min(6, prev + 1))}
+                      disabled={totalTravelers >= 9}
+                      onClick={() => {
+                        const next = Math.min(6, children + 1);
+                        setChildren(next);
+                        syncTravellersToStorage(adults, seniors, next, infants);
+                      }}
                     >
                       +
                     </button>
@@ -340,21 +522,29 @@ export default function FlightBookingView({
                 <div className="fb-pax-count-row">
                   <div>
                     <span className="fb-pax-type-title">Infants</span>
-                    <span className="fb-pax-type-sub">Under 2 years</span>
+                    <span className="fb-pax-type-sub">Under 2 years (Lap infant)</span>
                   </div>
                   <div className="fb-stepper-control">
                     <button
                       type="button"
                       disabled={infants <= 0}
-                      onClick={() => setInfants(prev => Math.max(0, prev - 1))}
+                      onClick={() => {
+                        const next = Math.max(0, infants - 1);
+                        setInfants(next);
+                        syncTravellersToStorage(adults, seniors, children, next);
+                      }}
                     >
                       −
                     </button>
                     <span className="fb-stepper-val">{infants}</span>
                     <button
                       type="button"
-                      disabled={infants >= adults}
-                      onClick={() => setInfants(prev => Math.min(adults, prev + 1))}
+                      disabled={infants >= Math.max(1, adults + seniors)}
+                      onClick={() => {
+                        const next = Math.min(Math.max(1, adults + seniors), infants + 1);
+                        setInfants(next);
+                        syncTravellersToStorage(adults, seniors, children, next);
+                      }}
                     >
                       +
                     </button>
@@ -762,11 +952,19 @@ export default function FlightBookingView({
             </button>
             <button
               type="button"
+              className={`fb-sort-tab ${sortBy === 'nonstop' ? 'active' : ''}`}
+              onClick={() => setSortBy('nonstop')}
+            >
+              <span className="fb-sort-tab-title">Non Stop First</span>
+              <span className="fb-sort-tab-sub">₹ {calculateFlightPrice(7970, passengerCounts).toLocaleString('en-IN')} | 01h 45m</span>
+            </button>
+            <button
+              type="button"
               className={`fb-sort-tab ${sortBy === 'prefer' ? 'active' : ''}`}
               onClick={() => setSortBy('prefer')}
             >
               <span className="fb-sort-tab-title">You May Prefer</span>
-              <span className="fb-sort-tab-sub">₹ 7,721 | 04h 25m</span>
+              <span className="fb-sort-tab-sub">₹ {calculateFlightPrice(7721, passengerCounts).toLocaleString('en-IN')} | 04h 25m</span>
             </button>
             <button
               type="button"
@@ -798,78 +996,431 @@ export default function FlightBookingView({
               </button>
             </div>
           ) : (
-            filteredFlights.map((flight) => (
-              <div key={flight.id} className="fb-flight-card">
-                <div className="fb-flight-main-row">
-                  {/* Airline Col */}
-                  <div className="fb-airline-col">
-                    <div className="fb-airline-logo-box" style={{ color: flight.airlineLogoColor }}>
-                      <i className="fa-solid fa-plane"></i>
+            filteredFlights.map((flight) => {
+              const isExpanded = expandedFlightId === flight.id;
+              const cardPrice = calculateFlightPrice(flight.fare, passengerCounts);
+              const fareOptions = [
+                {
+                  id: 'lite',
+                  tag: 'Lite fare',
+                  exclusiveBadge: `✦ ${flight.airline} Exclusive ✦`,
+                  price: calculateFlightPrice(Math.max(1000, Math.round(flight.fare * 0.92)), passengerCounts),
+                  bluChips: Math.round(flight.fare * 0.08 * totalTravelers),
+                  features: [
+                    { text: '7 kg Cabin bag only', sub: 'Preferably under the seat', icon: 'fa-bag-shopping' },
+                    { text: 'No check-in bag included', isAlert: true, icon: 'fa-ban' },
+                    { text: 'Zero change and cancellation charges within 48 hours of booking', icon: 'fa-arrow-rotate-left' },
+                    { text: 'Change and cancellation charges Standard', link: 'Standard', icon: 'fa-file-lines' }
+                  ]
+                },
+                {
+                  id: 'saver',
+                  tag: 'Saver fare',
+                  price: cardPrice,
+                  bluChips: Math.round(flight.fare * 0.09 * totalTravelers),
+                  features: [
+                    { text: '7 kg Cabin bag allowance', icon: 'fa-bag-shopping' },
+                    { text: '15 kg Check-in bag allowance', icon: 'fa-suitcase-rolling' },
+                    { text: 'Zero change and cancellation charges within 48 hours of booking', icon: 'fa-arrow-rotate-left' },
+                    { text: 'Change and cancellation charges Standard', link: 'Standard', icon: 'fa-file-lines' }
+                  ],
+                  offer: {
+                    text: 'Avail Flexi plus fare benefits - For just ₹525, get benefits up to ₹4,900',
+                    action: 'Upgrade'
+                  },
+                  inclusions: [
+                    { text: 'Complimentary Meal', icon: 'fa-utensils' },
+                    { text: 'Complimentary standard seat', icon: 'fa-chair' }
+                  ]
+                },
+                {
+                  id: 'flexi',
+                  tag: 'Flexi plus fare',
+                  price: calculateFlightPrice(Math.round(flight.fare * 1.08), passengerCounts),
+                  bluChips: Math.round(flight.fare * 0.10 * totalTravelers),
+                  features: [
+                    { text: '7 kg Cabin bag allowance', icon: 'fa-bag-shopping' },
+                    { text: '15 kg Check-in bag allowance', icon: 'fa-suitcase-rolling' },
+                    { text: 'Zero change and cancellation charges within 48 hours of booking', icon: 'fa-arrow-rotate-left' },
+                    { text: 'Change and cancellation charges Partial', link: 'Partial', icon: 'fa-file-lines' }
+                  ],
+                  inclusions: [
+                    { text: 'Complimentary snack', icon: 'fa-utensils' },
+                    { text: 'Complimentary standard seat', icon: 'fa-chair' }
+                  ]
+                },
+                {
+                  id: 'upfront',
+                  tag: `${flight.airline} UpFront`,
+                  isNew: true,
+                  price: calculateFlightPrice(Math.round(flight.fare * 1.22), passengerCounts),
+                  bluChips: Math.round(flight.fare * 0.12 * totalTravelers),
+                  features: [
+                    { text: '7 kg Cabin bag allowance', icon: 'fa-bag-shopping' },
+                    { text: '15+5KG extra kg Check-in bag allowance', isHighlight: true, icon: 'fa-suitcase-rolling' },
+                    { text: 'Zero cancellation charges within 48 hours of booking', icon: 'fa-arrow-rotate-left' },
+                    { text: 'ZERO change fee', isHighlight: true, icon: 'fa-check' },
+                    { text: 'Cancellation charges Low', link: 'Low', icon: 'fa-file-lines' }
+                  ],
+                  inclusions: [
+                    { text: 'Complimentary snack', icon: 'fa-utensils' },
+                    { text: 'First two row seats with extra legroom', isLink: true, icon: 'fa-chair' },
+                    { text: 'Fast Forward not included', isMuted: true, icon: 'fa-person-walking' }
+                  ]
+                }
+              ];
+              const currentTierId = selectedFareMap[flight.id] || 'saver';
+              const selectedTier = fareOptions.find((f) => f.id === currentTierId) || fareOptions[1];
+
+              return (
+                <div
+                  key={flight.id}
+                  className={`fb-flight-card ${isExpanded ? 'fb-flight-card-selected' : ''}`}
+                  style={{
+                    border: isExpanded ? '2px solid #0084ff' : '1px solid #e2e8f0',
+                    boxShadow: isExpanded ? '0 6px 24px rgba(0, 132, 255, 0.16)' : '0 2px 8px rgba(0, 0, 0, 0.04)',
+                    borderRadius: '14px',
+                    transition: 'all 0.2s ease',
+                    overflow: 'hidden'
+                  }}
+                >
+                  <div
+                    className="fb-flight-main-row"
+                    onClick={() => {
+                      setExpandedFlightId((prev) => (prev === flight.id ? null : flight.id));
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {/* Airline Col */}
+                    <div className="fb-airline-col">
+                      <div className="fb-airline-logo-box" style={{ color: flight.airlineLogoColor }}>
+                        <i className="fa-solid fa-plane"></i>
+                      </div>
+                      <div>
+                        <div className="fb-airline-name">{flight.airline}</div>
+                        <div className="fb-flight-number">{flight.flightNo}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="fb-airline-name">{flight.airline}</div>
-                      <div className="fb-flight-number">{flight.flightNo}</div>
+
+                    {/* Schedule Col */}
+                    <div className="fb-schedule-col">
+                      <div className="fb-time-node">
+                        <span className="fb-node-time">{flight.depTime}</span>
+                        <span className="fb-node-airport">{flight.depAirportCode}</span>
+                      </div>
+
+                      <div className="fb-duration-track">
+                        <span className="fb-track-duration">{flight.duration}</span>
+                        <div className="fb-track-line"></div>
+                        <span className={`fb-track-stops ${flight.stopsCount === 0 ? 'non-stop' : ''}`}>
+                          {flight.stopsText}
+                        </span>
+                      </div>
+
+                      <div className="fb-time-node">
+                        <span className="fb-node-time">{flight.arrTime}</span>
+                        <span className="fb-node-airport">{flight.arrAirportCode}</span>
+                      </div>
+                    </div>
+
+                    {/* Fare and CTA Col */}
+                    <div className="fb-fare-col">
+                      <div className="fb-fare-price">₹ {cardPrice.toLocaleString('en-IN')}</div>
+                      <div className="fb-fare-promo-tag">Get Flat 12% OFF using GOPNB</div>
+                      {totalTravelers > 1 && (
+                        <div style={{ fontSize: '10.5px', color: '#0284c7', fontWeight: 700, marginTop: '2px', textAlign: 'right' }}>
+                          Total for {totalTravelers} Pax ({passengerSummaryText})
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        className="fb-view-fares-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedFlightId((prev) => (prev === flight.id ? null : flight.id));
+                        }}
+                      >
+                        {isExpanded ? (
+                          <>
+                            <span>HIDE FARES</span>
+                            <i className="fa-solid fa-chevron-up" style={{ marginLeft: '6px', fontSize: '10px' }}></i>
+                          </>
+                        ) : (
+                          <>
+                            <span>VIEW FARES</span>
+                            <i className="fa-solid fa-chevron-down" style={{ marginLeft: '6px', fontSize: '10px' }}></i>
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
 
-                  {/* Schedule Col */}
-                  <div className="fb-schedule-col">
-                    <div className="fb-time-node">
-                      <span className="fb-node-time">{flight.depTime}</span>
-                      <span className="fb-node-airport">{flight.depAirportCode}</span>
-                    </div>
+                  {/* Expandable Fare Options Breakdown (Matching Image 1) */}
+                  {isExpanded && (
+                    <div style={{
+                      background: '#eef6ff',
+                      borderRadius: '14px',
+                      border: '1.5px solid #bce1fe',
+                      padding: '16px',
+                      margin: '0 14px 14px 14px'
+                    }}>
+                      {/* 3 Fare Cards Horizontal Scroll Grid (Image 2 style) */}
+                      <div
+                        className="fb-fare-cards-scroll-grid"
+                        style={{
+                          display: 'grid',
+                          gridAutoFlow: 'column',
+                          gridAutoColumns: 'calc((100% - 28px) / 3)',
+                          gap: '14px',
+                          overflowX: 'auto',
+                          scrollSnapType: 'x mandatory',
+                          paddingBottom: '8px'
+                        }}
+                      >
+                        {fareOptions.map((opt) => {
+                          const isChosen = currentTierId === opt.id;
+                          return (
+                            <div
+                              key={opt.id}
+                              className="fb-fare-card-item"
+                              onClick={() => setSelectedFareMap((prev) => ({ ...prev, [flight.id]: opt.id }))}
+                              style={{
+                                border: isChosen ? '2.5px solid #00baf2' : '1px solid #cbd5e1',
+                                background: '#ffffff',
+                                borderRadius: '12px',
+                                padding: '16px 14px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                cursor: 'pointer',
+                                position: 'relative',
+                                scrollSnapAlign: 'start',
+                                boxShadow: isChosen ? '0 4px 16px rgba(0, 186, 242, 0.18)' : '0 1px 3px rgba(0,0,0,0.03)',
+                                transition: 'all 0.15s ease'
+                              }}
+                            >
+                              <div>
+                                {/* Card Header Row */}
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', minHeight: '22px' }}>
+                                  <span style={{ fontSize: '10.5px', color: '#0284c7', fontWeight: 700 }}>
+                                    {opt.exclusiveBadge || (opt.isNew ? `↗ ${flight.airline} UpFront` : '')}
+                                  </span>
 
-                    <div className="fb-duration-track">
-                      <span className="fb-track-duration">{flight.duration}</span>
-                      <div className="fb-track-line"></div>
-                      <span className={`fb-track-stops ${flight.stopsCount === 0 ? 'non-stop' : ''}`}>
-                        {flight.stopsText}
-                      </span>
-                    </div>
+                                  <span style={{
+                                    background: opt.isNew ? '#000080' : (isChosen ? '#e0f2fe' : '#f1f5f9'),
+                                    color: opt.isNew ? '#ffffff' : (isChosen ? '#0369a1' : '#475569'),
+                                    fontSize: '10.5px',
+                                    fontWeight: 800,
+                                    padding: '3px 8px',
+                                    borderRadius: '12px'
+                                  }}>
+                                    {opt.isNew ? 'New' : opt.tag}
+                                  </span>
+                                </div>
 
-                    <div className="fb-time-node">
-                      <span className="fb-node-time">{flight.arrTime}</span>
-                      <span className="fb-node-airport">{flight.arrAirportCode}</span>
-                    </div>
-                  </div>
+                                {/* Price */}
+                                <div style={{ fontSize: '22px', fontWeight: 900, color: '#0f172a', lineHeight: '1.2' }}>
+                                  ₹{opt.price.toLocaleString('en-IN')}
+                                </div>
+                                {totalTravelers > 1 && (
+                                  <div style={{ fontSize: '9.5px', color: '#0284c7', fontWeight: 700, marginTop: '2px' }}>
+                                    Total for {totalTravelers} Pax
+                                  </div>
+                                )}
+                                <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 600, marginTop: '2px', marginBottom: '12px' }}>
+                                  + Earn {opt.bluChips} {flight.airline} BluChips
+                                </div>
 
-                  {/* Fare and CTA Col */}
-                  <div className="fb-fare-col">
-                    <div className="fb-fare-price">₹ {flight.fare.toLocaleString('en-IN')}</div>
-                    <div className="fb-fare-promo-tag">Get Flat 12% OFF using GOPNB</div>
-                    <button
-                      type="button"
-                      className="fb-view-fares-btn"
-                      onClick={() => {
-                        setSelectedFlightModal(flight);
-                        setBookingConfirmed(false);
-                      }}
-                    >
-                      VIEW FARES
-                    </button>
+                                <div style={{ height: '1px', background: '#e2e8f0', borderStyle: 'dashed', marginBottom: '10px' }}></div>
+
+                                {/* Benefits list */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '11px', color: '#334155' }}>
+                                  {opt.features.map((feat, fIdx) => (
+                                    <div key={fIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+                                      <i className={`fa-solid ${feat.icon}`} style={{ fontSize: '10px', color: feat.isAlert ? '#e11d48' : '#0284c7', marginTop: '2px' }}></i>
+                                      <div>
+                                        {feat.isAlert ? (
+                                          <span style={{
+                                            background: '#ffe4e6',
+                                            color: '#e11d48',
+                                            padding: '2px 6px',
+                                            borderRadius: '4px',
+                                            fontWeight: 700,
+                                            fontSize: '10px'
+                                          }}>
+                                            {feat.text}
+                                          </span>
+                                        ) : (
+                                          <span style={{ fontWeight: feat.isHighlight ? 700 : 500, color: feat.isHighlight ? '#047857' : '#334155' }}>
+                                            {feat.text}
+                                          </span>
+                                        )}
+                                        {feat.sub && (
+                                          <div style={{ fontSize: '9.5px', color: '#64748b' }}>{feat.sub}</div>
+                                        )}
+                                        {feat.link && (
+                                          <span style={{ color: '#0284c7', fontWeight: 700, textDecoration: 'underline', marginLeft: '4px', cursor: 'pointer' }}>
+                                            {feat.link}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+
+                                  {/* Offer Box (Saver fare) */}
+                                  {opt.offer && (
+                                    <div style={{
+                                      background: '#f0f9ff',
+                                      border: '1px solid #bae6fd',
+                                      borderRadius: '6px',
+                                      padding: '8px',
+                                      marginTop: '4px',
+                                      marginBottom: '4px'
+                                    }}>
+                                      <div style={{ fontSize: '10px', color: '#0369a1', lineHeight: '1.3' }}>
+                                        {opt.offer.text}
+                                      </div>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSelectedFareMap((prev) => ({ ...prev, [flight.id]: 'flexi' }));
+                                        }}
+                                        style={{
+                                          background: '#000080',
+                                          color: '#ffffff',
+                                          border: 'none',
+                                          borderRadius: '12px',
+                                          padding: '3px 10px',
+                                          fontSize: '10px',
+                                          fontWeight: 800,
+                                          cursor: 'pointer',
+                                          marginTop: '6px'
+                                        }}
+                                      >
+                                        {opt.offer.action}
+                                      </button>
+                                    </div>
+                                  )}
+
+                                  {/* Inclusions (Meals, Seats) */}
+                                  {opt.inclusions && opt.inclusions.map((inc, iIdx) => (
+                                    <div key={iIdx} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                      <i className={`fa-solid ${inc.icon}`} style={{ fontSize: '10px', color: '#16a34a' }}></i>
+                                      <span style={{
+                                        fontWeight: inc.isLink ? 700 : 500,
+                                        color: inc.isMuted ? '#94a3b8' : (inc.isLink ? '#0284c7' : '#334155'),
+                                        textDecoration: inc.isLink ? 'underline' : 'none'
+                                      }}>
+                                        {inc.text}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Selection Check Circle */}
+                              <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
+                                <div style={{
+                                  width: '18px',
+                                  height: '18px',
+                                  borderRadius: '50%',
+                                  border: isChosen ? '5px solid #00baf2' : '1.5px solid #cbd5e1',
+                                  background: '#ffffff',
+                                  boxSizing: 'border-box'
+                                }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Bottom Bar of Expanded Card (Image 1) */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginTop: '16px',
+                        paddingTop: '12px',
+                        borderTop: '1px solid #e2e8f0',
+                        flexWrap: 'wrap',
+                        gap: '12px'
+                      }}>
+                        {/* Left Links */}
+                        <div style={{ fontSize: '11px', color: '#64748b' }}>
+                          <span>Compare fare types </span>
+                          <span style={{ color: '#0284c7', fontWeight: 700, textDecoration: 'underline', cursor: 'pointer' }}>Know more</span>
+                          <span> | </span>
+                          <span style={{ color: '#0284c7', fontWeight: 700, textDecoration: 'underline', cursor: 'pointer' }}>Click here to know more about flight</span>
+                        </div>
+
+                        {/* Right Pricing & Continue CTA */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: '10px', color: '#0284c7', fontWeight: 600 }}>
+                              Book Return trip now & Save Big! Modify Booking
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'flex-end', gap: '6px', marginTop: '2px' }}>
+                              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 800 }}>TOTAL FARE</span>
+                              <span style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a' }}>
+                                ₹{selectedTier.price.toLocaleString('en-IN')}
+                              </span>
+                              <span style={{ fontSize: '11px', color: '#0284c7', textDecoration: 'underline', cursor: 'pointer' }}>
+                                View Details
+                              </span>
+                            </div>
+                            {totalTravelers > 1 && (
+                              <div style={{ fontSize: '10.5px', color: '#0284c7', fontWeight: 700, marginTop: '2px' }}>
+                                For {totalTravelers} Pax ({passengerSummaryText})
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Continue Button (in place of Next, as requested) */}
+                          <button
+                            type="button"
+                            onClick={() => handleProceedToPassengerDetails(flight, selectedTier)}
+                            style={{
+                              background: '#000080',
+                              color: '#ffffff',
+                              border: 'none',
+                              borderRadius: '24px',
+                              padding: '9px 32px',
+                              fontSize: '14px',
+                              fontWeight: 800,
+                              cursor: 'pointer',
+                              boxShadow: '0 3px 10px rgba(0, 0, 128, 0.25)',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            Continue
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Footer amenities */}
+                  <div className="fb-card-footer">
+                    <div className="fb-amenities-pills">
+                      <button type="button" className="fb-amenity-link">
+                        <i className="fa-solid fa-mug-saucer"></i> Amenities
+                      </button>
+                      <button
+                        type="button"
+                        className="fb-amenity-link"
+                        onClick={() => setDetailedFlightModal(flight)}
+                      >
+                        <i className="fa-solid fa-circle-info"></i> More flight details
+                      </button>
+                    </div>
+                    <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
+                      {flight.baggageInfo}
+                    </span>
                   </div>
                 </div>
-
-                {/* Footer amenities */}
-                <div className="fb-card-footer">
-                  <div className="fb-amenities-pills">
-                    <button type="button" className="fb-amenity-link">
-                      <i className="fa-solid fa-mug-saucer"></i> Amenities
-                    </button>
-                    <button
-                      type="button"
-                      className="fb-amenity-link"
-                      onClick={() => setDetailedFlightModal(flight)}
-                    >
-                      <i className="fa-solid fa-circle-info"></i> More flight details
-                    </button>
-                  </div>
-                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
-                    {flight.baggageInfo}
-                  </span>
-                </div>
-              </div>
-            ))
+              );
+            })
           )}
         </main>
       </div>
