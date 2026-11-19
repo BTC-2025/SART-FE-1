@@ -1,0 +1,6 @@
+/* DriverDetails Page Styling */
+.driver-details-page-wrapper {
+  max-width: 1240px;
+  margin: 30px auto;
+  padding: 0 24px 60px;
+}

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import './RentalStepOne.css';
 import { RENTAL_MASTER_CATEGORIES, ALL_RENTAL_VEHICLES, INDIAN_CITIES, MONTH_NAMES, MONTH_SHORT, RentalMasterCategory } from './rentalData';
 
 interface RentalStepOneProps {
@@ -186,7 +187,7 @@ export default function RentalStepOne({
                   setShowLocationList(true);
                 }}
                 onFocus={() => setShowLocationList(true)}
-                placeholder="Truro, Bengaluru, Chennai..."
+                placeholder="Pickup location"
                 style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '15px', fontWeight: 800, color: '#0f172a', padding: 0, width: '100%' }}
               />
 
@@ -211,6 +212,36 @@ export default function RentalStepOne({
               {showLocationList && (
                 <div className="hero-suggestions-popup" style={{ position: 'absolute', top: '100%', left: 0, width: '280px', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 100, overflow: 'hidden', marginTop: '6px' }}>
                   <div style={{ padding: '8px 12px', background: '#f8fafc', fontSize: '11px', fontWeight: 800, color: '#64748b' }}>Select Location</div>
+                  <div
+                    onClick={() => {
+                      setShowLocationList(false);
+                      if (typeof window !== 'undefined' && navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(async (pos) => {
+                          try {
+                            const bdc = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=en`).then(r => r.json()).catch(() => null);
+                            const locality = bdc?.locality || bdc?.city || 'Katpadi, Vellore';
+                            setPickup(locality);
+                            if (returnToSameLocation) setDropoff(locality);
+                            localStorage.setItem('sart_user_location', locality);
+                            window.dispatchEvent(new CustomEvent('updateLocation', { detail: locality }));
+                          } catch (e) {
+                            setPickup('Katpadi, Vellore');
+                            if (returnToSameLocation) setDropoff('Katpadi, Vellore');
+                          }
+                        }, () => {
+                          setPickup('Katpadi, Vellore');
+                          if (returnToSameLocation) setDropoff('Katpadi, Vellore');
+                        });
+                      } else {
+                        setPickup('Katpadi, Vellore');
+                        if (returnToSameLocation) setDropoff('Katpadi, Vellore');
+                      }
+                    }}
+                    style={{ padding: '10px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 700, color: '#0284c7', background: '#f0f9ff', borderBottom: '1.5px solid #bae6fd' }}
+                  >
+                    <i className="fa-solid fa-location-crosshairs" style={{ color: '#0284c7', fontSize: '14px' }}></i>
+                    <span>Use Current Live Location</span>
+                  </div>
                   <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
                     {['Truro', ...INDIAN_CITIES].filter(c => !pickup || c.toLowerCase().includes(pickup.toLowerCase())).map(city => (
                       <div
@@ -514,31 +545,31 @@ export default function RentalStepOne({
                         const monthsArr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                         const presetText = `${daysArr[target.getDay()]}, ${target.getDate()} ${monthsArr[target.getMonth()]}`;
                         return (
-                        <button
-                          key={preset.label}
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDropoffDate(presetText);
-                            setCustomDays(preset.days);
-                            setDurationPlan(preset.days === 1 ? '1day' : preset.days === 7 ? '1week' : '1month');
-                          }}
-                          style={{
-                            padding: '5px 8px',
-                            borderRadius: '6px',
-                            border: dropoffDate === presetText ? '1.5px solid #dc2626' : '1px solid #cbd5e1',
-                            background: dropoffDate === presetText ? '#fef2f2' : '#f8fafc',
-                            color: dropoffDate === presetText ? '#b91c1c' : '#334155',
-                            fontSize: '11px',
-                            fontWeight: 800,
-                            cursor: 'pointer',
-                            textAlign: 'center'
-                          }}
-                        >
-                          {preset.label}
-                        </button>
-                      );
-                    })}
+                          <button
+                            key={preset.label}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDropoffDate(presetText);
+                              setCustomDays(preset.days);
+                              setDurationPlan(preset.days === 1 ? '1day' : preset.days === 7 ? '1week' : '1month');
+                            }}
+                            style={{
+                              padding: '5px 8px',
+                              borderRadius: '6px',
+                              border: dropoffDate === presetText ? '1.5px solid #dc2626' : '1px solid #cbd5e1',
+                              background: dropoffDate === presetText ? '#fef2f2' : '#f8fafc',
+                              color: dropoffDate === presetText ? '#b91c1c' : '#334155',
+                              fontSize: '11px',
+                              fontWeight: 800,
+                              cursor: 'pointer',
+                              textAlign: 'center'
+                            }}
+                          >
+                            {preset.label}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -789,11 +820,19 @@ export default function RentalStepOne({
             <button
               type="button"
               onClick={() => {
-                const selectedVeh = ALL_RENTAL_VEHICLES.find(v => v.id === selectedRentalVehicleId) || ALL_RENTAL_VEHICLES[1];
-                let targetMaster = RENTAL_MASTER_CATEGORIES.find(m => m.list.some(v => v.id === selectedVeh.id));
-                if (!targetMaster) targetMaster = RENTAL_MASTER_CATEGORIES[1];
-                handleSelectMaster(targetMaster);
-                setSelectedVehicleId(selectedVeh.id);
+                const selMaster = RENTAL_MASTER_CATEGORIES.find(m => m.id === selectedMasterId) || RENTAL_MASTER_CATEGORIES[1];
+                const catName = selMaster.id.toLowerCase();
+                const currentLoc = pickup || 'Katpadi';
+
+                if (catName === 'car') {
+                  window.location.href = `/home/rental/Car?pickup=${encodeURIComponent(currentLoc)}`;
+                } else if (catName === 'bike') {
+                  window.location.href = `/home/rental/Bike?pickup=${encodeURIComponent(currentLoc)}`;
+                } else {
+                  const selectedVeh = ALL_RENTAL_VEHICLES.find(v => v.id === selectedRentalVehicleId) || selMaster.list[0] || ALL_RENTAL_VEHICLES[1];
+                  handleSelectMaster(selMaster);
+                  setSelectedVehicleId(selectedVeh.id);
+                }
               }}
               style={{
                 background: '#f25a1b',

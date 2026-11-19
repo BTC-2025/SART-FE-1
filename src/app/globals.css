@@ -1994,13 +1994,13 @@ h6 {
 }
 
 #tab-service-pages .rental-booking-modal-sheet {
-  max-width: 1200px !important;
-  width: 96% !important;
+  max-width: 100% !important;
+  width: 100% !important;
   height: auto !important;
-  min-height: calc(100vh - 90px);
-  border-radius: 20px !important;
-  margin: 16px auto !important;
-  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08) !important;
+  min-height: calc(100vh - 70px);
+  border-radius: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
   background: #ffffff !important;
 }
 

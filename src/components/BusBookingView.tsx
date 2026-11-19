@@ -492,7 +492,7 @@ export default function BusBookingView({
       } catch (e) { }
       return null;
     })();
-    const defaultLoggedInName = savedUserSession?.name || savedUserSession?.fullName || 'Vasanth Kumar';
+    const defaultLoggedInName = savedUserSession?.name || savedUserSession?.fullName || 'sai';
 
     const primaryPax = passengers[selectedSeats[0]] || { name: defaultLoggedInName, age: '28', gender: 'Male' };
     const pName = primaryPax.name.trim() || defaultLoggedInName;

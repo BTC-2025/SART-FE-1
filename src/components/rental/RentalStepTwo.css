@@ -1,0 +1,7 @@
+/* RentalStepTwo Component Styling */
+.rental-step-two-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}

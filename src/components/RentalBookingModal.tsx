@@ -53,8 +53,18 @@ function RentalBookingModal({ isOpen, onClose }: RentalBookingModalProps) {
   const [selectedVehicleId, setSelectedVehicleId] = useState('');
 
   // Form State
-  const [pickup, setPickup] = useState('');
-  const [dropoff, setDropoff] = useState('');
+  const [pickup, setPickup] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sart_user_location') || 'Katpadi';
+    }
+    return 'Katpadi';
+  });
+  const [dropoff, setDropoff] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sart_user_location') || 'Katpadi';
+    }
+    return 'Katpadi';
+  });
   const [returnToSameLocation, setReturnToSameLocation] = useState(true);
   const [showLocationList, setShowLocationList] = useState(false);
   const [showDropoffList, setShowDropoffList] = useState(false);
@@ -107,8 +117,33 @@ function RentalBookingModal({ isOpen, onClose }: RentalBookingModalProps) {
   const [priceMax, setPriceMax] = useState<number>(10000);
 
   // Live Location State & Distance
-  const [userLocationName, setUserLocationName] = useState('Bengaluru (Indiranagar)');
+  const [userLocationName, setUserLocationName] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sart_user_location') || 'Katpadi, Vellore';
+    }
+    return 'Katpadi, Vellore';
+  });
   const [isLocating, setIsLocating] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('sart_user_location');
+      if (stored && stored.trim() !== '') {
+        setUserLocationName(stored);
+        setPickup(prev => prev ? prev : stored);
+        setDropoff(prev => prev ? prev : stored);
+      }
+    }
+    const handleLocUpdate = (e: any) => {
+      if (e.detail) {
+        setUserLocationName(e.detail);
+        setPickup(e.detail);
+        setDropoff(e.detail);
+      }
+    };
+    window.addEventListener('updateLocation', handleLocUpdate);
+    return () => window.removeEventListener('updateLocation', handleLocUpdate);
+  }, []);
 
   const [rentalType, setRentalType] = useState('Daily');
   const [durationPlan, setDurationPlan] = useState<'1day' | '3days' | '1week' | '2weeks' | '1month' | 'custom'>('1day');
@@ -312,12 +347,135 @@ function RentalBookingModal({ isOpen, onClose }: RentalBookingModalProps) {
     onClose();
   };
 
-  const handleBook = () => {
+  const handleBook = async () => {
     setIsProcessing(true);
-    setTimeout(() => {
+    const chosenDays = durationPlan === '1day' ? 1
+      : durationPlan === '3days' ? 3
+        : durationPlan === '1week' ? 7
+          : durationPlan === '2weeks' ? 14
+            : durationPlan === '1month' ? 30
+              : (customDays || 1);
+
+    const bRate = (activeVehicle?.price || 1800) * chosenDays;
+    const tAmount = Math.round(bRate * 0.18);
+    const totPayable = bRate + tAmount;
+
+    const bookingPayload = {
+      vehicleId: activeVehicle?.id || 'VH-103',
+      vehicleName: activeVehicle?.name || 'Maruti Suzuki Swift VXi Ags 2022',
+      vehicleSpecs: `${activeVehicle?.seats || '5 Seats'} • ${activeVehicle?.transmission || 'Manual'} • ${activeVehicle?.fuel || 'Petrol'}`,
+      vehicleImage: activeVehicle?.image || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&q=80',
+      partnerId: (activeVehicle as any)?.partnerId || 'partner_1',
+      ownerName: (activeVehicle as any)?.ownerName || 'Vasanth Fleet Ops',
+      pickupLocation: pickup || 'Truro',
+      returnLocation: dropoff || pickup || 'Truro',
+      pickupDate: pickupDate || 'Thu, 19 Nov',
+      pickupTime: pickupTime || '10:00 AM',
+      returnDate: dropoffDate || 'Fri, 20 Nov',
+      returnTime: dropoffTime || '10:00 AM',
+      vehicleDistance: activeVehicle?.distance || '3.13 km from Location',
+      durationPlan: durationPlan === '1day' ? '1 Day' : durationPlan === '3days' ? '3 Days' : `${chosenDays} Days`,
+      days: chosenDays,
+      baseRate: bRate,
+      taxAmount: tAmount,
+      totalAmount: totPayable,
+      customerName: customerName || 'Passenger (As per Govt ID)',
+      customerAge: customerAge || '26',
+      customerPhone: customerPhone || '+91 98765 43210',
+      customerEmail: (customerName ? `${customerName.toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com` : 'passenger@gmail.com'),
+      docType: docType === 'dl' ? 'Driving License' : docType === 'aadhaar' ? 'Aadhaar Card' : 'PAN Card',
+      docNumber: docNumber || 'DL-MH12-2022-998811',
+      uploadedDocName: uploadedDocName || 'driving_license_front.jpg',
+      status: 'Confirmed'
+    };
+
+    try {
+      let isSuccess = false;
+      let errorMsg = '';
+
+      let res = await fetch('http://localhost:5000/api/rental/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingPayload)
+      }).catch(() => null);
+
+      if (res && res.ok) {
+        isSuccess = true;
+      } else if (res && !res.ok) {
+        const errJson = await res.json().catch(() => null);
+        if (errJson && errJson.message) {
+          errorMsg = errJson.message;
+        }
+      }
+
+      if (!isSuccess && !errorMsg) {
+        let res2 = await fetch('http://localhost:5000/api/rental/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bookingPayload)
+        }).catch(() => null);
+
+        if (res2 && res2.ok) {
+          isSuccess = true;
+        } else if (res2 && !res2.ok) {
+          const errJson2 = await res2.json().catch(() => null);
+          if (errJson2 && errJson2.message) errorMsg = errJson2.message;
+        }
+      }
+
+      if (errorMsg) {
+        alert(errorMsg);
+        setIsProcessing(false);
+        return;
+      }
+
+      // Save booking in sart_business_bookings
+      try {
+        const existingBookings = JSON.parse(localStorage.getItem('sart_business_bookings') || '[]');
+        const newBookingRecord = {
+          ...bookingPayload,
+          id: `RBK-${Date.now().toString().slice(-6)}`,
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('sart_business_bookings', JSON.stringify([newBookingRecord, ...existingBookings]));
+        window.dispatchEvent(new CustomEvent('new_booking_created', { detail: newBookingRecord }));
+      } catch (e) { }
+
+      // Mark vehicle as booked & on trip in local storage & dispatch events
+      const targetId = activeVehicle?.id || bookingPayload.vehicleId;
+      const targetPlate = (activeVehicle as any)?.plate;
+      const targetName = activeVehicle?.name || bookingPayload.vehicleName;
+
+      const bookedIds = JSON.parse(localStorage.getItem('sart_booked_vehicle_ids') || '[]');
+      if (!bookedIds.includes(targetId)) bookedIds.push(targetId);
+      if (targetPlate && !bookedIds.includes(targetPlate)) bookedIds.push(targetPlate);
+      if (targetName && !bookedIds.includes(targetName)) bookedIds.push(targetName);
+      localStorage.setItem('sart_booked_vehicle_ids', JSON.stringify(bookedIds));
+
+      const onTripIds = JSON.parse(localStorage.getItem('sart_ontrip_vehicle_ids') || '[]');
+      if (!onTripIds.includes(targetId)) onTripIds.push(targetId);
+      if (targetPlate && !onTripIds.includes(targetPlate)) onTripIds.push(targetPlate);
+      if (targetName && !onTripIds.includes(targetName)) onTripIds.push(targetName);
+      localStorage.setItem('sart_ontrip_vehicle_ids', JSON.stringify(onTripIds));
+
+      const storedFleet = JSON.parse(localStorage.getItem('sart_business_fleet') || '[]');
+      const updatedFleet = storedFleet.map((v: any) => (v.id === targetId || v.plate === targetPlate) ? {
+        ...v,
+        isAvailable: false,
+        status: 'On Trip',
+        bookingStatus: 'ALREADY_BOOKED'
+      } : v);
+      localStorage.setItem('sart_business_fleet', JSON.stringify(updatedFleet));
+
+      window.dispatchEvent(new CustomEvent('rental_vehicle_booked', {
+        detail: { id: targetId, plate: targetPlate, name: targetName }
+      }));
+    } catch (e) {
+      console.warn('Backend booking sync warning:', e);
+    } finally {
       setIsProcessing(false);
       setIsConfirmed(true);
-    }, 2000);
+    }
   };
 
   const handleFinalConfirm = () => {
@@ -365,150 +523,152 @@ function RentalBookingModal({ isOpen, onClose }: RentalBookingModalProps) {
       <div
         className="rental-booking-modal-sheet"
         style={{
-          maxWidth: '1200px',
+          maxWidth: '100%',
           width: '100%',
           backgroundColor: '#ffffff',
-          borderRadius: '24px',
+          borderRadius: '0px',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: '0 8px 30px rgba(15, 23, 42, 0.08)',
-          margin: '0 auto'
+          boxShadow: 'none',
+          margin: '0'
         }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="dummy-modal-header-for-css-hack" style={{ display: 'none' }}></div>
 
-      {/* STEP 1: SELF-DRIVE & RENTALS SEARCH + FLEET */}
-      {step === 1 && (
-        <RentalStepOne
-          pickup={pickup}
-          setPickup={setPickup}
-          dropoff={dropoff}
-          setDropoff={setDropoff}
-          returnToSameLocation={returnToSameLocation}
-          setReturnToSameLocation={setReturnToSameLocation}
-          showLocationList={showLocationList}
-          setShowLocationList={setShowLocationList}
-          showDropoffList={showDropoffList}
-          setShowDropoffList={setShowDropoffList}
-          pickupDate={pickupDate}
-          setPickupDate={setPickupDate}
-          pickupTime={pickupTime}
-          setPickupTime={setPickupTime}
-          showPickupCalendar={showPickupCalendar}
-          setShowPickupCalendar={setShowPickupCalendar}
-          pickupCalMonth={pickupCalMonth}
-          setPickupCalMonth={setPickupCalMonth}
-          pickupCalYear={pickupCalYear}
-          setPickupCalYear={setPickupCalYear}
-          dropoffDate={dropoffDate}
-          setDropoffDate={setDropoffDate}
-          dropoffTime={dropoffTime}
-          setDropoffTime={setDropoffTime}
-          showDropoffCalendar={showDropoffCalendar}
-          setShowDropoffCalendar={setShowDropoffCalendar}
-          dropoffCalMonth={dropoffCalMonth}
-          setDropoffCalMonth={setDropoffCalMonth}
-          dropoffCalYear={dropoffCalYear}
-          setDropoffCalYear={setDropoffCalYear}
-          selectedMasterId={selectedMasterId}
-          setSelectedMasterId={setSelectedMasterId}
-          selectedRentalVehicleId={selectedRentalVehicleId}
-          setSelectedRentalVehicleId={setSelectedRentalVehicleId}
-          showVehicleDropdown={showVehicleDropdown}
-          setShowVehicleDropdown={setShowVehicleDropdown}
-          pickupBoxRef={pickupBoxRef}
-          dropoffBoxRef={dropoffBoxRef}
-          pickupCalRef={pickupCalRef}
-          dropoffCalRef={dropoffCalRef}
-          vehicleBoxRef={vehicleBoxRef}
-          handleSelectPickupDate={handleSelectPickupDate}
-          handleSelectDropoffDate={handleSelectDropoffDate}
-          setCustomDays={setCustomDays}
-          setDurationPlan={setDurationPlan}
-          handleSelectMaster={handleSelectMaster}
-          setSelectedVehicleId={setSelectedVehicleId}
-          handleClose={handleClose}
-        />
-      )}
+        {/* STEP 1: SELF-DRIVE & RENTALS SEARCH + FLEET */}
+        {step === 1 && (
+          <RentalStepOne
+            pickup={pickup}
+            setPickup={setPickup}
+            dropoff={dropoff}
+            setDropoff={setDropoff}
+            returnToSameLocation={returnToSameLocation}
+            setReturnToSameLocation={setReturnToSameLocation}
+            showLocationList={showLocationList}
+            setShowLocationList={setShowLocationList}
+            showDropoffList={showDropoffList}
+            setShowDropoffList={setShowDropoffList}
+            pickupDate={pickupDate}
+            setPickupDate={setPickupDate}
+            pickupTime={pickupTime}
+            setPickupTime={setPickupTime}
+            showPickupCalendar={showPickupCalendar}
+            setShowPickupCalendar={setShowPickupCalendar}
+            pickupCalMonth={pickupCalMonth}
+            setPickupCalMonth={setPickupCalMonth}
+            pickupCalYear={pickupCalYear}
+            setPickupCalYear={setPickupCalYear}
+            dropoffDate={dropoffDate}
+            setDropoffDate={setDropoffDate}
+            dropoffTime={dropoffTime}
+            setDropoffTime={setDropoffTime}
+            showDropoffCalendar={showDropoffCalendar}
+            setShowDropoffCalendar={setShowDropoffCalendar}
+            dropoffCalMonth={dropoffCalMonth}
+            setDropoffCalMonth={setDropoffCalMonth}
+            dropoffCalYear={dropoffCalYear}
+            setDropoffCalYear={setDropoffCalYear}
+            selectedMasterId={selectedMasterId}
+            setSelectedMasterId={setSelectedMasterId}
+            selectedRentalVehicleId={selectedRentalVehicleId}
+            setSelectedRentalVehicleId={setSelectedRentalVehicleId}
+            showVehicleDropdown={showVehicleDropdown}
+            setShowVehicleDropdown={setShowVehicleDropdown}
+            pickupBoxRef={pickupBoxRef}
+            dropoffBoxRef={dropoffBoxRef}
+            pickupCalRef={pickupCalRef}
+            dropoffCalRef={dropoffCalRef}
+            vehicleBoxRef={vehicleBoxRef}
+            handleSelectPickupDate={handleSelectPickupDate}
+            handleSelectDropoffDate={handleSelectDropoffDate}
+            setCustomDays={setCustomDays}
+            setDurationPlan={setDurationPlan}
+            handleSelectMaster={handleSelectMaster}
+            setSelectedVehicleId={setSelectedVehicleId}
+            handleClose={handleClose}
+          />
+        )}
 
-      {/* STEP 2: SEARCH RESULTS CATALOG */}
-      {step === 2 && activeMaster && (
-        <RentalStepTwo
-          activeMaster={activeMaster}
-          pickup={pickup}
-          pickupDate={pickupDate}
-          dropoffDate={dropoffDate}
-          userLocationName={userLocationName}
-          isLocating={isLocating}
-          setIsLocating={setIsLocating}
-          setUserLocationName={setUserLocationName}
-          filterFuel={filterFuel}
-          setFilterFuel={setFilterFuel}
-          filterTransmission={filterTransmission}
-          setFilterTransmission={setFilterTransmission}
-          filterSeats={filterSeats}
-          setFilterSeats={setFilterSeats}
-          filterModelYear={filterModelYear}
-          setFilterModelYear={setFilterModelYear}
-          filterCategoryModel={filterCategoryModel}
-          setFilterCategoryModel={setFilterCategoryModel}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          priceMin={priceMin}
-          setPriceMin={setPriceMin}
-          priceMax={priceMax}
-          setPriceMax={setPriceMax}
-          durationPlan={durationPlan}
-          setDurationPlan={setDurationPlan}
-          customDays={customDays}
-          setCustomDays={setCustomDays}
-          selectedVehicleId={selectedVehicleId}
-          setSelectedVehicleId={setSelectedVehicleId}
-          handleBackToFleet={handleBackToFleet}
-          handleClose={handleClose}
-          setStep={setStep}
-        />
-      )}
+        {/* STEP 2: SEARCH RESULTS CATALOG */}
+        {step === 2 && activeMaster && (
+          <RentalStepTwo
+            activeMaster={activeMaster}
+            pickup={pickup}
+            setPickup={setPickup}
+            pickupDate={pickupDate}
+            dropoffDate={dropoffDate}
+            userLocationName={userLocationName}
+            isLocating={isLocating}
+            setIsLocating={setIsLocating}
+            setUserLocationName={setUserLocationName}
+            filterFuel={filterFuel}
+            setFilterFuel={setFilterFuel}
+            filterTransmission={filterTransmission}
+            setFilterTransmission={setFilterTransmission}
+            filterSeats={filterSeats}
+            setFilterSeats={setFilterSeats}
+            filterModelYear={filterModelYear}
+            setFilterModelYear={setFilterModelYear}
+            filterCategoryModel={filterCategoryModel}
+            setFilterCategoryModel={setFilterCategoryModel}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            priceMin={priceMin}
+            setPriceMin={setPriceMin}
+            priceMax={priceMax}
+            setPriceMax={setPriceMax}
+            durationPlan={durationPlan}
+            setDurationPlan={setDurationPlan}
+            customDays={customDays}
+            setCustomDays={setCustomDays}
+            selectedVehicleId={selectedVehicleId}
+            setSelectedVehicleId={setSelectedVehicleId}
+            handleBackToFleet={handleBackToFleet}
+            handleClose={handleClose}
+            setStep={setStep}
+          />
+        )}
 
-      {/* STEP 3: BOOKING SUMMARY & CHECKOUT */}
-      {step === 3 && activeMaster && (
-        <RentalStepThree
-          activeMaster={activeMaster}
-          activeVehicle={activeVehicle}
-          pickup={pickup}
-          dropoff={dropoff}
-          returnToSameLocation={returnToSameLocation}
-          pickupDate={pickupDate}
-          pickupTime={pickupTime}
-          dropoffDate={dropoffDate}
-          dropoffTime={dropoffTime}
-          durationPlan={durationPlan}
-          customDays={customDays}
-          customerName={customerName}
-          setCustomerName={setCustomerName}
-          customerAge={customerAge}
-          setCustomerAge={setCustomerAge}
-          customerPhone={customerPhone}
-          setCustomerPhone={setCustomerPhone}
-          docType={docType}
-          setDocType={setDocType}
-          docNumber={docNumber}
-          setDocNumber={setDocNumber}
-          uploadedDocName={uploadedDocName}
-          setUploadedDocName={setUploadedDocName}
-          isDocVerified={isDocVerified}
-          setIsDocVerified={setIsDocVerified}
-          isProcessing={isProcessing}
-          isConfirmed={isConfirmed}
-          setIsConfirmed={setIsConfirmed}
-          setStep={setStep}
-          handleBook={handleBook}
-          handleFinalConfirm={handleFinalConfirm}
-        />
-      )}
+        {/* STEP 3: BOOKING SUMMARY & CHECKOUT */}
+        {step === 3 && activeMaster && (
+          <RentalStepThree
+            activeMaster={activeMaster}
+            activeVehicle={activeVehicle}
+            pickup={pickup}
+            dropoff={dropoff}
+            returnToSameLocation={returnToSameLocation}
+            pickupDate={pickupDate}
+            pickupTime={pickupTime}
+            dropoffDate={dropoffDate}
+            dropoffTime={dropoffTime}
+            durationPlan={durationPlan}
+            customDays={customDays}
+            customerName={customerName}
+            setCustomerName={setCustomerName}
+            customerAge={customerAge}
+            setCustomerAge={setCustomerAge}
+            customerPhone={customerPhone}
+            setCustomerPhone={setCustomerPhone}
+            docType={docType}
+            setDocType={setDocType}
+            docNumber={docNumber}
+            setDocNumber={setDocNumber}
+            uploadedDocName={uploadedDocName}
+            setUploadedDocName={setUploadedDocName}
+            isDocVerified={isDocVerified}
+            setIsDocVerified={setIsDocVerified}
+            isProcessing={isProcessing}
+            isConfirmed={isConfirmed}
+            setIsConfirmed={setIsConfirmed}
+            setStep={setStep}
+            handleBook={handleBook}
+            handleFinalConfirm={handleFinalConfirm}
+          />
+        )}
       </div>
     </div>
   );
 }
+

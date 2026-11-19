@@ -1,0 +1,7 @@
+/* RentalStepThree Component Styling */
+.rental-step-three-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
