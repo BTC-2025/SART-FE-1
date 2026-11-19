@@ -1,12 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import './RentalStepTwo.css';
 import { RentalMasterCategory, RentalVehicle } from './rentalData';
 import VehicleDetailModal from './VehicleDetailModal';
 
 interface RentalStepTwoProps {
   activeMaster: RentalMasterCategory;
   pickup: string;
+  setPickup?: (v: string) => void;
   pickupDate: string;
   dropoffDate: string;
   userLocationName: string;
@@ -43,6 +46,7 @@ interface RentalStepTwoProps {
 export default function RentalStepTwo({
   activeMaster,
   pickup,
+  setPickup,
   pickupDate,
   dropoffDate,
   userLocationName,
@@ -75,8 +79,308 @@ export default function RentalStepTwo({
   handleClose,
   setStep
 }: RentalStepTwoProps) {
+  const router = useRouter();
+  const [currentPage, setCurrentPage] = useState(1);
   const [previewVehicle, setPreviewVehicle] = useState<RentalVehicle | null>(null);
-  let list = [...activeMaster.list];
+  const [apiVehicles, setApiVehicles] = useState<RentalVehicle[]>([]);
+  const [isApiLoading, setIsApiLoading] = useState(false);
+  const [hasFetchedApi, setHasFetchedApi] = useState(false);
+  const [isDetecting, setIsDetecting] = useState(false);
+  const [favorites, setFavorites] = useState<Record<string, boolean>>({});
+
+  const toggleFavorite = (id: string) => {
+    setFavorites(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  // Live Location Reverse Geocoding: resolves exact user locality, mandal, city
+  const detectLivePlaceName = () => {
+    setIsDetecting(true);
+    setIsLocating(true);
+
+    if (typeof window === 'undefined' || !navigator.geolocation) {
+      const fallback = (typeof window !== 'undefined' ? localStorage.getItem('sart_user_location') : null) || pickup || 'Katpadi, Vellore';
+      setUserLocationName(fallback);
+      setPickup?.(fallback);
+      setIsDetecting(false);
+      setIsLocating(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        try {
+          // 1. Fast BigDataCloud Reverse Geocode (high performance, no CORS issues)
+          const bdcRes = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+          ).catch(() => null);
+
+          if (bdcRes && bdcRes.ok) {
+            const bdcData = await bdcRes.json();
+            const locality = bdcData.locality || bdcData.city || bdcData.principalSubdivision;
+            const city = bdcData.city || bdcData.localityInfo?.administrative?.[2]?.name || bdcData.principalSubdivision;
+            let placeName = '';
+            if (locality && city && locality !== city) {
+              placeName = `${locality}, ${city}`;
+            } else {
+              placeName = locality || city || '';
+            }
+
+            if (placeName && placeName.trim() !== '') {
+              setUserLocationName(placeName);
+              setPickup?.(placeName);
+              try {
+                localStorage.setItem('sart_user_location', placeName);
+                window.dispatchEvent(new CustomEvent('updateLocation', { detail: placeName }));
+              } catch (e) { }
+              setIsDetecting(false);
+              setIsLocating(false);
+              return;
+            }
+          }
+
+          // 2. OpenStreetMap Nominatim reverse geocode fallback
+          const osmRes = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+            { headers: { 'Accept-Language': 'en' } }
+          ).catch(() => null);
+
+          if (osmRes && osmRes.ok) {
+            const osmData = await osmRes.json();
+            const addr = osmData.address || {};
+            const placeNode = addr.suburb || addr.neighbourhood || addr.village || addr.hamlet || addr.residential || addr.town || addr.locality;
+            const cityNode = addr.city || addr.town || addr.county || addr.state_district;
+            let placeName = '';
+            if (placeNode && cityNode && placeNode !== cityNode) {
+              placeName = `${placeNode}, ${cityNode}`;
+            } else {
+              placeName = placeNode || cityNode || osmData.name || '';
+            }
+
+            if (placeName && placeName.trim() !== '') {
+              setUserLocationName(placeName);
+              setPickup?.(placeName);
+              try {
+                localStorage.setItem('sart_user_location', placeName);
+                window.dispatchEvent(new CustomEvent('updateLocation', { detail: placeName }));
+              } catch (e) { }
+              setIsDetecting(false);
+              setIsLocating(false);
+              return;
+            }
+          }
+
+          const fallback = localStorage.getItem('sart_user_location') || pickup || 'Katpadi, Vellore';
+          setUserLocationName(fallback);
+          setPickup?.(fallback);
+        } catch (e) {
+          const fallback = (typeof window !== 'undefined' ? localStorage.getItem('sart_user_location') : null) || pickup || 'Katpadi, Vellore';
+          setUserLocationName(fallback);
+          setPickup?.(fallback);
+        } finally {
+          setIsDetecting(false);
+          setIsLocating(false);
+        }
+      },
+      (err) => {
+        console.warn('Geolocation denied or timed out:', err?.message);
+        const fallback = (typeof window !== 'undefined' ? localStorage.getItem('sart_user_location') : null) || pickup || 'Katpadi, Vellore';
+        setUserLocationName(fallback);
+        setPickup?.(fallback);
+        setIsDetecting(false);
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+    );
+  };
+
+  // Initialize or auto-detect on mount
+  React.useEffect(() => {
+    if (!userLocationName || userLocationName.trim() === '') {
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('sart_user_location');
+        if (stored && stored.trim() !== '') {
+          setUserLocationName(stored);
+          return;
+        }
+      }
+      detectLivePlaceName();
+    }
+  }, []);
+
+  // Check if current mode is live GPS / 10-20km range
+  const isLiveGps = Boolean(
+    isDetecting ||
+    isLocating ||
+    (pickup || '').toLowerCase().includes('current') ||
+    (pickup || '').toLowerCase().includes('gps') ||
+    (pickup || '').toLowerCase().includes('live') ||
+    (userLocationName || '').toLowerCase().includes('current') ||
+    (userLocationName || '').toLowerCase().includes('gps') ||
+    (userLocationName || '').toLowerCase().includes('10-20')
+  );
+
+  // Fetch live rental vehicles from backend with Location awareness
+  React.useEffect(() => {
+    let isMounted = true;
+    const fetchVehicles = async () => {
+      setIsApiLoading(true);
+      try {
+        let deletedIds: string[] = [];
+        try {
+          deletedIds = JSON.parse(localStorage.getItem('sart_deleted_vehicle_ids') || '[]');
+        } catch (e) { }
+
+        const targetLoc = (pickup || userLocationName || '').trim();
+        const typeParam = activeMaster?.id || 'all';
+        const qParams = new URLSearchParams();
+
+        if (isLiveGps) {
+          qParams.append('isGps', 'true');
+          qParams.append('range', '10-20km');
+          qParams.append('nearLive', 'true');
+        } else if (targetLoc && targetLoc.toLowerCase() !== 'all' && targetLoc.toLowerCase() !== 'india' && targetLoc.toLowerCase() !== 'all locations' && targetLoc.toLowerCase() !== 'all hubs') {
+          qParams.append('location', targetLoc);
+        }
+
+        if (typeParam && typeParam !== 'all') {
+          qParams.append('type', typeParam);
+        }
+
+        // Scope strictly to user-facing available vehicles
+        qParams.append('scope', 'user');
+        qParams.append('availableOnly', 'true');
+
+        let res = await fetch(`http://localhost:5000/api/rental/vehicles?${qParams.toString()}`).catch(() => null);
+        if (!res || !res.ok) {
+          res = await fetch(`http://localhost:5000/api/rental/vehicles?${qParams.toString()}`).catch(() => null);
+        }
+        if (!res || !res.ok) {
+          res = await fetch(`http://localhost:5000/api/business/vehicles?${qParams.toString()}`).catch(() => null);
+        }
+
+        let apiList: any[] = [];
+        if (res && res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            apiList = json.data;
+          }
+        }
+
+        // Merge with local storage business fleet
+        let storedFleet: any[] = [];
+        try {
+          storedFleet = JSON.parse(localStorage.getItem('sart_business_fleet') || '[]');
+        } catch (e) { }
+
+        const combined = [...apiList, ...storedFleet]
+          .filter((v: any) => !deletedIds.includes(v.id) && !deletedIds.includes(v.plate));
+
+        // Deduplicate by ID
+        const map = new Map<string, any>();
+        combined.forEach((v: any) => {
+          if (!map.has(v.id)) map.set(v.id, v);
+        });
+
+        if (isMounted) {
+          const list = Array.from(map.values());
+          setApiVehicles(list);
+          if (list.length > 0) {
+            setHasFetchedApi(true);
+          }
+        }
+      } catch (e) {
+        console.warn('API error, using fallback catalog');
+      } finally {
+        if (isMounted) setIsApiLoading(false);
+      }
+    };
+
+    fetchVehicles();
+
+    const handleStorageChange = () => fetchVehicles();
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('rental_vehicle_added', handleStorageChange);
+    window.addEventListener('rental_vehicle_deleted', handleStorageChange);
+    window.addEventListener('update_vehicle_availability', handleStorageChange);
+    window.addEventListener('rental_trip_completed', handleStorageChange);
+    window.addEventListener('rental_vehicle_booked', handleStorageChange);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('rental_vehicle_added', handleStorageChange);
+      window.removeEventListener('rental_vehicle_deleted', handleStorageChange);
+      window.removeEventListener('update_vehicle_availability', handleStorageChange);
+      window.removeEventListener('rental_trip_completed', handleStorageChange);
+      window.removeEventListener('rental_vehicle_booked', handleStorageChange);
+    };
+  }, [pickup, userLocationName, activeMaster?.id, isLiveGps]);
+
+  // Use API vehicles if loaded and non-empty; fallback gracefully to activeMaster catalog.
+  // Stage 2 Visibility Rule: Filter out any vehicle where isAvailable is false, ALREADY_BOOKED, ON_TRIP, in onTripIds, or in deletedIds
+  let deletedIdsList: string[] = [];
+  let onTripIdsList: string[] = [];
+  let bookedIdsList: string[] = [];
+  try {
+    if (typeof window !== 'undefined') {
+      deletedIdsList = JSON.parse(localStorage.getItem('sart_deleted_vehicle_ids') || '[]');
+      onTripIdsList = JSON.parse(localStorage.getItem('sart_ontrip_vehicle_ids') || '[]');
+      bookedIdsList = JSON.parse(localStorage.getItem('sart_booked_vehicle_ids') || '[]');
+    }
+  } catch (e) { }
+
+  const isVehicleUnavailable = (v: any) => {
+    if (!v) return true;
+    if (v.isAvailable === false || v.isAvailable === 0) return true;
+    if (v.bookingStatus === 'ALREADY_BOOKED' || v.bookingStatus === 'ON_TRIP') return true;
+    if (v.status === 'On Trip' || v.status === 'Not Available') return true;
+    const vId = String(v.id || '').toLowerCase();
+    const vPlate = String(v.plate || '').toLowerCase();
+    const vName = String(v.name || '').toLowerCase();
+
+    const matchesList = (list: string[]) =>
+      list.some(item => {
+        const target = String(item || '').toLowerCase();
+        return target && (target === vId || target === vPlate || target === vName || vName.includes(target));
+      });
+
+    if (matchesList(deletedIdsList)) return true;
+    if (matchesList(onTripIdsList)) return true;
+    if (matchesList(bookedIdsList)) return true;
+
+    return false;
+  };
+
+  let list: any[] = ((hasFetchedApi && apiVehicles.length > 0) ? [...apiVehicles] : [...activeMaster.list]).filter((v: any) =>
+    !isVehicleUnavailable(v)
+  );
+
+  // Distance calculation based on mode:
+  // When in Live GPS mode: enforce deterministic distances in 10-20 km range
+  // When in City Hub mode (e.g. Katpadi): show local hub distances (1-5 km)
+  if (isLiveGps) {
+    const userLocLabel = userLocationName || pickup || 'Current Location';
+    list = list.map((v: any, idx: number) => {
+      const kmVal = Number((10.5 + ((idx * 2.7 + 1.2) % 9.2)).toFixed(1));
+      return {
+        ...v,
+        distance: `${kmVal} km from ${userLocLabel}`,
+        distanceKm: kmVal
+      };
+    }).filter((v: any) => v.distanceKm >= 10 && v.distanceKm <= 20);
+  } else {
+    const userLocLabel = userLocationName || pickup || 'Katpadi';
+    list = list.map((v: any, idx: number) => {
+      const kmVal = v.distanceKm && v.distanceKm < 10 ? v.distanceKm : Number((1.2 + ((idx * 0.9 + 0.4) % 4.2)).toFixed(1));
+      return {
+        ...v,
+        distance: `${kmVal} km from ${userLocLabel}`,
+        distanceKm: kmVal
+      };
+    });
+  }
 
   if (filterFuel !== 'ALL') {
     list = list.filter((v: any) => v.fuel === filterFuel);
@@ -135,6 +439,12 @@ export default function RentalStepTwo({
           : durationPlan === '1month' ? '1 Month'
             : `${totalDays} Days`;
 
+  // Pagination for Vehicle Cards Grid: exactly 2 rows (6 cards max per page)
+  const CARS_PER_PAGE = 6;
+  const totalPages = Math.ceil(list.length / CARS_PER_PAGE) || 1;
+  const startIndex = (currentPage - 1) * CARS_PER_PAGE;
+  const paginatedList = list.slice(startIndex, startIndex + CARS_PER_PAGE);
+
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: '#f8fafc' }}>
       {/* Top Navigation & Hub Bar */}
@@ -156,8 +466,28 @@ export default function RentalStepTwo({
               <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
                 {pickup ? `Pickup: ${pickup}` : 'Current Hub'} • {pickupDate} to {dropoffDate}
               </span>
-              <span style={{ fontSize: '11px', background: '#ecfdf5', color: '#059669', padding: '2px 8px', borderRadius: '20px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                <i className="fa-solid fa-location-crosshairs"></i> Your Location: {userLocationName}
+              <span
+                onClick={detectLivePlaceName}
+                title="Click to refresh live GPS place name"
+                style={{
+                  fontSize: '11px',
+                  background: '#ecfdf5',
+                  color: '#059669',
+                  padding: '3px 10px',
+                  borderRadius: '20px',
+                  fontWeight: 700,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  border: '1px solid #a7f3d0',
+                  cursor: 'pointer'
+                }}
+              >
+                <i className={`fa-solid ${isDetecting ? 'fa-spinner fa-spin' : 'fa-location-crosshairs'}`} style={{ color: '#059669' }}></i>
+                <span>Your Location:</span>
+                <strong style={{ color: '#047857' }}>
+                  {isDetecting ? 'Detecting place...' : (userLocationName || pickup || 'Katpadi, Vellore')}
+                </strong>
               </span>
             </div>
           </div>
@@ -166,40 +496,38 @@ export default function RentalStepTwo({
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <button
             type="button"
-            onClick={() => {
-              setIsLocating(true);
-              if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                  () => {
-                    setIsLocating(false);
-                    setUserLocationName('Near Current GPS');
-                  },
-                  () => {
-                    setIsLocating(false);
-                    setUserLocationName('');
-                  }
-                );
-              } else {
-                setIsLocating(false);
-              }
-            }}
+            onClick={detectLivePlaceName}
+            disabled={isDetecting || isLocating}
             style={{
-              padding: '8px 14px',
-              borderRadius: '8px',
-              border: '1px solid #cbd5e1',
-              background: '#ffffff',
-              color: '#0f172a',
-              fontSize: '12px',
+              padding: '7px 16px',
+              borderRadius: '20px',
+              border: '1.5px solid #0284c7',
+              background: (isDetecting || isLocating) ? '#e0f2fe' : '#ffffff',
+              color: '#0284c7',
               fontWeight: 700,
+              fontSize: '12px',
               cursor: 'pointer',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '6px',
+              boxShadow: '0 1px 3px rgba(2, 132, 199, 0.1)',
+              transition: 'all 0.15s ease'
             }}
+            title="Detect live user location place name and nearby 10-20 km vehicles"
           >
-            <i className={`fa-solid fa-location-arrow ${isLocating ? 'fa-spin' : ''}`} style={{ color: '#0284c7' }}></i>
-            {isLocating ? 'Detecting Location...' : 'Use My GPS Location'}
+            {isDetecting || isLocating ? (
+              <>
+                <i className="fa-solid fa-spinner fa-spin" style={{ color: '#0284c7' }}></i>
+                <span>Detecting Place...</span>
+              </>
+            ) : (
+              <>
+                <i className="fa-solid fa-location-arrow" style={{ color: '#0284c7' }}></i>
+                <span>Use My GPS Location</span>
+              </>
+            )}
           </button>
+
           <button
             type="button"
             onClick={handleClose}
@@ -233,6 +561,82 @@ export default function RentalStepTwo({
             >
               Reset All
             </button>
+          </div>
+
+          {/* What Are You Looking For Search */}
+          <div>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              What Are You Looking For
+            </span>
+            <div style={{ position: 'relative' }}>
+              <i className="fa-solid fa-magnifying-glass" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '13px' }}></i>
+              <input
+                type="text"
+                placeholder="Search make, model, or type"
+                value={filterCategoryModel === 'ALL' ? '' : filterCategoryModel}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFilterCategoryModel(val ? val : 'ALL');
+                  setCurrentPage(1);
+                }}
+                style={{
+                  width: '100%',
+                  padding: '9px 12px 9px 34px',
+                  borderRadius: '10px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '12.5px',
+                  color: '#0f172a',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  background: '#f8fafc'
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Vehicle Category: All | Cars | Bikes */}
+          <div>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Vehicle Category
+            </span>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+              {[
+                { id: 'all', label: 'All' },
+                { id: 'car', label: 'Cars' },
+                { id: 'bike', label: 'Bikes' }
+              ].map(cat => {
+                const isActive = (cat.id === 'all' && (activeMaster?.id !== 'car' && activeMaster?.id !== 'bike')) || activeMaster?.id === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => {
+                      if (cat.id === 'car' || cat.id === 'bike') {
+                        const target = cat.id;
+                        router.push(`/home/rental/${target === 'car' ? 'Car' : 'Bike'}`);
+                      } else {
+                        router.push(`/home/rental`);
+                      }
+                      setCurrentPage(1);
+                    }}
+                    style={{
+                      padding: '8px 4px',
+                      borderRadius: '8px',
+                      border: isActive ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
+                      background: isActive ? '#2563eb' : '#ffffff',
+                      color: isActive ? '#ffffff' : '#334155',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      textAlign: 'center',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    {cat.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Rental Duration Plan Selector */}
@@ -311,43 +715,97 @@ export default function RentalStepTwo({
             </span>
           </div>
 
-          {/* Popular Models */}
+          {/* Popular Brands (Image 2) */}
           <div>
-            <span style={{ fontSize: '12px', fontWeight: 800, color: '#334155', display: 'block', marginBottom: '8px' }}>Popular Models</span>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <i className="fa-solid fa-tag" style={{ color: '#64748b' }}></i> Popular Brands
+            </span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              {['All', 'Tata', 'Maruti Suzuki', 'Hyundai', 'Mahindra', 'Toyota'].map(b => {
+                const isSelected = (b === 'All' && filterCategoryModel === 'ALL') || filterCategoryModel.toLowerCase() === b.toLowerCase();
+                return (
+                  <button
+                    key={b}
+                    type="button"
+                    onClick={() => {
+                      setFilterCategoryModel(b === 'All' ? 'ALL' : b);
+                      setCurrentPage(1);
+                    }}
+                    style={{
+                      padding: '5px 12px',
+                      borderRadius: '20px',
+                      border: isSelected ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
+                      background: isSelected ? '#eff6ff' : '#ffffff',
+                      color: isSelected ? '#1d4ed8' : '#475569',
+                      fontSize: '11.5px',
+                      fontWeight: isSelected ? 800 : 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    {b}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Popular Models (Image 2) */}
+          <div>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <i className="fa-solid fa-car-rear" style={{ color: '#64748b' }}></i> Popular Models
+            </span>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
               {[
-                { id: 'ALL', name: 'All Models', count: '10+' },
-                { id: 'Swift', name: 'Maruti Swift', count: 'Only 1 left', img: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=150&q=80' },
-                { id: 'i20', name: 'Hyundai i20', count: 'Only 1 left', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUWCH0raA0r-PrGJIFZKMBTP7HegtJSoCQ4N8FWQktwg&s' },
-                { id: 'Fronx', name: 'Maruti Fronx', count: 'Only 1 left', img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=150&q=80' },
-                { id: 'Verna', name: 'Hyundai Verna', count: 'Only 1 left', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUWCH0raA0r-PrGJIFZKMBTP7HegtJSoCQ4N8FWQktwg&s' },
-              ].map(m => (
-                <div
-                  key={m.id}
-                  onClick={() => setFilterCategoryModel(m.id)}
-                  style={{
-                    border: filterCategoryModel === m.id ? '2px solid #0284c7' : '1px solid #e2e8f0',
-                    borderRadius: '10px',
-                    padding: '6px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    background: filterCategoryModel === m.id ? '#f0f9ff' : '#ffffff',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  {m.count && (
-                    <span style={{ fontSize: '9px', fontWeight: 800, color: '#d97706', background: '#fef3c7', padding: '1px 5px', borderRadius: '4px', marginBottom: '4px' }}>
-                      {m.count}
-                    </span>
-                  )}
-                  {m.img && (
-                    <img src={m.img} alt={m.name} style={{ width: '60px', height: '36px', objectFit: 'contain', borderRadius: '4px' }} />
-                  )}
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#1e293b', textAlign: 'center', marginTop: '4px' }}>{m.name}</span>
-                </div>
-              ))}
+                { id: 'ALL', name: 'All Models', count: '10+', img: '' },
+                { id: 'Swift', name: 'Maruti Swift', count: 'Only 1 left', img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=200&q=80' },
+                { id: 'i20', name: 'Hyundai i20', count: 'Only 1 left', img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=200&q=80' },
+                { id: 'Fronx', name: 'Maruti Fronx', count: 'Only 1 left', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=200&q=80' },
+                { id: 'Verna', name: 'Hyundai Verna', count: 'Only 1 left', img: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=200&q=80' }
+              ].map(m => {
+                const isSelected = (m.id === 'ALL' && filterCategoryModel === 'ALL') || filterCategoryModel.toLowerCase().includes(m.id.toLowerCase());
+                return (
+                  <div
+                    key={m.id}
+                    onClick={() => {
+                      setFilterCategoryModel(m.id === 'ALL' ? 'ALL' : m.id);
+                      setCurrentPage(1);
+                    }}
+                    style={{
+                      border: isSelected ? '2px solid #2563eb' : '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      padding: '8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      background: isSelected ? '#eff6ff' : '#ffffff',
+                      boxShadow: isSelected ? '0 2px 8px rgba(37, 99, 235, 0.12)' : 'none',
+                      transition: 'all 0.15s ease',
+                      minHeight: '74px'
+                    }}
+                  >
+                    {m.count && (
+                      <span style={{ fontSize: '9px', fontWeight: 800, color: '#b45309', background: '#fef3c7', padding: '1px 6px', borderRadius: '4px', marginBottom: '4px' }}>
+                        {m.count}
+                      </span>
+                    )}
+                    {m.img ? (
+                      <img src={m.img} alt={m.name} style={{ width: '64px', height: '36px', objectFit: 'cover', borderRadius: '4px' }} />
+                    ) : (
+                      <span style={{ fontSize: '13px', fontWeight: 800, color: isSelected ? '#1d4ed8' : '#2563eb', padding: '4px 0' }}>
+                        {m.name}
+                      </span>
+                    )}
+                    {m.img && (
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: isSelected ? '#1d4ed8' : '#1e293b', textAlign: 'center', marginTop: '3px' }}>
+                        {m.name}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -493,10 +951,40 @@ export default function RentalStepTwo({
               ))}
             </div>
           </div>
+          {/* Apply Filters Big Blue Button from Image 2 */}
+          <div style={{ marginTop: '10px' }}>
+            <button
+              type="button"
+              onClick={() => setCurrentPage(1)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '10px',
+                border: 'none',
+                background: '#2563eb',
+                color: '#ffffff',
+                fontSize: '13.5px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)',
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#1d4ed8'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#2563eb'; }}
+            >
+              <i className="fa-solid fa-filter"></i> Apply Filters
+            </button>
+          </div>
         </div>
 
         {/* Right Content Area */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '13px', fontWeight: 800, color: '#1e293b' }}>Sort By:</span>
@@ -555,10 +1043,11 @@ export default function RentalStepTwo({
               <p style={{ margin: 0, fontSize: '13px' }}>Try clearing some filters or changing your fuel/transmission selection.</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
-              {list.map((v: RentalVehicle) => {
-                const totalPrice = v.price * totalDays;
+            <div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+                {paginatedList.map((v: RentalVehicle) => {
                 const isSelected = selectedVehicleId === v.id;
+                const hourlyRateDisplay = v.hourlyRate || (v.price && v.price < 1000 ? v.price : Math.round((v.price || 2200) / 10));
 
                 return (
                   <div
@@ -566,101 +1055,226 @@ export default function RentalStepTwo({
                     onClick={() => setPreviewVehicle(v)}
                     style={{
                       background: '#ffffff',
-                      border: isSelected ? '2px solid #0284c7' : '1px solid #e2e8f0',
-                      borderRadius: '16px',
-                      overflow: 'hidden',
+                      border: isSelected ? '2px solid #0284c7' : '1px solid #eef2f6',
+                      borderRadius: '22px',
+                      padding: '16px',
                       display: 'flex',
                       flexDirection: 'column',
-                      boxShadow: '0 4px 12px rgba(15, 23, 42, 0.05)',
+                      gap: '12px',
+                      boxShadow: '0 4px 20px rgba(15, 23, 42, 0.04)',
                       transition: 'all 0.2s ease',
                       position: 'relative',
                       cursor: 'pointer'
                     }}
-                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 12px 24px rgba(15, 23, 42, 0.1)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(15, 23, 42, 0.05)'; }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-3px)';
+                      e.currentTarget.style.boxShadow = '0 12px 28px rgba(15, 23, 42, 0.08)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(15, 23, 42, 0.04)';
+                    }}
                   >
-                    <div style={{ position: 'relative', width: '100%', height: '170px', background: '#f1f5f9', overflow: 'hidden' }}>
+                    {/* Top Image Frame with Star Rating & Heart Favorite (Image 1 UI) */}
+                    <div style={{
+                      position: 'relative',
+                      width: '100%',
+                      height: '180px',
+                      background: '#f8fafc',
+                      borderRadius: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      overflow: 'hidden'
+                    }}>
+                      {/* Rating badge with star on top-left */}
+                      <div style={{
+                        position: 'absolute',
+                        top: '12px',
+                        left: '12px',
+                        background: '#ffffff',
+                        borderRadius: '20px',
+                        padding: '4px 10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        color: '#1e293b',
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
+                        zIndex: 2
+                      }}>
+                        <i className="fa-solid fa-star" style={{ color: '#f59e0b', fontSize: '11px' }}></i>
+                        <span>{(v as any).rating || 4.8}</span>
+                      </div>
+
+                      {/* Favorite Heart Button on top-right */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(v.id);
+                        }}
+                        style={{
+                          position: 'absolute',
+                          top: '12px',
+                          right: '12px',
+                          width: '34px',
+                          height: '34px',
+                          borderRadius: '50%',
+                          background: '#ffffff',
+                          border: 'none',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
+                          zIndex: 2,
+                          transition: 'transform 0.15s ease'
+                        }}
+                        title="Add to favorites"
+                      >
+                        <i
+                          className={`fa-${favorites[v.id] ? 'solid' : 'regular'} fa-heart`}
+                          style={{ color: favorites[v.id] ? '#ef4444' : '#cbd5e1', fontSize: '15px' }}
+                        ></i>
+                      </button>
+
+                      {/* Centered Vehicle Image with soft shadow */}
                       <img
-                        src={v.image || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&q=80'}
+                        src={v.image || '/images/cab_sedan.png'}
                         alt={v.name}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        style={{
+                          maxWidth: '85%',
+                          maxHeight: '140px',
+                          objectFit: 'contain',
+                          filter: 'drop-shadow(0 10px 14px rgba(0, 0, 0, 0.08))'
+                        }}
+                        onError={(e: any) => {
+                          e.target.src = (v as any).vehicleType === 'bike' ? '/images/red_bike_3d.png' : '/images/cab_sedan.png';
+                        }}
                       />
-                      {v.badge && (
-                        <span style={{ position: 'absolute', top: '10px', left: '10px', background: '#f59e0b', color: '#ffffff', fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                          {v.badge}
-                        </span>
-                      )}
-                      <span style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(15, 23, 42, 0.8)', color: '#ffffff', fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '4px' }}>
-                        {v.seats || '5 Seats'}
-                      </span>
                     </div>
 
-                    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: 1, gap: '10px' }}>
+                    {/* Content Details */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {/* Category Pill on Left */}
                       <div>
-                        <h4 style={{ margin: '0 0 2px 0', fontSize: '15px', fontWeight: 800, color: '#0f172a', lineHeight: 1.3 }}>
+                        <span style={{
+                          background: '#e0f2fe',
+                          color: '#0284c7',
+                          borderRadius: '6px',
+                          padding: '3px 10px',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          display: 'inline-block'
+                        }}>
+                          {v.category || ((v as any).vehicleType === 'bike' ? 'Cruiser' : 'Sedan')}
+                        </span>
+                      </div>
+
+                      {/* Title & Price in Same Row */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                        <h3 style={{
+                          margin: 0,
+                          fontSize: '17px',
+                          fontWeight: 800,
+                          color: '#0f172a',
+                          lineHeight: 1.3
+                        }}>
                           {v.name}
-                        </h4>
-                        <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
-                          {v.category} • Year {v.year || 2023}
-                        </span>
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: '11px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#334155', padding: '3px 8px', borderRadius: '6px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                          <i className="fa-solid fa-gas-pump" style={{ fontSize: '10px', color: '#0284c7' }}></i> {v.fuel || 'Petrol'}
-                        </span>
-                        <span style={{ fontSize: '11px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#334155', padding: '3px 8px', borderRadius: '6px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                          <i className="fa-solid fa-gear" style={{ fontSize: '10px', color: '#0284c7' }}></i> {v.transmission || 'Manual'}
-                        </span>
-                      </div>
-
-                      <div style={{ padding: '8px 10px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#475569', fontWeight: 700 }}>
-                          <i className="fa-solid fa-gauge-high" style={{ color: '#059669', fontSize: '11px' }}></i>
-                          <span>{v.kms || '500 Kms Included'}</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#0369a1', fontWeight: 700 }}>
-                          <i className="fa-solid fa-location-dot" style={{ color: '#0284c7' }}></i>
-                          <span>{v.distance || '3.13 km from Location'}</span>
-                        </div>
-                      </div>
-
-                      <div style={{ fontSize: '11px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <i className="fa-solid fa-house" style={{ color: '#94a3b8', fontSize: '10px' }}></i>
-                        <span>Doorstep Delivery available (Up to 4 km)</span>
-                      </div>
-
-                      <div style={{ marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <div>
-                          <span style={{ fontSize: '18px', fontWeight: 900, color: '#0f172a' }}>
-                            ₹{totalPrice}
+                        </h3>
+                        <div style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                          <span style={{ fontSize: '18px', fontWeight: 800, color: '#0284c7' }}>
+                            ₹{hourlyRateDisplay}
                           </span>
-                          <span style={{ fontSize: '11px', color: '#64748b', marginLeft: '4px', fontWeight: 600 }}>
-                            for {durationLabel}
+                          <span style={{ fontSize: '12px', color: '#64748b', marginLeft: '3px', fontWeight: 500 }}>
+                            /hr
                           </span>
                         </div>
+                      </div>
+
+                      {/* Reg No & Location Line */}
+                      <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>
+                        <span>Reg No: {v.plate || (v.name.includes('Alphard') ? 'MH 12 TA 7007' : v.name.includes('Verna') ? 'TN 23 BK 4567' : 'MH 12 AB 1234')}</span>
+                        <span style={{ margin: '0 6px' }}>•</span>
+                        <span>{v.location || (userLocationName ? `${userLocationName}` : 'Baner, Pune')}</span>
+                      </div>
+
+                      {/* Specifications Row: Transmission, Fuel, Seats */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '10px 0',
+                        borderTop: '1px solid #f1f5f9',
+                        marginTop: '4px'
+                      }}>
+                        {/* Shifter / Transmission */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: '#334155', fontWeight: 600 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0284c7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <path d="M5 4v16M19 4v16M5 12h14" />
+                          </svg>
+                          <span>{v.transmission || 'Automatic'}</span>
+                        </div>
+
+                        {/* Fuel */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: '#334155', fontWeight: 600 }}>
+                          <i className="fa-solid fa-gas-pump" style={{ color: '#0284c7', fontSize: '13px' }}></i>
+                          <span>{v.fuel || 'Petrol / Hybrid'}</span>
+                        </div>
+
+                        {/* Seats */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: '#334155', fontWeight: 600 }}>
+                          <i className="fa-solid fa-user" style={{ color: '#0284c7', fontSize: '13px' }}></i>
+                          <span>{v.seats || '5 Seats'}</span>
+                        </div>
+                      </div>
+
+                      {/* Bottom Footer Row: Availability Pill (Left) & Book Now Button (Right) */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        paddingTop: '4px'
+                      }}>
+                        <span style={{
+                          background: '#ecfdf5',
+                          color: '#059669',
+                          padding: '5px 12px',
+                          borderRadius: '20px',
+                          fontSize: '12px',
+                          fontWeight: 700,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}>
+                          <span style={{ fontSize: '10px', color: '#10b981' }}>●</span> Available
+                        </span>
 
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             setSelectedVehicleId(v.id);
-                            setStep(3);
+                            if (handleClose) handleClose();
+                            const currentLoc = pickup || userLocationName || 'Katpadi';
+                            router.push(`/home/rental/Car/CarDetails?id=${encodeURIComponent(v.id)}&pickup=${encodeURIComponent(currentLoc)}`);
                           }}
                           style={{
-                            background: '#eab308',
+                            background: '#2563eb',
+                            color: '#ffffff',
                             border: 'none',
-                            padding: '10px 20px',
+                            padding: '8px 22px',
                             borderRadius: '8px',
-                            color: '#0f172a',
                             fontSize: '13px',
-                            fontWeight: 800,
+                            fontWeight: 700,
                             cursor: 'pointer',
-                            boxShadow: '0 2px 6px rgba(234, 179, 8, 0.4)',
-                            transition: 'all 0.15s ease'
+                            transition: 'all 0.15s ease',
+                            boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)'
                           }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = '#ca8a04'}
-                          onMouseLeave={(e) => e.currentTarget.style.background = '#eab308'}
+                          onMouseEnter={(e) => { e.currentTarget.style.background = '#1d4ed8'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.background = '#2563eb'; }}
                         >
                           Book Now
                         </button>
@@ -670,6 +1284,78 @@ export default function RentalStepTwo({
                 );
               })}
             </div>
+
+            {/* Pagination Controls below 2 rows: < 1 2 3 > from Image 1 */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '32px', padding: '16px 0' }}>
+              <button
+                type="button"
+                disabled={currentPage <= 1}
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: '#f1f5f9',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '4px',
+                  color: currentPage <= 1 ? '#94a3b8' : '#0f172a',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  cursor: currentPage <= 1 ? 'not-allowed' : 'pointer'
+                }}
+              >
+                <i className="fa-solid fa-chevron-left"></i>
+              </button>
+
+              {Array.from({ length: Math.max(3, totalPages) }, (_, i) => i + 1).map(pageNo => (
+                <button
+                  key={pageNo}
+                  type="button"
+                  onClick={() => setCurrentPage(pageNo)}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: currentPage === pageNo ? '#f8fafc' : '#ffffff',
+                    border: currentPage === pageNo ? '1.5px solid #0f172a' : '1px solid #cbd5e1',
+                    borderRadius: '4px',
+                    color: '#0f172a',
+                    fontSize: '15px',
+                    fontWeight: currentPage === pageNo ? 800 : 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  {pageNo}
+                </button>
+              ))}
+
+              <button
+                type="button"
+                disabled={currentPage >= totalPages && totalPages > 1}
+                onClick={() => setCurrentPage(prev => Math.min(Math.max(3, totalPages), prev + 1))}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '4px',
+                  color: '#0f172a',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                <i className="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
           )}
         </div>
       </div>
@@ -690,3 +1376,4 @@ export default function RentalStepTwo({
     </div>
   );
 }
+

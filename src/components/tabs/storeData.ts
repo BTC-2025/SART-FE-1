@@ -773,7 +773,7 @@ export const VEHICLE_SHOWCASE_DATA: VehicleShowcaseItem[] = [
     features: ['21-inch Front Spoke Wheel', 'Cornering Traction Control', 'Rally Dashboard', 'Long Travel Suspension']
   },
 
-  
+
   // Agricultural Tractors (TractorGuru Reference)
   {
     id: 'tractor-pop-1',
@@ -962,7 +962,7 @@ export const VEHICLE_SHOWCASE_DATA: VehicleShowcaseItem[] = [
     year: '2022',
     kmsDriven: '16,200 km',
     owners: '1st Owner',
-    location: 'Bengaluru (Indiranagar)',
+    location: 'Bengaluru',
     features: ['Bluetooth SmartXonnect', 'Ride Modes', 'New Chain Sprocket', 'Verified Clean RC']
   },
   {
@@ -1232,7 +1232,7 @@ export const VEHICLE_SHOWCASE_DATA: VehicleShowcaseItem[] = [
     year: '2023',
     kmsDriven: '9,200 km',
     owners: '1st Owner',
-    location: 'Bengaluru (Indiranagar)',
+    location: 'Bengaluru',
     features: ['Ather Connect Pro Lifetime', 'Warp Mode Enabled', 'Battery Health 98%', 'Portable Fast Charger Box']
   }
 ];

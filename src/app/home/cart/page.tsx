@@ -41,9 +41,9 @@ export default function CartPage() {
     addressLine: string;
     phone: string;
   } | null>({
-    name: 'P. Vasanth Kumar',
-    addressLine: 'East street, near lord Ganesh temple, Patur, Kovur, Sri Potti Sriramulu Nellore District, Sri Potti Sriramulu Nellore District, Andhra Pradesh, 524137',
-    phone: '9032932985'
+    name: '',
+    addressLine: '',
+    phone: ''
   });
   const [newAddressForm, setNewAddressForm] = useState({
     name: '',

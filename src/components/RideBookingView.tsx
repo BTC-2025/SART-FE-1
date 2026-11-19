@@ -1398,7 +1398,7 @@ export default function RideBookingView({
                     parsedSession = userSession ? JSON.parse(userSession) : {};
                   } catch (e) { }
 
-                  const activeUserName = parsedSession.name || parsedSession.fullName || parsedSession.phone || 'Vasanth Kumar';
+                  const activeUserName = parsedSession.name || parsedSession.fullName || parsedSession.phone || 'sai';
                   const activeUserPhone = parsedSession.phone || '+91 98765 43210';
 
                   const selectedDriver = backendDrivers.length > 0 ? backendDrivers[0] : null;
