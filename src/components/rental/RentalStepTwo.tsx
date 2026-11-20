@@ -227,20 +227,14 @@ export default function RentalStepTwo({
     const fetchVehicles = async () => {
       setIsApiLoading(true);
       try {
-        let deletedIds: string[] = [];
-        try {
-          deletedIds = JSON.parse(localStorage.getItem('sart_deleted_vehicle_ids') || '[]');
-        } catch (e) { }
-
         const targetLoc = (pickup || userLocationName || '').trim();
         const typeParam = activeMaster?.id || 'all';
         const qParams = new URLSearchParams();
 
         if (isLiveGps) {
           qParams.append('isGps', 'true');
-          qParams.append('range', '10-20km');
           qParams.append('nearLive', 'true');
-        } else if (targetLoc && targetLoc.toLowerCase() !== 'all' && targetLoc.toLowerCase() !== 'india' && targetLoc.toLowerCase() !== 'all locations' && targetLoc.toLowerCase() !== 'all hubs') {
+        } else if (targetLoc && targetLoc.toLowerCase() !== 'all' && targetLoc.toLowerCase() !== 'india' && targetLoc.toLowerCase() !== 'all locations' && targetLoc.toLowerCase() !== '') {
           qParams.append('location', targetLoc);
         }
 
@@ -252,12 +246,10 @@ export default function RentalStepTwo({
         qParams.append('scope', 'user');
         qParams.append('availableOnly', 'true');
 
-        let res = await fetch(`http://localhost:5000/api/rental/vehicles?${qParams.toString()}`).catch(() => null);
+        // Query Next.js internal proxy API first (CORS-free), then Express API port 5000
+        let res = await fetch(`/api/rental/vehicles?${qParams.toString()}`).catch(() => null);
         if (!res || !res.ok) {
           res = await fetch(`http://localhost:5000/api/rental/vehicles?${qParams.toString()}`).catch(() => null);
-        }
-        if (!res || !res.ok) {
-          res = await fetch(`http://localhost:5000/api/business/vehicles?${qParams.toString()}`).catch(() => null);
         }
 
         let apiList: any[] = [];
@@ -268,27 +260,69 @@ export default function RentalStepTwo({
           }
         }
 
+        // Fallback: If filtered location query returned 0 results, load all available fleet vehicles
+        if (apiList.length === 0) {
+          let fbRes = await fetch('/api/rental/vehicles').catch(() => null);
+          if (!fbRes || !fbRes.ok) {
+            fbRes = await fetch('http://localhost:5000/api/rental/vehicles').catch(() => null);
+          }
+          if (fbRes && fbRes.ok) {
+            const fbJson = await fbRes.json();
+            if (fbJson && fbJson.success && Array.isArray(fbJson.data)) {
+              apiList = fbJson.data;
+            }
+          }
+        }
+
         // Merge with local storage business fleet
         let storedFleet: any[] = [];
         try {
           storedFleet = JSON.parse(localStorage.getItem('sart_business_fleet') || '[]');
         } catch (e) { }
 
-        const combined = [...apiList, ...storedFleet]
-          .filter((v: any) => !deletedIds.includes(v.id) && !deletedIds.includes(v.plate));
-
-        // Deduplicate by ID
+        // Start with apiList
         const map = new Map<string, any>();
-        combined.forEach((v: any) => {
-          if (!map.has(v.id)) map.set(v.id, v);
+        apiList.forEach((v: any) => {
+          if (v && v.id) {
+            const isBike = (v.type === 'bike') || /bike|scooter|scooty|cruiser|bullet|classic|hunter|himalayan|activa|r15|pulsar|ola|ather|jupiter|tvs|ktm|royal enfield/i.test(`${v.name || ''} ${v.brand || ''} ${v.category || ''}`);
+            const rate = Number(v.price ?? v.dailyRate ?? 1800);
+            map.set(v.id, {
+              ...v,
+              type: isBike ? 'bike' : (v.type || 'car'),
+              price: rate,
+              dailyRate: rate
+            });
+          }
         });
 
-        if (isMounted) {
-          const list = Array.from(map.values());
-          setApiVehicles(list);
-          if (list.length > 0) {
-            setHasFetchedApi(true);
+        // Let storedFleet override or augment apiList
+        storedFleet.forEach((v: any) => {
+          if (v && v.id) {
+            const isBike = (v.type === 'bike') || /bike|scooter|scooty|cruiser|bullet|classic|hunter|himalayan|activa|r15|pulsar|ola|ather|jupiter|tvs|ktm|royal enfield/i.test(`${v.name || ''} ${v.brand || ''} ${v.category || ''}`);
+            const rate = Number(v.price ?? v.dailyRate ?? 1800);
+            const normalized = {
+              ...v,
+              type: isBike ? 'bike' : (v.type || 'car'),
+              price: rate,
+              dailyRate: rate
+            };
+
+            const existingKey = Array.from(map.keys()).find(
+              k => k === v.id || (v.plate && map.get(k)?.plate && String(map.get(k).plate).toLowerCase() === String(v.plate).toLowerCase())
+            );
+            if (existingKey) {
+              map.set(existingKey, { ...map.get(existingKey), ...normalized });
+            } else {
+              map.set(v.id, normalized);
+            }
           }
+        });
+
+        const combinedList = Array.from(map.values());
+
+        if (isMounted) {
+          setApiVehicles(combinedList);
+          setHasFetchedApi(true);
         }
       } catch (e) {
         console.warn('API error, using fallback catalog');
@@ -300,8 +334,11 @@ export default function RentalStepTwo({
     fetchVehicles();
 
     const handleStorageChange = () => fetchVehicles();
+    const interval = setInterval(fetchVehicles, 3000);
+    window.addEventListener('focus', handleStorageChange);
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('rental_vehicle_added', handleStorageChange);
+    window.addEventListener('rental_vehicle_updated', handleStorageChange);
     window.addEventListener('rental_vehicle_deleted', handleStorageChange);
     window.addEventListener('update_vehicle_availability', handleStorageChange);
     window.addEventListener('rental_trip_completed', handleStorageChange);
@@ -309,8 +346,11 @@ export default function RentalStepTwo({
 
     return () => {
       isMounted = false;
+      clearInterval(interval);
+      window.removeEventListener('focus', handleStorageChange);
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('rental_vehicle_added', handleStorageChange);
+      window.removeEventListener('rental_vehicle_updated', handleStorageChange);
       window.removeEventListener('rental_vehicle_deleted', handleStorageChange);
       window.removeEventListener('update_vehicle_availability', handleStorageChange);
       window.removeEventListener('rental_trip_completed', handleStorageChange);
@@ -320,42 +360,68 @@ export default function RentalStepTwo({
 
   // Use API vehicles if loaded and non-empty; fallback gracefully to activeMaster catalog.
   // Stage 2 Visibility Rule: Filter out any vehicle where isAvailable is false, ALREADY_BOOKED, ON_TRIP, in onTripIds, or in deletedIds
-  let deletedIdsList: string[] = [];
-  let onTripIdsList: string[] = [];
-  let bookedIdsList: string[] = [];
-  try {
-    if (typeof window !== 'undefined') {
-      deletedIdsList = JSON.parse(localStorage.getItem('sart_deleted_vehicle_ids') || '[]');
-      onTripIdsList = JSON.parse(localStorage.getItem('sart_ontrip_vehicle_ids') || '[]');
-      bookedIdsList = JSON.parse(localStorage.getItem('sart_booked_vehicle_ids') || '[]');
-    }
-  } catch (e) { }
-
   const isVehicleUnavailable = (v: any) => {
     if (!v) return true;
     if (v.isAvailable === false || v.isAvailable === 0) return true;
     if (v.bookingStatus === 'ALREADY_BOOKED' || v.bookingStatus === 'ON_TRIP') return true;
     if (v.status === 'On Trip' || v.status === 'Not Available') return true;
-    const vId = String(v.id || '').toLowerCase();
-    const vPlate = String(v.plate || '').toLowerCase();
-    const vName = String(v.name || '').toLowerCase();
-
-    const matchesList = (list: string[]) =>
-      list.some(item => {
-        const target = String(item || '').toLowerCase();
-        return target && (target === vId || target === vPlate || target === vName || vName.includes(target));
-      });
-
-    if (matchesList(deletedIdsList)) return true;
-    if (matchesList(onTripIdsList)) return true;
-    if (matchesList(bookedIdsList)) return true;
-
     return false;
   };
 
-  let list: any[] = ((hasFetchedApi && apiVehicles.length > 0) ? [...apiVehicles] : [...activeMaster.list]).filter((v: any) =>
-    !isVehicleUnavailable(v)
-  );
+  const MOCK_VEHICLE_IDS = [
+    'r-swift', 'r-creta', 'r-thar', 'r-innova', 'r-ertiga', 'r-nexon', 'r-baleno', 'r-fortuner', 'r-scorpio', 'r-xuv700', 'r-city',
+    'r-classic350', 'r-hunter350', 'r-himalayan', 'r-activa', 'r-jupiter', 'r-pulsar', 'r-r15',
+    'VH-001', 'VH-002', 'VH-003', 'VH-004', 'VH-005', 'VH-006', 'VH-007', 'VH-008', 'VH-009', 'VH-010',
+    'VH-101', 'VH-102', 'VH-103', 'VH-0160', 'VH-KAT-001', 'VH-KAT-002', 'VH-KAT-003', 'VH-KAT-004', 'VH-KAT-005'
+  ];
+
+  // Only show vehicles actually fetched from backend or added by partner in business portal
+  let baseList: any[] = [...apiVehicles].filter((v: any) => v && !MOCK_VEHICLE_IDS.includes(v.id) && !MOCK_VEHICLE_IDS.includes(v.plate));
+
+  try {
+    const rawStored = localStorage.getItem('sart_business_fleet');
+    const storedFleet: any[] = JSON.parse(rawStored || '[]');
+    if (Array.isArray(storedFleet) && storedFleet.length > 0) {
+      // Filter out any mock vehicles from stored fleet
+      const cleanStored = storedFleet.filter(
+        (sf: any) => sf && !MOCK_VEHICLE_IDS.includes(sf.id) && !MOCK_VEHICLE_IDS.includes(sf.plate)
+      );
+      const fMap = new Map(baseList.map((v: any) => [v.id, v]));
+      cleanStored.forEach((sf: any) => {
+        const isBike = (sf.type === 'bike') || /bike|scooter|scooty|cruiser|bullet|classic|hunter|himalayan|activa|r15|pulsar|ola|ather|jupiter|tvs|ktm|royal enfield/i.test(`${sf.name || ''} ${sf.brand || ''} ${sf.category || ''}`);
+        const rate = Number(sf.price ?? sf.dailyRate ?? 1800);
+        const normalized = {
+          ...sf,
+          type: isBike ? 'bike' : (sf.type || 'car'),
+          price: rate,
+          dailyRate: rate
+        };
+
+        const matchKey = Array.from(fMap.keys()).find(
+          k => k === sf.id || (sf.plate && fMap.get(k)?.plate && String(fMap.get(k).plate).toLowerCase() === String(sf.plate).toLowerCase())
+        );
+        if (matchKey) {
+          fMap.set(matchKey, { ...fMap.get(matchKey), ...normalized });
+        } else {
+          fMap.set(sf.id, normalized);
+        }
+      });
+      baseList = Array.from(fMap.values());
+    }
+  } catch (e) { }
+
+  // Filter baseList by current page category (Bike vs Car vs All)
+  const currentCategoryType = activeMaster?.id;
+  if (currentCategoryType && currentCategoryType !== 'all') {
+    baseList = baseList.filter((v: any) => {
+      const isBike = (v.type === 'bike') || /bike|scooter|scooty|cruiser|bullet|classic|hunter|himalayan|activa|r15|pulsar|ola|ather|jupiter|tvs|ktm|royal enfield/i.test(`${v.name || ''} ${v.brand || ''} ${v.category || ''}`);
+      if (currentCategoryType === 'bike') return isBike;
+      if (currentCategoryType === 'car') return !isBike;
+      return true;
+    });
+  }
+
+  let list: any[] = baseList.filter((v: any) => !isVehicleUnavailable(v) && !MOCK_VEHICLE_IDS.includes(v.id));
 
   // Distance calculation based on mode:
   // When in Live GPS mode: enforce deterministic distances in 10-20 km range
@@ -369,7 +435,7 @@ export default function RentalStepTwo({
         distance: `${kmVal} km from ${userLocLabel}`,
         distanceKm: kmVal
       };
-    }).filter((v: any) => v.distanceKm >= 10 && v.distanceKm <= 20);
+    });
   } else {
     const userLocLabel = userLocationName || pickup || 'Katpadi';
     list = list.map((v: any, idx: number) => {
@@ -414,7 +480,10 @@ export default function RentalStepTwo({
 
   // Price adjustment filter
   if (priceMax > 0) {
-    list = list.filter((v: any) => v.price >= priceMin && v.price <= priceMax);
+    list = list.filter((v: any) => {
+      const p = Number(v.price ?? v.dailyRate ?? 1800);
+      return p >= priceMin && p <= priceMax;
+    });
   }
 
   if (sortBy === 'price_low') {
@@ -439,8 +508,8 @@ export default function RentalStepTwo({
           : durationPlan === '1month' ? '1 Month'
             : `${totalDays} Days`;
 
-  // Pagination for Vehicle Cards Grid: exactly 2 rows (6 cards max per page)
-  const CARS_PER_PAGE = 6;
+  // Pagination for Vehicle Cards Grid: 2 rows of 2 columns (4 cards max per page)
+  const CARS_PER_PAGE = 4;
   const totalPages = Math.ceil(list.length / CARS_PER_PAGE) || 1;
   const startIndex = (currentPage - 1) * CARS_PER_PAGE;
   const paginatedList = list.slice(startIndex, startIndex + CARS_PER_PAGE);
@@ -466,29 +535,7 @@ export default function RentalStepTwo({
               <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
                 {pickup ? `Pickup: ${pickup}` : 'Current Hub'} • {pickupDate} to {dropoffDate}
               </span>
-              <span
-                onClick={detectLivePlaceName}
-                title="Click to refresh live GPS place name"
-                style={{
-                  fontSize: '11px',
-                  background: '#ecfdf5',
-                  color: '#059669',
-                  padding: '3px 10px',
-                  borderRadius: '20px',
-                  fontWeight: 700,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  border: '1px solid #a7f3d0',
-                  cursor: 'pointer'
-                }}
-              >
-                <i className={`fa-solid ${isDetecting ? 'fa-spinner fa-spin' : 'fa-location-crosshairs'}`} style={{ color: '#059669' }}></i>
-                <span>Your Location:</span>
-                <strong style={{ color: '#047857' }}>
-                  {isDetecting ? 'Detecting place...' : (userLocationName || pickup || 'Katpadi, Vellore')}
-                </strong>
-              </span>
+
             </div>
           </div>
         </div>
@@ -715,99 +762,146 @@ export default function RentalStepTwo({
             </span>
           </div>
 
-          {/* Popular Brands (Image 2) */}
-          <div>
-            <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              <i className="fa-solid fa-tag" style={{ color: '#64748b' }}></i> Popular Brands
-            </span>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {['All', 'Tata', 'Maruti Suzuki', 'Hyundai', 'Mahindra', 'Toyota'].map(b => {
-                const isSelected = (b === 'All' && filterCategoryModel === 'ALL') || filterCategoryModel.toLowerCase() === b.toLowerCase();
-                return (
-                  <button
-                    key={b}
-                    type="button"
-                    onClick={() => {
-                      setFilterCategoryModel(b === 'All' ? 'ALL' : b);
-                      setCurrentPage(1);
-                    }}
-                    style={{
-                      padding: '5px 12px',
-                      borderRadius: '20px',
-                      border: isSelected ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
-                      background: isSelected ? '#eff6ff' : '#ffffff',
-                      color: isSelected ? '#1d4ed8' : '#475569',
-                      fontSize: '11.5px',
-                      fontWeight: isSelected ? 800 : 600,
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease'
-                    }}
-                  >
-                    {b}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          {/* Popular Brands */}
+          {(() => {
+            const isBikeMode = activeMaster?.id === 'bike';
+            const brandsList = isBikeMode
+              ? ['All', 'Royal Enfield', 'Yamaha', 'Honda', 'Bajaj', 'Ola']
+              : ['All', 'Tata', 'Maruti Suzuki', 'Hyundai', 'Mahindra', 'Toyota'];
 
-          {/* Popular Models (Image 2) */}
-          <div>
-            <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              <i className="fa-solid fa-car-rear" style={{ color: '#64748b' }}></i> Popular Models
-            </span>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
-              {[
-                { id: 'ALL', name: 'All Models', count: '10+', img: '' },
-                { id: 'Swift', name: 'Maruti Swift', count: 'Only 1 left', img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=200&q=80' },
-                { id: 'i20', name: 'Hyundai i20', count: 'Only 1 left', img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=200&q=80' },
-                { id: 'Fronx', name: 'Maruti Fronx', count: 'Only 1 left', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=200&q=80' },
-                { id: 'Verna', name: 'Hyundai Verna', count: 'Only 1 left', img: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=200&q=80' }
-              ].map(m => {
-                const isSelected = (m.id === 'ALL' && filterCategoryModel === 'ALL') || filterCategoryModel.toLowerCase().includes(m.id.toLowerCase());
-                return (
-                  <div
-                    key={m.id}
-                    onClick={() => {
-                      setFilterCategoryModel(m.id === 'ALL' ? 'ALL' : m.id);
-                      setCurrentPage(1);
-                    }}
-                    style={{
-                      border: isSelected ? '2px solid #2563eb' : '1px solid #e2e8f0',
-                      borderRadius: '12px',
-                      padding: '8px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      background: isSelected ? '#eff6ff' : '#ffffff',
-                      boxShadow: isSelected ? '0 2px 8px rgba(37, 99, 235, 0.12)' : 'none',
-                      transition: 'all 0.15s ease',
-                      minHeight: '74px'
-                    }}
-                  >
-                    {m.count && (
-                      <span style={{ fontSize: '9px', fontWeight: 800, color: '#b45309', background: '#fef3c7', padding: '1px 6px', borderRadius: '4px', marginBottom: '4px' }}>
-                        {m.count}
-                      </span>
-                    )}
-                    {m.img ? (
-                      <img src={m.img} alt={m.name} style={{ width: '64px', height: '36px', objectFit: 'cover', borderRadius: '4px' }} />
-                    ) : (
-                      <span style={{ fontSize: '13px', fontWeight: 800, color: isSelected ? '#1d4ed8' : '#2563eb', padding: '4px 0' }}>
-                        {m.name}
-                      </span>
-                    )}
-                    {m.img && (
-                      <span style={{ fontSize: '11px', fontWeight: 700, color: isSelected ? '#1d4ed8' : '#1e293b', textAlign: 'center', marginTop: '3px' }}>
-                        {m.name}
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+            return (
+              <div>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <i className="fa-solid fa-tag" style={{ color: '#64748b' }}></i> Popular Brands
+                </span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {brandsList.map(b => {
+                    const isSelected = (b === 'All' && filterCategoryModel === 'ALL') || filterCategoryModel.toLowerCase() === b.toLowerCase();
+                    return (
+                      <button
+                        key={b}
+                        type="button"
+                        onClick={() => {
+                          setFilterCategoryModel(b === 'All' ? 'ALL' : b);
+                          setCurrentPage(1);
+                        }}
+                        style={{
+                          padding: '5px 12px',
+                          borderRadius: '20px',
+                          border: isSelected ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
+                          background: isSelected ? '#eff6ff' : '#ffffff',
+                          color: isSelected ? '#1d4ed8' : '#475569',
+                          fontSize: '11.5px',
+                          fontWeight: isSelected ? 800 : 600,
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        {b}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Popular Models - Dynamically derived from actual added vehicles in fleet */}
+          {(() => {
+            const isBikeMode = activeMaster?.id === 'bike';
+            const allLabel = isBikeMode ? 'All Bikes' : 'All Models';
+
+            // Dynamically derive models ONLY from vehicles that actually exist in baseList and have images
+            const addedModelsMap = new Map<string, { id: string; name: string; count: string; img: string }>();
+
+            baseList.forEach((v: any) => {
+              const isBike = (v.type === 'bike') || /bike|scooter|scooty|cruiser|bullet|classic|hunter|himalayan|activa|r15|pulsar|ola|ather|jupiter|tvs|ktm|royal enfield/i.test(`${v.name || ''} ${v.brand || ''} ${v.category || ''}`);
+              if (isBikeMode && !isBike) return;
+              if (!isBikeMode && isBike) return;
+
+              // Only include if vehicle has an image
+              const vehicleImage = v.image || (v.images && v.images[0]);
+              if (!vehicleImage) return;
+
+              const modelKey = (v.model || v.name || '').trim();
+              if (modelKey && !addedModelsMap.has(modelKey.toLowerCase())) {
+                addedModelsMap.set(modelKey.toLowerCase(), {
+                  id: modelKey,
+                  name: v.name || modelKey,
+                  count: 'Available',
+                  img: vehicleImage
+                });
+              }
+            });
+
+            const addedModels = Array.from(addedModelsMap.values());
+            const modelsList = [
+              { id: 'ALL', name: allLabel, count: `${addedModels.length > 0 ? addedModels.length + '+' : '0'}`, img: '' },
+              ...addedModels
+            ];
+
+            return (
+              <div>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <i className={`fa-solid ${isBikeMode ? 'fa-motorcycle' : 'fa-car-rear'}`} style={{ color: '#64748b' }}></i> Popular Models
+                </span>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                  {modelsList.map(m => {
+                    const isSelected = (m.id === 'ALL' && filterCategoryModel === 'ALL') || filterCategoryModel.toLowerCase().includes(m.id.toLowerCase());
+                    return (
+                      <div
+                        key={m.id}
+                        onClick={() => {
+                          setFilterCategoryModel(m.id === 'ALL' ? 'ALL' : m.id);
+                          setCurrentPage(1);
+                        }}
+                        style={{
+                          border: isSelected ? '2px solid #2563eb' : '1px solid #e2e8f0',
+                          borderRadius: '12px',
+                          padding: '8px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          background: isSelected ? '#eff6ff' : '#ffffff',
+                          boxShadow: isSelected ? '0 2px 8px rgba(37, 99, 235, 0.12)' : 'none',
+                          transition: 'all 0.15s ease',
+                          minHeight: '74px'
+                        }}
+                      >
+                        {m.count && (
+                          <span style={{ fontSize: '9px', fontWeight: 800, color: '#b45309', background: '#fef3c7', padding: '1px 6px', borderRadius: '4px', marginBottom: '4px' }}>
+                            {m.count}
+                          </span>
+                        )}
+                        {m.img ? (
+                          <img
+                            src={m.img}
+                            alt={m.name}
+                            onError={(e) => {
+                              // If image fails to load, gracefully hide img element so placeholder text shows
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                            style={{ width: '64px', height: '36px', objectFit: 'contain', borderRadius: '4px' }}
+                          />
+                        ) : (
+                          <span style={{ fontSize: '13px', fontWeight: 800, color: isSelected ? '#1d4ed8' : '#2563eb', padding: '4px 0' }}>
+                            {m.name}
+                          </span>
+                        )}
+                        {m.img && (
+                          <span style={{ fontSize: '11px', fontWeight: 700, color: isSelected ? '#1d4ed8' : '#1e293b', textAlign: 'center', marginTop: '3px' }}>
+                            {m.name}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Fuel Type */}
           <div>
@@ -1039,323 +1133,343 @@ export default function RentalStepTwo({
           {list.length === 0 ? (
             <div style={{ padding: '60px 20px', textAlign: 'center', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', color: '#64748b' }}>
               <i className="fa-solid fa-car-side" style={{ fontSize: '40px', color: '#cbd5e1', marginBottom: '12px' }}></i>
-              <h4 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: 800, color: '#1e293b' }}>No vehicles match these filters</h4>
-              <p style={{ margin: 0, fontSize: '13px' }}>Try clearing some filters or changing your fuel/transmission selection.</p>
+              <h4 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: 800, color: '#1e293b' }}>No vehicles available in fleet</h4>
+              <p style={{ margin: 0, fontSize: '13px' }}>Vehicles added by the rental owner in the Business Portal will appear here.</p>
             </div>
           ) : (
             <div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
                 {paginatedList.map((v: RentalVehicle) => {
-                const isSelected = selectedVehicleId === v.id;
-                const hourlyRateDisplay = v.hourlyRate || (v.price && v.price < 1000 ? v.price : Math.round((v.price || 2200) / 10));
+                  const isSelected = selectedVehicleId === v.id;
+                  const hourlyRateDisplay = v.hourlyRate || (v.price && v.price < 1000 ? v.price : Math.round((v.price || 2200) / 10));
 
-                return (
-                  <div
-                    key={v.id}
-                    onClick={() => setPreviewVehicle(v)}
-                    style={{
-                      background: '#ffffff',
-                      border: isSelected ? '2px solid #0284c7' : '1px solid #eef2f6',
-                      borderRadius: '22px',
-                      padding: '16px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '12px',
-                      boxShadow: '0 4px 20px rgba(15, 23, 42, 0.04)',
-                      transition: 'all 0.2s ease',
-                      position: 'relative',
-                      cursor: 'pointer'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-3px)';
-                      e.currentTarget.style.boxShadow = '0 12px 28px rgba(15, 23, 42, 0.08)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(15, 23, 42, 0.04)';
-                    }}
-                  >
-                    {/* Top Image Frame with Star Rating & Heart Favorite (Image 1 UI) */}
-                    <div style={{
-                      position: 'relative',
-                      width: '100%',
-                      height: '180px',
-                      background: '#f8fafc',
-                      borderRadius: '16px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      overflow: 'hidden'
-                    }}>
-                      {/* Rating badge with star on top-left */}
-                      <div style={{
-                        position: 'absolute',
-                        top: '12px',
-                        left: '12px',
+                  return (
+                    <div
+                      key={v.id}
+                      onClick={() => {
+                        setSelectedVehicleId(v.id);
+                        if (handleClose) handleClose();
+                        const currentLoc = pickup || userLocationName || 'Katpadi';
+                        const isBike = activeMaster?.id === 'bike' || (v as any).vehicleType === 'bike' || (v as any).type === 'bike';
+                        const targetPath = isBike
+                          ? `/home/rental/Bike/BookingDeliveryDetails?id=${encodeURIComponent(v.id)}&pickup=${encodeURIComponent(currentLoc)}`
+                          : `/home/rental/Car/CarDetails?id=${encodeURIComponent(v.id)}&pickup=${encodeURIComponent(currentLoc)}`;
+                        router.push(targetPath);
+                      }}
+                      style={{
                         background: '#ffffff',
-                        borderRadius: '20px',
-                        padding: '4px 10px',
+                        border: isSelected ? '2px solid #0284c7' : '1px solid #eef2f6',
+                        borderRadius: '22px',
+                        padding: '16px',
                         display: 'flex',
-                        alignItems: 'center',
-                        gap: '5px',
-                        fontSize: '12px',
-                        fontWeight: 700,
-                        color: '#1e293b',
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
-                        zIndex: 2
+                        flexDirection: 'column',
+                        gap: '12px',
+                        boxShadow: '0 4px 20px rgba(15, 23, 42, 0.04)',
+                        transition: 'all 0.2s ease',
+                        position: 'relative',
+                        cursor: 'pointer'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-3px)';
+                        e.currentTarget.style.boxShadow = '0 12px 28px rgba(15, 23, 42, 0.08)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 4px 20px rgba(15, 23, 42, 0.04)';
+                      }}
+                    >
+                      {/* Top Image Frame with Star Rating & Heart Favorite (Image 1 UI - Full Bleed) */}
+                      <div style={{
+                        position: 'relative',
+                        width: '100%',
+                        height: '220px',
+                        borderRadius: '16px',
+                        overflow: 'hidden',
+                        background: '#f1f5f9'
                       }}>
-                        <i className="fa-solid fa-star" style={{ color: '#f59e0b', fontSize: '11px' }}></i>
-                        <span>{(v as any).rating || 4.8}</span>
-                      </div>
-
-                      {/* Favorite Heart Button on top-right */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleFavorite(v.id);
-                        }}
-                        style={{
+                        {/* Rating badge with star on top-left */}
+                        <div style={{
                           position: 'absolute',
                           top: '12px',
-                          right: '12px',
-                          width: '34px',
-                          height: '34px',
-                          borderRadius: '50%',
-                          background: '#ffffff',
-                          border: 'none',
+                          left: '12px',
+                          background: 'rgba(255, 255, 255, 0.92)',
+                          backdropFilter: 'blur(4px)',
+                          borderRadius: '20px',
+                          padding: '4px 10px',
                           display: 'flex',
                           alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
-                          zIndex: 2,
-                          transition: 'transform 0.15s ease'
-                        }}
-                        title="Add to favorites"
-                      >
-                        <i
-                          className={`fa-${favorites[v.id] ? 'solid' : 'regular'} fa-heart`}
-                          style={{ color: favorites[v.id] ? '#ef4444' : '#cbd5e1', fontSize: '15px' }}
-                        ></i>
-                      </button>
-
-                      {/* Centered Vehicle Image with soft shadow */}
-                      <img
-                        src={v.image || '/images/cab_sedan.png'}
-                        alt={v.name}
-                        style={{
-                          maxWidth: '85%',
-                          maxHeight: '140px',
-                          objectFit: 'contain',
-                          filter: 'drop-shadow(0 10px 14px rgba(0, 0, 0, 0.08))'
-                        }}
-                        onError={(e: any) => {
-                          e.target.src = (v as any).vehicleType === 'bike' ? '/images/red_bike_3d.png' : '/images/cab_sedan.png';
-                        }}
-                      />
-                    </div>
-
-                    {/* Content Details */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {/* Category Pill on Left */}
-                      <div>
-                        <span style={{
-                          background: '#e0f2fe',
-                          color: '#0284c7',
-                          borderRadius: '6px',
-                          padding: '3px 10px',
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          display: 'inline-block'
-                        }}>
-                          {v.category || ((v as any).vehicleType === 'bike' ? 'Cruiser' : 'Sedan')}
-                        </span>
-                      </div>
-
-                      {/* Title & Price in Same Row */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                        <h3 style={{
-                          margin: 0,
-                          fontSize: '17px',
-                          fontWeight: 800,
-                          color: '#0f172a',
-                          lineHeight: 1.3
-                        }}>
-                          {v.name}
-                        </h3>
-                        <div style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                          <span style={{ fontSize: '18px', fontWeight: 800, color: '#0284c7' }}>
-                            ₹{hourlyRateDisplay}
-                          </span>
-                          <span style={{ fontSize: '12px', color: '#64748b', marginLeft: '3px', fontWeight: 500 }}>
-                            /hr
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Reg No & Location Line */}
-                      <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>
-                        <span>Reg No: {v.plate || (v.name.includes('Alphard') ? 'MH 12 TA 7007' : v.name.includes('Verna') ? 'TN 23 BK 4567' : 'MH 12 AB 1234')}</span>
-                        <span style={{ margin: '0 6px' }}>•</span>
-                        <span>{v.location || (userLocationName ? `${userLocationName}` : 'Baner, Pune')}</span>
-                      </div>
-
-                      {/* Specifications Row: Transmission, Fuel, Seats */}
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '10px 0',
-                        borderTop: '1px solid #f1f5f9',
-                        marginTop: '4px'
-                      }}>
-                        {/* Shifter / Transmission */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: '#334155', fontWeight: 600 }}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0284c7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                            <path d="M5 4v16M19 4v16M5 12h14" />
-                          </svg>
-                          <span>{v.transmission || 'Automatic'}</span>
-                        </div>
-
-                        {/* Fuel */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: '#334155', fontWeight: 600 }}>
-                          <i className="fa-solid fa-gas-pump" style={{ color: '#0284c7', fontSize: '13px' }}></i>
-                          <span>{v.fuel || 'Petrol / Hybrid'}</span>
-                        </div>
-
-                        {/* Seats */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: '#334155', fontWeight: 600 }}>
-                          <i className="fa-solid fa-user" style={{ color: '#0284c7', fontSize: '13px' }}></i>
-                          <span>{v.seats || '5 Seats'}</span>
-                        </div>
-                      </div>
-
-                      {/* Bottom Footer Row: Availability Pill (Left) & Book Now Button (Right) */}
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        paddingTop: '4px'
-                      }}>
-                        <span style={{
-                          background: '#ecfdf5',
-                          color: '#059669',
-                          padding: '5px 12px',
-                          borderRadius: '20px',
+                          gap: '5px',
                           fontSize: '12px',
                           fontWeight: 700,
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px'
+                          color: '#1e293b',
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
+                          zIndex: 2
                         }}>
-                          <span style={{ fontSize: '10px', color: '#10b981' }}>●</span> Available
-                        </span>
+                          <i className="fa-solid fa-star" style={{ color: '#f59e0b', fontSize: '11px' }}></i>
+                          <span>{(v as any).rating || 4.8}</span>
+                        </div>
 
+                        {/* Favorite Heart Button on top-right */}
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedVehicleId(v.id);
-                            if (handleClose) handleClose();
-                            const currentLoc = pickup || userLocationName || 'Katpadi';
-                            router.push(`/home/rental/Car/CarDetails?id=${encodeURIComponent(v.id)}&pickup=${encodeURIComponent(currentLoc)}`);
+                            toggleFavorite(v.id);
                           }}
                           style={{
-                            background: '#2563eb',
-                            color: '#ffffff',
+                            position: 'absolute',
+                            top: '12px',
+                            right: '12px',
+                            width: '34px',
+                            height: '34px',
+                            borderRadius: '50%',
+                            background: 'rgba(255, 255, 255, 0.92)',
+                            backdropFilter: 'blur(4px)',
                             border: 'none',
-                            padding: '8px 22px',
-                            borderRadius: '8px',
-                            fontSize: '13px',
-                            fontWeight: 700,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                             cursor: 'pointer',
-                            transition: 'all 0.15s ease',
-                            boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)'
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
+                            zIndex: 2,
+                            transition: 'transform 0.15s ease'
                           }}
-                          onMouseEnter={(e) => { e.currentTarget.style.background = '#1d4ed8'; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.background = '#2563eb'; }}
+                          title="Add to favorites"
                         >
-                          Book Now
+                          <i
+                            className={`fa-${favorites[v.id] ? 'solid' : 'regular'} fa-heart`}
+                            style={{ color: favorites[v.id] ? '#ef4444' : '#64748b', fontSize: '15px' }}
+                          ></i>
                         </button>
+
+                        {/* Vehicle Image full-cover fitting the card header */}
+                        <img
+                          src={v.image || '/images/cab_sedan.png'}
+                          alt={v.name}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            display: 'block'
+                          }}
+                          onError={(e: any) => {
+                            e.target.src = (v as any).vehicleType === 'bike' ? '/images/red_bike_3d.png' : '/images/cab_sedan.png';
+                          }}
+                        />
+                      </div>
+
+                      {/* Content Details */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {/* Category Pill on Left */}
+                        <div>
+                          <span style={{
+                            background: '#e0f2fe',
+                            color: '#0284c7',
+                            borderRadius: '6px',
+                            padding: '3px 10px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            display: 'inline-block'
+                          }}>
+                            {v.category || ((v as any).vehicleType === 'bike' ? 'Cruiser' : 'Compact SUV')}
+                          </span>
+                        </div>
+
+                        {/* Title & Price in Same Row */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                          <h3 style={{
+                            margin: 0,
+                            fontSize: '17px',
+                            fontWeight: 800,
+                            color: '#0f172a',
+                            lineHeight: 1.3
+                          }}>
+                            {v.name}
+                          </h3>
+                          <div style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                            <span style={{ fontSize: '18px', fontWeight: 800, color: '#0284c7' }}>
+                              ₹{hourlyRateDisplay}
+                            </span>
+                            <span style={{ fontSize: '12px', color: '#64748b', marginLeft: '3px', fontWeight: 500 }}>
+                              /hr
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Reg No & Location Line */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px', color: '#475569' }}>
+                          <div style={{ fontWeight: 600 }}>
+                            Reg No: {v.plate || (v.name.includes('Alphard') ? 'MH 12 TA 7007' : v.name.includes('Verna') ? 'TN 23 BK 4567' : 'TN 23 YT 3264')}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '4px', lineHeight: 1.35, color: '#64748b' }}>
+                            <i className="fa-solid fa-location-dot" style={{ marginTop: '2px', fontSize: '11px', color: '#64748b', flexShrink: 0 }}></i>
+                            <span>{v.location || (userLocationName ? `${userLocationName}` : 'Ranipet - Chittoor Trunk Road, Thiruvalam, Katpadi, Vellore, Tamil Nadu, 632106, India')}</span>
+                          </div>
+                        </div>
+
+                        {/* Specifications Row: Transmission, Fuel, Seats */}
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '10px 0',
+                          borderTop: '1px solid #f1f5f9',
+                          marginTop: '4px'
+                        }}>
+                          {/* Transmission */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#1e293b', fontWeight: 600 }}>
+                            <span style={{ color: '#0284c7', fontWeight: 800, fontSize: '14px' }}>H</span>
+                            <span>{v.transmission || 'Manual'}</span>
+                          </div>
+
+                          <span style={{ color: '#cbd5e1' }}>•</span>
+
+                          {/* Fuel */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#1e293b', fontWeight: 600 }}>
+                            <i className="fa-solid fa-gas-pump" style={{ color: '#0284c7', fontSize: '13px' }}></i>
+                            <span>{v.fuel || 'Petrol'}</span>
+                          </div>
+
+                          <span style={{ color: '#cbd5e1' }}>•</span>
+
+                          {/* Seats */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#1e293b', fontWeight: 600 }}>
+                            <i className="fa-solid fa-user" style={{ color: '#0284c7', fontSize: '13px' }}></i>
+                            <span>{v.seats || '5-Seater'}</span>
+                          </div>
+                        </div>
+
+                        {/* Bottom Footer Row: Availability Pill (Left) & Book Now Button (Right) */}
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          paddingTop: '4px'
+                        }}>
+                          <span style={{
+                            background: '#ecfdf5',
+                            color: '#059669',
+                            padding: '5px 12px',
+                            borderRadius: '20px',
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}>
+                            <span style={{ fontSize: '10px', color: '#10b981' }}>●</span> Available
+                          </span>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedVehicleId(v.id);
+                              if (handleClose) handleClose();
+                              const currentLoc = pickup || userLocationName || 'Katpadi';
+                              const isBike = activeMaster?.id === 'bike' || (v as any).vehicleType === 'bike' || (v as any).type === 'bike';
+                              const targetPath = isBike
+                                ? `/home/rental/Bike/BookingDeliveryDetails?id=${encodeURIComponent(v.id)}&pickup=${encodeURIComponent(currentLoc)}`
+                                : `/home/rental/Car/CarDetails?id=${encodeURIComponent(v.id)}&pickup=${encodeURIComponent(currentLoc)}`;
+                              router.push(targetPath);
+                            }}
+                            style={{
+                              background: '#2563eb',
+                              color: '#ffffff',
+                              border: 'none',
+                              padding: '8px 22px',
+                              borderRadius: '8px',
+                              fontSize: '13px',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease',
+                              boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)'
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = '#1d4ed8'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = '#2563eb'; }}
+                          >
+                            Book Now
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
+
+              {/* Pagination Controls: Only shown if more than 4 vehicles (> 2 rows of 2 columns) */}
+              {totalPages > 1 && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '32px', padding: '16px 0' }}>
+                  <button
+                    type="button"
+                    disabled={currentPage <= 1}
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: '#f1f5f9',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '4px',
+                      color: currentPage <= 1 ? '#94a3b8' : '#0f172a',
+                      fontSize: '14px',
+                      fontWeight: 700,
+                      cursor: currentPage <= 1 ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    <i className="fa-solid fa-chevron-left"></i>
+                  </button>
+
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNo => (
+                    <button
+                      key={pageNo}
+                      type="button"
+                      onClick={() => setCurrentPage(pageNo)}
+                      style={{
+                        width: '36px',
+                        height: '36px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: currentPage === pageNo ? '#f8fafc' : '#ffffff',
+                        border: currentPage === pageNo ? '1.5px solid #0f172a' : '1px solid #cbd5e1',
+                        borderRadius: '4px',
+                        color: '#0f172a',
+                        fontSize: '15px',
+                        fontWeight: currentPage === pageNo ? 800 : 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {pageNo}
+                    </button>
+                  ))}
+
+                  <button
+                    type="button"
+                    disabled={currentPage >= totalPages}
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: '#ffffff',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '4px',
+                      color: currentPage >= totalPages ? '#94a3b8' : '#0f172a',
+                      fontSize: '14px',
+                      fontWeight: 700,
+                      cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    <i className="fa-solid fa-chevron-right"></i>
+                  </button>
+                </div>
+              )}
             </div>
-
-            {/* Pagination Controls below 2 rows: < 1 2 3 > from Image 1 */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '32px', padding: '16px 0' }}>
-              <button
-                type="button"
-                disabled={currentPage <= 1}
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: '#f1f5f9',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '4px',
-                  color: currentPage <= 1 ? '#94a3b8' : '#0f172a',
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  cursor: currentPage <= 1 ? 'not-allowed' : 'pointer'
-                }}
-              >
-                <i className="fa-solid fa-chevron-left"></i>
-              </button>
-
-              {Array.from({ length: Math.max(3, totalPages) }, (_, i) => i + 1).map(pageNo => (
-                <button
-                  key={pageNo}
-                  type="button"
-                  onClick={() => setCurrentPage(pageNo)}
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: currentPage === pageNo ? '#f8fafc' : '#ffffff',
-                    border: currentPage === pageNo ? '1.5px solid #0f172a' : '1px solid #cbd5e1',
-                    borderRadius: '4px',
-                    color: '#0f172a',
-                    fontSize: '15px',
-                    fontWeight: currentPage === pageNo ? 800 : 600,
-                    cursor: 'pointer'
-                  }}
-                >
-                  {pageNo}
-                </button>
-              ))}
-
-              <button
-                type="button"
-                disabled={currentPage >= totalPages && totalPages > 1}
-                onClick={() => setCurrentPage(prev => Math.min(Math.max(3, totalPages), prev + 1))}
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: '#ffffff',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '4px',
-                  color: '#0f172a',
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  cursor: 'pointer'
-                }}
-              >
-                <i className="fa-solid fa-chevron-right"></i>
-              </button>
-            </div>
-          </div>
           )}
         </div>
       </div>
