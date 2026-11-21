@@ -3,18 +3,16 @@
 import React, { useState } from 'react';
 import './CustomizeDockModal.css';
 
-export type ServiceCategory = 'ride' | 'carrier' | 'rental' | 'driver' | 'parking' | 'community';
-
 export interface ShortcutItem {
   id: string;
   name: string;
-  type: ServiceCategory;
+  type: 'ride' | 'carrier';
   icon: string;
   route: string;
 }
 
 export const ALL_SERVICES_SHORTCUTS: ShortcutItem[] = [
-  // 1. Rides Services
+  // Rides Services
   { id: 'bike', name: 'Bike', type: 'ride', icon: 'fa-motorcycle', route: '/home/ride/bike' },
   { id: 'car', name: 'Car', type: 'ride', icon: 'fa-car', route: '/home/ride/car' },
   { id: 'auto', name: 'Auto', type: 'ride', icon: 'fa-taxi', route: '/home/ride/auto' },
@@ -25,35 +23,13 @@ export const ALL_SERVICES_SHORTCUTS: ShortcutItem[] = [
   { id: 'ferry', name: 'Ferry / Boat Booking', type: 'ride', icon: 'fa-ship', route: '/home/ride/boat' },
   { id: 'helicopter', name: 'Helicopter Booking', type: 'ride', icon: 'fa-helicopter', route: '/home/ride/helicopter' },
 
-  // 2. Carriers & Cargo Logistics
+  // Carriers & Cargo Logistics
   { id: 'truck', name: 'Truck', type: 'carrier', icon: 'fa-truck-moving', route: '/home/carrier' },
   { id: 'train_cargo', name: 'Train', type: 'carrier', icon: 'fa-train-subway', route: '/home/carrier' },
   { id: 'flight_cargo', name: 'Flight', type: 'carrier', icon: 'fa-plane-departure', route: '/home/carrier' },
   { id: 'bike_parcel', name: 'Bike', type: 'carrier', icon: 'fa-box', route: '/home/carrier' },
   { id: 'ship_cargo', name: 'Ship', type: 'carrier', icon: 'fa-ship', route: '/home/carrier' },
   { id: 'tempo', name: 'Mini Truck', type: 'carrier', icon: 'fa-truck-pickup', route: '/home/carrier' },
-
-  // 3. Hourly & Daily Rentals
-  { id: 'rental_car', name: 'Car Rental', type: 'rental', icon: 'fa-car-side', route: '/home/rental' },
-  { id: 'rental_bike', name: 'Bike Rental', type: 'rental', icon: 'fa-motorcycle', route: '/home/rental' },
-  { id: 'rental_self_drive', name: 'Self Drive', type: 'rental', icon: 'fa-key', route: '/home/rental' },
-  { id: 'rental_scooter', name: 'EV Scooter', type: 'rental', icon: 'fa-bolt', route: '/home/rental' },
-
-  // 4. Hire Drivers & Chauffeurs
-  { id: 'driver_chauffeur', name: 'Personal Chauffeur', type: 'driver', icon: 'fa-user-tie', route: '/home/drivers' },
-  { id: 'driver_outstation', name: 'Outstation Driver', type: 'driver', icon: 'fa-id-card', route: '/home/drivers' },
-  { id: 'driver_hourly', name: 'Hourly Driver', type: 'driver', icon: 'fa-user-check', route: '/home/drivers' },
-
-  // 5. Safe Parking Slots
-  { id: 'parking_car', name: 'Car Parking', type: 'parking', icon: 'fa-square-parking', route: '/home/parking' },
-  { id: 'parking_bike', name: 'Bike Parking', type: 'parking', icon: 'fa-motorcycle', route: '/home/parking' },
-  { id: 'parking_ev', name: 'EV Charging Slot', type: 'parking', icon: 'fa-charging-station', route: '/home/parking' },
-  { id: 'parking_monthly', name: 'Monthly Parking', type: 'parking', icon: 'fa-ticket', route: '/home/parking' },
-
-  // 6. Communities
-  { id: 'community_hub', name: 'Community Hub', type: 'community', icon: 'fa-users', route: '/home/community' },
-  { id: 'community_union', name: 'Driver Union', type: 'community', icon: 'fa-users-gear', route: '/home/community' },
-  { id: 'community_chat', name: 'Community Chat', type: 'community', icon: 'fa-comments', route: '/home/community' },
 ];
 
 export const DEFAULT_SELECTED_SHORTCUT_IDS: string[] = ['bike'];
@@ -74,9 +50,7 @@ export default function CustomizeDockModal({
   maxSelections = 4
 }: CustomizeDockModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategoryFilter, setActiveCategoryFilter] = useState<
-    'all' | ServiceCategory
-  >('all');
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState<'all' | 'ride' | 'carrier'>('all');
   const [tempSelected, setTempSelected] = useState<string[]>(selectedIds);
 
   // Sync temp selections when modal opens
@@ -148,7 +122,7 @@ export default function CustomizeDockModal({
           />
         </div>
 
-        {/* Category Tabs: All, Rides, Carriers, Rentals, Drivers, Parkings, Communities */}
+        {/* Category Tabs: All, Rides, Carriers */}
         <div className="dock-service-filter-row">
           <button
             type="button"
@@ -170,34 +144,6 @@ export default function CustomizeDockModal({
             onClick={() => setActiveCategoryFilter('carrier')}
           >
             <i className="fa-solid fa-truck-moving" style={{ marginRight: '5px' }}></i> Carriers
-          </button>
-          <button
-            type="button"
-            className={`dock-filter-tab ${activeCategoryFilter === 'rental' ? 'active' : ''}`}
-            onClick={() => setActiveCategoryFilter('rental')}
-          >
-            <i className="fa-solid fa-key" style={{ marginRight: '5px' }}></i> Rentals
-          </button>
-          <button
-            type="button"
-            className={`dock-filter-tab ${activeCategoryFilter === 'driver' ? 'active' : ''}`}
-            onClick={() => setActiveCategoryFilter('driver')}
-          >
-            <i className="fa-solid fa-user-tie" style={{ marginRight: '5px' }}></i> Drivers
-          </button>
-          <button
-            type="button"
-            className={`dock-filter-tab ${activeCategoryFilter === 'parking' ? 'active' : ''}`}
-            onClick={() => setActiveCategoryFilter('parking')}
-          >
-            <i className="fa-solid fa-square-parking" style={{ marginRight: '5px' }}></i> Parkings
-          </button>
-          <button
-            type="button"
-            className={`dock-filter-tab ${activeCategoryFilter === 'community' ? 'active' : ''}`}
-            onClick={() => setActiveCategoryFilter('community')}
-          >
-            <i className="fa-solid fa-users" style={{ marginRight: '5px' }}></i> Communities
           </button>
         </div>
 
