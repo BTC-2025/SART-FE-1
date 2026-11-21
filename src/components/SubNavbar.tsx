@@ -99,8 +99,11 @@ export default function SubNavbar() {
       }
       setActiveTab('ride');
       router.push(shortcut.route, { scroll: false });
-    } else {
+    } else if (shortcut.type === 'carrier') {
       setActiveTab('carrier');
+      router.push(shortcut.route, { scroll: false });
+    } else if (['rental', 'drivers', 'parking', 'community'].includes(shortcut.type)) {
+      setActiveTab(shortcut.type as any);
       router.push(shortcut.route, { scroll: false });
     }
   };
@@ -163,7 +166,7 @@ export default function SubNavbar() {
             const isActive =
               shortcut.type === 'ride'
                 ? activeTab === 'ride' && (currentMode === normalizedShortcutMode || currentMode === shortcut.id)
-                : activeTab === 'carrier' && shortcut.type === 'carrier';
+                : activeTab === shortcut.type;
 
             return (
               <button

@@ -37,7 +37,7 @@ export default function QuickBookingForm() {
       { id: 'train', label: 'Express Train', icon: 'fa-solid fa-train', colorClass: 'icon-bg-yellow-light' }
     ],
     carrier: [
-      { id: 'c-bike', label: 'Delivery Bike / Moto', icon: 'fa-solid fa-motorcycle', colorClass: 'icon-bg-pink' },
+      { id: 'c-bike', label: 'Delivery Bike', icon: 'fa-solid fa-motorcycle', colorClass: 'icon-bg-pink' },
       { id: 'c-auto', label: 'Electric Three-Wheeler Cargo', icon: 'fa-solid fa-truck-fast', colorClass: 'icon-bg-yellow' },
       { id: 'c-minitruck', label: 'Small Commercial Mini-Truck', icon: 'fa-solid fa-truck-pickup', colorClass: 'icon-bg-blue' },
       { id: 'c-lcv', label: 'Light Commercial Lorry (LCV)', icon: 'fa-solid fa-truck', colorClass: 'icon-bg-blue' },
