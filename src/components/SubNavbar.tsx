@@ -99,8 +99,22 @@ export default function SubNavbar() {
       }
       setActiveTab('ride');
       router.push(shortcut.route, { scroll: false });
-    } else {
+    } else if (shortcut.type === 'carrier') {
       setActiveTab('carrier');
+      router.push(shortcut.route, { scroll: false });
+    } else if (shortcut.type === 'rental') {
+      setActiveTab('rental');
+      router.push(shortcut.route, { scroll: false });
+    } else if (shortcut.type === 'driver') {
+      setActiveTab('drivers');
+      router.push(shortcut.route, { scroll: false });
+    } else if (shortcut.type === 'parking') {
+      setActiveTab('parking');
+      router.push(shortcut.route, { scroll: false });
+    } else if (shortcut.type === 'community') {
+      setActiveTab('community');
+      router.push(shortcut.route, { scroll: false });
+    } else {
       router.push(shortcut.route, { scroll: false });
     }
   };
@@ -163,7 +177,17 @@ export default function SubNavbar() {
             const isActive =
               shortcut.type === 'ride'
                 ? activeTab === 'ride' && (currentMode === normalizedShortcutMode || currentMode === shortcut.id)
-                : activeTab === 'carrier' && shortcut.type === 'carrier';
+                : shortcut.type === 'carrier'
+                ? activeTab === 'carrier'
+                : shortcut.type === 'rental'
+                ? activeTab === 'rental'
+                : shortcut.type === 'driver'
+                ? activeTab === 'drivers'
+                : shortcut.type === 'parking'
+                ? activeTab === 'parking'
+                : shortcut.type === 'community'
+                ? activeTab === 'community'
+                : false;
 
             return (
               <button
