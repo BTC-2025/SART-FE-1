@@ -138,6 +138,178 @@ export default function Navbar() {
 
 
 
+  const searchQueryRef = useRef(searchQuery);
+  useEffect(() => {
+    searchQueryRef.current = searchQuery;
+  }, [searchQuery]);
+
+  const handleSearchSubmit = (rawQuery: string) => {
+    const q = (rawQuery || '').trim().toLowerCase();
+    if (!q) return;
+
+    // 1. Carriers & Freight Logistics (truck, cargo, tempo, parcel, etc.)
+    if (
+      q.includes('carrier') ||
+      q.includes('truck') ||
+      q.includes('cargo') ||
+      q.includes('logistics') ||
+      q.includes('tempo') ||
+      q.includes('lorry') ||
+      q.includes('freight') ||
+      q.includes('parcel') ||
+      q.includes('delivery') ||
+      q.includes('transport')
+    ) {
+      setActiveTab('carrier');
+      router.push('/home/carrier', { scroll: false });
+      if (typeof window !== 'undefined' && (window as any).openModal) {
+        (window as any).openModal('modal-carrier');
+      }
+    }
+    // 2. Rides, Cabs & Transport (ride, cab, taxi, auto, car, bike, flight, train, etc.)
+    else if (
+      q.includes('ride') ||
+      q.includes('cab') ||
+      q.includes('taxi') ||
+      q.includes('auto') ||
+      q.includes('uber') ||
+      q.includes('ola') ||
+      q.includes('car') ||
+      q.includes('flight') ||
+      q.includes('heli') ||
+      q.includes('train') ||
+      q.includes('rail') ||
+      q.includes('ferry') ||
+      q.includes('sea') ||
+      q.includes('yacht')
+    ) {
+      setActiveTab('ride');
+      router.push('/home/ride', { scroll: false });
+      if (typeof window !== 'undefined' && (window as any).openModal) {
+        (window as any).openModal('modal-ride');
+      }
+    }
+    // 3. Hourly & Daily Vehicle Rentals (rental, rent, scooter, bike, etc.)
+    else if (
+      q.includes('rental') ||
+      q.includes('rent') ||
+      q.includes('hire') ||
+      q.includes('self drive') ||
+      q.includes('scooter') ||
+      q.includes('motorcycle') ||
+      q.includes('bike') ||
+      q.includes('nexon') ||
+      q.includes('himalayan') ||
+      q.includes('activa')
+    ) {
+      setActiveTab('rental');
+      router.push('/home/rental', { scroll: false });
+      if (typeof window !== 'undefined' && (window as any).openModal) {
+        (window as any).openModal('modal-rental');
+      }
+    }
+    // 4. Safe Parking Slots & EV Slots
+    else if (
+      q.includes('parking') ||
+      q.includes('park') ||
+      q.includes('slot') ||
+      q.includes('ev slot') ||
+      q.includes('valet') ||
+      q.includes('space')
+    ) {
+      setActiveTab('parking');
+      router.push('/home/parking', { scroll: false });
+      if (typeof window !== 'undefined' && (window as any).openModal) {
+        (window as any).openModal('modal-parking');
+      }
+    }
+    // 5. Community Hub & Union Directory
+    else if (
+      q.includes('community') ||
+      q.includes('union') ||
+      q.includes('social') ||
+      q.includes('voice') ||
+      q.includes('bulletin') ||
+      q.includes('chat') ||
+      q.includes('forum') ||
+      q.includes('member')
+    ) {
+      setActiveTab('community');
+      router.push('/home/community', { scroll: false });
+      if (typeof window !== 'undefined' && (window as any).openModal) {
+        (window as any).openModal('modal-community');
+      }
+    }
+    // 6. Professional Drivers & Chauffeurs
+    else if (
+      q.includes('driver') ||
+      q.includes('chauffeur') ||
+      q.includes('pilot') ||
+      q.includes('captain')
+    ) {
+      setActiveTab('drivers');
+      router.push('/home/drivers', { scroll: false });
+      if (typeof window !== 'undefined' && (window as any).openModal) {
+        (window as any).openModal('modal-drivers');
+      }
+    }
+    // 7. Mechanic & Vehicle Repairs
+    else if (
+      q.includes('mechanic') ||
+      q.includes('repair') ||
+      q.includes('service') ||
+      q.includes('puncture') ||
+      q.includes('overhaul')
+    ) {
+      setActiveTab('mechanic');
+      router.push('/home/mechanic', { scroll: false });
+      if (typeof window !== 'undefined' && (window as any).openModal) {
+        (window as any).openModal('modal-mechanic');
+      }
+    }
+    // 8. Store / Shop / Products
+    else if (
+      q.includes('store') ||
+      q.includes('shop') ||
+      q.includes('buy') ||
+      q.includes('parts') ||
+      q.includes('spares') ||
+      q.includes('accessories')
+    ) {
+      setActiveTab('store');
+      router.push('/store', { scroll: false });
+    }
+    // 9. Tracks / Orders / Bookings
+    else if (
+      q.includes('track') ||
+      q.includes('booking') ||
+      q.includes('order') ||
+      q.includes('history')
+    ) {
+      setActiveTab('booking');
+      router.push('/booking', { scroll: false });
+    }
+    // 10. Fallback matching against SEARCH_OPTIONS
+    else {
+      const match = SEARCH_OPTIONS.find(opt =>
+        opt.title.toLowerCase().includes(q) ||
+        opt.kw.some(k => k.includes(q) || q.includes(k))
+      );
+      if (match) {
+        if (typeof window !== 'undefined' && (window as any).openModal) {
+          (window as any).openModal(match.modal);
+        }
+      } else {
+        // Default to rides if generic
+        setActiveTab('ride');
+        router.push('/home/ride', { scroll: false });
+      }
+    }
+
+    setIsSearchExpanded(false);
+    setSearchQuery('');
+  };
+
   // Listen for virtual keyboard typing from Bit-Tool
   useEffect(() => {
     const handleVirtualKey = (e: any) => {
@@ -149,7 +321,7 @@ export default function Navbar() {
       if (key === 'Backspace') {
         setSearchQuery(prev => prev.slice(0, -1));
       } else if (key === 'Enter') {
-        // keep open
+        handleSearchSubmit(searchQueryRef.current);
       } else if (key === 'Space') {
         setSearchQuery(prev => prev + ' ');
       } else if (key === 'Esc') {
@@ -232,11 +404,16 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="expanded-search-container in-place">
-              <i className="fa-solid fa-magnifying-glass search-icon-left"></i>
+              <i
+                className="fa-solid fa-magnifying-glass search-icon-left"
+                style={{ cursor: 'pointer', pointerEvents: 'auto' }}
+                onClick={() => handleSearchSubmit(searchQuery)}
+                title="Search"
+              ></i>
               <input
                 type="text"
                 className="expanded-search-input"
-                placeholder="Search"
+                placeholder="Search rides, carriers, rentals, parkings..."
                 autoFocus
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -244,34 +421,12 @@ export default function Navbar() {
                   if (e.key === 'Escape') {
                     setIsSearchExpanded(false);
                     setSearchQuery('');
+                  } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSearchSubmit(searchQuery);
                   }
                 }}
               />
-            </div>
-          )}
-
-          {searchQuery && isSearchExpanded && (
-            <div className="search-dropdown">
-              {SEARCH_OPTIONS.filter(opt => opt.title.toLowerCase().includes(searchQuery.toLowerCase()) || opt.kw.some(k => k.includes(searchQuery.toLowerCase()))).length > 0 ? (
-                SEARCH_OPTIONS.filter(opt => opt.title.toLowerCase().includes(searchQuery.toLowerCase()) || opt.kw.some(k => k.includes(searchQuery.toLowerCase()))).map(opt => (
-                  <div key={opt.title} className="booking-card" onClick={() => { (window as any).openModal(opt.modal); setIsSearchExpanded(false); setSearchQuery(''); }}>
-                    <div className="booking-card-left">
-                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: opt.color }}>
-                        <i className={`fa-solid ${opt.icon}`}></i>
-                      </div>
-                      <div className="booking-card-text">
-                        <h4 style={{ margin: 0, fontSize: '13px', color: '#fff' }}>{opt.title}</h4>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '9px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Shortcut trigger</p>
-                      </div>
-                    </div>
-                    <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px', color: 'var(--text-secondary)' }}></i>
-                  </div>
-                ))
-              ) : (
-                <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '15px', fontSize: '12px' }}>
-                  No matching modules found in directory.
-                </div>
-              )}
             </div>
           )}
         </div>
