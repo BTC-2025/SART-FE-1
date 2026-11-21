@@ -2174,73 +2174,92 @@ h6 {
 }
 
 /* ==========================================================================
-   CENTER NAV CAPSULE MATCHING EXACT IMAGE COLORS
+   CENTER NAV CAPSULE MATCHING EXACT IMAGE (Store Active White Pill)
    ========================================================================== */
+.web-navbar .nav-links,
 .nav-links {
-  width: 250px !important;
-  height: 42px !important;
-  border-radius: 9999px !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
   display: inline-flex !important;
   align-items: center !important;
-  justify-content: space-between !important;
-  background: #1F1B4D !important;
-  border: 1.5px solid #ffffff !important;
-  padding: 4px 6px !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 9999px !important;
+  padding: 3px 4px !important;
   box-sizing: border-box !important;
-  gap: 8px !important;
+  box-shadow: none !important;
+  z-index: 50 !important;
+  width: auto !important;
+  min-width: 250px !important;
+  height: 42px !important;
 }
 
+.web-navbar .nav-link,
 .nav-link {
   height: 34px !important;
-  padding: 0 16px !important;
+  padding: 0 20px !important;
   border-radius: 9999px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 13px !important;
+  font-size: 14px !important;
   font-weight: 600 !important;
-  color: #B59CDE !important;
-  /* Before entering / inactive: text color #B59CDE */
+  color: #ffffff !important;
   background: transparent !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
-  white-space: nowrap !important;
   border: none !important;
+  text-decoration: none !important;
+  user-select: none !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
+.web-navbar .nav-link:hover,
 .nav-link:hover {
+  background: rgba(255, 255, 255, 0.16) !important;
   color: #ffffff !important;
-  background: transparent !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
+.web-navbar .nav-link span,
 .nav-link span {
   color: #ffffff !important;
-  /* Before entering / inactive: text color #B59CDE */
-  font-weight: inherit !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
   background: transparent !important;
-  transition: color 0.2s ease !important;
+  transition: all 0.2s ease !important;
 }
 
+.web-navbar .nav-link:hover span,
 .nav-link:hover span {
   color: #ffffff !important;
 }
 
+.web-navbar .nav-link.active,
+.web-navbar .nav-link.active:hover,
 .nav-link.active,
 .nav-link.active:hover {
-  background: #391E8A !important;
-  /* After entering / active: button background #391E8A */
-  color: #ffffff !important;
-  /* Text color white */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  background: #ffffff !important;
+  color: #1a237e !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
   border: none !important;
-  font-weight: 600 !important;
-  padding: 0 20px !important;
+  font-weight: 700 !important;
+  padding: 0 24px !important;
+  transform: none !important;
 }
 
+.web-navbar .nav-link.active span,
+.web-navbar .nav-link.active:hover span,
 .nav-link.active span,
 .nav-link.active:hover span {
-  color: #ffffff !important;
-  /* Text color white */
-  font-weight: 600 !important;
+  color: #1a237e !important;
+  font-weight: 700 !important;
   background: transparent !important;
 }
