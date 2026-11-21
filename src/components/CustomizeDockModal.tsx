@@ -24,12 +24,12 @@ export const ALL_SERVICES_SHORTCUTS: ShortcutItem[] = [
   { id: 'helicopter', name: 'Helicopter Booking', type: 'ride', icon: 'fa-helicopter', route: '/home/ride/helicopter' },
 
   // Carriers & Cargo Logistics
-  { id: 'truck', name: 'Truck Cargo', type: 'carrier', icon: 'fa-truck-moving', route: '/home/carrier' },
-  { id: 'train_cargo', name: 'Train Cargo Freight', type: 'carrier', icon: 'fa-train-subway', route: '/home/carrier' },
-  { id: 'flight_cargo', name: 'Flight Air Cargo', type: 'carrier', icon: 'fa-plane-departure', route: '/home/carrier' },
-  { id: 'bike_parcel', name: 'Bike Parcel', type: 'carrier', icon: 'fa-box', route: '/home/carrier' },
-  { id: 'ship_cargo', name: 'Ship Cargo', type: 'carrier', icon: 'fa-ship', route: '/home/carrier' },
-  { id: 'tempo', name: 'Mini Truck / Tempo', type: 'carrier', icon: 'fa-truck-pickup', route: '/home/carrier' },
+  { id: 'truck', name: 'Truck', type: 'carrier', icon: 'fa-truck-moving', route: '/home/carrier' },
+  { id: 'train_cargo', name: 'Train', type: 'carrier', icon: 'fa-train-subway', route: '/home/carrier' },
+  { id: 'flight_cargo', name: 'Flight', type: 'carrier', icon: 'fa-plane-departure', route: '/home/carrier' },
+  { id: 'bike_parcel', name: 'Bike', type: 'carrier', icon: 'fa-box', route: '/home/carrier' },
+  { id: 'ship_cargo', name: 'Ship', type: 'carrier', icon: 'fa-ship', route: '/home/carrier' },
+  { id: 'tempo', name: 'Mini Truck', type: 'carrier', icon: 'fa-truck-pickup', route: '/home/carrier' },
 ];
 
 export const DEFAULT_SELECTED_SHORTCUT_IDS: string[] = ['bike'];
