@@ -43,29 +43,28 @@
 }
 
 .nav-links {
-  width: 310px !important;
+  width: auto !important;
+  min-width: 250px !important;
   height: 42px !important;
   border-radius: 9999px !important;
   display: flex !important;
   align-items: center !important;
-  justify-content: space-between !important;
-  background: #3712a6 !important;
-  /* Exact color from Image 2 */
-  border: 1.5px solid #ffffff !important;
-  /* Crisp white border */
-  padding: 4px 6px !important;
+  justify-content: center !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  padding: 3px 4px !important;
   box-sizing: border-box !important;
-  gap: 8px !important;
+  gap: 4px !important;
 }
 
 .nav-link {
   height: 34px !important;
-  padding: 0 16px !important;
+  padding: 0 20px !important;
   border-radius: 9999px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 13px !important;
+  font-size: 14px !important;
   font-weight: 600 !important;
   color: #ffffff !important;
   background: transparent !important;
@@ -77,18 +76,16 @@
 
 .nav-link:hover {
   color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.16) !important;
 }
 
 .nav-link.active {
-  background: #b59cde !important;
-  /* Exact color from Image 3 */
-  color: #000000 !important;
-  /* Bold dark text on lavender active button */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+  background: #ffffff !important;
+  color: #1a237e !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
   border: none !important;
-  font-weight: 600 !important;
-  padding: 0 20px !important;
+  font-weight: 700 !important;
+  padding: 0 24px !important;
 }
 
 .nav-link span {
@@ -98,8 +95,8 @@
 }
 
 .nav-link.active span {
-  color: #000000 !important;
-  font-weight: 600 !important;
+  color: #1a237e !important;
+  font-weight: 700 !important;
   background: transparent !important;
 }
 
