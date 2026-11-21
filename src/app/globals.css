@@ -2072,7 +2072,6 @@ h6 {
 }
 
 .location-nav-btn,
-.ctrl-btn,
 .wallet-badge,
 .bit-nav-btn {
   background: #ffffff !important;
@@ -2081,7 +2080,6 @@ h6 {
 }
 
 .location-nav-btn i,
-.ctrl-btn i,
 .wallet-badge i,
 .bit-nav-btn i {
   color: #000000 !important;
@@ -2092,13 +2090,70 @@ h6 {
 }
 
 .location-nav-btn:hover,
-.ctrl-btn:hover,
 .wallet-badge:hover,
 .bit-nav-btn:hover {
   background: #ffffff !important;
   color: #000000 !important;
   transform: none !important;
   box-shadow: none !important;
+}
+
+/* === CIRCULAR ACTION BUTTONS (Search, Wishlist, Cart) MATCHING IMAGE 1 === */
+.ctrl-btn,
+.search-trigger-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  box-shadow: none !important;
+  position: relative !important;
+  transform: none !important;
+}
+
+.ctrl-btn i,
+.search-trigger-btn i {
+  color: #ffffff !important;
+  font-size: 14px !important;
+}
+
+.ctrl-btn:hover,
+.search-trigger-btn:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  color: #ffffff !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.ctrl-btn:hover i,
+.search-trigger-btn:hover i {
+  color: #ffffff !important;
+}
+
+.ctrl-badge {
+  position: absolute !important;
+  top: -3px !important;
+  right: -3px !important;
+  width: 17px !important;
+  height: 17px !important;
+  border-radius: 50% !important;
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1.5px solid #371F76 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  z-index: 2 !important;
 }
 
 /* === USER REQUESTED NAV-LINK BUTTON COLORS === */
@@ -2186,7 +2241,7 @@ h6 {
   align-items: center !important;
   justify-content: center !important;
   gap: 4px !important;
-  background: rgba(255, 255, 255, 0.12) !important;
+  background: #1F1B4D !important;
   border: 1px solid rgba(255, 255, 255, 0.3) !important;
   border-radius: 9999px !important;
   padding: 3px 4px !important;
