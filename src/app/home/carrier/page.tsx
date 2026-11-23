@@ -265,7 +265,7 @@ function CarrierContent() {
         const res = await fetch('/api/carriers');
         if (res.ok) {
           const data = await res.json();
-          if (data && Array.isArray(data.vehicles) && data.vehicles.length > 0) {
+          if (data && Array.isArray(data.vehicles)) {
             setFleetVehicles(data.vehicles.map(parseCarrier));
             return;
           }
@@ -277,7 +277,7 @@ function CarrierContent() {
         const saved = localStorage.getItem('logi_pulse_vehicles');
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
+          if (Array.isArray(parsed)) {
             setFleetVehicles(parsed.map(parseCarrier));
             return;
           }
