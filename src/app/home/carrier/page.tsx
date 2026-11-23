@@ -351,7 +351,7 @@ function CarrierContent() {
 
     const modeCapitalized = veh.mode ? (veh.mode.charAt(0).toUpperCase() + veh.mode.slice(1).toLowerCase()) : 'Truck';
 
-    const q = new URLSearchParams({
+    const selectedData = {
       id: veh.id,
       mode: modeCapitalized,
       name: veh.name,
@@ -365,14 +365,21 @@ function CarrierContent() {
       weight: weight || (veh.mode === 'bike' ? '150' : '28'),
       weightUnit: weightUnit || (veh.mode === 'bike' ? 'kg' : 'Tonnes'),
       goodsType: goodsType || 'Industrial / Commercial Freight',
-      ratePerKm: String(veh.ratePerKm || 48),
-      baseCharge: String(veh.baseCharge || 1800),
-      advancePercent: String(veh.advancePercent || 30),
-      deposit: String(veh.deposit || 3000),
+      ratePerKm: veh.ratePerKm || 48,
+      baseCharge: veh.baseCharge || 1800,
+      advancePercent: veh.advancePercent || 30,
+      deposit: veh.deposit || 3000,
       image: veh.image || '/images/tata_ace_fleet.jpg'
-    });
+    };
 
-    router.push(`/home/carrier/${modeCapitalized}/BookingDetails?${q.toString()}`);
+    try {
+      sessionStorage.setItem('sart_selected_carrier', JSON.stringify(selectedData));
+    } catch (e) {
+      console.warn('Could not save carrier selection in sessionStorage', e);
+    }
+
+    // Clean URL navigation without huge base64 query params
+    router.push(`/home/carrier/${modeCapitalized}/BookingDetails`);
   };
 
   // Filter vehicles strictly by owner-added fleet

@@ -17,18 +17,34 @@ function CarrierBookingDetailsContent() {
   const routeMode = (typeof params?.mode === 'string' ? params.mode : 'Ship');
   const normalizedMode = routeMode.toUpperCase();
 
-  // URL Query Parameters
-  const vehicleId = searchParams.get('id') || '';
-  const paramName = searchParams.get('name') || (normalizedMode === 'SHIP' ? '' : '');
-  const paramBrand = searchParams.get('brand') || (normalizedMode === 'SHIP' ? '' : '');
-  const paramReg = searchParams.get('regId') || (normalizedMode === 'SHIP' ? '' : '');
-  const paramHub = searchParams.get('hub') || '';
-  const paramImage = searchParams.get('image') || (normalizedMode === 'SHIP' ? '' : '');
+  // Selected vehicle state (either from sessionStorage or searchParams fallback)
+  const [selectedCarrier, setSelectedCarrier] = useState<any>(null);
 
-  const baseRateKm = Number(searchParams.get('ratePerKm') || (normalizedMode === 'SHIP' ? 650 : 48));
-  const baseTripFee = Number(searchParams.get('baseCharge') || (normalizedMode === 'SHIP' ? 120000 : 1800));
-  const advPct = Number(searchParams.get('advancePercent') || (normalizedMode === 'SHIP' ? 40 : 30));
-  const secDeposit = Number(searchParams.get('deposit') || (normalizedMode === 'SHIP' ? 200000 : 3000));
+  // Load from sessionStorage
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('sart_selected_carrier');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setSelectedCarrier(parsed);
+      }
+    } catch (e) {
+      console.warn('Failed to parse sart_selected_carrier', e);
+    }
+  }, []);
+
+  // Vehicle Parameters with clean fallbacks
+  const vehicleId = selectedCarrier?.id || searchParams.get('id') || '';
+  const paramName = selectedCarrier?.name || searchParams.get('name') || (normalizedMode === 'SHIP' ? 'Shipping Corporation of India Coastal Cargo Feeder' : 'Commercial Cargo Carrier');
+  const paramBrand = selectedCarrier?.brand || searchParams.get('brand') || (normalizedMode === 'SHIP' ? 'Shipping Corporation of India' : 'Carrier Logistics');
+  const paramReg = selectedCarrier?.regId || searchParams.get('regId') || (normalizedMode === 'SHIP' ? 'IMO 7879' : 'MH 12 MH 6789');
+  const paramHub = selectedCarrier?.hub || searchParams.get('hub') || 'Tata Steel Logistics Hub, Chennai, Tamil Nadu - 600081';
+  const paramImage = selectedCarrier?.image || searchParams.get('image') || '';
+
+  const baseRateKm = Number(selectedCarrier?.ratePerKm || searchParams.get('ratePerKm') || (normalizedMode === 'SHIP' ? 650 : 48));
+  const baseTripFee = Number(selectedCarrier?.baseCharge || searchParams.get('baseCharge') || (normalizedMode === 'SHIP' ? 120000 : 1800));
+  const advPct = Number(selectedCarrier?.advancePercent || searchParams.get('advancePercent') || (normalizedMode === 'SHIP' ? 40 : 30));
+  const secDeposit = Number(selectedCarrier?.deposit || searchParams.get('deposit') || (normalizedMode === 'SHIP' ? 200000 : 3000));
 
   // Current Step (1 to 5)
   // Step 1: Route Details
@@ -39,15 +55,41 @@ function CarrierBookingDetailsContent() {
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   // ---------------- STEP 1: ROUTE DETAILS ----------------
-  const [pickupAddress, setPickupAddress] = useState(searchParams.get('pickupAddress') || 'Cherlapally Industrial Area, Phase 3');
+  const [pickupAddress, setPickupAddress] = useState('Cherlapally Industrial Area, Phase 3');
   const [pickupState, setPickupState] = useState('Telangana');
   const [pickupCity, setPickupCity] = useState('Hyderabad');
-  const [pickupPincode, setPickupPincode] = useState(searchParams.get('pickupPincode') || '500051');
+  const [pickupPincode, setPickupPincode] = useState('500051');
 
-  const [deliveryAddress, setDeliveryAddress] = useState(searchParams.get('deliveryAddress') || 'Peenya Industrial Area, Stage 2');
+  const [deliveryAddress, setDeliveryAddress] = useState('Peenya Industrial Area, Stage 2');
   const [deliveryState, setDeliveryState] = useState('Karnataka');
   const [deliveryCity, setDeliveryCity] = useState('Bengaluru');
-  const [deliveryPincode, setDeliveryPincode] = useState(searchParams.get('deliveryPincode') || '560058');
+  const [deliveryPincode, setDeliveryPincode] = useState('560058');
+
+  // Update initial pickup/delivery once selectedCarrier loads if present
+  useEffect(() => {
+    if (selectedCarrier) {
+      if (selectedCarrier.pickupAddress) setPickupAddress(selectedCarrier.pickupAddress);
+      if (selectedCarrier.pickupPincode) setPickupPincode(selectedCarrier.pickupPincode);
+      if (selectedCarrier.deliveryAddress) setDeliveryAddress(selectedCarrier.deliveryAddress);
+      if (selectedCarrier.deliveryPincode) setDeliveryPincode(selectedCarrier.deliveryPincode);
+      if (selectedCarrier.weight) setTotalCargoWeight(String(selectedCarrier.weight));
+      if (selectedCarrier.weightUnit) setWeightUnitVal(selectedCarrier.weightUnit);
+      if (selectedCarrier.goodsType) setGoodsDescription(selectedCarrier.goodsType);
+    } else {
+      const qPickup = searchParams.get('pickupAddress');
+      const qPickupPin = searchParams.get('pickupPincode');
+      const qDel = searchParams.get('deliveryAddress');
+      const qDelPin = searchParams.get('deliveryPincode');
+      const qW = searchParams.get('weight');
+      const qWU = searchParams.get('weightUnit');
+      if (qPickup) setPickupAddress(qPickup);
+      if (qPickupPin) setPickupPincode(qPickupPin);
+      if (qDel) setDeliveryAddress(qDel);
+      if (qDelPin) setDeliveryPincode(qDelPin);
+      if (qW) setTotalCargoWeight(qW);
+      if (qWU) setWeightUnitVal(qWU);
+    }
+  }, [selectedCarrier, searchParams]);
 
   const [pickupDate, setPickupDate] = useState('2026-11-25');
   const [pickupTime, setPickupTime] = useState('10:00');
@@ -310,7 +352,7 @@ function CarrierBookingDetailsContent() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div>
                 <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: 0 }}>
-                  Step 1: Route Details
+                  Route Details
                 </h2>
                 <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
                   Specify origin, destination and scheduled dispatch window for dedicated carrier transit.
@@ -501,7 +543,7 @@ function CarrierBookingDetailsContent() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div>
                 <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: 0 }}>
-                  Step 2: Sender Details
+                  Sender Details
                 </h2>
                 <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
                   Enter sender / consignor information for interstate GST compliance or individual non-commercial transport.
@@ -655,7 +697,7 @@ function CarrierBookingDetailsContent() {
                   {/* Verified Pickup Address */}
                   <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
-                      {senderType === 'business' ? 'C. Verified Pickup Address (Auto-filled from GST / Step 1)' : 'B. Pickup Contact Person (Self / Representative)'}
+                      {senderType === 'business' ? 'C. Verified Pickup Address (Auto-filled from GST )' : 'B. Pickup Contact Person (Self / Representative)'}
                     </div>
 
                     {senderType === 'individual' && (
@@ -767,7 +809,7 @@ function CarrierBookingDetailsContent() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div>
                 <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: 0 }}>
-                  Step 3: Receiver Details
+                  Receiver Details
                 </h2>
                 <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
                   Enter receiver / consignee information for destination delivery and unloading assistance.
@@ -937,7 +979,7 @@ function CarrierBookingDetailsContent() {
                   {/* Delivery Address Card */}
                   <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
-                      C. Delivery Address (Auto-filled / confirmed from Step 1)
+                      C. Delivery Address (Auto-filled / confirmed)
                     </div>
                     <div>
                       <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Delivery Address</label>
@@ -1017,7 +1059,7 @@ function CarrierBookingDetailsContent() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div>
                 <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: 0 }}>
-                  Step 4: Goods & Cargo Details
+                  Goods & Cargo Details
                 </h2>
                 <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
                   Specify dimensions, weight, packaging, and handling requirements for vehicle allocation.
@@ -1225,7 +1267,7 @@ function CarrierBookingDetailsContent() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div>
                 <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: 0 }}>
-                  Step 5: {routeMode} Selection
+                  {routeMode} Selection
                 </h2>
                 <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
                   Based on your {totalCargoWeight} {weightUnitVal}, {dimensions.length} × {dimensions.width} × {dimensions.height} cargo, we recommend these vehicles:
