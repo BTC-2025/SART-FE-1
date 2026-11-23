@@ -282,9 +282,10 @@ function BookingDeliveryDetailsContent() {
 
   return (
     <div style={{
-      maxWidth: '1200px',
-      margin: '28px auto',
-      padding: '0 20px 80px',
+      maxWidth: '1440px',
+      width: '100%',
+      margin: '20px auto',
+      padding: '0 12px 60px',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
       boxSizing: 'border-box'
     }}>
@@ -295,7 +296,7 @@ function BookingDeliveryDetailsContent() {
         alignItems: 'center',
         justifyContent: 'center',
         gap: '24px',
-        marginBottom: '36px'
+        marginBottom: '28px'
       }}>
         {/* Step 1: Details (Active Orange) */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
@@ -367,8 +368,8 @@ function BookingDeliveryDetailsContent() {
       {/* Main 2-Column Grid Layout */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '1.75fr 1fr',
-        gap: '24px',
+        gridTemplateColumns: '1.85fr 1fr',
+        gap: '16px',
         alignItems: 'start'
       }}>
 
