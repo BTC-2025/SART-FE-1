@@ -96,7 +96,7 @@ function CarrierPaymentContent() {
             </button>
             <div>
               <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 900, color: '#0f172a' }}>
-                Step 6: Price & Payment
+                Price & Payment
               </h2>
               <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
                 Booking Ref: <strong style={{ color: '#0f172a' }}>{bookingId}</strong> • Lock carrier dispatch with advance deposit
