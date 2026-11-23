@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 
 export interface LocationResult {
   address: string;
@@ -128,8 +126,8 @@ export default function CarrierLocationModal({
   const [isGeocoding, setIsGeocoding] = useState(false);
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const leafletMapRef = useRef<L.Map | null>(null);
-  const markerRef = useRef<L.Marker | null>(null);
+  const leafletMapRef = useRef<any>(null);
+  const markerRef = useRef<any>(null);
 
   // Sync initial hub based on target or current value if already selected
   useEffect(() => {
@@ -168,8 +166,14 @@ export default function CarrierLocationModal({
   useEffect(() => {
     if (!isOpen) return;
 
-    const timer = setTimeout(() => {
+    let isMounted = true;
+    const timer = setTimeout(async () => {
       if (!mapContainerRef.current) return;
+
+      const L = (await import('leaflet')).default;
+      await import('leaflet/dist/leaflet.css');
+
+      if (!isMounted || !mapContainerRef.current) return;
 
       if (leafletMapRef.current) {
         leafletMapRef.current.remove();
@@ -274,12 +278,12 @@ export default function CarrierLocationModal({
         setIsGeocoding(false);
       };
 
-      marker.on('dragend', (e) => {
-        const coords = (e.target as L.Marker).getLatLng();
+      marker.on('dragend', (e: any) => {
+        const coords = e.target.getLatLng();
         updatePinLocation(coords.lat, coords.lng);
       });
 
-      map.on('click', (e: L.LeafletMouseEvent) => {
+      map.on('click', (e: any) => {
         const { lat, lng } = e.latlng;
         marker.setLatLng([lat, lng]);
         updatePinLocation(lat, lng);
@@ -289,7 +293,10 @@ export default function CarrierLocationModal({
       markerRef.current = marker;
     }, 150);
 
-    return () => clearTimeout(timer);
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
   }, [isOpen]);
 
   // Instant Hub Selection handler
