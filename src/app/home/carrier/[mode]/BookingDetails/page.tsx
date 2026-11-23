@@ -18,12 +18,12 @@ function CarrierBookingDetailsContent() {
   const normalizedMode = routeMode.toUpperCase();
 
   // URL Query Parameters
-  const vehicleId = searchParams.get('id') || 'CRG-1003';
-  const paramName = searchParams.get('name') || (normalizedMode === 'SHIP' ? 'Shipping Corporation of India Coastal Cargo Feeder' : 'Tata Motors Tata Ace Gold');
-  const paramBrand = searchParams.get('brand') || (normalizedMode === 'SHIP' ? 'Shipping Corporation of India' : 'Tata Motors');
-  const paramReg = searchParams.get('regId') || (normalizedMode === 'SHIP' ? 'IMO 7879' : 'MH 12 MH 6789');
-  const paramHub = searchParams.get('hub') || 'Tata Steel Logistics Hub, Chennai, Tamil Nadu - 600081';
-  const paramImage = searchParams.get('image') || (normalizedMode === 'SHIP' ? 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&q=80' : '/images/tata_ace_fleet.jpg');
+  const vehicleId = searchParams.get('id') || '';
+  const paramName = searchParams.get('name') || (normalizedMode === 'SHIP' ? '' : '');
+  const paramBrand = searchParams.get('brand') || (normalizedMode === 'SHIP' ? '' : '');
+  const paramReg = searchParams.get('regId') || (normalizedMode === 'SHIP' ? '' : '');
+  const paramHub = searchParams.get('hub') || '';
+  const paramImage = searchParams.get('image') || (normalizedMode === 'SHIP' ? '' : '');
 
   const baseRateKm = Number(searchParams.get('ratePerKm') || (normalizedMode === 'SHIP' ? 650 : 48));
   const baseTripFee = Number(searchParams.get('baseCharge') || (normalizedMode === 'SHIP' ? 120000 : 1800));
@@ -1234,102 +1234,77 @@ function CarrierBookingDetailsContent() {
 
               {/* Recommended banner */}
               <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '10px', padding: '12px 16px', color: '#0369a1', fontSize: '13.5px', fontWeight: 700 }}>
-                Recommended for your load: Heavy Carrier ({totalCargoWeight} {weightUnitVal} capacity, Multi-Axle / Container Hold)
+                Confirmed Allocated Carrier: {paramName} ({totalCargoWeight} {weightUnitVal} capacity)
               </div>
 
-              {/* Vehicle Cards Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-                {/* Option 1: Selected / Recommended */}
+              {/* ONLY the Chosen Vehicle is displayed! */}
+              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <div
-                  onClick={() => setSelectedVehicleType('heavy')}
                   style={{
-                    background: selectedVehicleType === 'heavy' ? '#f0fdf4' : '#ffffff',
-                    border: selectedVehicleType === 'heavy' ? '2.5px solid #16a34a' : '1.5px solid #e2e8f0',
+                    background: '#f0fdf4',
+                    border: '2.5px solid #16a34a',
                     borderRadius: '16px',
-                    padding: '20px',
+                    padding: '24px',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '12px',
-                    cursor: 'pointer',
-                    position: 'relative'
+                    gap: '14px',
+                    position: 'relative',
+                    maxWidth: '460px',
+                    width: '100%',
+                    boxShadow: '0 4px 16px rgba(22, 163, 74, 0.08)'
                   }}
                 >
-                  <span style={{ position: 'absolute', top: '-12px', left: '16px', background: '#2563eb', color: '#ffffff', fontSize: '10.5px', fontWeight: 800, padding: '3px 10px', borderRadius: '12px' }}>
-                    ✓ RECOMMENDED FOR YOUR CARGO
+                  <span style={{ position: 'absolute', top: '-12px', left: '16px', background: '#16a34a', color: '#ffffff', fontSize: '10.5px', fontWeight: 800, padding: '3px 12px', borderRadius: '12px' }}>
+                    ✓ SELECTED CARRIER FOR YOUR SHIPMENT
                   </span>
-                  <div style={{ height: '120px', borderRadius: '10px', overflow: 'hidden', background: '#f8fafc' }}>
-                    <img src={paramImage} alt="Carrier" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e: any) => { e.target.src = '/images/tata_ace_fleet.jpg'; }} />
+                  <div style={{ height: '180px', borderRadius: '12px', overflow: 'hidden', background: '#f8fafc' }}>
+                    <img
+                      src={paramImage}
+                      alt={paramName}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e: any) => { e.target.src = '/images/tata_ace_fleet.jpg'; }}
+                    />
                   </div>
                   <div>
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 900, color: '#0f172a' }}>{paramName}</h4>
-                    <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>Multi-Axle Flatbed / Dedicated Container (10-Wheeler)</p>
+                    <h3 style={{ margin: '0 0 4px 0', fontSize: '18px', fontWeight: 900, color: '#0f172a', fontFamily: 'serif, Georgia' }}>
+                      {paramName}
+                    </h3>
+                    <p style={{ margin: 0, fontSize: '12.5px', color: '#64748b', fontWeight: 600 }}>
+                      {paramBrand || 'Verified Carrier Partner'} • Reg: {paramReg}
+                    </p>
                   </div>
-                  <div style={{ fontSize: '12px', color: '#475569', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                  <div style={{ fontSize: '12.5px', color: '#475569', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     <div><strong>Max Payload:</strong> {totalCargoWeight} {weightUnitVal}</div>
                     <div><strong>Dimensions:</strong> {dimensions.length} × {dimensions.width} × {dimensions.height}</div>
-                    <div><strong>Suitable for:</strong> Industrial machinery, steel, heavy equipment</div>
+                    <div><strong>Hub Location:</strong> {paramHub}</div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '8px', borderTop: '1px solid #e2e8f0' }}>
-                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#0f172a' }}>Est. ₹{totalFreight.toLocaleString('en-IN')}</span>
-                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#16a34a' }}>● Selected</span>
-                  </div>
-                </div>
 
-                {/* Option 2: Heavy Flatbed Trailer */}
-                <div
-                  onClick={() => setSelectedVehicleType('trailer')}
-                  style={{
-                    background: selectedVehicleType === 'trailer' ? '#f0fdf4' : '#ffffff',
-                    border: selectedVehicleType === 'trailer' ? '2.5px solid #16a34a' : '1.5px solid #e2e8f0',
-                    borderRadius: '16px',
-                    padding: '20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <div style={{ height: '120px', borderRadius: '10px', overflow: 'hidden', background: '#f8fafc' }}>
-                    <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80" alt="Trailer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div style={{
+                    background: '#ffffff',
+                    border: '1.5px dashed #cbd5e1',
+                    borderRadius: '8px',
+                    padding: '10px 14px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#0f172a'
+                  }}>
+                    Rate Card: ₹{baseTripFee.toLocaleString('en-IN')}/trip | ₹{baseRateKm}/km | Adv: {advPct}%
                   </div>
-                  <div>
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 900, color: '#0f172a' }}>Flatbed Trailer (20 - 25 Ton Capacity)</h4>
-                    <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>3-Axle Articulated Trailer (12+ Wheeler)</p>
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#475569', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                    <div><strong>Max Payload:</strong> 25 Tons</div>
-                    <div><strong>Dimensions:</strong> 40 ft × 8 ft × 8.5 ft</div>
-                    <div><strong>Suitable for:</strong> Over-dimensional cargo, steel coils</div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '8px', borderTop: '1px solid #e2e8f0' }}>
-                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#0f172a' }}>Est. ₹{(totalFreight + 6250).toLocaleString('en-IN')}</span>
-                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>○ Select</span>
-                  </div>
-                </div>
 
-                {/* Option 3: Medium Commercial Vehicle */}
-                <div style={{
-                  background: '#f8fafc',
-                  border: '1.5px solid #e2e8f0',
-                  borderRadius: '16px',
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                  opacity: 0.75
-                }}>
-                  <div style={{ height: '120px', borderRadius: '10px', overflow: 'hidden', background: '#f1f5f9' }}>
-                    <img src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=600&q=80" alt="Medium" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </div>
-                  <div>
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 900, color: '#0f172a' }}>Medium Commercial Vehicle (9 - 12 Ton)</h4>
-                    <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>6-Wheeler Closed Box / High-Side Deck</p>
-                  </div>
-                  <div style={{ background: '#fef3c7', borderRadius: '6px', padding: '8px 10px', fontSize: '11px', color: '#92400e', fontWeight: 700 }}>
-                    ⚠️ Cargo weight ({totalCargoWeight} {weightUnitVal}) exceeds vehicle payload capacity
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '10px', borderTop: '1px solid #e2e8f0' }}>
+                    <span style={{ fontSize: '17px', fontWeight: 900, color: '#0f172a' }}>Total: ₹{totalFreight.toLocaleString('en-IN')}</span>
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#16a34a', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Check size={16} strokeWidth={3} /> Selected
+                    </span>
                   </div>
                 </div>
               </div>
+
+
+
+
+
+
 
               {/* Body Type & Driver Requirements checkboxes */}
               <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr', gap: '20px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
