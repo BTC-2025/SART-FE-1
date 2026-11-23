@@ -1151,8 +1151,13 @@ function CarrierContent() {
 
           </div>
 
-          {/* Cards Grid: ONLY shows the vehicles added by the owner! */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '20px' }}>
+          {/* Cards Grid: 1 row with 2 columns only, increased card width and reduced height */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '10px',
+            width: '100%'
+          }}>
             {currentVehicles.map(veh => {
               const isSelected = selectedVehicleId === veh.id;
               return (
@@ -1164,24 +1169,24 @@ function CarrierContent() {
                   }}
                   style={{
                     background: isSelected ? '#f8faff' : '#ffffff',
-                    borderRadius: '20px',
+                    borderRadius: '16px',
                     border: isSelected ? '2.5px solid #2563eb' : '1px solid #e2e8f0',
-                    boxShadow: isSelected ? '0 12px 28px -6px rgba(37, 99, 235, 0.18)' : '0 4px 16px rgba(0,0,0,0.06)',
-                    padding: '16px',
+                    boxShadow: isSelected ? '0 10px 24px -6px rgba(37, 99, 235, 0.16)' : '0 2px 10px rgba(0,0,0,0.04)',
+                    padding: '12px 14px',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '12px',
+                    gap: '8px',
                     position: 'relative',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
-                    maxWidth: '380px'
+                    width: '100%'
                   }}
                 >
-                  {/* 1. Vehicle Photo at Top */}
+                  {/* 1. Vehicle Photo at Top - compact height */}
                   <div style={{
                     width: '100%',
-                    height: '175px',
-                    borderRadius: '14px',
+                    height: '140px',
+                    borderRadius: '12px',
                     overflow: 'hidden',
                     background: '#f8fafc',
                     position: 'relative'
@@ -1197,34 +1202,34 @@ function CarrierContent() {
                   {/* 2. Header Row: Name & Mode Badge + Rating */}
                   <div>
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
-                      <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 900, color: '#0f172a', lineHeight: 1.25, fontFamily: 'serif, Georgia' }}>
+                      <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 900, color: '#0f172a', lineHeight: 1.25, fontFamily: 'serif, Georgia' }}>
                         {veh.name}
                       </h4>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                         <span style={{
                           background: '#eff6ff',
                           color: '#1d4ed8',
-                          fontSize: '11px',
+                          fontSize: '10.5px',
                           fontWeight: 800,
-                          padding: '2px 8px',
+                          padding: '1.5px 7px',
                           borderRadius: '6px',
                           letterSpacing: '0.5px',
                           textTransform: 'uppercase'
                         }}>
                           {veh.mode.toUpperCase()}
                         </span>
-                        <span style={{ fontSize: '13px', fontWeight: 800, color: '#eab308', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                        <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#eab308', display: 'flex', alignItems: 'center', gap: '2px' }}>
                           ⭐ <span style={{ color: '#0f172a' }}>{veh.rating || 4.9}</span>
                         </span>
                       </div>
                     </div>
-                    <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 600, marginTop: '3px' }}>
+                    <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginTop: '2px' }}>
                       {veh.brand || veh.owner}
                     </div>
                   </div>
 
                   {/* 3. Specs List */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12.5px', color: '#475569' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '11.5px', color: '#475569' }}>
                     <div>
                       <strong style={{ color: '#0f172a' }}>Max Load:</strong> {typeof veh.maxPayload === 'number' ? `${veh.maxPayload} ${veh.weightUnit || 'Tonnes'}` : (veh.maxPayload || '28 Tonnes')} • {veh.fuel || 'Diesel'} • {veh.containerSpace || veh.bodyType}
                     </div>
@@ -1237,19 +1242,19 @@ function CarrierContent() {
                   </div>
 
                   {/* 4. Badges (GPS Telematics, Cold Chain, HAZMAT) */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                     {(veh.hasGps !== false) && (
                       <span style={{
                         background: '#ecfdf5',
                         color: '#065f46',
                         border: '1px solid #a7f3d0',
-                        padding: '3px 9px',
-                        borderRadius: '6px',
-                        fontSize: '11px',
+                        padding: '2px 7px',
+                        borderRadius: '5px',
+                        fontSize: '10.5px',
                         fontWeight: 700,
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '4px'
+                        gap: '3px'
                       }}>
                         📡 GPS Telematics
                       </span>
@@ -1259,13 +1264,13 @@ function CarrierContent() {
                         background: '#eff6ff',
                         color: '#1e40af',
                         border: '1px solid #bfdbfe',
-                        padding: '3px 9px',
-                        borderRadius: '6px',
-                        fontSize: '11px',
+                        padding: '2px 7px',
+                        borderRadius: '5px',
+                        fontSize: '10.5px',
                         fontWeight: 700,
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '4px'
+                        gap: '3px'
                       }}>
                         ❄️ Cold Chain
                       </span>
@@ -1275,13 +1280,13 @@ function CarrierContent() {
                         background: '#fefce8',
                         color: '#854d0e',
                         border: '1px solid #fef08a',
-                        padding: '3px 9px',
-                        borderRadius: '6px',
-                        fontSize: '11px',
+                        padding: '2px 7px',
+                        borderRadius: '5px',
+                        fontSize: '10.5px',
                         fontWeight: 700,
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '4px'
+                        gap: '3px'
                       }}>
                         ⚠️ HAZMAT
                       </span>
@@ -1292,25 +1297,25 @@ function CarrierContent() {
                   <div style={{
                     background: '#f8fafc',
                     border: '1.5px dashed #cbd5e1',
-                    borderRadius: '10px',
-                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '4px'
+                    gap: '2px'
                   }}>
-                    <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 700 }}>Rate Card:</span>
-                    <span style={{ fontSize: '14.5px', fontWeight: 800, color: '#0f172a' }}>
+                    <span style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 700 }}>Rate Card:</span>
+                    <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>
                       ₹{Number(veh.baseCharge || 1800).toLocaleString('en-IN')}/trip | ₹{veh.ratePerKm}/km | Adv: {veh.advancePercent || 30}%
                     </span>
                   </div>
 
                   {/* 6. Bottom Selection Row */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '2px' }}>
                     <span style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '5px',
-                      fontSize: '11.5px',
+                      fontSize: '11px',
                       fontWeight: 700,
                       color: '#16a34a'
                     }}>
@@ -1325,9 +1330,9 @@ function CarrierContent() {
                           background: '#2563eb',
                           color: '#ffffff',
                           border: 'none',
-                          padding: '7px 18px',
+                          padding: '6px 16px',
                           borderRadius: '8px',
-                          fontSize: '12.5px',
+                          fontSize: '12px',
                           fontWeight: 800,
                           cursor: 'pointer',
                           display: 'flex',
@@ -1349,9 +1354,9 @@ function CarrierContent() {
                           background: '#ffffff',
                           color: '#2563eb',
                           border: '1.5px solid #2563eb',
-                          padding: '6px 16px',
+                          padding: '5px 14px',
                           borderRadius: '8px',
-                          fontSize: '12.5px',
+                          fontSize: '12px',
                           fontWeight: 800,
                           cursor: 'pointer'
                         }}
