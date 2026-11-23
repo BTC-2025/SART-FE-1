@@ -302,6 +302,9 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
         if (res.ok) {
           const data = await res.json();
           if (data && Array.isArray(data.vehicles)) {
+            try {
+              localStorage.setItem('logi_pulse_vehicles', JSON.stringify(data.vehicles));
+            } catch (e) { }
             setFleetVehicles(data.vehicles.map(parseCarrier));
             return;
           }
