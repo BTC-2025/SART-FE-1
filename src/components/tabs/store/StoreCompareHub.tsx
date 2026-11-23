@@ -10,7 +10,7 @@ interface StoreCompareHubProps {
   setActiveHubTab?: (tab: StoreHubTab) => void;
 }
 
-export default function StoreCompareHub({ showToast, userLocationCity = 'Chennai', setActiveHubTab }: StoreCompareHubProps) {
+export default function StoreCompareHub({ showToast, userLocationCity = '', setActiveHubTab }: StoreCompareHubProps) {
   // Default to 'All' so all vehicles show initially, or choose specific vehicle type to filter
   const [selectedCompareVehicleType, setSelectedCompareVehicleType] = useState<string>('All');
   const [compareSelectedVehicles, setCompareSelectedVehicles] = useState<(ComparisonVehicle | null)[]>([

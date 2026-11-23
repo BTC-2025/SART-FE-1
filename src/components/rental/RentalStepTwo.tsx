@@ -531,12 +531,7 @@ export default function RentalStepTwo({
             <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: '#0f172a' }}>
               Self-drive cars, bikes and scooties across India
             </h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '2px' }}>
-              <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
-                {pickup ? `Pickup: ${pickup}` : 'Current Hub'} • {pickupDate} to {dropoffDate}
-              </span>
 
-            </div>
           </div>
         </div>
 

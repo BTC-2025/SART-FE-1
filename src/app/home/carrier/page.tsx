@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import SubNavbar from '@/components/SubNavbar';
 import Footer from '@/components/Footer';
@@ -8,42 +9,7 @@ import CarrierLocationModal, { LocationResult } from '@/components/CarrierLocati
 
 // Pincode Directory & Smart Postal Circle Resolver for ANY 6-digit Indian Pincode
 const PINCODE_DIRECTORY: Record<string, { city: string; area: string; fullAddress: string; state: string }> = {
-  '600001': {
-    city: 'Chennai',
-    area: 'George Town, Tamil Nadu (600001)',
-    fullAddress: 'No. 12, Rajaji Salai, George Town, Chennai, Tamil Nadu - 600001',
-    state: 'Tamil Nadu'
-  },
-  '560001': {
-    city: 'Bengaluru',
-    area: 'MG Road, Ashok Nagar, Bengaluru (560001)',
-    fullAddress: '45/1, MG Road, Ashok Nagar, Bengaluru, Karnataka - 560001',
-    state: 'Karnataka'
-  },
-  '400001': {
-    city: 'Mumbai',
-    area: 'Ballard Estate, Fort, Mumbai (400001)',
-    fullAddress: 'Port Trust Road, Ballard Estate, Fort, Mumbai, Maharashtra - 400001',
-    state: 'Maharashtra'
-  },
-  '500001': {
-    city: 'Hyderabad',
-    area: 'Abids / Koti, Hyderabad (500001)',
-    fullAddress: 'Station Road, Abids, Hyderabad, Telangana - 500001',
-    state: 'Telangana'
-  },
-  '410501': {
-    city: 'Pune',
-    area: 'MIDC Chakan, Pune (410501)',
-    fullAddress: 'Plot 4, Phase 2 MIDC, Chakan Industrial Area, Pune, Maharashtra - 410501',
-    state: 'Maharashtra'
-  },
-  '632007': {
-    city: 'Katpadi',
-    area: 'Katpadi Junction, Vellore (632007)',
-    fullAddress: 'Goods Shed Rd, Katpadi Junction, Vellore, Tamil Nadu - 632007',
-    state: 'Tamil Nadu'
-  }
+
 };
 
 function resolvePincodeData(input: string) {
@@ -91,81 +57,50 @@ function resolvePincodeData(input: string) {
 export interface CarrierVehicleItem {
   id: string;
   name: string;
+  brand?: string;
+  model?: string;
   subtitle: string;
   owner: string;
   rating: number;
   trips: number;
+  maxPayload?: number | string;
+  weightUnit?: string;
   maxPayloadTon: number;
+  fuel?: string;
+  regId?: string;
+  hub?: string;
+  containerSpace?: string;
   volumeM3: number;
   bodyType: string;
   distanceKm: number;
   deliveryTime: string;
   features: string[];
+  hasGps?: boolean;
+  isReefer?: boolean;
+  isHazmat?: boolean;
+  baseCharge?: number;
   ratePerKm: number;
+  advancePercent?: number;
+  deposit?: number;
+  pricingText?: string;
   totalPrice: number;
   badge?: { text: string; bg: string; color: string; icon: string };
   image: string;
   mode: string;
+  isAvailable?: boolean;
 }
 
-// Initial Owner-Added Fleet: EXACTLY 1 Truck and 1 Bike as added by owner in business website
-const INITIAL_OWNER_FLEET: CarrierVehicleItem[] = [
-  {
-    id: 'CRG-1001',
-    name: 'BharatBenz 2823C (14-Wheeler Heavy Multi-Axle)',
-    subtitle: '(14-Wheeler Heavy Road Cargo)',
-    owner: 'Tata Steel Logistics Hub, Chennai',
-    rating: 4.8,
-    trips: 142,
-    maxPayloadTon: 28,
-    volumeM3: 55,
-    bodyType: '1 standard 40ft High Cube Container',
-    distanceKm: 345,
-    deliveryTime: 'Est. Delivery: Sun, Nov 23 (8.5 hrs)',
-    features: ['Active Live Telematics / AIS Satellite', 'HAZMAT Certified', '24/7 Driver Support'],
-    ratePerKm: 45,
-    totalPrice: 15525,
-    badge: {
-      text: '⭐ BEST VALUE • Owner Verified Fleet',
-      bg: '#fef3c7',
-      color: '#92400e',
-      icon: '⭐'
-    },
-    image: '/images/carrier_mode_truck.png',
-    mode: 'truck'
-  },
-  {
-    id: 'CRG-1002',
-    name: 'TVS King Cargo EV Delivery 3-Wheeler',
-    subtitle: '(Express Hyperlocal EV / Cargo Bike)',
-    owner: 'Chennai Central Last-Mile Hub',
-    rating: 4.9,
-    trips: 520,
-    maxPayloadTon: 0.5,
-    volumeM3: 0.85,
-    bodyType: 'Insulated Last-Mile Top Box (65L)',
-    distanceKm: 25,
-    deliveryTime: 'Est. Delivery: 45 mins',
-    features: ['Active Live Telematics', 'Cold-Chain Ambient Sealed', 'Contactless Delivery'],
-    ratePerKm: 14,
-    totalPrice: 450,
-    badge: {
-      text: '⚡ FASTEST HYPERLOCAL • 100% Green Electric',
-      bg: '#ecfeff',
-      color: '#0e7490',
-      icon: '⚡'
-    },
-    image: '/images/carrier_mode_bike.png',
-    mode: 'bike'
-  }
-];
+// Initial Owner-Added Fleet: Only loads vehicles added by owner in the business website
+const INITIAL_OWNER_FLEET: CarrierVehicleItem[] = [];
 
 function CarrierContent() {
+  const router = useRouter();
+
   // Owner-added vehicles state
   const [fleetVehicles, setFleetVehicles] = useState<CarrierVehicleItem[]>(INITIAL_OWNER_FLEET);
 
   // Selected category mode
-  const [activeMode, setActiveMode] = useState<'truck' | 'train' | 'flight' | 'ship' | 'bike' | 'bus'>('truck');
+  const [activeMode, setActiveMode] = useState<'truck' | 'train' | 'flight' | 'ship' | 'bike' | 'bus'>('bike');
 
   // Top header dropdown state for "Select Carrier"
   const [isCarrierDropdownOpen, setIsCarrierDropdownOpen] = useState(false);
@@ -232,86 +167,134 @@ function CarrierContent() {
 
   // Fetch Owner Added Vehicles from Backend API and sync with local storage
   useEffect(() => {
+    const parseCarrier = (v: any): CarrierVehicleItem => {
+      const mode = (v.mode || v.type || 'truck').toLowerCase();
+      const isBike = mode === 'bike';
+      const isShip = mode === 'ship';
+      const isTrain = mode === 'train';
+      const isFlight = mode === 'flight';
+      const isKg = v.weightUnit?.toLowerCase()?.includes('kg');
+      const pLoad = isKg ? ((Number(v.maxPayload) || 150) / 1000) : (Number(v.maxPayload) || (isShip ? 52000 : 28));
+
+      const defaultRate = isBike ? 14 : isShip ? 650 : isTrain ? 120 : isFlight ? 380 : 48;
+      const defaultBase = isBike ? 120 : isShip ? 120000 : isTrain ? 35000 : isFlight ? 45000 : 1800;
+      const defaultAdvance = isBike ? 25 : isShip ? 40 : 30;
+      const defaultDeposit = isBike ? 1000 : isShip ? 200000 : 3000;
+
+      const rate = Number(v.ratePerKm || defaultRate);
+      const base = Number(v.baseCharge || defaultBase);
+      const total = base ? base : Math.round(rate * (isBike ? 25 : 345));
+
+      // Max Load string formatting
+      let maxPayloadStr = '';
+      if (typeof v.maxPayload === 'number') {
+        maxPayloadStr = `${v.maxPayload.toLocaleString('en-IN')} ${v.weightUnit || (isBike ? 'kg' : 'Tonnes')}`;
+      } else if (v.maxPayload) {
+        maxPayloadStr = String(v.maxPayload);
+      } else if (v.payloadKg) {
+        maxPayloadStr = `${Number(v.payloadKg).toLocaleString('en-IN')} ${v.weightUnit || 'kg'}`;
+      } else {
+        maxPayloadStr = isBike ? '150 kg' : isShip ? '52,000 Tonnes' : '28 Tonnes';
+      }
+
+      const defaultFuel = isShip ? 'Heavy Fuel Oil (HFO)' : isBike ? 'Petrol' : isTrain ? 'Electric Traction' : isFlight ? 'Aviation Turbine Fuel (ATF)' : 'Diesel';
+      const defaultContainer = isShip ? '4500 TEU ISO Marine Container Hold' : isBike ? 'Insulated Last-Mile Top Box (65L)' : '20ft Closed Container / Flatbed';
+      const defaultReg = isShip ? 'IMO 12 MM' : isBike ? 'TN 01 NJ 1234' : 'MH 12 MH 6789';
+      const defaultHub = isShip ? 'Tata Steel Logistics Hub, Chennai, Tamil Nadu - 600081' : isBike ? 'Ranipet - Chittoor Trunk Road, Thiruvalam, Katpadi, Vellore, Tamil Nadu, 632106, India' : 'Mumbai Port Logistics Hub';
+
+      const defaultImg = isBike
+        ? '/images/hero_cargo_bike.png'
+        : isShip
+          ? 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&q=80'
+          : isTrain
+            ? '/images/carrier_mode_train.jpg'
+            : isFlight
+              ? '/images/carrier_mode_flight.png'
+              : '/images/tata_ace_fleet.jpg';
+
+      return {
+        id: v.id || `CRG-${Date.now()}`,
+        name: v.name || `${v.brand || 'Tata Motors'} ${v.model || 'Ace Gold'}`,
+        brand: v.brand || (v.name ? v.name.split(' ')[0] : 'Tata Motors'),
+        model: v.model || v.name || 'Tata Ace Gold',
+        subtitle: `(${v.type || v.category || (isBike ? 'Express Delivery' : isShip ? 'Ocean Freight' : 'Road Cargo')})`,
+        owner: v.brand || v.ownerName || 'Verified Carrier Partner',
+        rating: Number(v.rating || 4.9),
+        trips: Number(v.trips || 142),
+        maxPayload: maxPayloadStr,
+        weightUnit: v.weightUnit || (isBike ? 'kg' : 'Tonnes'),
+        maxPayloadTon: pLoad,
+        fuel: v.fuel || defaultFuel,
+        regId: v.regId || v.plate || defaultReg,
+        hub: v.hub || v.location || defaultHub,
+        containerSpace: v.containerSpace || defaultContainer,
+        volumeM3: Number(v.volumeCapacity || (isBike ? 0.65 : isShip ? 85000 : 38.5)),
+        bodyType: v.containerSpace || defaultContainer,
+        distanceKm: isBike ? 25 : isShip ? 1200 : 345,
+        deliveryTime: isBike ? 'Est. Delivery: 45 mins' : isShip ? 'Est. Transit: 3 Days' : 'Est. Delivery: Sun, Nov 23',
+        features: [
+          v.hasGps !== false ? 'Live GPS Tracking' : '',
+          v.isReefer ? 'Cold Chain' : '',
+          v.isHazmat ? 'HAZMAT Certified' : '',
+          'Insurance Covered'
+        ].filter(Boolean),
+        hasGps: v.hasGps !== false,
+        isReefer: !!v.isReefer,
+        isHazmat: !!v.isHazmat,
+        baseCharge: base,
+        ratePerKm: rate,
+        advancePercent: Number(v.advancePercent || defaultAdvance),
+        deposit: Number(v.deposit || defaultDeposit),
+        pricingText: v.pricingText || `₹${base.toLocaleString('en-IN')}/trip | ₹${rate}/km | Adv: ${v.advancePercent || defaultAdvance}%`,
+        totalPrice: total,
+        badge: {
+          text: isBike ? '⚡ FASTEST HYPERLOCAL • 100% Green Electric' : isShip ? '⚓ MARITIME OCEAN FREIGHT' : '⭐ VERIFIED OWNER FLEET',
+          bg: isBike ? '#ecfeff' : isShip ? '#f0f9ff' : '#fef3c7',
+          color: isBike ? '#0e7490' : isShip ? '#0369a1' : '#92400e',
+          icon: isBike ? '⚡' : isShip ? '⚓' : '⭐'
+        },
+        image: v.image || (v.images && v.images[0]) || defaultImg,
+        mode,
+        isAvailable: v.isAvailable !== false
+      };
+    };
+
     const loadOwnerFleet = async () => {
+      // 1. Fetch from Backend API (shared with business site at port 3007)
       try {
-        const res = await fetch('http://localhost:5000/api/carriers');
+        const res = await fetch('/api/carriers');
         if (res.ok) {
           const data = await res.json();
           if (data && Array.isArray(data.vehicles) && data.vehicles.length > 0) {
-            const mapped: CarrierVehicleItem[] = data.vehicles.map((v: any) => ({
-              id: v.id,
-              name: v.name,
-              subtitle: `(${v.type || v.category || 'Owner Fleet'})`,
-              owner: v.hub || v.location || 'Verified Business Fleet',
-              rating: v.rating || 4.8,
-              trips: 100 + Math.floor(Math.random() * 50),
-              maxPayloadTon: v.maxPayload || 28,
-              volumeM3: v.volumeCapacity || 55,
-              bodyType: v.containerSpace || 'Standard Heavy Body',
-              distanceKm: 345,
-              deliveryTime: 'Est. Delivery: Sun, Nov 23',
-              features: [
-                v.hasGps ? 'Live GPS Tracking' : 'Standard Fleet Tracking',
-                v.isHazmat ? 'HAZMAT Certified' : 'Verified Cargo Clearance',
-                'Insurance Covered'
-              ],
-              ratePerKm: v.ratePerKm || 45,
-              totalPrice: Math.round((v.ratePerKm || 45) * 345),
-              badge: {
-                text: '⭐ VERIFIED OWNER FLEET',
-                bg: '#fef3c7',
-                color: '#92400e',
-                icon: '⭐'
-              },
-              image: v.mode === 'bike' ? '/images/carrier_mode_bike.png' :
-                v.mode === 'ship' ? '/images/carrier_mode_ship.png' : '/images/carrier_mode_truck.png',
-              mode: v.mode || 'truck'
-            }));
-            setFleetVehicles(mapped);
+            setFleetVehicles(data.vehicles.map(parseCarrier));
             return;
           }
         }
-      } catch (err) {
-        // Backend offline, fallback to localStorage or initial owner fleet
-      }
+      } catch (err) { }
 
+      // 2. Try local storage fallback
       try {
         const saved = localStorage.getItem('logi_pulse_vehicles');
         if (saved) {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            const mapped: CarrierVehicleItem[] = parsed.map((v: any) => ({
-              id: v.id,
-              name: v.name,
-              subtitle: `(${v.type || v.category || 'Owner Fleet'})`,
-              owner: v.hub || v.location || 'Verified Business Fleet',
-              rating: v.rating || 4.8,
-              trips: 142,
-              maxPayloadTon: v.maxPayload || 28,
-              volumeM3: v.volumeCapacity || 55,
-              bodyType: v.containerSpace || 'Standard Heavy Body',
-              distanceKm: 345,
-              deliveryTime: 'Est. Delivery: Sun, Nov 23',
-              features: ['Live GPS Tracking', 'Insurance Covered'],
-              ratePerKm: v.ratePerKm || 45,
-              totalPrice: Math.round((v.ratePerKm || 45) * 345),
-              badge: {
-                text: '⭐ VERIFIED OWNER FLEET',
-                bg: '#fef3c7',
-                color: '#92400e',
-                icon: '⭐'
-              },
-              image: v.mode === 'bike' ? '/images/carrier_mode_bike.png' :
-                v.mode === 'ship' ? '/images/carrier_mode_ship.png' : '/images/carrier_mode_truck.png',
-              mode: v.mode || 'truck'
-            }));
-            setFleetVehicles(mapped);
+            setFleetVehicles(parsed.map(parseCarrier));
+            return;
           }
         }
       } catch (e) { }
+
+      // 3. Fallback to empty fleet (only vehicles added by owner will ever show)
+      setFleetVehicles([]);
     };
 
     loadOwnerFleet();
+    window.addEventListener('storage', loadOwnerFleet);
+    window.addEventListener('focus', loadOwnerFleet);
+    return () => {
+      window.removeEventListener('storage', loadOwnerFleet);
+      window.removeEventListener('focus', loadOwnerFleet);
+    };
   }, []);
 
   // Sync place when pickup pincode changes (place appears beside the pincode)
@@ -368,6 +351,37 @@ function CarrierContent() {
     setWeight('');
     setWeightUnit('Tons');
     setPaymentMode('prepaid');
+  };
+
+  // Continue to /home/carrier/[Mode]/BookingDetails
+  const handleContinueBooking = () => {
+    const veh = currentVehicles.find(v => v.id === selectedVehicleId) || currentVehicles[0];
+    if (!veh) return;
+
+    const modeCapitalized = veh.mode ? (veh.mode.charAt(0).toUpperCase() + veh.mode.slice(1).toLowerCase()) : 'Truck';
+
+    const q = new URLSearchParams({
+      id: veh.id,
+      mode: modeCapitalized,
+      name: veh.name,
+      brand: veh.brand || 'Tata Motors',
+      regId: veh.regId || 'MH 12 MH 6789',
+      hub: veh.hub || 'Mumbai Port Logistics Hub',
+      pickupPincode: pickupPincodeRaw || '400001',
+      pickupAddress: pickupAddress || (veh.hub || 'Mumbai Port Logistics Hub'),
+      deliveryPincode: deliveryPincodeRaw || '600001',
+      deliveryAddress: deliveryAddress || 'Tata Steel Logistics Hub, Chennai, Tamil Nadu - 600081',
+      weight: weight || (veh.mode === 'bike' ? '150' : '28'),
+      weightUnit: weightUnit || (veh.mode === 'bike' ? 'kg' : 'Tonnes'),
+      goodsType: goodsType || 'Industrial / Commercial Freight',
+      ratePerKm: String(veh.ratePerKm || 48),
+      baseCharge: String(veh.baseCharge || 1800),
+      advancePercent: String(veh.advancePercent || 30),
+      deposit: String(veh.deposit || 3000),
+      image: veh.image || '/images/tata_ace_fleet.jpg'
+    });
+
+    router.push(`/home/carrier/${modeCapitalized}/BookingDetails?${q.toString()}`);
   };
 
   // Filter vehicles strictly by owner-added fleet
@@ -453,16 +467,38 @@ function CarrierContent() {
             <span style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'capitalize', marginBottom: '2px' }}>
               From
             </span>
-            <div style={{ fontSize: '16px', fontWeight: 900, color: pickupCity ? '#0f172a' : '#94a3b8', lineHeight: 1.2 }}>
-              {pickupCity || 'origin'}
-            </div>
+            <input
+              type="text"
+              value={pickupCity}
+              onChange={(e) => {
+                const val = e.target.value;
+                setPickupCity(val);
+                setPickupAddress(val);
+                if (/^\d{6}$/.test(val)) {
+                  handlePickupChange(val);
+                }
+              }}
+              placeholder="origin"
+              style={{
+                fontSize: '16px',
+                fontWeight: 900,
+                color: '#0f172a',
+                lineHeight: 1.2,
+                border: 'none',
+                outline: 'none',
+                background: 'transparent',
+                padding: '2px 0',
+                width: '100%',
+                fontFamily: 'inherit'
+              }}
+            />
             {pickupArea ? (
               <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '2px' }}>
                 {pickupArea}
               </div>
             ) : null}
             {/* Date Pill: [📅 Date: Sat, 21 Nov ˇ] */}
-            <div
+            <label
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -473,13 +509,33 @@ function CarrierContent() {
                 padding: '2px 8px',
                 marginTop: '4px',
                 width: 'fit-content',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                position: 'relative'
               }}
             >
               <i className="fa-regular fa-calendar-days" style={{ fontSize: '10px', color: '#0284c7' }}></i>
               <span style={{ fontSize: '11px', fontWeight: 800, color: '#0284c7' }}>Date: {date}</span>
               <i className="fa-solid fa-chevron-down" style={{ fontSize: '9px', color: '#0284c7', marginLeft: '2px' }}></i>
-            </div>
+              <input
+                type="date"
+                style={{
+                  position: 'absolute',
+                  opacity: 0,
+                  width: '100%',
+                  height: '100%',
+                  top: 0,
+                  left: 0,
+                  cursor: 'pointer'
+                }}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    const d = new Date(e.target.value);
+                    const formatted = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+                    setDate(formatted);
+                  }
+                }}
+              />
+            </label>
 
             {/* Circular Swap Button ⇄ */}
             <button
@@ -526,9 +582,31 @@ function CarrierContent() {
             <span style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'capitalize', marginBottom: '2px' }}>
               To
             </span>
-            <div style={{ fontSize: '16px', fontWeight: 900, color: deliveryCity ? '#0f172a' : '#94a3b8', lineHeight: 1.2 }}>
-              {deliveryCity || 'destination'}
-            </div>
+            <input
+              type="text"
+              value={deliveryCity}
+              onChange={(e) => {
+                const val = e.target.value;
+                setDeliveryCity(val);
+                setDeliveryAddress(val);
+                if (/^\d{6}$/.test(val)) {
+                  handleDeliveryChange(val);
+                }
+              }}
+              placeholder="destination"
+              style={{
+                fontSize: '16px',
+                fontWeight: 900,
+                color: '#0f172a',
+                lineHeight: 1.2,
+                border: 'none',
+                outline: 'none',
+                background: 'transparent',
+                padding: '2px 0',
+                width: '100%',
+                fontFamily: 'inherit'
+              }}
+            />
             {deliveryArea ? (
               <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '2px' }}>
                 {deliveryArea}
@@ -1087,107 +1165,176 @@ function CarrierContent() {
                     setSelectedCarrierName(veh.name);
                   }}
                   style={{
-                    background: isSelected ? '#faf5ff' : '#ffffff',
-                    borderRadius: '16px',
-                    border: isSelected ? '2px solid #6366f1' : '1px solid #e2e8f0',
-                    boxShadow: isSelected ? '0 10px 25px -5px rgba(99, 102, 241, 0.15)' : '0 2px 8px rgba(0,0,0,0.04)',
-                    padding: '20px',
+                    background: isSelected ? '#f8faff' : '#ffffff',
+                    borderRadius: '20px',
+                    border: isSelected ? '2.5px solid #2563eb' : '1px solid #e2e8f0',
+                    boxShadow: isSelected ? '0 12px 28px -6px rgba(37, 99, 235, 0.18)' : '0 4px 16px rgba(0,0,0,0.06)',
+                    padding: '16px',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '12px',
                     position: 'relative',
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.2s ease',
+                    maxWidth: '380px'
                   }}
                 >
-                  {/* Floating Pill Badge Above Card */}
-                  {veh.badge && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '-12px',
-                        left: '20px',
-                        background: veh.badge.bg,
-                        color: veh.badge.color,
-                        border: '1px solid rgba(0,0,0,0.08)',
-                        padding: '2px 10px',
-                        borderRadius: '12px',
-                        fontSize: '11px',
-                        fontWeight: 800,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                      }}
-                    >
-                      <span>{veh.badge.icon}</span>
-                      <span>{veh.badge.text}</span>
-                    </div>
-                  )}
+                  {/* 1. Vehicle Photo at Top */}
+                  <div style={{
+                    width: '100%',
+                    height: '175px',
+                    borderRadius: '14px',
+                    overflow: 'hidden',
+                    background: '#f8fafc',
+                    position: 'relative'
+                  }}>
+                    <img
+                      src={veh.image}
+                      alt={veh.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e: any) => { e.target.src = '/images/tata_ace_fleet.jpg'; }}
+                    />
+                  </div>
 
-                  {/* Vehicle Image & Name Row */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: veh.badge ? '4px' : '0' }}>
-                    <div style={{ width: '84px', height: '60px', background: '#f8fafc', borderRadius: '10px', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <img
-                        src={veh.image}
-                        alt={veh.name}
-                        style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
-                      />
-                    </div>
-                    <div>
-                      <h4 style={{ margin: 0, fontSize: '17px', fontWeight: 900, color: '#0f172a' }}>
+                  {/* 2. Header Row: Name & Mode Badge + Rating */}
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
+                      <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 900, color: '#0f172a', lineHeight: 1.25, fontFamily: 'serif, Georgia' }}>
                         {veh.name}
                       </h4>
-                      <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 700 }}>
-                        {veh.subtitle}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                        <span style={{
+                          background: '#eff6ff',
+                          color: '#1d4ed8',
+                          fontSize: '11px',
+                          fontWeight: 800,
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          letterSpacing: '0.5px',
+                          textTransform: 'uppercase'
+                        }}>
+                          {veh.mode.toUpperCase()}
+                        </span>
+                        <span style={{ fontSize: '13px', fontWeight: 800, color: '#eab308', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                          ⭐ <span style={{ color: '#0f172a' }}>{veh.rating || 4.9}</span>
+                        </span>
                       </div>
-                      <div style={{ fontSize: '11.5px', color: '#475569', fontWeight: 600, marginTop: '2px' }}>
-                        Owner: <strong>{veh.owner}</strong> (⭐ {veh.rating}, {veh.trips} Trips)
-                      </div>
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 600, marginTop: '3px' }}>
+                      {veh.brand || veh.owner}
                     </div>
                   </div>
 
-                  {/* Specs Details */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px', color: '#475569', borderTop: '1px solid #f1f5f9', paddingTop: '10px' }}>
-                    <div style={{ fontWeight: 700, color: '#1e293b' }}>
-                      {veh.maxPayloadTon} Tonnes Max Capacity • {veh.volumeM3} m³ Volume • {veh.bodyType}
-                    </div>
-                    <div style={{ color: '#64748b' }}>
-                      {veh.distanceKm} km • {veh.deliveryTime}
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '4px', color: '#15803d', fontWeight: 700 }}>
-                      {veh.features.map(f => (
-                        <span key={f}>✓ {f}</span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Price & Action Row */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '12px', marginTop: 'auto' }}>
+                  {/* 3. Specs List */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12.5px', color: '#475569' }}>
                     <div>
-                      <span style={{ fontSize: '18px', fontWeight: 900, color: '#0f172a' }}>
-                        ₹{veh.totalPrice.toLocaleString('en-IN')} Total
-                      </span>
-                      <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginLeft: '6px' }}>
-                        (₹{veh.ratePerKm}/km)
-                      </span>
+                      <strong style={{ color: '#0f172a' }}>Max Load:</strong> {typeof veh.maxPayload === 'number' ? `${veh.maxPayload} ${veh.weightUnit || 'Tonnes'}` : (veh.maxPayload || '28 Tonnes')} • {veh.fuel || 'Diesel'} • {veh.containerSpace || veh.bodyType}
                     </div>
+                    <div>
+                      <strong style={{ color: '#0f172a' }}>ID / Reg:</strong> {veh.regId || 'MH 12 MH 6789'}
+                    </div>
+                    <div>
+                      <strong style={{ color: '#0f172a' }}>Hub:</strong> {veh.hub || 'Mumbai Port Logistics Hub'}
+                    </div>
+                  </div>
+
+                  {/* 4. Badges (GPS Telematics, Cold Chain, HAZMAT) */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {(veh.hasGps !== false) && (
+                      <span style={{
+                        background: '#ecfdf5',
+                        color: '#065f46',
+                        border: '1px solid #a7f3d0',
+                        padding: '3px 9px',
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        📡 GPS Telematics
+                      </span>
+                    )}
+                    {veh.isReefer && (
+                      <span style={{
+                        background: '#eff6ff',
+                        color: '#1e40af',
+                        border: '1px solid #bfdbfe',
+                        padding: '3px 9px',
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        ❄️ Cold Chain
+                      </span>
+                    )}
+                    {veh.isHazmat && (
+                      <span style={{
+                        background: '#fefce8',
+                        color: '#854d0e',
+                        border: '1px solid #fef08a',
+                        padding: '3px 9px',
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        ⚠️ HAZMAT
+                      </span>
+                    )}
+                  </div>
+
+                  {/* 5. Rate Card Box */}
+                  <div style={{
+                    background: '#f8fafc',
+                    border: '1.5px dashed #cbd5e1',
+                    borderRadius: '10px',
+                    padding: '10px 14px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px'
+                  }}>
+                    <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 700 }}>Rate Card:</span>
+                    <span style={{ fontSize: '14.5px', fontWeight: 800, color: '#0f172a' }}>
+                      ₹{Number(veh.baseCharge || 1800).toLocaleString('en-IN')}/trip | ₹{veh.ratePerKm}/km | Adv: {veh.advancePercent || 30}%
+                    </span>
+                  </div>
+
+                  {/* 6. Bottom Selection Row */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '4px' }}>
+                    <span style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      fontSize: '11.5px',
+                      fontWeight: 700,
+                      color: '#16a34a'
+                    }}>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }}></span>
+                      Available
+                    </span>
 
                     {isSelected ? (
                       <button
                         type="button"
                         style={{
-                          background: '#4f46e5',
+                          background: '#2563eb',
                           color: '#ffffff',
                           border: 'none',
-                          padding: '8px 18px',
+                          padding: '7px 18px',
                           borderRadius: '8px',
-                          fontSize: '13px',
+                          fontSize: '12.5px',
                           fontWeight: 800,
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '6px'
+                          gap: '5px'
                         }}
                       >
                         <i className="fa-solid fa-check"></i> SELECTED
@@ -1202,11 +1349,11 @@ function CarrierContent() {
                         }}
                         style={{
                           background: '#ffffff',
-                          color: '#4f46e5',
-                          border: '1.5px solid #4f46e5',
-                          padding: '8px 18px',
+                          color: '#2563eb',
+                          border: '1.5px solid #2563eb',
+                          padding: '6px 16px',
                           borderRadius: '8px',
-                          fontSize: '13px',
+                          fontSize: '12.5px',
                           fontWeight: 800,
                           cursor: 'pointer'
                         }}
@@ -1221,28 +1368,26 @@ function CarrierContent() {
           </div>
 
           {/* Sticky Bottom Bar matching Image */}
-          <div
-
-          >
-            {/* <div style={{ fontSize: '14.5px', color: '#0f172a', fontWeight: 700 }}>
-              Total Selected: <strong>{selectedVehicle?.name || 'Heavy Road Cargo'}</strong> • Trip Price: <strong>₹{tripPrice.toLocaleString('en-IN')}</strong> • Advance Due Now: <strong style={{ color: '#15803d' }}>₹{advanceDue.toLocaleString('en-IN')}</strong>
-            </div> */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '14px' }}>
             <button
               type="button"
-              onClick={() => setIsBooked(true)}
+              onClick={handleContinueBooking}
               style={{
-                background: '#4f46e5',
+                background: '#ea580c',
                 color: '#ffffff',
                 border: 'none',
-                padding: '12px 24px',
+                padding: '13px 28px',
                 borderRadius: '10px',
-                fontSize: '14.5px',
+                fontSize: '15px',
                 fontWeight: 800,
                 cursor: 'pointer',
-                boxShadow: '0 4px 14px rgba(79, 70, 229, 0.35)'
+                boxShadow: '0 4px 14px rgba(234, 88, 12, 0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
               }}
             >
-              Continue →
+              <span>Continue →</span>
             </button>
           </div>
 

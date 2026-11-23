@@ -8,15 +8,10 @@ import Footer from '@/components/Footer';
 import '@/app/home/rental/Car/CarDetails/page.css';
 import { ALL_RENTAL_VEHICLES, RentalVehicle } from '@/components/rental/rentalData';
 import GoogleMapPickerModal from '@/components/rental/GoogleMapPickerModal';
+import { Calendar, Clock } from 'lucide-react';
 
 // Popular landmarks for quick selection in the Map Picker Popup
 const POPULAR_LOCATIONS = [
-  { name: 'Katpadi Railway Station', address: 'Railway Station Road, Katpadi, Vellore, Tamil Nadu 632007', lat: 12.9798, lng: 79.1375 },
-  { name: 'VIT University Vellore (Main Gate)', address: 'VIT Campus, Tiruvalam Rd, Katpadi, Vellore, Tamil Nadu 632014', lat: 12.9692, lng: 79.1559 },
-  { name: 'CMC Hospital Vellore', address: 'Ida Scudder Road, Vellore, Tamil Nadu 632004', lat: 12.9248, lng: 79.1348 },
-  { name: 'Green Circle (Vellore Old Bus Stand)', address: 'National Highway 48, Thottapalayam, Vellore, Tamil Nadu 632012', lat: 12.9298, lng: 79.1412 },
-  { name: 'Vellore Golden Temple (Sripuram)', address: 'Tirumalaikodi, Vellore, Tamil Nadu 632055', lat: 12.8716, lng: 79.0886 },
-  { name: 'Ranipet - Chittoor Trunk Road Hub', address: 'Ranipet - Chittoor Trunk Road, Thiruvalam, Katpadi, Vellore, Tamil Nadu 632106', lat: 12.9854, lng: 79.1821 }
 ];
 
 function BookingDeliveryDetailsContent() {
@@ -39,7 +34,40 @@ function BookingDeliveryDetailsContent() {
   const [deliveryType, setDeliveryType] = useState<'hub' | 'delivery'>('hub');
   const [userCustomLocation, setUserCustomLocation] = useState('Ranipet - Chittoor Trunk Road, Thiruvalam, Katpadi, Vellore, Tami...');
 
-  // Interactive Map Popup State
+  // Duration Tabs & Date/Time State
+  const formatYMD = (d: Date) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const addDays = (d: Date, days: number) => {
+    const res = new Date(d);
+    res.setDate(res.getDate() + days);
+    return res;
+  };
+
+  const [rentalType, setRentalTypeState] = useState<'daily' | 'weekly' | 'monthly'>('daily');
+  const rentalPlan = rentalType;
+  const setRentalPlan = setRentalTypeState;
+  const [pickupDate, setPickupDate] = useState(() => formatYMD(new Date()));
+  const [pickupTime, setPickupTime] = useState('10:00');
+  const [returnDate, setReturnDate] = useState(() => formatYMD(addDays(new Date(), 1)));
+  const [returnTime, setReturnTime] = useState('10:00');
+
+  const setRentalType = (plan: 'daily' | 'weekly' | 'monthly') => {
+    setRentalTypeState(plan);
+    const pDate = new Date(pickupDate || formatYMD(new Date()));
+    if (plan === 'daily') {
+      setReturnDate(formatYMD(addDays(pDate, 1)));
+    } else if (plan === 'weekly') {
+      setReturnDate(formatYMD(addDays(pDate, 7)));
+    } else if (plan === 'monthly') {
+      setReturnDate(formatYMD(addDays(pDate, 30)));
+    }
+  };
+  const handlePlanChange = setRentalType;
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [searchMapQuery, setSearchMapQuery] = useState('');
   const [selectedPinLocation, setSelectedPinLocation] = useState({
@@ -111,18 +139,19 @@ function BookingDeliveryDetailsContent() {
         );
       }
 
-      // 4. Default fallback matching Bike Fleet (TVS APACHE RTR 160/200 XZ+)
+      // 4. Default fallback matching Bike Fleet (HONDA 2-WHEELERS SHINE 125 XZ+)
       if (!found) {
         found = {
           id: vehicleId,
-          name: 'TVS APACHE RTR 160/200 XZ+',
-          category: 'Cruiser (350cc+)',
+          name: 'HONDA 2-WHEELERS SHINE 125 XZ+',
+          category: 'Commuter (125cc)',
           price: 1800,
           dailyRate: 1800,
           hourlyRate: 150,
+          monthlyRate: 32000,
           badge: 'Verified Owner',
           fuel: 'Petrol',
-          transmission: 'Automatic',
+          transmission: 'Manual',
           seats: '2-Seater',
           plate: 'TN 23 VW 8415',
           city: 'Katpadi',
@@ -149,11 +178,64 @@ function BookingDeliveryDetailsContent() {
     );
   }
 
-  const rentalBase = vehicle.dailyRate || vehicle.price || 1800;
+  // Dynamic Price & Duration calculation based on days and hours
+  const calculateDurationAndPrice = () => {
+    const dailyRate = vehicle?.dailyRate || vehicle?.price || 1800;
+    const hourlyRate = vehicle?.hourlyRate || Math.round(dailyRate / 10) || 150;
+
+    let pt = pickupTime || '10:00';
+    if (pt.length === 5) pt += ':00';
+    let rt = returnTime || '10:00';
+    if (rt.length === 5) rt += ':00';
+
+    const start = new Date(`${pickupDate}T${pt}`);
+    const end = new Date(`${returnDate}T${rt}`);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) {
+      return {
+        totalHours: 24,
+        days: 1,
+        extraHours: 0,
+        durationLabel: '1 day',
+        rentalBase: dailyRate
+      };
+    }
+
+    const diffMs = end.getTime() - start.getTime();
+    const totalHours = Math.max(1, Math.round(diffMs / (1000 * 60 * 60)));
+    const days = Math.floor(totalHours / 24);
+    const extraHours = totalHours % 24;
+
+    let durationLabel = '';
+    let rentalBase = 0;
+
+    if (rentalType === 'weekly' && days === 7 && extraHours === 0) {
+      durationLabel = '7 days';
+      rentalBase = Math.round(dailyRate * 7 * 0.85); // 15% weekly discount
+    } else if (rentalType === 'monthly' && days >= 28) {
+      durationLabel = `${days} days`;
+      rentalBase = (vehicle as any)?.monthlyRate || Math.round(dailyRate * 30 * 0.65);
+    } else if (days === 0) {
+      durationLabel = `${extraHours} ${extraHours === 1 ? 'hour' : 'hours'}`;
+      rentalBase = Math.max(extraHours * hourlyRate, Math.round(dailyRate * 0.4));
+    } else if (extraHours === 0) {
+      durationLabel = `${days} ${days === 1 ? 'day' : 'days'}`;
+      rentalBase = days * dailyRate;
+    } else {
+      durationLabel = `${days} ${days === 1 ? 'day' : 'days'} ${extraHours} ${extraHours === 1 ? 'hr' : 'hrs'}`;
+      rentalBase = days * dailyRate + extraHours * hourlyRate;
+    }
+
+    return { totalHours, days, extraHours, durationLabel, rentalBase };
+  };
+
+  const { durationLabel, rentalBase } = calculateDurationAndPrice();
   const securityDeposit = 5000;
   const fastagToll = 500;
   const deliveryCharges = deliveryType === 'delivery' ? 1000 : 0;
   const totalFare = rentalBase + securityDeposit + fastagToll + deliveryCharges;
+  const cgst = Number(((rentalBase * 0.0528888) / 2).toFixed(2));
+  const sgst = cgst;
 
   const ownerHubLocation = vehicle.location || 'Ranipet - Chittoor Trunk Road, Thiruvalam, Katpadi, Vellore, Tamil Nadu, 632106, India';
 
@@ -178,8 +260,13 @@ function BookingDeliveryDetailsContent() {
       name: fullName,
       phone: whatsappNumber,
       email,
-      duration: '1 Day',
-      totalFare: String(totalFare)
+      duration: durationLabel,
+      totalFare: String(totalFare),
+      rentalBase: String(rentalBase),
+      pickupDate,
+      pickupTime,
+      returnDate,
+      returnTime
     });
 
     router.push(`/home/rental/Bike/BookingDeliveryDetails/ReviewJourney?${q.toString()}`);
@@ -303,52 +390,116 @@ function BookingDeliveryDetailsContent() {
             <span>Booking & Delivery Details</span>
           </div>
 
-          {/* 1. DELIVERY ADDRESS with Select on Map */}
+          {/* 1. RENTAL DURATION & DATES */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <label style={{ fontSize: '11px', fontWeight: 800, color: '#475569', letterSpacing: '0.4px', textTransform: 'uppercase' }}>
-                DELIVERY ADDRESS
-              </label>
-              <button
-                type="button"
-                onClick={() => setIsMapModalOpen(true)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#ea580c',
-                  fontSize: '11.5px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: 0
-                }}
-              >
-                <i className="fa-solid fa-location-crosshairs" style={{ fontSize: '11px' }}></i> Select on Map
-              </button>
+            <div className="w-full max-w-4xl font-sans p-4 bg-white">
+              {/* Segmented Rental Type Tabs */}
+              <div className="flex items-center justify-between p-1 rounded-xl bg-[#F8F6F1] border border-[#EBE7DF] mb-5">
+                <button
+                  type="button"
+                  onClick={() => setRentalType('daily')}
+                  className={`flex-1 text-center py-2.5 px-4 text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${rentalType === 'daily'
+                    ? 'bg-[#181A20] text-white shadow-sm'
+                    : 'text-[#1E293B] hover:text-black'
+                    }`}
+                >
+                  Daily rental
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRentalType('weekly')}
+                  className={`flex-1 text-center py-2.5 px-4 text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${rentalType === 'weekly'
+                    ? 'bg-[#181A20] text-white shadow-sm'
+                    : 'text-[#1E293B] hover:text-black'
+                    }`}
+                >
+                  Weekly rental
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRentalType('monthly')}
+                  className={`flex-1 text-center py-2.5 px-4 text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${rentalType === 'monthly'
+                    ? 'bg-[#181A20] text-white shadow-sm'
+                    : 'text-[#1E293B] hover:text-black'
+                    }`}
+                >
+                  Monthly
+                </button>
+              </div>
+
+              {/* Date & Time Inputs */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Pickup Date & Time */}
+                <div>
+                  <label className="block text-[11px] font-bold tracking-wider text-[#5A6478] uppercase mb-1.5">
+                    Pickup Date & Time
+                  </label>
+                  <div className="flex gap-2">
+                    {/* Date Input */}
+                    <div className="relative flex-1">
+                      <input
+                        type="date"
+                        value={pickupDate}
+                        onChange={(e) => setPickupDate(e.target.value)}
+                        onClick={(e) => (e.target as any).showPicker?.()}
+                        placeholder="dd-mm-yyyy"
+                        className="w-full bg-[#FAF8F5] border border-[#E4E0D6] rounded-xl py-3 pl-4 pr-10 text-sm text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:ring-1 focus:ring-black focus:border-black appearance-none cursor-pointer"
+                      />
+                      <Calendar className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1E293B] pointer-events-none" />
+                    </div>
+                    {/* Time Input */}
+                    <div className="relative flex-1">
+                      <input
+                        type="time"
+                        value={pickupTime}
+                        onChange={(e) => setPickupTime(e.target.value)}
+                        onClick={(e) => (e.target as any).showPicker?.()}
+                        step="1"
+                        placeholder="-- : -- : --"
+                        className="w-full bg-[#FAF8F5] border border-[#E4E0D6] rounded-xl py-3 pl-4 pr-10 text-sm text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:ring-1 focus:ring-black focus:border-black appearance-none cursor-pointer"
+                      />
+                      <Clock className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1E293B] pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Return Date & Time */}
+                <div>
+                  <label className="block text-[11px] font-bold tracking-wider text-[#5A6478] uppercase mb-1.5">
+                    Return Date & Time
+                  </label>
+                  <div className="flex gap-2">
+                    {/* Date Input */}
+                    <div className="relative flex-1">
+                      <input
+                        type="date"
+                        value={returnDate}
+                        onChange={(e) => setReturnDate(e.target.value)}
+                        onClick={(e) => (e.target as any).showPicker?.()}
+                        placeholder="dd-mm-yyyy"
+                        className="w-full bg-[#FAF8F5] border border-[#E4E0D6] rounded-xl py-3 pl-4 pr-10 text-sm text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:ring-1 focus:ring-black focus:border-black appearance-none cursor-pointer"
+                      />
+                      <Calendar className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1E293B] pointer-events-none" />
+                    </div>
+                    {/* Time Input */}
+                    <div className="relative flex-1">
+                      <input
+                        type="time"
+                        value={returnTime}
+                        onChange={(e) => setReturnTime(e.target.value)}
+                        onClick={(e) => (e.target as any).showPicker?.()}
+                        step="1"
+                        placeholder="-- : -- : --"
+                        className="w-full bg-[#FAF8F5] border border-[#E4E0D6] rounded-xl py-3 pl-4 pr-10 text-sm text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:ring-1 focus:ring-black focus:border-black appearance-none cursor-pointer"
+                      />
+                      <Clock className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1E293B] pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <input
-              type="text"
-              value={deliveryAddress}
-              onChange={(e) => {
-                setDeliveryAddress(e.target.value);
-                setUserCustomLocation(e.target.value);
-              }}
-              placeholder="Flat / street / area"
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                borderRadius: '10px',
-                border: '1.5px solid #e2e8f0',
-                background: '#fafaf9',
-                fontSize: '13.5px',
-                color: '#0f172a',
-                outline: 'none',
-                boxSizing: 'border-box'
-              }}
-            />
+
           </div>
 
           {/* 2. FULL NAME & WHATSAPP NUMBER */}
@@ -643,7 +794,7 @@ function BookingDeliveryDetailsContent() {
                 </span>
               </div>
               <div style={{ fontSize: '14.5px', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
-                ₹{rentalBase.toLocaleString()} total (1 day)
+                ₹{rentalBase.toLocaleString()} total ({durationLabel})
               </div>
             </div>
           </div>
@@ -666,13 +817,13 @@ function BookingDeliveryDetailsContent() {
             {/* Base Rental */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b' }}>Rental (1 day)</div>
+                <div style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b' }}>Rental ({durationLabel})</div>
                 <div style={{ fontSize: '11px', color: '#64748b' }}>
-                  Incl. GST: ₹47.60 CGST + ₹47.60 SGST
+                  Incl. GST: ₹{cgst.toFixed(2)} CGST + ₹{sgst.toFixed(2)} SGST
                 </div>
               </div>
               <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}>
-                ₹ {rentalBase.toLocaleString()}.00
+                ₹ {rentalBase.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
 
@@ -726,7 +877,9 @@ function BookingDeliveryDetailsContent() {
               marginTop: '4px'
             }}>
               <span style={{ fontSize: '14.5px', fontWeight: 700 }}>Total Fare</span>
-              <span style={{ fontSize: '17px', fontWeight: 900 }}>₹ {totalFare.toLocaleString()}.00</span>
+              <span style={{ fontSize: '17px', fontWeight: 900 }}>
+                ₹ {totalFare.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
             </div>
           </div>
 
