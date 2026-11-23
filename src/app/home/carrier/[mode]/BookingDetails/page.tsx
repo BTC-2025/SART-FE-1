@@ -6,7 +6,7 @@ import Navbar from '@/components/Navbar';
 import SubNavbar from '@/components/SubNavbar';
 import Footer from '@/components/Footer';
 import GoogleMapPickerModal from '@/components/rental/GoogleMapPickerModal';
-import { Calendar, Clock, ArrowRight, ArrowLeft, Check, ShieldCheck, FileText, Upload, Building2, User } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, ArrowLeft, Check, ShieldCheck, FileText, Upload, Building2, User, X } from 'lucide-react';
 
 function CarrierBookingDetailsContent() {
   const router = useRouter();
@@ -160,6 +160,52 @@ function CarrierBookingDetailsContent() {
   const [nationalPermit, setNationalPermit] = useState(true);
   const [roadsideAssistance, setRoadsideAssistance] = useState(true);
 
+  // ---------------- STEP 2 & 4: DOCUMENT UPLOADS ----------------
+  // GST Invoice / E-Way Bill (Step 2 Business)
+  const [gstInvoiceFile, setGstInvoiceFile] = useState<{ name: string; size: string } | null>({
+    name: 'invoice_67201.pdf',
+    size: '320 KB'
+  });
+  // Personal Goods Declaration (Step 2 Individual)
+  const [personalGoodsFile, setPersonalGoodsFile] = useState<{ name: string; size: string } | null>({
+    name: 'personal_goods_declaration.pdf',
+    size: '180 KB'
+  });
+  // ID Proof / PAN (Step 2 Individual)
+  const [idProofFile, setIdProofFile] = useState<{ name: string; size: string } | null>({
+    name: 'pan_card_rajesh.pdf',
+    size: '250 KB'
+  });
+  // Cargo Commercial Invoice (Step 4 Goods)
+  const [commercialInvoiceFile, setCommercialInvoiceFile] = useState<{ name: string; size: string } | null>({
+    name: 'commercial_invoice_machinery.pdf',
+    size: '480 KB'
+  });
+  // E-Way Bill / Delivery Challan (Step 4 Goods)
+  const [cargoEwayFile, setCargoEwayFile] = useState<{ name: string; size: string } | null>({
+    name: 'eway_bill_123456.pdf',
+    size: '310 KB'
+  });
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(0) + ' KB';
+    else return (bytes / 1048576).toFixed(1) + ' MB';
+  };
+
+  const handleFileUpload = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setter: React.Dispatch<React.SetStateAction<{ name: string; size: string } | null>>
+  ) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setter({
+        name: file.name,
+        size: formatFileSize(file.size)
+      });
+    }
+  };
+
   // Map Picker Modal State
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [mapTarget, setMapTarget] = useState<'pickup' | 'delivery'>('pickup');
@@ -180,8 +226,7 @@ function CarrierBookingDetailsContent() {
     { num: 3, label: 'Receiver Details' },
     { num: 4, label: 'Goods Details' },
     { num: 5, label: `${routeMode} Selection` },
-    { num: 6, label: 'Price & Payment' },
-    { num: 7, label: 'Booking Confirmation' }
+
   ];
 
   // Navigation handlers
@@ -767,20 +812,76 @@ function CarrierBookingDetailsContent() {
                           <span>I declare these are personal / non-commercial household or agricultural goods.</span>
                         </label>
 
-                        <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#0f172a', fontWeight: 600 }}>
-                            <FileText size={16} color="#64748b" />
-                            <span>personal_goods_declaration.pdf (180 KB)</span>
-                          </div>
-                          <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 800 }}>✓ Generated & Signed</span>
+                        {/* Personal Goods Declaration */}
+                        <div>
+                          <label style={{ fontSize: '11.5px', fontWeight: 700, color: '#475569', marginBottom: '4px', display: 'block' }}>
+                            Personal Goods Declaration Document
+                          </label>
+                          {personalGoodsFile ? (
+                            <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#0f172a', fontWeight: 600 }}>
+                                <FileText size={16} color="#64748b" />
+                                <span>{personalGoodsFile.name} ({personalGoodsFile.size})</span>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 800 }}>✓ Generated & Signed</span>
+                                <label style={{ cursor: 'pointer', color: '#2563eb', fontSize: '11px', fontWeight: 700, textDecoration: 'underline' }}>
+                                  Change
+                                  <input
+                                    type="file"
+                                    style={{ display: 'none' }}
+                                    onChange={(e) => handleFileUpload(e, setPersonalGoodsFile)}
+                                  />
+                                </label>
+                              </div>
+                            </div>
+                          ) : (
+                            <label style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
+                              <Upload size={16} color="#2563eb" />
+                              <span style={{ fontSize: '12.5px', color: '#2563eb', fontWeight: 700 }}>Upload Declaration Document</span>
+                              <input
+                                type="file"
+                                style={{ display: 'none' }}
+                                onChange={(e) => handleFileUpload(e, setPersonalGoodsFile)}
+                              />
+                            </label>
+                          )}
                         </div>
 
-                        <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#0f172a', fontWeight: 600 }}>
-                            <Upload size={16} color="#64748b" />
-                            <span>pan_card_rajesh.pdf (250 KB)</span>
-                          </div>
-                          <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 800 }}>✓ Attached</span>
+                        {/* ID Proof / PAN */}
+                        <div>
+                          <label style={{ fontSize: '11.5px', fontWeight: 700, color: '#475569', marginBottom: '4px', display: 'block' }}>
+                            Upload ID Proof (PAN / Aadhaar)
+                          </label>
+                          {idProofFile ? (
+                            <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#0f172a', fontWeight: 600 }}>
+                                <Upload size={16} color="#64748b" />
+                                <span>{idProofFile.name} ({idProofFile.size})</span>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 800 }}>✓ Attached</span>
+                                <label style={{ cursor: 'pointer', color: '#2563eb', fontSize: '11px', fontWeight: 700, textDecoration: 'underline' }}>
+                                  Change
+                                  <input
+                                    type="file"
+                                    style={{ display: 'none' }}
+                                    onChange={(e) => handleFileUpload(e, setIdProofFile)}
+                                  />
+                                </label>
+                              </div>
+                            </div>
+                          ) : (
+                            <label style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
+                              <Upload size={16} color="#2563eb" />
+                              <span style={{ fontSize: '12.5px', color: '#2563eb', fontWeight: 700 }}>Upload ID Proof (PDF / Images)</span>
+                              <input
+                                type="file"
+                                style={{ display: 'none' }}
+                                onChange={(e) => handleFileUpload(e, setIdProofFile)}
+                              />
+                            </label>
+                          )}
                         </div>
                       </>
                     ) : (
@@ -788,13 +889,35 @@ function CarrierBookingDetailsContent() {
                         <div style={{ fontSize: '12px', color: '#64748b' }}>
                           GST Invoice / E-Way Bill (Optional at this stage)
                         </div>
-                        <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#0f172a', fontWeight: 600 }}>
-                            <FileText size={18} color="#2563eb" />
-                            <span>invoice_67201.pdf (320 KB)</span>
+                        {gstInvoiceFile ? (
+                          <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#0f172a', fontWeight: 600 }}>
+                              <FileText size={18} color="#2563eb" />
+                              <span>{gstInvoiceFile.name} ({gstInvoiceFile.size})</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <span style={{ fontSize: '11.5px', color: '#16a34a', fontWeight: 800 }}>✓ Attached</span>
+                              <label style={{ cursor: 'pointer', color: '#2563eb', fontSize: '12px', fontWeight: 700, textDecoration: 'underline' }}>
+                                Change
+                                <input
+                                  type="file"
+                                  style={{ display: 'none' }}
+                                  onChange={(e) => handleFileUpload(e, setGstInvoiceFile)}
+                                />
+                              </label>
+                            </div>
                           </div>
-                          <span style={{ fontSize: '11.5px', color: '#16a34a', fontWeight: 800 }}>✓ Attached</span>
-                        </div>
+                        ) : (
+                          <label style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
+                            <Upload size={18} color="#2563eb" />
+                            <span style={{ fontSize: '13px', color: '#2563eb', fontWeight: 700 }}>Upload Invoice / E-Way Bill Document</span>
+                            <input
+                              type="file"
+                              style={{ display: 'none' }}
+                              onChange={(e) => handleFileUpload(e, setGstInvoiceFile)}
+                            />
+                          </label>
+                        )}
                       </>
                     )}
                   </div>
@@ -1240,20 +1363,77 @@ function CarrierBookingDetailsContent() {
                     <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
                       D. Document Uploads
                     </div>
-                    <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#0f172a', fontWeight: 600 }}>
-                        <FileText size={18} color="#2563eb" />
-                        <span>commercial_invoice_machinery.pdf (480 KB)</span>
-                      </div>
-                      <span style={{ fontSize: '11.5px', color: '#16a34a', fontWeight: 800 }}>✓ Uploaded</span>
+
+                    {/* Cargo Packing List / Commercial Invoice */}
+                    <div>
+                      <label style={{ fontSize: '11.5px', fontWeight: 700, color: '#475569', marginBottom: '4px', display: 'block' }}>
+                        Cargo Packing List / Commercial Invoice
+                      </label>
+                      {commercialInvoiceFile ? (
+                        <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#0f172a', fontWeight: 600 }}>
+                            <FileText size={18} color="#2563eb" />
+                            <span>{commercialInvoiceFile.name} ({commercialInvoiceFile.size})</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{ fontSize: '11.5px', color: '#16a34a', fontWeight: 800 }}>✓ Uploaded</span>
+                            <label style={{ cursor: 'pointer', color: '#2563eb', fontSize: '12px', fontWeight: 700, textDecoration: 'underline' }}>
+                              Change
+                              <input
+                                type="file"
+                                style={{ display: 'none' }}
+                                onChange={(e) => handleFileUpload(e, setCommercialInvoiceFile)}
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      ) : (
+                        <label style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
+                          <Upload size={16} color="#2563eb" />
+                          <span style={{ fontSize: '12.5px', color: '#2563eb', fontWeight: 700 }}>Upload Commercial Invoice / Packing List</span>
+                          <input
+                            type="file"
+                            style={{ display: 'none' }}
+                            onChange={(e) => handleFileUpload(e, setCommercialInvoiceFile)}
+                          />
+                        </label>
+                      )}
                     </div>
 
-                    <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#0f172a', fontWeight: 600 }}>
-                        <FileText size={18} color="#2563eb" />
-                        <span>eway_bill_123456.pdf (310 KB)</span>
-                      </div>
-                      <span style={{ fontSize: '11.5px', color: '#16a34a', fontWeight: 800 }}>✓ Uploaded</span>
+                    {/* E-Way Bill / Delivery Challan */}
+                    <div>
+                      <label style={{ fontSize: '11.5px', fontWeight: 700, color: '#475569', marginBottom: '4px', display: 'block' }}>
+                        E-Way Bill / Delivery Challan
+                      </label>
+                      {cargoEwayFile ? (
+                        <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#0f172a', fontWeight: 600 }}>
+                            <FileText size={18} color="#2563eb" />
+                            <span>{cargoEwayFile.name} ({cargoEwayFile.size})</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{ fontSize: '11.5px', color: '#16a34a', fontWeight: 800 }}>✓ Uploaded</span>
+                            <label style={{ cursor: 'pointer', color: '#2563eb', fontSize: '12px', fontWeight: 700, textDecoration: 'underline' }}>
+                              Change
+                              <input
+                                type="file"
+                                style={{ display: 'none' }}
+                                onChange={(e) => handleFileUpload(e, setCargoEwayFile)}
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      ) : (
+                        <label style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
+                          <Upload size={16} color="#2563eb" />
+                          <span style={{ fontSize: '12.5px', color: '#2563eb', fontWeight: 700 }}>Upload E-Way Bill / Challan Document</span>
+                          <input
+                            type="file"
+                            style={{ display: 'none' }}
+                            onChange={(e) => handleFileUpload(e, setCargoEwayFile)}
+                          />
+                        </label>
+                      )}
                     </div>
                   </div>
                 </div>
