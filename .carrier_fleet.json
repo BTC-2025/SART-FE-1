@@ -1,40 +1,5 @@
 [
   {
-    "id": "CRG-1001",
-    "name": "TVS TVS King Cargo 3-Wheeler",
-    "mode": "bike",
-    "category": "Express EV/Bike",
-    "type": "bike",
-    "brand": "TVS",
-    "model": "TVS King Cargo 3-Wheeler",
-    "plate": "TN 09 BN 1874",
-    "regId": "TN 09 BN 1874",
-    "fuel": "Electric (EV)",
-    "hub": "Tata Steel Logistics Hub, Chennai, Tamil Nadu - 600081",
-    "location": "Tata Steel Logistics Hub, Chennai, Tamil Nadu - 600081",
-    "year": 2024,
-    "units": 1,
-    "payloadKg": 150,
-    "maxPayload": 150,
-    "weightUnit": "kg",
-    "containerSpace": "Insulated Last-Mile Top Box (65L)",
-    "volumeCapacity": 0.65,
-    "isReefer": false,
-    "hasGps": true,
-    "isHazmat": false,
-    "ratePerKm": 14,
-    "baseCharge": 120,
-    "monthlyLease": 16000,
-    "advancePercent": 25,
-    "deposit": 1000,
-    "pricingText": "₹120/trip | ₹14/km | Adv: 25%",
-    "isAvailable": true,
-    "image": "/images/carrier_icon_bike.png",
-    "images": ["/images/carrier_icon_bike.png"],
-    "rating": 4.9,
-    "verified": true
-  },
-  {
     "id": "CRG-1003",
     "name": "Shipping Corporation of India Coastal Cargo Feeder",
     "mode": "ship",
@@ -65,7 +30,9 @@
     "pricingText": "₹120,000/trip | ₹650/km | Adv: 40%",
     "isAvailable": true,
     "image": "https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&q=80",
-    "images": ["https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&q=80"],
+    "images": [
+      "https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&q=80"
+    ],
     "rating": 4.9,
     "verified": true
   }

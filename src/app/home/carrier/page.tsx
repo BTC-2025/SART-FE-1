@@ -100,7 +100,7 @@ function CarrierContent() {
   const [fleetVehicles, setFleetVehicles] = useState<CarrierVehicleItem[]>(INITIAL_OWNER_FLEET);
 
   // Selected category mode
-  const [activeMode, setActiveMode] = useState<'truck' | 'train' | 'flight' | 'ship' | 'bike' | 'bus'>('bike');
+  const [activeMode, setActiveMode] = useState<'truck' | 'train' | 'flight' | 'ship' | 'bike' | 'bus'>('ship');
 
   // Top header dropdown state for "Select Carrier"
   const [isCarrierDropdownOpen, setIsCarrierDropdownOpen] = useState(false);
