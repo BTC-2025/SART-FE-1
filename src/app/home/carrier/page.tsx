@@ -260,13 +260,12 @@ function CarrierContent() {
     };
 
     const loadOwnerFleet = async () => {
-      // 1. Fetch from Backend API (shared with business site at port 3007)
+      // Strictly fetch from Backend API (port 3005 database)
       try {
-        const res = await fetch('/api/carriers');
+        const res = await fetch('/api/carriers', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           if (data && Array.isArray(data.vehicles)) {
-            // Strictly sync localStorage on 3005 with the backend
             try {
               localStorage.setItem('logi_pulse_vehicles', JSON.stringify(data.vehicles));
             } catch (e) { }
@@ -276,19 +275,7 @@ function CarrierContent() {
         }
       } catch (err) { }
 
-      // 2. Try local storage fallback
-      try {
-        const saved = localStorage.getItem('logi_pulse_vehicles');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) {
-            setFleetVehicles(parsed.map(parseCarrier));
-            return;
-          }
-        }
-      } catch (e) { }
-
-      // 3. Fallback to empty fleet (only vehicles added by owner will ever show)
+      // If backend is unreachable, strictly show empty fleet (do not resurrect deleted items)
       setFleetVehicles([]);
     };
 

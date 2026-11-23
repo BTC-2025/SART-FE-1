@@ -298,7 +298,7 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
 
     const loadOwnerFleet = async () => {
       try {
-        const res = await fetch('/api/carriers');
+        const res = await fetch('/api/carriers', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           if (data && Array.isArray(data.vehicles)) {
@@ -310,17 +310,6 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
           }
         }
       } catch (err) { }
-
-      try {
-        const saved = localStorage.getItem('logi_pulse_vehicles');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) {
-            setFleetVehicles(parsed.map(parseCarrier));
-            return;
-          }
-        }
-      } catch (e) { }
 
       setFleetVehicles([]);
     };
