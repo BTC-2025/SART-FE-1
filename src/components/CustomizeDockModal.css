@@ -25,9 +25,10 @@
 }
 
 .dock-modal-card {
-  height: 550px;
+  height: 580px;
+  max-height: 90vh;
   width: 100%;
-  max-width: 620px;
+  max-width: 640px;
   background: #ffffff;
   border-radius: 20px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
@@ -56,6 +57,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 22px 24px 14px 24px;
+  flex-shrink: 0;
 }
 
 .dock-modal-title {
@@ -97,7 +99,8 @@
 /* Search Box */
 .dock-modal-search-box {
   position: relative;
-  margin: 0 24px 14px 24px;
+  margin: 0 24px 12px 24px;
+  flex-shrink: 0;
 }
 
 .dock-modal-search-box .search-ico {
@@ -133,29 +136,51 @@
   display: flex;
   gap: 8px;
   padding: 0 24px 14px 24px;
+  overflow-x: auto;
+  flex-shrink: 0;
+  align-items: center;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.dock-service-filter-row::-webkit-scrollbar {
+  display: none;
 }
 
 .dock-filter-tab {
-  padding: 5px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
   border-radius: 20px;
   font-size: 12.5px;
   font-weight: 700;
-  border: 1px solid #e2e8f0;
+  border: 1.5px solid #e2e8f0;
   background: #f8fafc;
   color: #475569;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  height: 34px;
+  box-sizing: border-box;
   transition: all 0.15s ease;
+}
+
+.dock-filter-tab i {
+  font-size: 13px;
+  line-height: 1;
 }
 
 .dock-filter-tab:hover {
   border-color: #cbd5e1;
   color: #0f172a;
+  background: #f1f5f9;
 }
 
 .dock-filter-tab.active {
   background: #fff7ed;
   color: #ea580c;
-  border-color: #fdba74;
+  border-color: #ea580c;
 }
 
 /* 2-Column Grid (Matches Image 2) */
@@ -164,8 +189,9 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   padding: 0 24px 20px 24px;
-  max-height: 340px;
+  flex: 1;
   overflow-y: auto;
+  min-height: 0;
 }
 
 @media (max-width: 580px) {
@@ -268,6 +294,7 @@
   padding: 16px 24px;
   border-top: 1px solid #f1f5f9;
   background: #ffffff;
+  flex-shrink: 0;
 }
 
 .dock-reset-btn {

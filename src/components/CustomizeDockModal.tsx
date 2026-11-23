@@ -140,55 +140,62 @@ export default function CustomizeDockModal({
         </div>
 
         {/* Category Tabs: All, Rides, Carriers, Rentals, Drivers, Parkings, Communities */}
-        <div className="dock-service-filter-row" style={{ overflowX: 'auto', paddingBottom: '4px' }}>
+        <div className="dock-service-filter-row">
           <button
             type="button"
             className={`dock-filter-tab ${activeCategoryFilter === 'all' ? 'active' : ''}`}
             onClick={() => setActiveCategoryFilter('all')}
           >
-            All Services
+            <i className="fa-solid fa-border-all"></i>
+            <span>All</span>
           </button>
           <button
             type="button"
             className={`dock-filter-tab ${activeCategoryFilter === 'ride' ? 'active' : ''}`}
             onClick={() => setActiveCategoryFilter('ride')}
           >
-            <i className="fa-solid fa-car-side" style={{ marginRight: '5px' }}></i> Rides
+            <i className="fa-solid fa-car-side"></i>
+            <span>Rides</span>
           </button>
           <button
             type="button"
             className={`dock-filter-tab ${activeCategoryFilter === 'carrier' ? 'active' : ''}`}
             onClick={() => setActiveCategoryFilter('carrier')}
           >
-            <i className="fa-solid fa-truck-moving" style={{ marginRight: '5px' }}></i> Carriers
+            <i className="fa-solid fa-truck-moving"></i>
+            <span>Carriers</span>
           </button>
           <button
             type="button"
             className={`dock-filter-tab ${activeCategoryFilter === 'rental' ? 'active' : ''}`}
             onClick={() => setActiveCategoryFilter('rental')}
           >
-            <i className="fa-solid fa-key" style={{ marginRight: '5px' }}></i> Rentals
+            <i className="fa-solid fa-key"></i>
+            <span>Rentals</span>
           </button>
           <button
             type="button"
             className={`dock-filter-tab ${activeCategoryFilter === 'drivers' ? 'active' : ''}`}
             onClick={() => setActiveCategoryFilter('drivers')}
           >
-            <i className="fa-solid fa-user-tie" style={{ marginRight: '5px' }}></i> Drivers
+            <i className="fa-solid fa-user-tie"></i>
+            <span>Drivers</span>
           </button>
           <button
             type="button"
             className={`dock-filter-tab ${activeCategoryFilter === 'parking' ? 'active' : ''}`}
             onClick={() => setActiveCategoryFilter('parking')}
           >
-            <i className="fa-solid fa-square-p" style={{ marginRight: '5px' }}></i> Parkings
+            <i className="fa-solid fa-square-p"></i>
+            <span>Parkings</span>
           </button>
           <button
             type="button"
             className={`dock-filter-tab ${activeCategoryFilter === 'community' ? 'active' : ''}`}
             onClick={() => setActiveCategoryFilter('community')}
           >
-            <i className="fa-solid fa-users" style={{ marginRight: '5px' }}></i> Communities
+            <i className="fa-solid fa-users"></i>
+            <span>Communities</span>
           </button>
         </div>
 
