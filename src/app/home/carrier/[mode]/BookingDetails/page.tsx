@@ -6,985 +6,1449 @@ import Navbar from '@/components/Navbar';
 import SubNavbar from '@/components/SubNavbar';
 import Footer from '@/components/Footer';
 import GoogleMapPickerModal from '@/components/rental/GoogleMapPickerModal';
-import { Calendar, Clock } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, ArrowLeft, Check, ShieldCheck, FileText, Upload, Building2, User } from 'lucide-react';
 
 function CarrierBookingDetailsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const params = useParams();
 
-  // Mode from route params: 'Bike', 'Truck', 'Ship', 'Train', 'Flight'
-  const routeMode = (typeof params?.mode === 'string' ? params.mode : 'Truck');
+  // Mode: e.g. 'Ship', 'Truck', 'Bike', 'Train', 'Flight'
+  const routeMode = (typeof params?.mode === 'string' ? params.mode : 'Ship');
   const normalizedMode = routeMode.toUpperCase();
 
-  const vehicleId = searchParams.get('id') || 'CRG-1002';
-  const paramName = searchParams.get('name') || (normalizedMode === 'BIKE' ? 'Hero Hero Electric Cargo Scooter' : 'Tata Motors Tata Ace Gold');
-  const paramBrand = searchParams.get('brand') || (normalizedMode === 'BIKE' ? 'Hero' : 'Tata Motors');
-  const paramReg = searchParams.get('regId') || (normalizedMode === 'BIKE' ? 'TN 01 NJ 1234' : 'MH 12 MH 6789');
-  const paramHub = searchParams.get('hub') || (normalizedMode === 'BIKE' ? 'Ranipet - Chittoor Trunk Road, Thiruvalam, Katpadi, Vellore, Tamil Nadu, 632106, India' : 'Mumbai Port Logistics Hub');
-  const paramImage = searchParams.get('image') || (normalizedMode === 'BIKE' ? '/images/hero_cargo_bike.png' : '/images/tata_ace_fleet.jpg');
+  // URL Query Parameters
+  const vehicleId = searchParams.get('id') || 'CRG-1003';
+  const paramName = searchParams.get('name') || (normalizedMode === 'SHIP' ? 'Shipping Corporation of India Coastal Cargo Feeder' : 'Tata Motors Tata Ace Gold');
+  const paramBrand = searchParams.get('brand') || (normalizedMode === 'SHIP' ? 'Shipping Corporation of India' : 'Tata Motors');
+  const paramReg = searchParams.get('regId') || (normalizedMode === 'SHIP' ? 'IMO 7879' : 'MH 12 MH 6789');
+  const paramHub = searchParams.get('hub') || 'Tata Steel Logistics Hub, Chennai, Tamil Nadu - 600081';
+  const paramImage = searchParams.get('image') || (normalizedMode === 'SHIP' ? 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&q=80' : '/images/tata_ace_fleet.jpg');
 
-  const baseRateKm = Number(searchParams.get('ratePerKm') || (normalizedMode === 'BIKE' ? 14 : 48));
-  const baseTripFee = Number(searchParams.get('baseCharge') || (normalizedMode === 'BIKE' ? 120 : 1800));
-  const advPct = Number(searchParams.get('advancePercent') || (normalizedMode === 'BIKE' ? 25 : 30));
-  const secDeposit = Number(searchParams.get('deposit') || (normalizedMode === 'BIKE' ? 1000 : 3000));
+  const baseRateKm = Number(searchParams.get('ratePerKm') || (normalizedMode === 'SHIP' ? 650 : 48));
+  const baseTripFee = Number(searchParams.get('baseCharge') || (normalizedMode === 'SHIP' ? 120000 : 1800));
+  const advPct = Number(searchParams.get('advancePercent') || (normalizedMode === 'SHIP' ? 40 : 30));
+  const secDeposit = Number(searchParams.get('deposit') || (normalizedMode === 'SHIP' ? 200000 : 3000));
 
-  // Form State
-  const [fullName, setFullName] = useState('');
-  const [whatsappNumber, setWhatsappNumber] = useState('');
-  const [email, setEmail] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [goodsType, setGoodsType] = useState(searchParams.get('goodsType') || 'Industrial Machinery / Freight Cargo');
-  const [cargoWeight, setCargoWeight] = useState(searchParams.get('weight') || (normalizedMode === 'BIKE' ? '150' : '28'));
-  const [weightUnit, setWeightUnit] = useState(searchParams.get('weightUnit') || (normalizedMode === 'BIKE' ? 'kg' : 'Tonnes'));
+  // Current Step (1 to 5)
+  // Step 1: Route Details
+  // Step 2: Sender Details (Business GST or Individual No GST)
+  // Step 3: Receiver Details (Business GST or Individual No GST)
+  // Step 4: Goods Details
+  // Step 5: Vehicle / Carrier Selection
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
-  const [deliveryType, setDeliveryType] = useState<'hub' | 'doorstep'>('hub');
-  const [pickupAddress, setPickupAddress] = useState(searchParams.get('pickupAddress') || paramHub);
-  const [deliveryAddress, setDeliveryAddress] = useState(searchParams.get('deliveryAddress') || 'Tata Steel Logistics Hub, Chennai, Tamil Nadu - 600081');
+  // ---------------- STEP 1: ROUTE DETAILS ----------------
+  const [pickupAddress, setPickupAddress] = useState(searchParams.get('pickupAddress') || 'Cherlapally Industrial Area, Phase 3');
+  const [pickupState, setPickupState] = useState('Telangana');
+  const [pickupCity, setPickupCity] = useState('Hyderabad');
+  const [pickupPincode, setPickupPincode] = useState(searchParams.get('pickupPincode') || '500051');
 
-  // Dates & Times State
-  const formatYMD = (d: Date) => {
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-  const addDays = (d: Date, days: number) => {
-    const res = new Date(d);
-    res.setDate(res.getDate() + days);
-    return res;
-  };
+  const [deliveryAddress, setDeliveryAddress] = useState(searchParams.get('deliveryAddress') || 'Peenya Industrial Area, Stage 2');
+  const [deliveryState, setDeliveryState] = useState('Karnataka');
+  const [deliveryCity, setDeliveryCity] = useState('Bengaluru');
+  const [deliveryPincode, setDeliveryPincode] = useState(searchParams.get('deliveryPincode') || '560058');
 
-  const [dispatchType, setDispatchType] = useState<'standard' | 'express' | 'dedicated'>('standard');
-  const [dispatchDate, setDispatchDate] = useState(() => formatYMD(new Date()));
-  const [dispatchTime, setDispatchTime] = useState('10:00');
-  const [estimatedDeliveryDate, setEstimatedDeliveryDate] = useState(() => formatYMD(addDays(new Date(), normalizedMode === 'BIKE' ? 0 : 2)));
-  const [estimatedDeliveryTime, setEstimatedDeliveryTime] = useState('18:00');
+  const [pickupDate, setPickupDate] = useState('2026-11-25');
+  const [pickupTime, setPickupTime] = useState('10:00');
+  const [loadType, setLoadType] = useState('Full Truck Load (FTL) - Dedicated Carrier');
+  const [approxDistance, setApproxDistance] = useState(normalizedMode === 'SHIP' ? 'Approx. 850 Nautical Miles' : 'Approx. 570 km');
 
-  // Booking Confirmation Modal
-  const [isConfirmedModalOpen, setIsConfirmedModalOpen] = useState(false);
-  const [bookingRefId, setBookingRefId] = useState('');
+  // ---------------- STEP 2: SENDER DETAILS ----------------
+  const [senderType, setSenderType] = useState<'business' | 'individual'>('business');
+  // If Business:
+  const [senderGstin, setSenderGstin] = useState('36AAAAA1111A1Z1');
+  const [senderCompanyName, setSenderCompanyName] = useState('Tata Steel Logistics & Manufacturing Ltd.');
+  // If Individual (No GST):
+  const [senderFullName, setSenderFullName] = useState('Rajesh Sharma');
+  const [senderPan, setSenderPan] = useState('ABCPS1234D');
+  const [senderContactPerson, setSenderContactPerson] = useState('Rajesh Sharma');
+  const [senderRelationship, setSenderRelationship] = useState('Self (Owner)');
+  const [senderNoGstDeclaration, setSenderNoGstDeclaration] = useState(true);
+  // Common Contact:
+  const [senderEmail, setSenderEmail] = useState('logistics@tatasteel.com');
+  const [senderMobile, setSenderMobile] = useState('9876543210');
+  const [senderAddress, setSenderAddress] = useState('Plot No. 42-45, Phase, Phase 3, Cherlapally Industrial Area');
 
-  // Map Modal
+  // ---------------- STEP 3: RECEIVER DETAILS ----------------
+  const [receiverType, setReceiverType] = useState<'business' | 'individual'>('business');
+  // If Business:
+  const [receiverGstin, setReceiverGstin] = useState('29BBBBB2222B1Z2');
+  const [receiverCompanyName, setReceiverCompanyName] = useState('Bengaluru Industrial Steel Hub Pvt. Ltd.');
+  // If Individual (No GST):
+  const [receiverFullName, setReceiverFullName] = useState('Amit Kumar Sharma');
+  const [receiverPan, setReceiverPan] = useState('DFGPS6789K');
+  const [receiverContactPerson, setReceiverContactPerson] = useState('Amit Kumar Sharma');
+  const [receiverRelationship, setReceiverRelationship] = useState('Self (Receiver)');
+  const [receiverLandmark, setReceiverLandmark] = useState('Opposite Peenya Police Station');
+  const [receiverIdVerificationCheck, setReceiverIdVerificationCheck] = useState(true);
+  // Common:
+  const [receiverEmail, setReceiverEmail] = useState('deliveries@steelhubblr.com');
+  const [receiverMobile, setReceiverMobile] = useState('+91 91234 56789');
+  const [receiverContactName, setReceiverContactName] = useState('Anand Hegde');
+  const [receiverAddress, setReceiverAddress] = useState('Plot No. 112, Stage 2, Peenya Industrial Area');
+  const [unloadingAssistance, setUnloadingAssistance] = useState<'crane' | 'manual'>('crane');
+  const [suitableMultiAxle, setSuitableMultiAxle] = useState(true);
+  const [unloadingHours, setUnloadingHours] = useState('09:00 AM - 07:00 PM');
+
+  // ---------------- STEP 4: GOODS DETAILS ----------------
+  const [goodsCategory, setGoodsCategory] = useState('Industrial Machinery & Equipment');
+  const [goodsDescription, setGoodsDescription] = useState('Industrial CNC milling machine and spare tool cabinets');
+  const [consignmentValue, setConsignmentValue] = useState('18,50,000');
+  const [ewayBillNumber, setEwayBillNumber] = useState('241234567890');
+  const [totalCargoWeight, setTotalCargoWeight] = useState(searchParams.get('weight') || (normalizedMode === 'SHIP' ? '52000' : '14'));
+  const [weightUnitVal, setWeightUnitVal] = useState(searchParams.get('weightUnit') || (normalizedMode === 'SHIP' ? 'Tonnes' : 'Tons'));
+  const [quantityUnits, setQuantityUnits] = useState('1 Unit');
+  const [dimensions, setDimensions] = useState({ length: '18 Feet', width: '7.5 Feet', height: '8 Feet' });
+  const [packagingType, setPackagingType] = useState('Heavy Wooden Crate / Skidded');
+  const [loadingAssistance, setLoadingAssistance] = useState<'required' | 'not_required'>('required');
+  const [unloadingRequired, setUnloadingRequired] = useState<'required' | 'not_required'>('required');
+
+  // Special Attributes Checkboxes
+  const [attrOverweight, setAttrOverweight] = useState(true);
+  const [attrHazmat, setAttrHazmat] = useState(false);
+  const [attrTempSensitive, setAttrTempSensitive] = useState(false);
+  const [attrFragile, setAttrFragile] = useState(true);
+  const [attrTarp, setAttrTarp] = useState(true);
+
+  // ---------------- STEP 5: VEHICLE SELECTION ----------------
+  const [selectedVehicleType, setSelectedVehicleType] = useState('heavy');
+  const [bodyTypePreference, setBodyTypePreference] = useState('open');
+  const [gpsTrackingRequired, setGpsTrackingRequired] = useState(true);
+  const [nationalPermit, setNationalPermit] = useState(true);
+  const [roadsideAssistance, setRoadsideAssistance] = useState(true);
+
+  // Map Picker Modal State
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [mapTarget, setMapTarget] = useState<'pickup' | 'delivery'>('pickup');
 
-  // Dynamic Fare Calculation
-  const estDistanceKm = normalizedMode === 'BIKE' ? 25 : 345;
+  // Fare Calculation
+  const estDistanceKm = normalizedMode === 'SHIP' ? 850 : 570;
   const transitFare = estDistanceKm * baseRateKm;
-  const deliveryExtra = deliveryType === 'doorstep' ? 1000 : 0;
-  const subtotal = baseTripFee + transitFare + deliveryExtra;
-  const gstAmount = Number((subtotal * 0.05).toFixed(2));
+  const subtotal = baseTripFee + transitFare;
+  const gstAmount = Number((subtotal * (senderType === 'business' ? 0.18 : 0.05)).toFixed(2));
   const totalFreight = subtotal + gstAmount + secDeposit;
-  const advancePayable = Number(((totalFreight * advPct) / 100).toFixed(2));
-  const balanceOnDelivery = Number((totalFreight - advancePayable).toFixed(2));
+  const advancePayable = Math.round((totalFreight * advPct) / 100);
+  const balanceOnDelivery = Math.round(totalFreight - advancePayable);
 
-  const handleSendOtp = () => {
-    if (!whatsappNumber) {
-      alert('Please enter your WhatsApp mobile number');
-      return;
+  // Steps definition for top stepper header
+  const stepTitles = [
+    { num: 1, label: 'Route Details' },
+    { num: 2, label: 'Sender Details' },
+    { num: 3, label: 'Receiver Details' },
+    { num: 4, label: 'Goods Details' },
+    { num: 5, label: `${routeMode} Selection` },
+    { num: 6, label: 'Price & Payment' },
+    { num: 7, label: 'Booking Confirmation' }
+  ];
+
+  // Navigation handlers
+  const handleNextStep = () => {
+    if (currentStep < 5) {
+      setCurrentStep(prev => prev + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Step 5 completed -> proceed to Payment page
+      handleProceedToPayment();
     }
-    setOtpSent(true);
-    alert(`OTP verification code sent to +91 ${whatsappNumber}`);
   };
 
-  const handleConfirmBooking = () => {
-    if (!fullName || !whatsappNumber) {
-      alert('Please enter your Full Name and WhatsApp Number to proceed with booking.');
-      return;
+  const handlePrevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(prev => prev - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      router.back();
     }
-    const ref = `SART-FRT-${Math.floor(100000 + Math.random() * 900000)}`;
-    setBookingRefId(ref);
-    setIsConfirmedModalOpen(true);
+  };
+
+  const handleProceedToPayment = () => {
+    // Save state to sessionStorage for clean URL and no header overflow
+    const bookingSummary = {
+      bookingId: `CRG-BK-${Date.now().toString().slice(-6)}`,
+      mode: routeMode,
+      vehicleId,
+      vehicleName: paramName,
+      vehicleBrand: paramBrand,
+      vehicleReg: paramReg,
+      vehicleImage: paramImage,
+      pickup: `${pickupCity}, ${pickupState} (${pickupPincode})`,
+      pickupAddress,
+      delivery: `${deliveryCity}, ${deliveryState} (${deliveryPincode})`,
+      deliveryAddress,
+      pickupDate,
+      pickupTime,
+      loadType,
+      senderType,
+      senderGstin: senderType === 'business' ? senderGstin : 'Unregistered (No GST)',
+      senderName: senderType === 'business' ? senderCompanyName : senderFullName,
+      senderMobile,
+      senderEmail,
+      receiverType,
+      receiverGstin: receiverType === 'business' ? receiverGstin : 'Unregistered (No GST)',
+      receiverName: receiverType === 'business' ? receiverCompanyName : receiverFullName,
+      receiverMobile,
+      goodsCategory,
+      goodsDescription,
+      cargoWeight: `${totalCargoWeight} ${weightUnitVal}`,
+      consignmentValue,
+      ewayBillNumber,
+      baseTripFee,
+      transitFare,
+      secDeposit,
+      gstAmount,
+      totalFreight,
+      advancePayable,
+      balanceOnDelivery,
+      advPct
+    };
+
+    try {
+      sessionStorage.setItem('sart_carrier_booking_summary', JSON.stringify(bookingSummary));
+    } catch (e) { }
+
+    const q = new URLSearchParams({
+      bookingId: bookingSummary.bookingId,
+      mode: routeMode,
+      name: paramName,
+      total: String(totalFreight),
+      advance: String(advancePayable)
+    });
+
+    router.push(`/home/carrier/${routeMode}/BookingDetails/Payment?${q.toString()}`);
   };
 
   return (
-    <div style={{
-      maxWidth: '1240px',
-      margin: '28px auto',
-      padding: '0 20px 80px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-      boxSizing: 'border-box'
-    }}>
+    <div style={{ background: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Navbar />
+      <SubNavbar />
 
-      {/* TOP PROGRESS BREADCRUMB */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '24px',
-        marginBottom: '36px'
-      }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-          <div style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '50%',
-            background: '#ea580c',
-            color: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 800,
-            fontSize: '15px',
-            boxShadow: '0 0 0 5px rgba(234, 88, 12, 0.22)'
-          }}>
-            1
-          </div>
-          <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>
-            Consignment & Details
-          </span>
-        </div>
+      <main style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', padding: '28px 20px', flex: 1 }}>
 
-        <div style={{ width: '80px', height: '2px', background: '#e2e8f0', marginTop: '-24px' }}></div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-          <div style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '50%',
-            background: '#f8fafc',
-            color: '#475569',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 700,
-            fontSize: '15px',
-            border: '1.5px solid #cbd5e1'
-          }}>
-            2
-          </div>
-          <span style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>Carrier Dispatch</span>
-        </div>
-
-        <div style={{ width: '80px', height: '2px', background: '#e2e8f0', marginTop: '-24px' }}></div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-          <div style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '50%',
-            background: '#f8fafc',
-            color: '#475569',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 700,
-            fontSize: '15px',
-            border: '1.5px solid #cbd5e1'
-          }}>
-            3
-          </div>
-          <span style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>Confirm & pay</span>
-        </div>
-      </div>
-
-      {/* Main 2-Column Grid Layout */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1.7fr 1fr',
-        gap: '28px',
-        alignItems: 'start'
-      }}>
-
-        {/* LEFT COLUMN: CARGO CONSIGNMENT & BOOKING DETAILS */}
+        {/* ================= TOP STEPPER HEADER (7 Steps matching Screenshot) ================= */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '18px',
-          border: '1px solid #e2e8f0',
-          padding: '28px',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '24px'
+          borderRadius: '16px',
+          padding: '24px 20px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+          marginBottom: '24px',
+          border: '1px solid #e2e8f0'
         }}>
-          {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '17px', fontWeight: 900, color: '#0f172a' }}>
-            <i className="fa-solid fa-truck-ramp-box" style={{ color: '#2563eb', fontSize: '18px' }}></i>
-            <span>Carrier Booking & Consignment Details</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
+            {stepTitles.map((step, idx) => {
+              const isPassed = currentStep > step.num;
+              const isCurrent = currentStep === step.num;
+              return (
+                <React.Fragment key={step.num}>
+                  <div
+                    onClick={() => {
+                      if (step.num <= 5) setCurrentStep(step.num);
+                    }}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '8px',
+                      cursor: step.num <= 5 ? 'pointer' : 'default',
+                      zIndex: 2,
+                      minWidth: '85px'
+                    }}
+                  >
+                    <div style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      background: isPassed ? '#1e3a8a' : isCurrent ? '#1e3a8a' : '#ffffff',
+                      color: isPassed || isCurrent ? '#ffffff' : '#94a3b8',
+                      border: isPassed || isCurrent ? '2px solid #1e3a8a' : '2px solid #cbd5e1',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 800,
+                      fontSize: '14px',
+                      transition: 'all 0.2s ease',
+                      boxShadow: isCurrent ? '0 0 0 4px rgba(30, 58, 138, 0.15)' : 'none'
+                    }}>
+                      {isPassed ? <Check size={16} strokeWidth={3} /> : step.num}
+                    </div>
+                    <span style={{
+                      fontSize: '12px',
+                      fontWeight: isCurrent ? 800 : 600,
+                      color: isCurrent ? '#0f172a' : isPassed ? '#1e3a8a' : '#64748b',
+                      textAlign: 'center',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {step.label}
+                    </span>
+                  </div>
+                  {idx < stepTitles.length - 1 && (
+                    <div style={{
+                      flex: 1,
+                      height: '2px',
+                      background: currentStep > idx + 1 ? '#1e3a8a' : '#e2e8f0',
+                      marginTop: '-22px',
+                      transition: 'background 0.3s'
+                    }} />
+                  )}
+                </React.Fragment>
+              );
+            })}
           </div>
+        </div>
 
-          {/* 1. DISPATCH TYPE TABS */}
+        {/* ================= STEP CONTENT CONTAINER ================= */}
+        <div style={{
+          background: '#ffffff',
+          borderRadius: '16px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 4px 18px rgba(0,0,0,0.03)',
+          padding: '32px'
+        }}>
+
+          {/* ================= STEP 1: ROUTE DETAILS ================= */}
+          {currentStep === 1 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: 0 }}>
+                  Step 1: Route Details
+                </h2>
+                <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+                  Specify origin, destination and scheduled dispatch window for dedicated carrier transit.
+                </p>
+              </div>
+
+              {/* Two Column Grid: Pickup & Delivery Location */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                {/* Pickup Card */}
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#1e3a8a', fontWeight: 800, fontSize: '13.5px' }}>
+                    <i className="fa-solid fa-location-dot" style={{ color: '#2563eb' }}></i>
+                    <span>PICKUP LOCATION</span>
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155' }}>Pickup Address (Door No, Street, Area / Industrial Estate)</label>
+                      <button
+                        type="button"
+                        onClick={() => { setMapTarget('pickup'); setIsMapModalOpen(true); }}
+                        style={{ border: '1px solid #cbd5e1', background: '#ffffff', borderRadius: '6px', padding: '3px 8px', fontSize: '11px', fontWeight: 700, color: '#1e3a8a', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        🗺️ Select on Map
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={pickupAddress}
+                      onChange={(e) => setPickupAddress(e.target.value)}
+                      placeholder="Cherlapally Industrial Area, Phase 3"
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 600, color: '#0f172a' }}
+                    />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.2fr 1fr', gap: '10px' }}>
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Pickup State</label>
+                      <input
+                        type="text"
+                        value={pickupState}
+                        onChange={(e) => setPickupState(e.target.value)}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600 }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Pickup City</label>
+                      <input
+                        type="text"
+                        value={pickupCity}
+                        onChange={(e) => setPickupCity(e.target.value)}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600 }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>PIN Code</label>
+                      <input
+                        type="text"
+                        value={pickupPincode}
+                        onChange={(e) => setPickupPincode(e.target.value)}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600 }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Delivery Card */}
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#b91c1c', fontWeight: 800, fontSize: '13.5px' }}>
+                    <i className="fa-solid fa-location-crosshairs" style={{ color: '#dc2626' }}></i>
+                    <span>DELIVERY LOCATION</span>
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155' }}>Delivery Address (Door No, Street, Area / Warehouse)</label>
+                      <button
+                        type="button"
+                        onClick={() => { setMapTarget('delivery'); setIsMapModalOpen(true); }}
+                        style={{ border: '1px solid #cbd5e1', background: '#ffffff', borderRadius: '6px', padding: '3px 8px', fontSize: '11px', fontWeight: 700, color: '#b91c1c', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        🗺️ Select on Map
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={deliveryAddress}
+                      onChange={(e) => setDeliveryAddress(e.target.value)}
+                      placeholder="Peenya Industrial Area, Stage 2"
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 600, color: '#0f172a' }}
+                    />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.2fr 1fr', gap: '10px' }}>
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Delivery State</label>
+                      <input
+                        type="text"
+                        value={deliveryState}
+                        onChange={(e) => setDeliveryState(e.target.value)}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600 }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Delivery City</label>
+                      <input
+                        type="text"
+                        value={deliveryCity}
+                        onChange={(e) => setDeliveryCity(e.target.value)}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600 }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>PIN Code</label>
+                      <input
+                        type="text"
+                        value={deliveryPincode}
+                        onChange={(e) => setDeliveryPincode(e.target.value)}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600 }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Route Distance Banner */}
+              <div style={{
+                background: '#eff6ff',
+                border: '1.5px dashed #93c5fd',
+                borderRadius: '12px',
+                padding: '14px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '12px',
+                color: '#1e3a8a',
+                fontSize: '14px',
+                fontWeight: 700
+              }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#2563eb' }}></span>
+                <span>{pickupCity}, {pickupState}</span>
+                <i className="fa-solid fa-arrow-right-long" style={{ color: '#3b82f6' }}></i>
+                <span>{deliveryCity}, {deliveryState}</span>
+                <span style={{ color: '#64748b', fontWeight: 600 }}>({approxDistance})</span>
+              </div>
+
+              {/* Bottom Row: Pickup Date, Preferred Pickup Time, Load Type */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.5fr', gap: '18px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>Pickup Date</label>
+                  <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '9px 12px', background: '#ffffff' }}>
+                    <input
+                      type="date"
+                      value={pickupDate}
+                      onChange={(e) => setPickupDate(e.target.value)}
+                      style={{ border: 'none', outline: 'none', width: '100%', fontSize: '13.5px', fontWeight: 600, color: '#0f172a' }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>Preferred Pickup Time</label>
+                  <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '9px 12px', background: '#ffffff' }}>
+                    <input
+                      type="time"
+                      value={pickupTime}
+                      onChange={(e) => setPickupTime(e.target.value)}
+                      style={{ border: 'none', outline: 'none', width: '100%', fontSize: '13.5px', fontWeight: 600, color: '#0f172a' }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>Load Type</label>
+                  <select
+                    value={loadType}
+                    onChange={(e) => setLoadType(e.target.value)}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 600, color: '#0f172a', background: '#ffffff' }}
+                  >
+                    <option value="Full Truck Load (FTL) - Dedicated Carrier">Full Truck Load (FTL) - Dedicated Carrier</option>
+                    <option value="Part Truck Load (PTL) - Shared Express">Part Truck Load (PTL) - Shared Express</option>
+                    <option value="Heavy Machinery Over-Dimensional (ODC)">Heavy Machinery Over-Dimensional (ODC)</option>
+                    <option value="Marine ISO Container Charter">Marine ISO Container Charter</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ================= STEP 2: SENDER DETAILS (GST vs NO GST / INDIVIDUAL) ================= */}
+          {currentStep === 2 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: 0 }}>
+                  Step 2: Sender Details
+                </h2>
+                <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+                  Enter sender / consignor information for interstate GST compliance or individual non-commercial transport.
+                </p>
+              </div>
+
+              {/* Radio Switch: Business / Company vs Individual / Unregistered Sender (NO GST) */}
+              <div style={{ display: 'flex', gap: '24px', alignItems: 'center', padding: '12px 18px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>Sender Identity:</span>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13.5px', fontWeight: 800, color: senderType === 'business' ? '#1e3a8a' : '#475569', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="senderType"
+                    checked={senderType === 'business'}
+                    onChange={() => setSenderType('business')}
+                  />
+                  <span>🏢 Business / Company (GST Registered)</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13.5px', fontWeight: 800, color: senderType === 'individual' ? '#1e3a8a' : '#475569', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="senderType"
+                    checked={senderType === 'individual'}
+                    onChange={() => setSenderType('individual')}
+                  />
+                  <span>👤 Individual / Unregistered Sender (No GST)</span>
+                </label>
+              </div>
+
+              {/* Form Cards Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px' }}>
+
+                {/* Left Card: Business Info OR Individual Info */}
+                {senderType === 'business' ? (
+                  /* Business GST Form */
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+                      A. Business & GST Information
+                    </div>
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>GSTIN</label>
+                        <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 800 }}>✓ GST Verified</span>
+                      </div>
+                      <input
+                        type="text"
+                        value={senderGstin}
+                        onChange={(e) => setSenderGstin(e.target.value)}
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}
+                      />
+                      <span style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', display: 'block' }}>Legal company name: {senderCompanyName}</span>
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Company / Sender Name</label>
+                      <input
+                        type="text"
+                        value={senderCompanyName}
+                        onChange={(e) => setSenderCompanyName(e.target.value)}
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 600, color: '#0f172a' }}
+                      />
+                    </div>
+
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Email Address</label>
+                        <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 800 }}>✓ OTP Verified</span>
+                      </div>
+                      <input
+                        type="email"
+                        value={senderEmail}
+                        onChange={(e) => setSenderEmail(e.target.value)}
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 600, color: '#0f172a' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Mobile Number</label>
+                      <input
+                        type="text"
+                        value={senderMobile}
+                        onChange={(e) => setSenderMobile(e.target.value)}
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 600, color: '#0f172a' }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  /* Individual No GST Form */
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+                      A. Sender Type & Identity (No GST / Unregistered)
+                    </div>
+                    <div style={{ background: '#f1f5f9', borderRadius: '6px', padding: '8px 12px', fontSize: '11.5px', color: '#475569' }}>
+                      ⓘ Unregistered (GST not required for individual transport)
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Sender / Full Name</label>
+                      <input
+                        type="text"
+                        value={senderFullName}
+                        onChange={(e) => setSenderFullName(e.target.value)}
+                        placeholder="Rajesh Sharma"
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 600, color: '#0f172a' }}
+                      />
+                    </div>
+
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Government ID / PAN (Required for transport without GST)</label>
+                        <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 800 }}>✓ Verified</span>
+                      </div>
+                      <input
+                        type="text"
+                        value={senderPan}
+                        onChange={(e) => setSenderPan(e.target.value)}
+                        placeholder="ABCPS1234D"
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}
+                      />
+                    </div>
+
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Email Address</label>
+                        <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 800 }}>✓ OTP Verified</span>
+                      </div>
+                      <input
+                        type="email"
+                        value={senderEmail}
+                        onChange={(e) => setSenderEmail(e.target.value)}
+                        placeholder="rajesh.sharma@email.com"
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 600, color: '#0f172a' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Mobile Number</label>
+                      <input
+                        type="text"
+                        value={senderMobile}
+                        onChange={(e) => setSenderMobile(e.target.value)}
+                        placeholder="+91 98765 43210"
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 600, color: '#0f172a' }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Right Column: Verified Pickup Address & Documentation Upload */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {/* Verified Pickup Address */}
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+                      {senderType === 'business' ? 'C. Verified Pickup Address (Auto-filled from GST / Step 1)' : 'B. Pickup Contact Person (Self / Representative)'}
+                    </div>
+
+                    {senderType === 'individual' && (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '10px' }}>
+                        <div>
+                          <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Contact Person Name</label>
+                          <input
+                            type="text"
+                            value={senderContactPerson}
+                            onChange={(e) => setSenderContactPerson(e.target.value)}
+                            style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600 }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Relationship/Role</label>
+                          <input
+                            type="text"
+                            value={senderRelationship}
+                            onChange={(e) => setSenderRelationship(e.target.value)}
+                            style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600 }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Pickup Address</label>
+                      <input
+                        type="text"
+                        value={senderAddress}
+                        onChange={(e) => setSenderAddress(e.target.value)}
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600, color: '#0f172a' }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>State</label>
+                        <input type="text" value={pickupState} readOnly style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12.5px', background: '#f8fafc' }} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>City</label>
+                        <input type="text" value={pickupCity} readOnly style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12.5px', background: '#f8fafc' }} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>PIN Code</label>
+                        <input type="text" value={pickupPincode} readOnly style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12.5px', background: '#f8fafc' }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Documentation Upload */}
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+                      D. Documentation {senderType === 'individual' ? 'for Unregistered Transport' : 'Upload'}
+                    </div>
+
+                    {senderType === 'individual' ? (
+                      <>
+                        <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '12px', color: '#0f172a', fontWeight: 700, cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={senderNoGstDeclaration}
+                            onChange={(e) => setSenderNoGstDeclaration(e.target.checked)}
+                            style={{ marginTop: '2px' }}
+                          />
+                          <span>I declare these are personal / non-commercial household or agricultural goods.</span>
+                        </label>
+
+                        <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#0f172a', fontWeight: 600 }}>
+                            <FileText size={16} color="#64748b" />
+                            <span>personal_goods_declaration.pdf (180 KB)</span>
+                          </div>
+                          <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 800 }}>✓ Generated & Signed</span>
+                        </div>
+
+                        <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#0f172a', fontWeight: 600 }}>
+                            <Upload size={16} color="#64748b" />
+                            <span>pan_card_rajesh.pdf (250 KB)</span>
+                          </div>
+                          <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 800 }}>✓ Attached</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>
+                          GST Invoice / E-Way Bill (Optional at this stage)
+                        </div>
+                        <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#0f172a', fontWeight: 600 }}>
+                            <FileText size={18} color="#2563eb" />
+                            <span>invoice_67201.pdf (320 KB)</span>
+                          </div>
+                          <span style={{ fontSize: '11.5px', color: '#16a34a', fontWeight: 800 }}>✓ Attached</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* ================= STEP 3: RECEIVER DETAILS (GST vs NO GST / INDIVIDUAL) ================= */}
+          {currentStep === 3 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: 0 }}>
+                  Step 3: Receiver Details
+                </h2>
+                <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+                  Enter receiver / consignee information for destination delivery and unloading assistance.
+                </p>
+              </div>
+
+              {/* Radio Switch: Business vs Individual / Unregistered Receiver */}
+              <div style={{ display: 'flex', gap: '24px', alignItems: 'center', padding: '12px 18px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>Receiver Identity:</span>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13.5px', fontWeight: 800, color: receiverType === 'business' ? '#1e3a8a' : '#475569', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="receiverType"
+                    checked={receiverType === 'business'}
+                    onChange={() => setReceiverType('business')}
+                  />
+                  <span>🏢 Business / Company</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13.5px', fontWeight: 800, color: receiverType === 'individual' ? '#1e3a8a' : '#475569', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="receiverType"
+                    checked={receiverType === 'individual'}
+                    onChange={() => setReceiverType('individual')}
+                  />
+                  <span>👤 Individual / Unregistered Receiver (No GST)</span>
+                </label>
+              </div>
+
+              {/* Form Cards Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px' }}>
+
+                {/* Left Card: Business vs Individual Receiver Form */}
+                {receiverType === 'business' ? (
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+                      A. Receiver & Business Details
+                    </div>
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>GSTIN (Optional / Business)</label>
+                        <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 800 }}>✓ GST Verified</span>
+                      </div>
+                      <input
+                        type="text"
+                        value={receiverGstin}
+                        onChange={(e) => setReceiverGstin(e.target.value)}
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}
+                      />
+                      <span style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', display: 'block' }}>Legal company name: {receiverCompanyName}</span>
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Company / Receiver Name</label>
+                      <input
+                        type="text"
+                        value={receiverCompanyName}
+                        onChange={(e) => setReceiverCompanyName(e.target.value)}
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 600, color: '#0f172a' }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Email Address</label>
+                        <input
+                          type="email"
+                          value={receiverEmail}
+                          onChange={(e) => setReceiverEmail(e.target.value)}
+                          style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600 }}
+                        />
+                      </div>
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                          <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Receiver Mobile</label>
+                          <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 800 }}>✓ Verified</span>
+                        </div>
+                        <input
+                          type="text"
+                          value={receiverMobile}
+                          onChange={(e) => setReceiverMobile(e.target.value)}
+                          style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600 }}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Contact Person Name</label>
+                      <input
+                        type="text"
+                        value={receiverContactName}
+                        onChange={(e) => setReceiverContactName(e.target.value)}
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 600, color: '#0f172a' }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+                      A. Receiver Type & Identity (No GST / Unregistered)
+                    </div>
+                    <div style={{ background: '#f1f5f9', borderRadius: '6px', padding: '8px 12px', fontSize: '11.5px', color: '#475569' }}>
+                      ⓘ Unregistered (GST not required for individual receiver)
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Receiver / Full Name</label>
+                      <input
+                        type="text"
+                        value={receiverFullName}
+                        onChange={(e) => setReceiverFullName(e.target.value)}
+                        placeholder="Amit Kumar Sharma"
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 600, color: '#0f172a' }}
+                      />
+                    </div>
+
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Government ID / PAN (Optional)</label>
+                        <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 800 }}>✓ Verified</span>
+                      </div>
+                      <input
+                        type="text"
+                        value={receiverPan}
+                        onChange={(e) => setReceiverPan(e.target.value)}
+                        placeholder="DFGPS6789K"
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '10px' }}>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Contact Person Name</label>
+                        <input
+                          type="text"
+                          value={receiverContactPerson}
+                          onChange={(e) => setReceiverContactPerson(e.target.value)}
+                          style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600 }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Contact Phone</label>
+                        <input
+                          type="text"
+                          value={receiverMobile}
+                          onChange={(e) => setReceiverMobile(e.target.value)}
+                          style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600 }}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Delivery Landmark</label>
+                      <input
+                        type="text"
+                        value={receiverLandmark}
+                        onChange={(e) => setReceiverLandmark(e.target.value)}
+                        placeholder="Opposite Peenya Police Station"
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600 }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Right Column: Delivery Address & Unloading Requirements */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {/* Delivery Address Card */}
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+                      C. Delivery Address (Auto-filled / confirmed from Step 1)
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Delivery Address</label>
+                      <input
+                        type="text"
+                        value={receiverAddress}
+                        onChange={(e) => setReceiverAddress(e.target.value)}
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600, color: '#0f172a' }}
+                      />
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>State</label>
+                        <input type="text" value={deliveryState} readOnly style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12.5px', background: '#f8fafc' }} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>City</label>
+                        <input type="text" value={deliveryCity} readOnly style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12.5px', background: '#f8fafc' }} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>PIN Code</label>
+                        <input type="text" value={deliveryPincode} readOnly style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12.5px', background: '#f8fafc' }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Unloading Requirements */}
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+                      D. Unloading Requirements
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>Unloading Assistance Required?</label>
+                      <div style={{ display: 'flex', gap: '18px' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: '#0f172a', cursor: 'pointer' }}>
+                          <input type="radio" name="unloadingAssistance" checked={unloadingAssistance === 'crane'} onChange={() => setUnloadingAssistance('crane')} />
+                          <span>Yes, Crane/Forklift needed</span>
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: '#475569', cursor: 'pointer' }}>
+                          <input type="radio" name="unloadingAssistance" checked={unloadingAssistance === 'manual'} onChange={() => setUnloadingAssistance('manual')} />
+                          <span>No, Manual / Handled by receiver</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '10px', alignItems: 'center' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#0f172a', cursor: 'pointer' }}>
+                        <input type="checkbox" checked={suitableMultiAxle} onChange={(e) => setSuitableMultiAxle(e.target.checked)} />
+                        <span>Suitable for Multi-Axle Heavy Commercial Vehicles (32ft/40ft)</span>
+                      </label>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Unloading Hours</label>
+                        <input
+                          type="text"
+                          value={unloadingHours}
+                          onChange={(e) => setUnloadingHours(e.target.value)}
+                          style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px' }}
+                        />
+                      </div>
+                    </div>
+
+                    {receiverType === 'individual' && (
+                      <label style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#0f172a', cursor: 'pointer', background: '#f8fafc', padding: '8px 10px', borderRadius: '6px' }}>
+                        <input type="checkbox" checked={receiverIdVerificationCheck} onChange={(e) => setReceiverIdVerificationCheck(e.target.checked)} style={{ marginTop: '2px' }} />
+                        <span>Receiver will present ID (PAN / Aadhaar) and Delivery OTP upon carrier arrival.</span>
+                      </label>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* ================= STEP 4: GOODS DETAILS ================= */}
+          {currentStep === 4 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: 0 }}>
+                  Step 4: Goods & Cargo Details
+                </h2>
+                <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+                  Specify dimensions, weight, packaging, and handling requirements for vehicle allocation.
+                </p>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+
+                {/* Left Column: Classification, Value & Weight/Dimensions */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {/* A. Goods Classification & Value */}
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+                      A. Goods Classification & Value
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Goods Category</label>
+                      <select
+                        value={goodsCategory}
+                        onChange={(e) => setGoodsCategory(e.target.value)}
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600, color: '#0f172a', background: '#ffffff' }}
+                      >
+                        <option value="Industrial Machinery & Equipment">Industrial Machinery & Equipment</option>
+                        <option value="Steel Coils, Billets & Heavy Metal">Steel Coils, Billets & Heavy Metal</option>
+                        <option value="Automotive Parts & Components">Automotive Parts & Components</option>
+                        <option value="Chemicals & Raw Materials">Chemicals & Raw Materials</option>
+                        <option value="FMCG & Packaged Dry Cargo">FMCG & Packaged Dry Cargo</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Goods Description</label>
+                      <input
+                        type="text"
+                        value={goodsDescription}
+                        onChange={(e) => setGoodsDescription(e.target.value)}
+                        placeholder="Industrial CNC milling machine and spare tool cabinets"
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600 }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Total Consignment Value (₹)</label>
+                        <input
+                          type="text"
+                          value={consignmentValue}
+                          onChange={(e) => setConsignmentValue(e.target.value)}
+                          placeholder="₹18,50,000"
+                          style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>E-Way Bill Number (optional)</label>
+                        <input
+                          type="text"
+                          value={ewayBillNumber}
+                          onChange={(e) => setEwayBillNumber(e.target.value)}
+                          placeholder="241234567890"
+                          style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* B. Weight & Dimensions */}
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+                      B. Weight & Dimensions
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Total Cargo Weight ({weightUnitVal})</label>
+                        <input
+                          type="text"
+                          value={totalCargoWeight}
+                          onChange={(e) => setTotalCargoWeight(e.target.value)}
+                          style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Quantity / Units</label>
+                        <input
+                          type="text"
+                          value={quantityUnits}
+                          onChange={(e) => setQuantityUnits(e.target.value)}
+                          placeholder="1 Unit"
+                          style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Dimensions (L × W × H)</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                        <input type="text" value={dimensions.length} onChange={(e) => setDimensions({ ...dimensions, length: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12.5px', fontWeight: 600 }} />
+                        <input type="text" value={dimensions.width} onChange={(e) => setDimensions({ ...dimensions, width: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12.5px', fontWeight: 600 }} />
+                        <input type="text" value={dimensions.height} onChange={(e) => setDimensions({ ...dimensions, height: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12.5px', fontWeight: 600 }} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>Packaging Type</label>
+                      <input
+                        type="text"
+                        value={packagingType}
+                        onChange={(e) => setPackagingType(e.target.value)}
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600 }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column: Loading Requirements & Document Uploads */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {/* C. Loading & Handling Requirements */}
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+                      C. Loading & Handling Requirements
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>Loading Assistance</label>
+                      <div style={{ display: 'flex', gap: '16px' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: '#0f172a', cursor: 'pointer' }}>
+                          <input type="radio" name="loadingAssistance" checked={loadingAssistance === 'required'} onChange={() => setLoadingAssistance('required')} />
+                          <span>Required (Crane / Forklift needed)</span>
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: '#64748b', cursor: 'pointer' }}>
+                          <input type="radio" name="loadingAssistance" checked={loadingAssistance === 'not_required'} onChange={() => setLoadingAssistance('not_required')} />
+                          <span>Not Required</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>Unloading Assistance</label>
+                      <div style={{ display: 'flex', gap: '16px' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: '#0f172a', cursor: 'pointer' }}>
+                          <input type="radio" name="unloadingRequired" checked={unloadingRequired === 'required'} onChange={() => setUnloadingRequired('required')} />
+                          <span>Required (Crane needed at site)</span>
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: '#64748b', cursor: 'pointer' }}>
+                          <input type="radio" name="unloadingRequired" checked={unloadingRequired === 'not_required'} onChange={() => setUnloadingRequired('not_required')} />
+                          <span>Not Required</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '10px' }}>
+                      <label style={{ fontSize: '12px', fontWeight: 800, color: '#334155', display: 'block', marginBottom: '8px' }}>Special Cargo Attributes</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', fontWeight: 600, color: '#0f172a', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={attrOverweight} onChange={(e) => setAttrOverweight(e.target.checked)} />
+                          <span>Overweight / Heavy Load</span>
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', fontWeight: 600, color: '#0f172a', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={attrHazmat} onChange={(e) => setAttrHazmat(e.target.checked)} />
+                          <span>Hazardous (HAZMAT)</span>
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', fontWeight: 600, color: '#0f172a', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={attrTempSensitive} onChange={(e) => setAttrTempSensitive(e.target.checked)} />
+                          <span>Temperature Sensitive</span>
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', fontWeight: 600, color: '#0f172a', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={attrFragile} onChange={(e) => setAttrFragile(e.target.checked)} />
+                          <span>Fragile / High-Value</span>
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', fontWeight: 600, color: '#0f172a', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={attrTarp} onChange={(e) => setAttrTarp(e.target.checked)} />
+                          <span>Weatherproof Tarp Required</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* D. Document Uploads */}
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+                      D. Document Uploads
+                    </div>
+                    <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#0f172a', fontWeight: 600 }}>
+                        <FileText size={18} color="#2563eb" />
+                        <span>commercial_invoice_machinery.pdf (480 KB)</span>
+                      </div>
+                      <span style={{ fontSize: '11.5px', color: '#16a34a', fontWeight: 800 }}>✓ Uploaded</span>
+                    </div>
+
+                    <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#0f172a', fontWeight: 600 }}>
+                        <FileText size={18} color="#2563eb" />
+                        <span>eway_bill_123456.pdf (310 KB)</span>
+                      </div>
+                      <span style={{ fontSize: '11.5px', color: '#16a34a', fontWeight: 800 }}>✓ Uploaded</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* ================= STEP 5: VEHICLE SELECTION ================= */}
+          {currentStep === 5 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: 0 }}>
+                  Step 5: {routeMode} Selection
+                </h2>
+                <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+                  Based on your {totalCargoWeight} {weightUnitVal}, {dimensions.length} × {dimensions.width} × {dimensions.height} cargo, we recommend these vehicles:
+                </p>
+              </div>
+
+              {/* Recommended banner */}
+              <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '10px', padding: '12px 16px', color: '#0369a1', fontSize: '13.5px', fontWeight: 700 }}>
+                Recommended for your load: Heavy Carrier ({totalCargoWeight} {weightUnitVal} capacity, Multi-Axle / Container Hold)
+              </div>
+
+              {/* Vehicle Cards Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+                {/* Option 1: Selected / Recommended */}
+                <div
+                  onClick={() => setSelectedVehicleType('heavy')}
+                  style={{
+                    background: selectedVehicleType === 'heavy' ? '#f0fdf4' : '#ffffff',
+                    border: selectedVehicleType === 'heavy' ? '2.5px solid #16a34a' : '1.5px solid #e2e8f0',
+                    borderRadius: '16px',
+                    padding: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                    cursor: 'pointer',
+                    position: 'relative'
+                  }}
+                >
+                  <span style={{ position: 'absolute', top: '-12px', left: '16px', background: '#2563eb', color: '#ffffff', fontSize: '10.5px', fontWeight: 800, padding: '3px 10px', borderRadius: '12px' }}>
+                    ✓ RECOMMENDED FOR YOUR CARGO
+                  </span>
+                  <div style={{ height: '120px', borderRadius: '10px', overflow: 'hidden', background: '#f8fafc' }}>
+                    <img src={paramImage} alt="Carrier" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e: any) => { e.target.src = '/images/tata_ace_fleet.jpg'; }} />
+                  </div>
+                  <div>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 900, color: '#0f172a' }}>{paramName}</h4>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>Multi-Axle Flatbed / Dedicated Container (10-Wheeler)</p>
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#475569', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                    <div><strong>Max Payload:</strong> {totalCargoWeight} {weightUnitVal}</div>
+                    <div><strong>Dimensions:</strong> {dimensions.length} × {dimensions.width} × {dimensions.height}</div>
+                    <div><strong>Suitable for:</strong> Industrial machinery, steel, heavy equipment</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '8px', borderTop: '1px solid #e2e8f0' }}>
+                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#0f172a' }}>Est. ₹{totalFreight.toLocaleString('en-IN')}</span>
+                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#16a34a' }}>● Selected</span>
+                  </div>
+                </div>
+
+                {/* Option 2: Heavy Flatbed Trailer */}
+                <div
+                  onClick={() => setSelectedVehicleType('trailer')}
+                  style={{
+                    background: selectedVehicleType === 'trailer' ? '#f0fdf4' : '#ffffff',
+                    border: selectedVehicleType === 'trailer' ? '2.5px solid #16a34a' : '1.5px solid #e2e8f0',
+                    borderRadius: '16px',
+                    padding: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ height: '120px', borderRadius: '10px', overflow: 'hidden', background: '#f8fafc' }}>
+                    <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80" alt="Trailer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                  <div>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 900, color: '#0f172a' }}>Flatbed Trailer (20 - 25 Ton Capacity)</h4>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>3-Axle Articulated Trailer (12+ Wheeler)</p>
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#475569', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                    <div><strong>Max Payload:</strong> 25 Tons</div>
+                    <div><strong>Dimensions:</strong> 40 ft × 8 ft × 8.5 ft</div>
+                    <div><strong>Suitable for:</strong> Over-dimensional cargo, steel coils</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '8px', borderTop: '1px solid #e2e8f0' }}>
+                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#0f172a' }}>Est. ₹{(totalFreight + 6250).toLocaleString('en-IN')}</span>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>○ Select</span>
+                  </div>
+                </div>
+
+                {/* Option 3: Medium Commercial Vehicle */}
+                <div style={{
+                  background: '#f8fafc',
+                  border: '1.5px solid #e2e8f0',
+                  borderRadius: '16px',
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  opacity: 0.75
+                }}>
+                  <div style={{ height: '120px', borderRadius: '10px', overflow: 'hidden', background: '#f1f5f9' }}>
+                    <img src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=600&q=80" alt="Medium" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                  <div>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 900, color: '#0f172a' }}>Medium Commercial Vehicle (9 - 12 Ton)</h4>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>6-Wheeler Closed Box / High-Side Deck</p>
+                  </div>
+                  <div style={{ background: '#fef3c7', borderRadius: '6px', padding: '8px 10px', fontSize: '11px', color: '#92400e', fontWeight: 700 }}>
+                    ⚠️ Cargo weight ({totalCargoWeight} {weightUnitVal}) exceeds vehicle payload capacity
+                  </div>
+                </div>
+              </div>
+
+              {/* Body Type & Driver Requirements checkboxes */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr', gap: '20px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', display: 'block', marginBottom: '8px' }}>Body Type</label>
+                  <div style={{ display: 'flex', gap: '16px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', fontWeight: 700, cursor: 'pointer' }}>
+                      <input type="radio" name="bodyType" checked={bodyTypePreference === 'open'} onChange={() => setBodyTypePreference('open')} />
+                      <span>Open / Flatbed (Tarp covered)</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', fontWeight: 700, cursor: 'pointer' }}>
+                      <input type="radio" name="bodyType" checked={bodyTypePreference === 'closed'} onChange={() => setBodyTypePreference('closed')} />
+                      <span>Container / Closed Body</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', display: 'block', marginBottom: '8px' }}>Carrier Requirements</label>
+                  <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={gpsTrackingRequired} onChange={(e) => setGpsTrackingRequired(e.target.checked)} />
+                      <span>GPS Live Tracking enabled</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={nationalPermit} onChange={(e) => setNationalPermit(e.target.checked)} />
+                      <span>National Permit (Interstate)</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={roadsideAssistance} onChange={(e) => setRoadsideAssistance(e.target.checked)} />
+                      <span>24/7 Roadside Assistance included</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ================= STEP NAVIGATION BUTTONS (BACK & CONTINUE) ================= */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '4px',
-            borderRadius: '12px',
-            background: '#F8F6F1',
-            border: '1px solid #EBE7DF'
+            marginTop: '32px',
+            paddingTop: '24px',
+            borderTop: '1px solid #e2e8f0'
           }}>
-            {(['standard', 'express', 'dedicated'] as const).map((t) => {
-              const isActive = dispatchType === t;
-              const label = t === 'standard' ? 'Standard Transit' : t === 'express' ? 'Express Priority' : 'Dedicated Rake / Fleet';
-              return (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setDispatchType(t)}
-                  style={{
-                    flex: 1,
-                    textAlign: 'center',
-                    padding: '10px 16px',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    borderRadius: '8px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    background: isActive ? '#181A20' : 'transparent',
-                    color: isActive ? '#ffffff' : '#1E293B',
-                    boxShadow: isActive ? '0 2px 6px rgba(0,0,0,0.1)' : 'none'
-                  }}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* 2. DATES & TIMES (DISPATCH & ESTIMATED DELIVERY) */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, letterSpacing: '0.5px', color: '#5A6478', textTransform: 'uppercase', marginBottom: '6px' }}>
-                Dispatch Date & Time
-              </label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <div style={{ position: 'relative', flex: 1 }}>
-                  <input
-                    type="date"
-                    value={dispatchDate}
-                    onChange={(e) => setDispatchDate(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: '#FAF8F5',
-                      border: '1px solid #E4E0D6',
-                      borderRadius: '10px',
-                      padding: '10px 36px 10px 12px',
-                      fontSize: '13px',
-                      color: '#1E293B',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                  <Calendar style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#1E293B', pointerEvents: 'none' }} />
-                </div>
-                <div style={{ position: 'relative', flex: 1 }}>
-                  <input
-                    type="time"
-                    value={dispatchTime}
-                    onChange={(e) => setDispatchTime(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: '#FAF8F5',
-                      border: '1px solid #E4E0D6',
-                      borderRadius: '10px',
-                      padding: '10px 36px 10px 12px',
-                      fontSize: '13px',
-                      color: '#1E293B',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                  <Clock style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#1E293B', pointerEvents: 'none' }} />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, letterSpacing: '0.5px', color: '#5A6478', textTransform: 'uppercase', marginBottom: '6px' }}>
-                Estimated Delivery
-              </label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <div style={{ position: 'relative', flex: 1 }}>
-                  <input
-                    type="date"
-                    value={estimatedDeliveryDate}
-                    onChange={(e) => setEstimatedDeliveryDate(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: '#FAF8F5',
-                      border: '1px solid #E4E0D6',
-                      borderRadius: '10px',
-                      padding: '10px 36px 10px 12px',
-                      fontSize: '13px',
-                      color: '#1E293B',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                  <Calendar style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#1E293B', pointerEvents: 'none' }} />
-                </div>
-                <div style={{ position: 'relative', flex: 1 }}>
-                  <input
-                    type="time"
-                    value={estimatedDeliveryTime}
-                    onChange={(e) => setEstimatedDeliveryTime(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: '#FAF8F5',
-                      border: '1px solid #E4E0D6',
-                      borderRadius: '10px',
-                      padding: '10px 36px 10px 12px',
-                      fontSize: '13px',
-                      color: '#1E293B',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                  <Clock style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#1E293B', pointerEvents: 'none' }} />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 3. CONSIGNMENT CARGO SPECS */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '16px' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, letterSpacing: '0.4px', color: '#475569', textTransform: 'uppercase', marginBottom: '8px' }}>
-                NATURE OF CONSIGNMENT / GOODS
-              </label>
-              <input
-                type="text"
-                value={goodsType}
-                onChange={(e) => setGoodsType(e.target.value)}
-                placeholder="e.g. Industrial Machinery, Steel, Perishables"
-                style={{
-                  width: '100%',
-                  padding: '11px 16px',
-                  borderRadius: '10px',
-                  border: '1.5px solid #e2e8f0',
-                  background: '#fafaf9',
-                  fontSize: '13.5px',
-                  color: '#0f172a',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, letterSpacing: '0.4px', color: '#475569', textTransform: 'uppercase', marginBottom: '8px' }}>
-                CARGO WEIGHT ({weightUnit.toUpperCase()})
-              </label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <input
-                  type="text"
-                  value={cargoWeight}
-                  onChange={(e) => setCargoWeight(e.target.value)}
-                  placeholder="Weight"
-                  style={{
-                    flex: 1,
-                    padding: '11px 14px',
-                    borderRadius: '10px',
-                    border: '1.5px solid #e2e8f0',
-                    background: '#fafaf9',
-                    fontSize: '13.5px',
-                    color: '#0f172a',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                />
-                <select
-                  value={weightUnit}
-                  onChange={(e) => setWeightUnit(e.target.value)}
-                  style={{
-                    padding: '11px 12px',
-                    borderRadius: '10px',
-                    border: '1.5px solid #e2e8f0',
-                    background: '#ffffff',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    color: '#0f172a',
-                    outline: 'none'
-                  }}
-                >
-                  <option value="Tonnes">Tonnes</option>
-                  <option value="kg">kg</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* 4. SENDER / CONSIGNOR DETAILS */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, letterSpacing: '0.4px', color: '#475569', textTransform: 'uppercase', marginBottom: '8px' }}>
-                CONSIGNOR / SENDER NAME
-              </label>
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Full sender name"
-                style={{
-                  width: '100%',
-                  padding: '11px 16px',
-                  borderRadius: '10px',
-                  border: '1.5px solid #e2e8f0',
-                  background: '#fafaf9',
-                  fontSize: '13.5px',
-                  color: '#0f172a',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, letterSpacing: '0.4px', color: '#475569', textTransform: 'uppercase', marginBottom: '8px' }}>
-                WHATSAPP / MOBILE NUMBER
-              </label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <div style={{
-                  height: '44px',
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '0 12px',
-                  borderRadius: '10px',
-                  border: '1.5px solid #e2e8f0',
-                  background: '#fafaf9'
-                }}>
-                  <span style={{ fontSize: '12px', fontWeight: 700, color: '#475569' }}>IN</span>
-                  <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#475569' }}>+91</span>
-                  <input
-                    type="tel"
-                    value={whatsappNumber}
-                    onChange={(e) => setWhatsappNumber(e.target.value)}
-                    placeholder="Mobile number"
-                    style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '13.5px', color: '#0f172a', width: '100%' }}
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={handleSendOtp}
-                  style={{
-                    background: '#0f172a',
-                    color: '#ffffff',
-                    border: 'none',
-                    padding: '0 16px',
-                    borderRadius: '10px',
-                    fontWeight: 700,
-                    fontSize: '12.5px',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {otpSent ? 'Resend' : 'Send OTP'}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* 5. ROUTE: PICKUP & DELIVERY HUBS */}
-          <div style={{
-            background: '#ffffff',
-            border: '1.5px solid #e2e8f0',
-            borderRadius: '14px',
-            padding: '18px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '14px'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '12px', fontWeight: 800, color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
-                FREIGHT ROUTE & DEPOT HUBS
-              </span>
-              <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 600 }}>
-                Estimated Transit: {estDistanceKm} km
-              </span>
-            </div>
-
-            {/* Delivery Option Toggle */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <button
-                type="button"
-                onClick={() => setDeliveryType('hub')}
-                style={{
-                  padding: '12px 14px',
-                  borderRadius: '10px',
-                  border: deliveryType === 'hub' ? '2px solid #2563eb' : '1.5px solid #cbd5e1',
-                  background: deliveryType === 'hub' ? '#eff6ff' : '#ffffff',
-                  color: deliveryType === 'hub' ? '#1d4ed8' : '#334155',
-                  cursor: 'pointer',
-                  textAlign: 'left'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 800 }}>Hub-to-Hub Transit</span>
-                  <span style={{ fontSize: '11px', background: '#dcfce7', color: '#166534', padding: '2px 7px', borderRadius: '8px', fontWeight: 700 }}>
-                    INCLUDED (₹0)
-                  </span>
-                </div>
-                <p style={{ margin: 0, fontSize: '11px', color: '#64748b', lineHeight: 1.35 }}>
-                  Consignor dispatches from hub & consignee collects from delivery terminal.
-                </p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setDeliveryType('doorstep')}
-                style={{
-                  padding: '12px 14px',
-                  borderRadius: '10px',
-                  border: deliveryType === 'doorstep' ? '2px solid #ea580c' : '1.5px solid #cbd5e1',
-                  background: deliveryType === 'doorstep' ? '#fff7ed' : '#ffffff',
-                  color: deliveryType === 'doorstep' ? '#c2410c' : '#334155',
-                  cursor: 'pointer',
-                  textAlign: 'left'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 800 }}>Doorstep Dedicated Fleet</span>
-                  <span style={{ fontSize: '11px', background: '#ffedd5', color: '#9a3412', padding: '2px 7px', borderRadius: '8px', fontWeight: 700 }}>
-                    +₹1,000 Extra
-                  </span>
-                </div>
-                <p style={{ margin: 0, fontSize: '11px', color: '#64748b', lineHeight: 1.35 }}>
-                  Dedicated fleet vehicle will pick up directly at factory/warehouse doorstep.
-                </p>
-              </button>
-            </div>
-
-            {/* Pickup Address Box */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#fafafa', border: '1px solid #cbd5e1', borderRadius: '10px', padding: '8px 12px' }}>
-              <div style={{ color: '#16a34a', fontSize: '16px' }}><i className="fa-solid fa-circle-dot"></i></div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '10.5px', fontWeight: 800, color: '#64748b' }}>ORIGIN / PICKUP HUB</div>
-                <input
-                  type="text"
-                  value={pickupAddress}
-                  onChange={(e) => setPickupAddress(e.target.value)}
-                  style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', fontSize: '12.5px', fontWeight: 600, color: '#0f172a' }}
-                />
-              </div>
-            </div>
-
-            {/* Delivery Address Box */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#fafafa', border: '1px solid #cbd5e1', borderRadius: '10px', padding: '8px 12px' }}>
-              <div style={{ color: '#ef4444', fontSize: '16px' }}><i className="fa-solid fa-location-dot"></i></div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '10.5px', fontWeight: 800, color: '#64748b' }}>DESTINATION / DELIVERY TERMINAL</div>
-                <input
-                  type="text"
-                  value={deliveryAddress}
-                  onChange={(e) => setDeliveryAddress(e.target.value)}
-                  style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', fontSize: '12.5px', fontWeight: 600, color: '#0f172a' }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* RIGHT COLUMN: VEHICLE CARD (MATCHING IMAGE 2 EXACTLY) + CHARGES SUMMARY */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-
-          {/* CARD 1: VEHICLE CARD (MATCHING IMAGE 2 EXACTLY) */}
-          <div style={{
-            background: '#ffffff',
-            borderRadius: '20px',
-            border: '1.5px solid #e2e8f0',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)',
-            padding: '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '14px'
-          }}>
-            {/* 1. Vehicle Photo at Top */}
-            <div style={{
-              width: '100%',
-              height: '180px',
-              borderRadius: '14px',
-              overflow: 'hidden',
-              background: '#f8fafc',
-              position: 'relative'
-            }}>
-              <img
-                src={paramImage}
-                alt={paramName}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                onError={(e: any) => { e.target.src = '/images/tata_ace_fleet.jpg'; }}
-              />
-            </div>
-
-            {/* 2. Header Row: Name & Mode Badge + Rating */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 900, color: '#0f172a', lineHeight: 1.25, fontFamily: 'serif, Georgia' }}>
-                  {paramName}
-                </h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                  <span style={{
-                    background: '#eff6ff',
-                    color: '#1d4ed8',
-                    fontSize: '11px',
-                    fontWeight: 800,
-                    padding: '2px 8px',
-                    borderRadius: '6px',
-                    letterSpacing: '0.5px',
-                    textTransform: 'uppercase'
-                  }}>
-                    {normalizedMode}
-                  </span>
-                  <span style={{ fontSize: '13px', fontWeight: 800, color: '#eab308', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                    ⭐ <span style={{ color: '#0f172a' }}>4.9</span>
-                  </span>
-                </div>
-              </div>
-              <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 600, marginTop: '3px' }}>
-                {paramBrand}
-              </div>
-            </div>
-
-            {/* 3. Specs List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', fontSize: '12.5px', color: '#475569' }}>
-              <div>
-                <strong style={{ color: '#0f172a' }}>Max Load:</strong> {cargoWeight} {weightUnit} • {normalizedMode === 'BIKE' ? 'Petrol' : 'Diesel'} • {normalizedMode === 'BIKE' ? 'Insulated Last-Mile Top Box (65L)' : '20ft Closed Container / Flatbed'}
-              </div>
-              <div>
-                <strong style={{ color: '#0f172a' }}>ID / Reg:</strong> {paramReg}
-              </div>
-              <div>
-                <strong style={{ color: '#0f172a' }}>Hub:</strong> {paramHub}
-              </div>
-            </div>
-
-            {/* 4. Badges (GPS Telematics, Cold Chain, HAZMAT) */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              <span style={{
-                background: '#ecfdf5',
-                color: '#065f46',
-                border: '1px solid #a7f3d0',
-                padding: '3px 9px',
-                borderRadius: '6px',
-                fontSize: '11px',
-                fontWeight: 700,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
-                📡 GPS Telematics
-              </span>
-              {normalizedMode !== 'BIKE' && (
-                <span style={{
-                  background: '#eff6ff',
-                  color: '#1e40af',
-                  border: '1px solid #bfdbfe',
-                  padding: '3px 9px',
-                  borderRadius: '6px',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}>
-                  ❄️ Cold Chain
-                </span>
-              )}
-              {normalizedMode !== 'BIKE' && (
-                <span style={{
-                  background: '#fefce8',
-                  color: '#854d0e',
-                  border: '1px solid #fef08a',
-                  padding: '3px 9px',
-                  borderRadius: '6px',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}>
-                  ⚠️ HAZMAT
-                </span>
-              )}
-            </div>
-
-            {/* 5. Rate Card Box */}
-            <div style={{
-              background: '#f8fafc',
-              border: '1.5px dashed #cbd5e1',
-              borderRadius: '10px',
-              padding: '10px 14px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '4px'
-            }}>
-              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 700 }}>Rate Card:</span>
-              <span style={{ fontSize: '14.5px', fontWeight: 800, color: '#0f172a' }}>
-                ₹{baseTripFee.toLocaleString('en-IN')}/trip | ₹{baseRateKm}/km | Adv: {advPct}%
-              </span>
-            </div>
-
-            {/* Status indicator */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '4px' }}>
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '5px',
-                fontSize: '11.5px',
-                fontWeight: 700,
-                color: '#16a34a'
-              }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }}></span>
-                Allocated Available
-              </span>
-              <span style={{ fontSize: '12px', fontWeight: 800, color: '#2563eb' }}>
-                ✓ Selected Carrier
-              </span>
-            </div>
-          </div>
-
-          {/* CARD 2: FREIGHT TARIFF & CHARGES SUMMARY */}
-          <div style={{
-            background: '#ffffff',
-            borderRadius: '16px',
-            border: '1px solid #e2e8f0',
-            padding: '22px 24px',
-            boxShadow: '0 4px 18px rgba(0, 0, 0, 0.03)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
-          }}>
-            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
-              Freight Tariff & Summary
-            </h3>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-              <span style={{ color: '#475569', fontWeight: 600 }}>Base Handling & Trip Fee</span>
-              <span style={{ fontWeight: 700, color: '#0f172a' }}>₹ {baseTripFee.toLocaleString('en-IN')}.00</span>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-              <div>
-                <div style={{ color: '#475569', fontWeight: 600 }}>Distance Freight ({estDistanceKm} km)</div>
-                <div style={{ fontSize: '11px', color: '#94a3b8' }}>₹{baseRateKm}/km standard commercial rate</div>
-              </div>
-              <span style={{ fontWeight: 700, color: '#0f172a' }}>₹ {transitFare.toLocaleString('en-IN')}.00</span>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-              <span style={{ color: '#475569', fontWeight: 600 }}>Goods & Service Tax (GST 5%)</span>
-              <span style={{ fontWeight: 700, color: '#0f172a' }}>₹ {gstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-              <span style={{ color: '#475569', fontWeight: 600 }}>Refundable Security Deposit</span>
-              <span style={{ fontWeight: 700, color: '#0f172a' }}>₹ {secDeposit.toLocaleString('en-IN')}.00</span>
-            </div>
-
-            {deliveryType === 'doorstep' && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                <span style={{ color: '#ea580c', fontWeight: 600 }}>Doorstep Fleet Pickup</span>
-                <span style={{ fontWeight: 700, color: '#ea580c' }}>₹ 1,000.00</span>
-              </div>
-            )}
-
-            {/* Dark Total Fare Bar */}
-            <div style={{
-              background: '#0f172a',
-              borderRadius: '10px',
-              padding: '12px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              color: '#ffffff',
-              marginTop: '6px'
-            }}>
-              <span style={{ fontSize: '14px', fontWeight: 700 }}>Total Estimated Freight</span>
-              <span style={{ fontSize: '17px', fontWeight: 900 }}>₹ {totalFreight.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-            </div>
-
-            {/* Advance & Balance Split */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '4px' }}>
-              <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
-                <div style={{ fontSize: '11px', color: '#166534', fontWeight: 700 }}>ADVANCE PAYABLE ({advPct}%)</div>
-                <div style={{ fontSize: '15px', color: '#15803d', fontWeight: 900, marginTop: '2px' }}>₹ {advancePayable.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
-              </div>
-              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
-                <div style={{ fontSize: '11px', color: '#475569', fontWeight: 700 }}>DUE ON DELIVERY</div>
-                <div style={{ fontSize: '15px', color: '#0f172a', fontWeight: 900, marginTop: '2px' }}>₹ {balanceOnDelivery.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* SART Freight Guarantee Callout */}
-          <div style={{
-            background: '#fffdf0',
-            border: '1px solid #fef08a',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            display: 'flex',
-            gap: '8px',
-            alignItems: 'flex-start'
-          }}>
-            <span style={{ color: '#d97706', fontSize: '14px', marginTop: '1px' }}>⚠️</span>
-            <span style={{ fontSize: '11.5px', color: '#854d0e', lineHeight: 1.45 }}>
-              Advance booking locks in guaranteed vehicle dispatch. Telematics link, e-Way bill and live GPS tracking will be shared immediately via WhatsApp.
-            </span>
-          </div>
-
-          {/* Action Buttons: Back | Confirm Booking */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button
               type="button"
-              onClick={() => router.back()}
+              onClick={handlePrevStep}
               style={{
-                width: '100px',
-                padding: '12px 18px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 24px',
                 borderRadius: '10px',
                 border: '1.5px solid #cbd5e1',
                 background: '#ffffff',
                 color: '#334155',
-                fontSize: '13.5px',
+                fontSize: '14px',
                 fontWeight: 700,
                 cursor: 'pointer'
               }}
             >
-              ← Back
+              <ArrowLeft size={16} />
+              <span>{currentStep === 1 ? 'Back to Vehicles' : 'Back'}</span>
             </button>
 
             <button
               type="button"
-              onClick={handleConfirmBooking}
+              onClick={handleNextStep}
               style={{
-                flex: 1,
-                padding: '13px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '13px 32px',
                 borderRadius: '10px',
                 border: 'none',
                 background: '#ea580c',
                 color: '#ffffff',
-                fontSize: '14.5px',
+                fontSize: '15px',
                 fontWeight: 800,
                 cursor: 'pointer',
-                boxShadow: '0 4px 14px rgba(234, 88, 12, 0.35)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
+                boxShadow: '0 4px 14px rgba(234, 88, 12, 0.35)'
               }}
             >
-              <span>Confirm Carrier Booking →</span>
+              <span>{currentStep === 5 ? 'Continue to Payment →' : 'Continue →'}</span>
+              <ArrowRight size={16} />
             </button>
           </div>
 
         </div>
 
-      </div>
+      </main>
 
-      {/* CONFIRMED BOOKING POPUP MODAL */}
-      {isConfirmedModalOpen && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(15, 23, 42, 0.6)',
-          backdropFilter: 'blur(5px)',
-          zIndex: 3000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px'
-        }}>
-          <div style={{
-            background: '#ffffff',
-            borderRadius: '24px',
-            padding: '36px 32px',
-            maxWidth: '480px',
-            width: '100%',
-            textAlign: 'center',
-            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '16px'
-          }}>
-            <div style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '50%',
-              background: '#dcfce7',
-              color: '#16a34a',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '28px'
-            }}>
-              <i className="fa-solid fa-check"></i>
-            </div>
-
-            <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 900, color: '#0f172a' }}>
-              Carrier Booking Initiated!
-            </h3>
-
-            <div style={{
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              padding: '12px 18px',
-              width: '100%',
-              boxSizing: 'border-box'
-            }}>
-              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700 }}>BOOKING REFERENCE</div>
-              <div style={{ fontSize: '17px', color: '#2563eb', fontWeight: 900, letterSpacing: '0.5px' }}>{bookingRefId}</div>
-            </div>
-
-            <p style={{ margin: 0, fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
-              Vehicle <strong>{paramName}</strong> has been provisionally reserved for your shipment. Our logistics dispatch desk will call you at <strong>+91 {whatsappNumber}</strong> to verify the consignment and dispatch time.
-            </p>
-
-            <button
-              type="button"
-              onClick={() => router.push('/home/carrier')}
-              style={{
-                width: '100%',
-                padding: '13px',
-                borderRadius: '12px',
-                border: 'none',
-                background: '#0f172a',
-                color: '#ffffff',
-                fontSize: '14px',
-                fontWeight: 800,
-                cursor: 'pointer'
-              }}
-            >
-              Return to Carrier Fleet
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* MAP MODAL */}
+      {/* Map Picker Modal */}
       <GoogleMapPickerModal
         isOpen={isMapModalOpen}
-        initialAddress={mapTarget === 'pickup' ? pickupAddress : deliveryAddress}
         onClose={() => setIsMapModalOpen(false)}
-        onConfirm={(address: string) => {
+        onConfirm={(addr) => {
           if (mapTarget === 'pickup') {
-            setPickupAddress(address);
+            setPickupAddress(addr);
           } else {
-            setDeliveryAddress(address);
+            setDeliveryAddress(addr);
           }
           setIsMapModalOpen(false);
         }}
+        initialAddress={mapTarget === 'pickup' ? pickupAddress : deliveryAddress}
       />
 
+      <Footer />
     </div>
   );
 }
 
 export default function CarrierBookingDetailsPage() {
   return (
-    <>
-      <Navbar />
-      <SubNavbar />
-      <Suspense fallback={
-        <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <p style={{ color: '#64748b', fontSize: '16px' }}>Loading Carrier Booking Details...</p>
-        </div>
-      }>
-        <CarrierBookingDetailsContent />
-      </Suspense>
-      <Footer />
-    </>
+    <Suspense fallback={<div style={{ padding: '60px', textAlign: 'center', fontWeight: 800 }}>Loading Carrier Booking...</div>}>
+      <CarrierBookingDetailsContent />
+    </Suspense>
   );
 }
