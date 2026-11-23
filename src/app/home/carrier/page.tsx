@@ -59,6 +59,7 @@ export interface CarrierVehicleItem {
   name: string;
   brand?: string;
   model?: string;
+  category?: string;
   subtitle: string;
   owner: string;
   rating: number;
@@ -356,6 +357,7 @@ function CarrierContent() {
       mode: modeCapitalized,
       name: veh.name,
       brand: veh.brand || 'Tata Motors',
+      model: veh.model || (veh.brand && veh.name && veh.name.toLowerCase().startsWith(veh.brand.toLowerCase()) ? veh.name.slice(veh.brand.length).trim() : (veh.name || 'Standard Fleet')),
       regId: veh.regId || 'MH 12 MH 6789',
       hub: veh.hub || 'Mumbai Port Logistics Hub',
       pickupPincode: pickupPincodeRaw || '400001',
@@ -1203,7 +1205,7 @@ function CarrierContent() {
                   <div>
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
                       <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 900, color: '#0f172a', lineHeight: 1.25, fontFamily: 'serif, Georgia' }}>
-                        {veh.name}
+                        {veh.brand || veh.owner || 'Tata Motors'}
                       </h4>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                         <span style={{
@@ -1224,7 +1226,7 @@ function CarrierContent() {
                       </div>
                     </div>
                     <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginTop: '2px' }}>
-                      {veh.brand || veh.owner}
+                      {veh.model || (veh.brand && veh.name && veh.name.toLowerCase().startsWith(veh.brand.toLowerCase()) ? veh.name.slice(veh.brand.length).trim() : (veh.name || veh.category || 'Standard Fleet'))}
                     </div>
                   </div>
 

@@ -37,6 +37,7 @@ function CarrierBookingDetailsContent() {
   const vehicleId = selectedCarrier?.id || searchParams.get('id') || '';
   const paramName = selectedCarrier?.name || searchParams.get('name') || (normalizedMode === 'SHIP' ? 'Shipping Corporation of India Coastal Cargo Feeder' : 'Commercial Cargo Carrier');
   const paramBrand = selectedCarrier?.brand || searchParams.get('brand') || (normalizedMode === 'SHIP' ? 'Shipping Corporation of India' : 'Carrier Logistics');
+  const paramModel = selectedCarrier?.model || searchParams.get('model') || (paramBrand && paramName && paramName.startsWith(paramBrand) ? paramName.slice(paramBrand.length).trim() : (normalizedMode === 'SHIP' ? 'Coastal Cargo Feeder' : paramName));
   const paramReg = selectedCarrier?.regId || searchParams.get('regId') || (normalizedMode === 'SHIP' ? 'IMO 7879' : 'MH 12 MH 6789');
   const paramHub = selectedCarrier?.hub || searchParams.get('hub') || 'Tata Steel Logistics Hub, Chennai, Tamil Nadu - 600081';
   const paramImage = selectedCarrier?.image || searchParams.get('image') || '';
@@ -257,6 +258,7 @@ function CarrierBookingDetailsContent() {
       vehicleId,
       vehicleName: paramName,
       vehicleBrand: paramBrand,
+      vehicleModel: paramModel,
       vehicleReg: paramReg,
       vehicleImage: paramImage,
       pickup: `${pickupCity}, ${pickupState} (${pickupPincode})`,
@@ -1489,10 +1491,10 @@ function CarrierBookingDetailsContent() {
                   </div>
                   <div>
                     <h3 style={{ margin: '0 0 4px 0', fontSize: '18px', fontWeight: 900, color: '#0f172a', fontFamily: 'serif, Georgia' }}>
-                      {paramName}
+                      {paramBrand || 'Verified Carrier Partner'}
                     </h3>
                     <p style={{ margin: 0, fontSize: '12.5px', color: '#64748b', fontWeight: 600 }}>
-                      {paramBrand || 'Verified Carrier Partner'} • Reg: {paramReg}
+                      {paramModel} • Reg: {paramReg}
                     </p>
                   </div>
                   <div style={{ fontSize: '12.5px', color: '#475569', display: 'flex', flexDirection: 'column', gap: '4px' }}>
