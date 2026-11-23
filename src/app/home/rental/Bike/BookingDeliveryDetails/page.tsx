@@ -304,14 +304,14 @@ function BookingDeliveryDetailsContent() {
             width: '38px',
             height: '38px',
             borderRadius: '50%',
-            background: '#ea580c',
+            background: '#2A1373',
             color: '#ffffff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontWeight: 800,
             fontSize: '15px',
-            boxShadow: '0 0 0 5px rgba(234, 88, 12, 0.22)'
+            boxShadow: '0 0 0 5px rgba(12, 23, 234, 0.22)'
           }}>
             1
           </div>
@@ -928,12 +928,12 @@ function BookingDeliveryDetailsContent() {
                 padding: '12px 24px',
                 borderRadius: '8px',
                 border: 'none',
-                background: '#ea580c',
+                background: '#2A1373',
                 color: '#ffffff',
                 fontWeight: 800,
                 fontSize: '14px',
                 cursor: 'pointer',
-                boxShadow: '0 4px 14px rgba(234, 88, 12, 0.35)',
+                boxShadow: '0 4px 14px rgba(58, 53, 162, 0.35)',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',

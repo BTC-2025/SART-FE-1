@@ -29,19 +29,19 @@ export const ALL_SERVICES_SHORTCUTS: ShortcutItem[] = [
   { id: 'flight_cargo', name: 'Flight', type: 'carrier', icon: 'fa-plane-departure', route: '/home/carrier' },
   { id: 'bike_parcel', name: 'Bike', type: 'carrier', icon: 'fa-box', route: '/home/carrier' },
   { id: 'ship_cargo', name: 'Ship', type: 'carrier', icon: 'fa-ship', route: '/home/carrier' },
-  { id: 'tempo', name: 'Mini Truck', type: 'carrier', icon: 'fa-truck-pickup', route: '/home/carrier' },
+  { id: 'bus', name: 'Bus', type: 'carrier', icon: 'fa-truck-pickup', route: '/home/carrier' },
 
   // Rentals
   { id: 'rental_car', name: 'Self-Drive Car', type: 'rental', icon: 'fa-car-side', route: '/home/rental' },
   { id: 'rental_bike', name: 'Self-Drive Bike', type: 'rental', icon: 'fa-motorcycle', route: '/home/rental' },
-  { id: 'rental_luxury', name: 'Luxury Vehicle Rental', type: 'rental', icon: 'fa-gem', route: '/home/rental' },
+  { id: 'rental_luxury', name: 'Vehicle Rental', type: 'rental', icon: 'fa-gem', route: '/home/rental' },
 
   // Drivers
   { id: 'driver_chauffeur', name: 'Personal Chauffeur', type: 'drivers', icon: 'fa-user-tie', route: '/home/drivers' },
   { id: 'driver_on_demand', name: 'On-Demand Driver', type: 'drivers', icon: 'fa-id-card', route: '/home/drivers' },
 
   // Parkings
-  { id: 'parking_spot', name: 'Safe Parking Spot', type: 'parking', icon: 'fa-square-p', route: '/home/parking' },
+  { id: 'parking_spot', name: 'Parking Spot', type: 'parking', icon: 'fa-square-p', route: '/home/parking' },
   { id: 'parking_ev', name: 'EV Charging Slot', type: 'parking', icon: 'fa-charging-station', route: '/home/parking' },
 
   // Communities

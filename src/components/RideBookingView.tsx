@@ -613,9 +613,9 @@ export default function RideBookingView({
                   className="rb-circle-hero-img"
                 />
               </div>
-              <span className="rb-circle-badge-pill">
+              {/* <span className="rb-circle-badge-pill">
                 <i className="fa-solid fa-briefcase"></i> Captain
-              </span>
+              </span> */}
             </div>
           </div>
         </button>
@@ -647,9 +647,9 @@ export default function RideBookingView({
             style={{
               padding: '6px 16px',
               borderRadius: '20px',
-              border: bookingFor === 'myself' ? '2px solid #ea580c' : '1px solid #cbd5e1',
+              border: bookingFor === 'myself' ? '2px solid #2A1373' : '1px solid #cbd5e1',
               background: bookingFor === 'myself' ? '#fff7ed' : '#ffffff',
-              color: bookingFor === 'myself' ? '#c2410c' : '#475569',
+              color: bookingFor === 'myself' ? '#2A1373' : '#475569',
               fontWeight: 700,
               fontSize: '13px',
               cursor: 'pointer',
@@ -668,9 +668,9 @@ export default function RideBookingView({
             style={{
               padding: '6px 16px',
               borderRadius: '20px',
-              border: bookingFor === 'others' ? '2px solid #ea580c' : '1px solid #cbd5e1',
+              border: bookingFor === 'others' ? '2px solid #2A1373' : '1px solid #cbd5e1',
               background: bookingFor === 'others' ? '#fff7ed' : '#ffffff',
-              color: bookingFor === 'others' ? '#c2410c' : '#475569',
+              color: bookingFor === 'others' ? '#2A1373' : '#475569',
               fontWeight: 700,
               fontSize: '13px',
               cursor: 'pointer',

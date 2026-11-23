@@ -1429,7 +1429,6 @@
   position: absolute;
   top: calc(100% + 10px);
   left: 0;
-  min-width: 330px;
   max-width: 360px;
   background: #ffffff;
   border-radius: 16px;

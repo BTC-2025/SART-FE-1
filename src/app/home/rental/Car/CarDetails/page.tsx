@@ -326,7 +326,7 @@ function CarDetailsContent() {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#ea580c',
+                  color: '#371F76',
                   fontSize: '11.5px',
                   fontWeight: 700,
                   cursor: 'pointer',
@@ -793,7 +793,7 @@ function CarDetailsContent() {
                 fontWeight: 800,
                 fontSize: '14px',
                 cursor: 'pointer',
-                boxShadow: '0 4px 14px rgba(234, 88, 12, 0.35)',
+                boxShadow: '0 4px 14px rgba(60, 12, 234, 0.35)',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
