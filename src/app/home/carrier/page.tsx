@@ -9,7 +9,15 @@ import CarrierLocationModal, { LocationResult } from '@/components/CarrierLocati
 
 // Pincode Directory & Smart Postal Circle Resolver for ANY 6-digit Indian Pincode
 const PINCODE_DIRECTORY: Record<string, { city: string; area: string; fullAddress: string; state: string }> = {
-
+  '600001': { city: 'Chennai Port / George Town', area: 'Chennai Port, George Town, Chennai', fullAddress: 'Chennai Port Container Terminal, Rajaji Salai, George Town, Chennai, Tamil Nadu - 600001', state: 'Tamil Nadu' },
+  '600081': { city: 'Tondiarpet Port Logistics Hub', area: 'Tondiarpet, Chennai', fullAddress: 'Tata Steel Logistics Hub, Tondiarpet, Chennai, Tamil Nadu - 600081', state: 'Tamil Nadu' },
+  '400001': { city: 'Mumbai Port Trust', area: 'Ballard Estate, Fort, Mumbai', fullAddress: 'Mumbai Port Trust Cargo Terminal, Ballard Estate, Fort, Mumbai, Maharashtra - 400001', state: 'Maharashtra' },
+  '560001': { city: 'Bengaluru Logistics Depot', area: 'MG Road, Bengaluru', fullAddress: 'Bengaluru Central Logistics Depot, MG Road, Bengaluru, Karnataka - 560001', state: 'Karnataka' },
+  '500001': { city: 'Hyderabad Cargo Terminal', area: 'Abids / Nampally, Hyderabad', fullAddress: 'Hyderabad Central Cargo Terminal, Abids, Hyderabad, Telangana - 500001', state: 'Telangana' },
+  '110001': { city: 'Delhi Central Freight Terminal', area: 'Connaught Place, New Delhi', fullAddress: 'Delhi Central Freight Corridor, Connaught Place, New Delhi - 110001', state: 'Delhi NCR' },
+  '700001': { city: 'Kolkata Port Logistics Dock', area: 'BBD Bagh, Kolkata', fullAddress: 'Kolkata Port Trust Cargo Terminal, Strand Road, Kolkata, West Bengal - 700001', state: 'West Bengal' },
+  '682001': { city: 'Cochin Port Trust Terminal', area: 'Willingdon Island, Kochi', fullAddress: 'Cochin Port Trust Container Terminal, Willingdon Island, Kochi, Kerala - 682001', state: 'Kerala' },
+  '400707': { city: 'Nhava Sheva Port (JNPT)', area: 'JNPT Port Area, Navi Mumbai', fullAddress: 'Jawaharlal Nehru Port Trust (JNPT), Nhava Sheva, Navi Mumbai, Maharashtra - 400707', state: 'Maharashtra' }
 };
 
 function resolvePincodeData(input: string) {
@@ -20,7 +28,7 @@ function resolvePincodeData(input: string) {
       return PINCODE_DIRECTORY[digits];
     }
     let state = 'Tamil Nadu';
-    let city = 'Regional Freight Terminal';
+    let city = 'Regional Logistics Hub';
     const prefix2 = digits.slice(0, 2);
     if (['60', '61', '62', '63', '64'].includes(prefix2)) {
       state = 'Tamil Nadu';
@@ -46,8 +54,8 @@ function resolvePincodeData(input: string) {
     }
     return {
       city,
-      area: `${city}, ${state} (${digits})`,
-      fullAddress: `Plot ${digits.slice(2, 4)}, Logistics Freight Corridor, ${city}, ${state} - ${digits}`,
+      area: `${city}, ${state}`,
+      fullAddress: `${city}, ${state} - ${digits}`,
       state
     };
   }
@@ -290,24 +298,58 @@ function CarrierContent() {
   }, []);
 
   // Sync place when pickup pincode changes (place appears beside the pincode)
-  const handlePickupChange = (val: string) => {
+  const handlePickupChange = async (val: string) => {
     setPickupPincodeRaw(val);
     const resolved = resolvePincodeData(val);
     if (resolved) {
       setPickupCity(resolved.city);
       setPickupArea(resolved.area);
-      setPickupAddress(resolved.fullAddress);
+      setPickupAddress(`${val}  ${resolved.fullAddress}`);
+    }
+
+    const digits = val.replace(/[^0-9]/g, '').slice(0, 6);
+    if (digits.length === 6) {
+      try {
+        const res = await fetch(`/api/pincode?pincode=${digits}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.fullAddress) {
+            setPickupCity(data.placeName || data.district);
+            setPickupArea(data.area);
+            setPickupAddress(`${digits}  ${data.fullAddress}`);
+          }
+        }
+      } catch (err) {
+        console.warn('Live pincode lookup error:', err);
+      }
     }
   };
 
   // Sync place when delivery pincode changes (place appears beside the pincode)
-  const handleDeliveryChange = (val: string) => {
+  const handleDeliveryChange = async (val: string) => {
     setDeliveryPincodeRaw(val);
     const resolved = resolvePincodeData(val);
     if (resolved) {
       setDeliveryCity(resolved.city);
       setDeliveryArea(resolved.area);
-      setDeliveryAddress(resolved.fullAddress);
+      setDeliveryAddress(`${val}  ${resolved.fullAddress}`);
+    }
+
+    const digits = val.replace(/[^0-9]/g, '').slice(0, 6);
+    if (digits.length === 6) {
+      try {
+        const res = await fetch(`/api/pincode?pincode=${digits}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.fullAddress) {
+            setDeliveryCity(data.placeName || data.district);
+            setDeliveryArea(data.area);
+            setDeliveryAddress(`${digits}  ${data.fullAddress}`);
+          }
+        }
+      } catch (err) {
+        console.warn('Live pincode lookup error:', err);
+      }
     }
   };
 
@@ -905,7 +947,7 @@ function CarrierContent() {
                     setPickupAddress(text);
                     handlePickupChange(text);
                   }}
-                  placeholder="6-digit pincode / Pickup location"
+                  placeholder="Enter 6-digit pincode / Pickup location"
                   style={{
                     flex: 1,
                     border: 'none',
@@ -942,6 +984,12 @@ function CarrierContent() {
                   <span>Select on Map</span>
                 </button>
               </div>
+              {pickupArea && (
+                <div style={{ fontSize: '11.5px', color: '#0369a1', fontWeight: 600, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <i className="fa-solid fa-location-dot" style={{ fontSize: '10px' }}></i>
+                  <span>{pickupArea}</span>
+                </div>
+              )}
             </div>
 
             {/* Delivery Pincode / Location */}
@@ -969,7 +1017,7 @@ function CarrierContent() {
                     setDeliveryAddress(text);
                     handleDeliveryChange(text);
                   }}
-                  placeholder="6-digit pincode / Delivery location"
+                  placeholder="Enter 6-digit pincode / Delivery location"
                   style={{
                     flex: 1,
                     border: 'none',
@@ -1006,6 +1054,12 @@ function CarrierContent() {
                   <span>Select on Map</span>
                 </button>
               </div>
+              {deliveryArea && (
+                <div style={{ fontSize: '11.5px', color: '#0369a1', fontWeight: 600, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <i className="fa-solid fa-location-dot" style={{ fontSize: '10px' }}></i>
+                  <span>{deliveryArea}</span>
+                </div>
+              )}
             </div>
           </div>
 
