@@ -148,11 +148,13 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
   const [pickupPincodeRaw, setPickupPincodeRaw] = useState('');
   const [pickupAddress, setPickupAddress] = useState('');
   const [pickupCity, setPickupCity] = useState('');
+  const [pickupState, setPickupState] = useState('');
   const [pickupArea, setPickupArea] = useState('');
 
   const [deliveryPincodeRaw, setDeliveryPincodeRaw] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [deliveryCity, setDeliveryCity] = useState('');
+  const [deliveryState, setDeliveryState] = useState('');
   const [deliveryArea, setDeliveryArea] = useState('');
 
   // Form Fields
@@ -242,12 +244,12 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
       const defaultImg = isBike
         ? '/images/hero_cargo_bike.png'
         : isShip
-        ? 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&q=80'
-        : isTrain
-        ? '/images/carrier_mode_train.jpg'
-        : isFlight
-        ? '/images/carrier_mode_flight.png'
-        : '/images/tata_ace_fleet.jpg';
+          ? 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&q=80'
+          : isTrain
+            ? '/images/carrier_mode_train.jpg'
+            : isFlight
+              ? '/images/carrier_mode_flight.png'
+              : '/images/tata_ace_fleet.jpg';
 
       return {
         id: v.id || `CRG-${Date.now()}`,
@@ -300,12 +302,12 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
       try {
         const res = await fetch('/api/carriers', { cache: 'no-store' });
         if (res.ok) {
-          const data = await res.json();
-          if (data && Array.isArray(data.vehicles)) {
+          const cData = await res.json();
+          if (cData && Array.isArray(cData.vehicles)) {
             try {
-              localStorage.setItem('logi_pulse_vehicles', JSON.stringify(data.vehicles));
+              localStorage.setItem('logi_pulse_vehicles', JSON.stringify(cData.vehicles));
             } catch (e) { }
-            setFleetVehicles(data.vehicles.map(parseCarrier));
+            setFleetVehicles(cData.vehicles.map(parseCarrier));
             return;
           }
         }
@@ -388,9 +390,13 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
       regId: veh.regId || '',
       hub: veh.hub || '',
       pickupPincode: pickupPincodeRaw || '',
-      pickupAddress: pickupAddress || (veh.hub || 'Mumbai Port Logistics Hub'),
-      deliveryPincode: deliveryPincodeRaw || '600001',
-      deliveryAddress: deliveryAddress || 'Tata Steel Logistics Hub, Chennai, Tamil Nadu - 600081',
+      pickupCity: pickupCity || '',
+      pickupState: pickupState || '',
+      pickupAddress: pickupAddress || '',
+      deliveryPincode: deliveryPincodeRaw || '',
+      deliveryCity: deliveryCity || '',
+      deliveryState: deliveryState || '',
+      deliveryAddress: deliveryAddress || '',
       weight: weight || (veh.mode === 'bike' ? '150' : veh.mode === 'ship' ? '52000' : '28'),
       weightUnit: weightUnit || (veh.mode === 'bike' ? 'kg' : 'Tonnes'),
       goodsType: goodsType || 'Industrial / Commercial Freight',

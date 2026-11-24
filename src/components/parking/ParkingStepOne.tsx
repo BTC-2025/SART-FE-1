@@ -10,9 +10,9 @@ interface ParkingStepOneProps {
   setVehicleType: (v: string) => void;
   vehicleNumber: string;
   setVehicleNumber: (v: string) => void;
-  isLiveLocationOn: boolean;
-  liveLocationStatus: string;
-  toggleLiveLocation: () => void;
+  isLiveLocationOn?: boolean;
+  liveLocationStatus?: string;
+  toggleLiveLocation?: () => void;
   handleStartSearch: (e: React.FormEvent) => void;
 }
 
@@ -23,34 +23,11 @@ export default function ParkingStepOne({
   setVehicleType,
   vehicleNumber,
   setVehicleNumber,
-  isLiveLocationOn,
-  liveLocationStatus,
-  toggleLiveLocation,
   handleStartSearch
 }: ParkingStepOneProps) {
   return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: '36px 30px', background: '#f8fafc' }}>
+    <div style={{ flex: 1, padding: '36px 30px', background: '#f8fafc', minHeight: '60vh' }}>
       <div style={{ maxWidth: '1050px', margin: '0 auto' }}>
-        {/* Top Navigation Tabs */}
-        <div style={{ display: 'flex', gap: '4px', marginBottom: '16px' }}>
-          <button
-            type="button"
-            style={{
-              padding: '10px 24px',
-              borderRadius: '10px 10px 0 0',
-              border: '1px solid #e2e8f0',
-              borderBottom: 'none',
-              backgroundColor: '#ffffff',
-              color: '#0f172a',
-              fontSize: '15px',
-              fontWeight: 800,
-              cursor: 'pointer'
-            }}
-          >
-            Parking
-          </button>
-        </div>
-
         {/* Main Search Filter Box */}
         <div
           style={{
@@ -58,8 +35,7 @@ export default function ParkingStepOne({
             borderRadius: '16px',
             border: '1px solid #e2e8f0',
             boxShadow: '0 8px 30px rgba(0, 0, 0, 0.04)',
-            padding: '24px 28px',
-            marginBottom: '24px'
+            padding: '24px 28px'
           }}
         >
           <form onSubmit={handleStartSearch}>
@@ -188,108 +164,8 @@ export default function ParkingStepOne({
                 </button>
               </div>
             </div>
-
-            {/* Live Location Toggle Banner */}
-            <div
-              style={{
-                marginTop: '20px',
-                padding: '14px 18px',
-                borderRadius: '12px',
-                backgroundColor: isLiveLocationOn ? '#f0fdf4' : '#f8fafc',
-                border: isLiveLocationOn ? '1.5px solid #86efac' : '1px dashed #cbd5e1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <div
-                  style={{
-                    width: '38px',
-                    height: '38px',
-                    borderRadius: '50%',
-                    backgroundColor: isLiveLocationOn ? '#22c55e' : '#e2e8f0',
-                    color: isLiveLocationOn ? '#ffffff' : '#64748b',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '16px'
-                  }}
-                >
-                  <i className={`fa-solid ${isLiveLocationOn ? 'fa-satellite-dish' : 'fa-location-dot'}`}></i>
-                </div>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
-                    Enable Live Location Radar
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#64748b' }}>
-                    {liveLocationStatus}
-                  </div>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={toggleLiveLocation}
-                style={{
-                  padding: '9px 18px',
-                  borderRadius: '20px',
-                  border: 'none',
-                  backgroundColor: isLiveLocationOn ? '#15803d' : '#0284c7',
-                  color: '#ffffff',
-                  fontSize: '12px',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
-              >
-                <i className={`fa-solid ${isLiveLocationOn ? 'fa-check' : 'fa-crosshairs'}`}></i>
-                {isLiveLocationOn ? 'Live Location ON' : 'Turn ON Live Location'}
-              </button>
-            </div>
           </form>
         </div>
-
-        {/* Value Proposition Section */}
-        <div style={{ marginTop: '36px', padding: '0 8px' }}>
-          <h3 style={{ fontSize: '24px', fontWeight: 900, color: '#0f172a', margin: '0 0 10px 0' }}>
-            Why choose smart parking?
-          </h3>
-          <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.6', maxWidth: '850px', margin: '0 0 24px 0' }}>
-            At SART Parking, we are passionate about providing seamless, guaranteed parking spots that exceed our customers’ expectations.
-            Turn on live location to instantly detect available spots in your perimeter and pay strictly for the minutes you stay.
-          </p>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '18px' }}>
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '20px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#ecfdf5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', marginBottom: '12px' }}>
-                <i className="fa-solid fa-satellite-dish"></i>
-              </div>
-              <h4 style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>Live Radar Tracking</h4>
-              <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>Only shows lots with guaranteed open slots in real-time when GPS is active.</p>
-            </div>
-
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '20px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', marginBottom: '12px' }}>
-                <i className="fa-solid fa-clock"></i>
-              </div>
-              <h4 style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>Minute-Accurate Billing</h4>
-              <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>If you leave earlier or exceed your slot, prices automatically calculate on exit.</p>
-            </div>
-
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '20px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', marginBottom: '12px' }}>
-                <i className="fa-solid fa-shield-halved"></i>
-              </div>
-              <h4 style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>24x7 Security & CCTV</h4>
-              <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>Gated barriers, verified attendants, and protected bays for all vehicle types.</p>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   );

@@ -20,79 +20,79 @@ export const PRESET_CARRIER_HUBS: Array<{
   lat: number;
   lng: number;
 }> = [
-  {
-    title: 'Chennai George Town Freight Hub',
-    city: 'Chennai',
-    area: 'George Town, Tamil Nadu (600001)',
-    address: 'No. 12, Rajaji Salai, George Town, Chennai, Tamil Nadu - 600001',
-    pincode: '600001',
-    lat: 13.0906,
-    lng: 80.2887
-  },
-  {
-    title: 'Bengaluru MG Road Logistics Depot',
-    city: 'Bengaluru',
-    area: 'MG Road, Ashok Nagar, Bengaluru (560001)',
-    address: '45/1, MG Road, Ashok Nagar, Bengaluru, Karnataka - 560001',
-    pincode: '560001',
-    lat: 12.9756,
-    lng: 77.6066
-  },
-  {
-    title: 'Mumbai Port Trust & Ballard Estate',
-    city: 'Mumbai',
-    area: 'Ballard Estate, Fort, Mumbai (400001)',
-    address: 'Port Trust Road, Ballard Estate, Fort, Mumbai, Maharashtra - 400001',
-    pincode: '400001',
-    lat: 18.9322,
-    lng: 72.8398
-  },
-  {
-    title: 'Hyderabad Abids Cargo Depot',
-    city: 'Hyderabad',
-    area: 'Abids / Koti, Hyderabad (500001)',
-    address: 'Station Road, Abids, Hyderabad, Telangana - 500001',
-    pincode: '500001',
-    lat: 17.3871,
-    lng: 78.4734
-  },
-  {
-    title: 'Pune MIDC Freight Terminal',
-    city: 'Pune',
-    area: 'MIDC Chakan, Pune (410501)',
-    address: 'Plot 4, Phase 2 MIDC, Chakan Industrial Area, Pune, Maharashtra - 410501',
-    pincode: '410501',
-    lat: 18.7606,
-    lng: 73.8567
-  },
-  {
-    title: 'Katpadi Railway Goods Shed',
-    city: 'Katpadi',
-    area: 'Katpadi Junction, Vellore (632007)',
-    address: 'Goods Shed Rd, Katpadi Junction, Vellore, Tamil Nadu - 632007',
-    pincode: '632007',
-    lat: 12.9774,
-    lng: 79.1384
-  },
-  {
-    title: 'Chennai Guindy Industrial Estate',
-    city: 'Chennai',
-    area: 'Guindy, Chennai (600032)',
-    address: 'GST Road, Guindy Industrial Estate, Chennai, Tamil Nadu - 600032',
-    pincode: '600032',
-    lat: 13.0067,
-    lng: 80.2025
-  },
-  {
-    title: 'Bengaluru Whitefield ITPL Hub',
-    city: 'Bengaluru',
-    area: 'Whitefield, Bengaluru (560066)',
-    address: 'ITPL Main Road, Whitefield, Bengaluru, Karnataka - 560066',
-    pincode: '560066',
-    lat: 12.9866,
-    lng: 77.7380
-  }
-];
+    {
+      title: 'Chennai George Town Freight Hub',
+      city: 'Chennai',
+      area: 'George Town, Tamil Nadu (600001)',
+      address: 'No. 12, Rajaji Salai, George Town, Chennai, Tamil Nadu - 600001',
+      pincode: '600001',
+      lat: 13.0906,
+      lng: 80.2887
+    },
+    {
+      title: 'Bengaluru MG Road Logistics Depot',
+      city: 'Bengaluru',
+      area: 'MG Road, Ashok Nagar, Bengaluru (560001)',
+      address: '45/1, MG Road, Ashok Nagar, Bengaluru, Karnataka - 560001',
+      pincode: '560001',
+      lat: 12.9756,
+      lng: 77.6066
+    },
+    {
+      title: 'Mumbai Port Trust & Ballard Estate',
+      city: 'Mumbai',
+      area: 'Ballard Estate, Fort, Mumbai (400001)',
+      address: 'Port Trust Road, Ballard Estate, Fort, Mumbai, Maharashtra - 400001',
+      pincode: '400001',
+      lat: 18.9322,
+      lng: 72.8398
+    },
+    {
+      title: 'Hyderabad Abids Cargo Depot',
+      city: 'Hyderabad',
+      area: 'Abids / Koti, Hyderabad (500001)',
+      address: 'Station Road, Abids, Hyderabad, Telangana - 500001',
+      pincode: '500001',
+      lat: 17.3871,
+      lng: 78.4734
+    },
+    {
+      title: 'Pune MIDC Freight Terminal',
+      city: 'Pune',
+      area: 'MIDC Chakan, Pune (410501)',
+      address: 'Plot 4, Phase 2 MIDC, Chakan Industrial Area, Pune, Maharashtra - 410501',
+      pincode: '410501',
+      lat: 18.7606,
+      lng: 73.8567
+    },
+    {
+      title: 'Katpadi Railway Goods Shed',
+      city: 'Katpadi',
+      area: 'Katpadi Junction, Vellore (632007)',
+      address: 'Goods Shed Rd, Katpadi Junction, Vellore, Tamil Nadu - 632007',
+      pincode: '632007',
+      lat: 12.9774,
+      lng: 79.1384
+    },
+    {
+      title: 'Chennai Guindy Industrial Estate',
+      city: 'Chennai',
+      area: 'Guindy, Chennai (600032)',
+      address: 'GST Road, Guindy Industrial Estate, Chennai, Tamil Nadu - 600032',
+      pincode: '600032',
+      lat: 13.0067,
+      lng: 80.2025
+    },
+    {
+      title: 'Bengaluru Whitefield ITPL Hub',
+      city: 'Bengaluru',
+      area: 'Whitefield, Bengaluru (560066)',
+      address: 'ITPL Main Road, Whitefield, Bengaluru, Karnataka - 560066',
+      pincode: '560066',
+      lat: 12.9866,
+      lng: 77.7380
+    }
+  ];
 
 interface CarrierLocationModalProps {
   isOpen: boolean;
@@ -479,7 +479,7 @@ export default function CarrierLocationModal({
 
         {/* Modal Body */}
         <div style={{ padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '14px', overflowY: 'auto' }}>
-          
+
           {/* Search Bar + GPS Button */}
           <div style={{ display: 'flex', gap: '10px', position: 'relative' }}>
             <div
@@ -592,40 +592,7 @@ export default function CarrierLocationModal({
             )}
           </div>
 
-          {/* Quick Major Hub Pills */}
-          <div>
-            <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.4px' }}>
-              Quick Logistics Hubs:
-            </div>
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {PRESET_CARRIER_HUBS.slice(0, 6).map((hub, i) => {
-                const isActive = selectedHub.city === hub.city;
-                return (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => handleSelectPresetHub(hub)}
-                    style={{
-                      padding: '4px 10px',
-                      borderRadius: '6px',
-                      border: isActive ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
-                      background: isActive ? '#eff6ff' : '#f8fafc',
-                      color: isActive ? '#1d4ed8' : '#334155',
-                      fontSize: '11.5px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px'
-                    }}
-                  >
-                    <span>{hub.city}</span>
-                    <span style={{ fontSize: '10px', color: '#94a3b8' }}>({hub.pincode})</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+
 
           {/* Map View Frame */}
           <div

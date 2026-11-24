@@ -39,8 +39,10 @@ function CarrierBookingDetailsContent() {
   const paramBrand = selectedCarrier?.brand || searchParams.get('brand') || (normalizedMode === 'SHIP' ? 'Shipping Corporation of India' : 'Carrier Logistics');
   const paramModel = selectedCarrier?.model || searchParams.get('model') || (paramBrand && paramName && paramName.startsWith(paramBrand) ? paramName.slice(paramBrand.length).trim() : (normalizedMode === 'SHIP' ? 'Coastal Cargo Feeder' : paramName));
   const paramReg = selectedCarrier?.regId || searchParams.get('regId') || (normalizedMode === 'SHIP' ? 'IMO 7879' : 'MH 12 MH 6789');
-  const paramHub = selectedCarrier?.hub || searchParams.get('hub') || 'Tata Steel Logistics Hub, Chennai, Tamil Nadu - 600081';
+  const paramHub = selectedCarrier?.hub || searchParams.get('hub') || '';
   const paramImage = selectedCarrier?.image || searchParams.get('image') || '';
+
+
 
   const baseRateKm = Number(selectedCarrier?.ratePerKm || searchParams.get('ratePerKm') || (normalizedMode === 'SHIP' ? 650 : 48));
   const baseTripFee = Number(selectedCarrier?.baseCharge || searchParams.get('baseCharge') || (normalizedMode === 'SHIP' ? 120000 : 1800));
@@ -56,37 +58,56 @@ function CarrierBookingDetailsContent() {
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   // ---------------- STEP 1: ROUTE DETAILS ----------------
-  const [pickupAddress, setPickupAddress] = useState('Cherlapally Industrial Area, Phase 3');
-  const [pickupState, setPickupState] = useState('Telangana');
-  const [pickupCity, setPickupCity] = useState('Hyderabad');
-  const [pickupPincode, setPickupPincode] = useState('500051');
+  const [pickupAddress, setPickupAddress] = useState('');
+  const [pickupState, setPickupState] = useState('');
+  const [pickupCity, setPickupCity] = useState('');
+  const [pickupPincode, setPickupPincode] = useState('');
 
-  const [deliveryAddress, setDeliveryAddress] = useState('Peenya Industrial Area, Stage 2');
-  const [deliveryState, setDeliveryState] = useState('Karnataka');
-  const [deliveryCity, setDeliveryCity] = useState('Bengaluru');
-  const [deliveryPincode, setDeliveryPincode] = useState('560058');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [deliveryState, setDeliveryState] = useState('');
+  const [deliveryCity, setDeliveryCity] = useState('');
+  const [deliveryPincode, setDeliveryPincode] = useState('');
 
   // Update initial pickup/delivery once selectedCarrier loads if present
   useEffect(() => {
     if (selectedCarrier) {
       if (selectedCarrier.pickupAddress) setPickupAddress(selectedCarrier.pickupAddress);
       if (selectedCarrier.pickupPincode) setPickupPincode(selectedCarrier.pickupPincode);
+      if (selectedCarrier.pickupCity) setPickupCity(selectedCarrier.pickupCity);
+      if (selectedCarrier.pickupState) setPickupState(selectedCarrier.pickupState);
+
       if (selectedCarrier.deliveryAddress) setDeliveryAddress(selectedCarrier.deliveryAddress);
       if (selectedCarrier.deliveryPincode) setDeliveryPincode(selectedCarrier.deliveryPincode);
+      if (selectedCarrier.deliveryCity) setDeliveryCity(selectedCarrier.deliveryCity);
+      if (selectedCarrier.deliveryState) setDeliveryState(selectedCarrier.deliveryState);
+
       if (selectedCarrier.weight) setTotalCargoWeight(String(selectedCarrier.weight));
       if (selectedCarrier.weightUnit) setWeightUnitVal(selectedCarrier.weightUnit);
       if (selectedCarrier.goodsType) setGoodsDescription(selectedCarrier.goodsType);
     } else {
       const qPickup = searchParams.get('pickupAddress');
       const qPickupPin = searchParams.get('pickupPincode');
+      const qPickupCity = searchParams.get('pickupCity');
+      const qPickupState = searchParams.get('pickupState');
+
       const qDel = searchParams.get('deliveryAddress');
       const qDelPin = searchParams.get('deliveryPincode');
+      const qDelCity = searchParams.get('deliveryCity');
+      const qDelState = searchParams.get('deliveryState');
+
       const qW = searchParams.get('weight');
       const qWU = searchParams.get('weightUnit');
+
       if (qPickup) setPickupAddress(qPickup);
       if (qPickupPin) setPickupPincode(qPickupPin);
+      if (qPickupCity) setPickupCity(qPickupCity);
+      if (qPickupState) setPickupState(qPickupState);
+
       if (qDel) setDeliveryAddress(qDel);
       if (qDelPin) setDeliveryPincode(qDelPin);
+      if (qDelCity) setDeliveryCity(qDelCity);
+      if (qDelState) setDeliveryState(qDelState);
+
       if (qW) setTotalCargoWeight(qW);
       if (qWU) setWeightUnitVal(qWU);
     }
@@ -95,7 +116,7 @@ function CarrierBookingDetailsContent() {
   const [pickupDate, setPickupDate] = useState('2026-11-25');
   const [pickupTime, setPickupTime] = useState('10:00');
   const [loadType, setLoadType] = useState('Full Truck Load (FTL) - Dedicated Carrier');
-  const [approxDistance, setApproxDistance] = useState(normalizedMode === 'SHIP' ? 'Approx. 850 Nautical Miles' : 'Approx. 570 km');
+  const [approxDistance, setApproxDistance] = useState('');
 
   // ---------------- STEP 2: SENDER DETAILS ----------------
   const [senderType, setSenderType] = useState<'business' | 'individual'>('business');
@@ -521,26 +542,7 @@ function CarrierBookingDetailsContent() {
                 </div>
               </div>
 
-              {/* Route Distance Banner */}
-              <div style={{
-                background: '#eff6ff',
-                border: '1.5px dashed #93c5fd',
-                borderRadius: '12px',
-                padding: '14px 20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '12px',
-                color: '#1e3a8a',
-                fontSize: '14px',
-                fontWeight: 700
-              }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#2563eb' }}></span>
-                <span>{pickupCity}, {pickupState}</span>
-                <i className="fa-solid fa-arrow-right-long" style={{ color: '#3b82f6' }}></i>
-                <span>{deliveryCity}, {deliveryState}</span>
-                <span style={{ color: '#64748b', fontWeight: 600 }}>({approxDistance})</span>
-              </div>
+
 
               {/* Bottom Row: Pickup Date, Preferred Pickup Time, Load Type */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.5fr', gap: '18px' }}>

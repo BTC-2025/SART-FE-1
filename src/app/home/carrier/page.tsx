@@ -9,7 +9,15 @@ import CarrierLocationModal, { LocationResult } from '@/components/CarrierLocati
 
 // Pincode Directory & Smart Postal Circle Resolver for ANY 6-digit Indian Pincode
 const PINCODE_DIRECTORY: Record<string, { city: string; area: string; fullAddress: string; state: string }> = {
-
+  '600001': { city: 'Chennai Port / George Town', area: 'Chennai Port, George Town, Chennai', fullAddress: 'Chennai Port Container Terminal, Rajaji Salai, George Town, Chennai, Tamil Nadu - 600001', state: 'Tamil Nadu' },
+  '600081': { city: 'Tondiarpet Port Logistics Hub', area: 'Tondiarpet, Chennai', fullAddress: 'Tata Steel Logistics Hub, Tondiarpet, Chennai, Tamil Nadu - 600081', state: 'Tamil Nadu' },
+  '400001': { city: 'Mumbai Port Trust', area: 'Ballard Estate, Fort, Mumbai', fullAddress: 'Mumbai Port Trust Cargo Terminal, Ballard Estate, Fort, Mumbai, Maharashtra - 400001', state: 'Maharashtra' },
+  '560001': { city: 'Bengaluru Logistics Depot', area: 'MG Road, Bengaluru', fullAddress: 'Bengaluru Central Logistics Depot, MG Road, Bengaluru, Karnataka - 560001', state: 'Karnataka' },
+  '500001': { city: 'Hyderabad Cargo Terminal', area: 'Abids / Nampally, Hyderabad', fullAddress: 'Hyderabad Central Cargo Terminal, Abids, Hyderabad, Telangana - 500001', state: 'Telangana' },
+  '110001': { city: 'Delhi Central Freight Terminal', area: 'Connaught Place, New Delhi', fullAddress: 'Delhi Central Freight Corridor, Connaught Place, New Delhi - 110001', state: 'Delhi NCR' },
+  '700001': { city: 'Kolkata Port Logistics Dock', area: 'BBD Bagh, Kolkata', fullAddress: 'Kolkata Port Trust Cargo Terminal, Strand Road, Kolkata, West Bengal - 700001', state: 'West Bengal' },
+  '682001': { city: 'Cochin Port Trust Terminal', area: 'Willingdon Island, Kochi', fullAddress: 'Cochin Port Trust Container Terminal, Willingdon Island, Kochi, Kerala - 682001', state: 'Kerala' },
+  '400707': { city: 'Nhava Sheva Port (JNPT)', area: 'JNPT Port Area, Navi Mumbai', fullAddress: 'Jawaharlal Nehru Port Trust (JNPT), Nhava Sheva, Navi Mumbai, Maharashtra - 400707', state: 'Maharashtra' }
 };
 
 function resolvePincodeData(input: string) {
@@ -20,7 +28,7 @@ function resolvePincodeData(input: string) {
       return PINCODE_DIRECTORY[digits];
     }
     let state = 'Tamil Nadu';
-    let city = 'Regional Freight Terminal';
+    let city = 'Regional Logistics Hub';
     const prefix2 = digits.slice(0, 2);
     if (['60', '61', '62', '63', '64'].includes(prefix2)) {
       state = 'Tamil Nadu';
@@ -46,8 +54,8 @@ function resolvePincodeData(input: string) {
     }
     return {
       city,
-      area: `${city}, ${state} (${digits})`,
-      fullAddress: `Plot ${digits.slice(2, 4)}, Logistics Freight Corridor, ${city}, ${state} - ${digits}`,
+      area: `${city}, ${state}`,
+      fullAddress: `${city}, ${state} - ${digits}`,
       state
     };
   }
@@ -105,18 +113,20 @@ function CarrierContent() {
 
   // Top header dropdown state for "Select Carrier"
   const [isCarrierDropdownOpen, setIsCarrierDropdownOpen] = useState(false);
-  const [selectedCarrierName, setSelectedCarrierName] = useState('Heavy Road Truck');
+  const [selectedCarrierName, setSelectedCarrierName] = useState('Tata Motors');
   const carrierDropdownRef = useRef<HTMLDivElement>(null);
 
   // Pincode Inputs (showing place beside the pincode)
   const [pickupPincodeRaw, setPickupPincodeRaw] = useState('');
   const [pickupAddress, setPickupAddress] = useState('');
   const [pickupCity, setPickupCity] = useState('');
+  const [pickupState, setPickupState] = useState('');
   const [pickupArea, setPickupArea] = useState('');
 
   const [deliveryPincodeRaw, setDeliveryPincodeRaw] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [deliveryCity, setDeliveryCity] = useState('');
+  const [deliveryState, setDeliveryState] = useState('');
   const [deliveryArea, setDeliveryArea] = useState('');
 
   // Form Fields
@@ -261,22 +271,21 @@ function CarrierContent() {
     };
 
     const loadOwnerFleet = async () => {
-      // Strictly fetch from Backend API (port 3005 database)
+      // Strictly fetch carrier fleet only from Backend API
       try {
         const res = await fetch('/api/carriers', { cache: 'no-store' });
         if (res.ok) {
-          const data = await res.json();
-          if (data && Array.isArray(data.vehicles)) {
+          const cData = await res.json();
+          if (cData && Array.isArray(cData.vehicles)) {
             try {
-              localStorage.setItem('logi_pulse_vehicles', JSON.stringify(data.vehicles));
+              localStorage.setItem('logi_pulse_vehicles', JSON.stringify(cData.vehicles));
             } catch (e) { }
-            setFleetVehicles(data.vehicles.map(parseCarrier));
+            setFleetVehicles(cData.vehicles.map(parseCarrier));
             return;
           }
         }
       } catch (err) { }
 
-      // If backend is unreachable, strictly show empty fleet (do not resurrect deleted items)
       setFleetVehicles([]);
     };
 
@@ -290,24 +299,58 @@ function CarrierContent() {
   }, []);
 
   // Sync place when pickup pincode changes (place appears beside the pincode)
-  const handlePickupChange = (val: string) => {
+  const handlePickupChange = async (val: string) => {
     setPickupPincodeRaw(val);
     const resolved = resolvePincodeData(val);
     if (resolved) {
       setPickupCity(resolved.city);
       setPickupArea(resolved.area);
-      setPickupAddress(resolved.fullAddress);
+      setPickupAddress(`${val}  ${resolved.fullAddress}`);
+    }
+
+    const digits = val.replace(/[^0-9]/g, '').slice(0, 6);
+    if (digits.length === 6) {
+      try {
+        const res = await fetch(`/api/pincode?pincode=${digits}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.fullAddress) {
+            setPickupCity(data.placeName || data.district);
+            setPickupArea(data.area);
+            setPickupAddress(`${digits}  ${data.fullAddress}`);
+          }
+        }
+      } catch (err) {
+        console.warn('Live pincode lookup error:', err);
+      }
     }
   };
 
   // Sync place when delivery pincode changes (place appears beside the pincode)
-  const handleDeliveryChange = (val: string) => {
+  const handleDeliveryChange = async (val: string) => {
     setDeliveryPincodeRaw(val);
     const resolved = resolvePincodeData(val);
     if (resolved) {
       setDeliveryCity(resolved.city);
       setDeliveryArea(resolved.area);
-      setDeliveryAddress(resolved.fullAddress);
+      setDeliveryAddress(`${val}  ${resolved.fullAddress}`);
+    }
+
+    const digits = val.replace(/[^0-9]/g, '').slice(0, 6);
+    if (digits.length === 6) {
+      try {
+        const res = await fetch(`/api/pincode?pincode=${digits}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.fullAddress) {
+            setDeliveryCity(data.placeName || data.district);
+            setDeliveryArea(data.area);
+            setDeliveryAddress(`${digits}  ${data.fullAddress}`);
+          }
+        }
+      } catch (err) {
+        console.warn('Live pincode lookup error:', err);
+      }
     }
   };
 
@@ -359,11 +402,15 @@ function CarrierContent() {
       brand: veh.brand || 'Tata Motors',
       model: veh.model || (veh.brand && veh.name && veh.name.toLowerCase().startsWith(veh.brand.toLowerCase()) ? veh.name.slice(veh.brand.length).trim() : (veh.name || 'Standard Fleet')),
       regId: veh.regId || 'MH 12 MH 6789',
-      hub: veh.hub || 'Mumbai Port Logistics Hub',
-      pickupPincode: pickupPincodeRaw || '400001',
-      pickupAddress: pickupAddress || (veh.hub || 'Mumbai Port Logistics Hub'),
-      deliveryPincode: deliveryPincodeRaw || '600001',
-      deliveryAddress: deliveryAddress || 'Tata Steel Logistics Hub, Chennai, Tamil Nadu - 600081',
+      hub: veh.hub || '',
+      pickupPincode: pickupPincodeRaw || '',
+      pickupCity: pickupCity || '',
+      pickupState: pickupState || '',
+      pickupAddress: pickupAddress || '',
+      deliveryPincode: deliveryPincodeRaw || '',
+      deliveryCity: deliveryCity || '',
+      deliveryState: deliveryState || '',
+      deliveryAddress: deliveryAddress || '',
       weight: weight || (veh.mode === 'bike' ? '150' : '28'),
       weightUnit: weightUnit || (veh.mode === 'bike' ? 'kg' : 'Tonnes'),
       goodsType: goodsType || 'Industrial / Commercial Freight',
@@ -384,6 +431,12 @@ function CarrierContent() {
     router.push(`/home/carrier/${modeCapitalized}/BookingDetails`);
   };
 
+  // Unique brands/logistics operators list for dropdown selector
+  const uniqueBrandVehicles = fleetVehicles.filter((veh, index, self) => {
+    const brandName = (veh.brand || veh.owner || veh.name || '').trim().toLowerCase();
+    return index === self.findIndex(v => ((v.brand || v.owner || v.name || '').trim().toLowerCase()) === brandName);
+  });
+
   // Filter vehicles strictly by owner-added fleet
   const currentVehicles = fleetVehicles.filter(v => v.mode === activeMode);
 
@@ -391,7 +444,7 @@ function CarrierContent() {
   useEffect(() => {
     if (currentVehicles.length > 0) {
       setSelectedVehicleId(currentVehicles[0].id);
-      setSelectedCarrierName(currentVehicles[0].name);
+      setSelectedCarrierName(currentVehicles[0].brand || currentVehicles[0].owner || currentVehicles[0].name);
     }
   }, [activeMode, fleetVehicles]);
 
@@ -635,8 +688,22 @@ function CarrierContent() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <i
-                  className={activeMode === 'bike' ? 'fa-solid fa-motorcycle' : 'fa-solid fa-truck-moving'}
-                  style={{ color: activeMode === 'bike' ? '#f97316' : '#0ea5e9', fontSize: '17px' }}
+                  className={
+                    activeMode === 'bike' ? 'fa-solid fa-motorcycle' :
+                      activeMode === 'ship' ? 'fa-solid fa-ship' :
+                        activeMode === 'flight' ? 'fa-solid fa-plane' :
+                          activeMode === 'train' ? 'fa-solid fa-train' :
+                            activeMode === 'bus' ? 'fa-solid fa-bus' :
+                              'fa-solid fa-truck-moving'
+                  }
+                  style={{
+                    color: activeMode === 'bike' ? '#f97316' :
+                      activeMode === 'ship' ? '#0284c7' :
+                        activeMode === 'flight' ? '#8b5cf6' :
+                          activeMode === 'train' ? '#059669' :
+                            '#0ea5e9',
+                    fontSize: '17px'
+                  }}
                 ></i>
                 <span style={{ fontSize: '15px', fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '210px' }}>
                   {selectedCarrierName}
@@ -672,7 +739,7 @@ function CarrierContent() {
                       All Available Carriers
                     </h4>
                     <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 600 }}>
-                      Select cargo vehicle ({fleetVehicles.length} total)
+                      Select cargo vehicle ({uniqueBrandVehicles.length} total)
                     </span>
                   </div>
                   <button
@@ -685,14 +752,14 @@ function CarrierContent() {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '340px', overflowY: 'auto' }}>
-                  {fleetVehicles.map(veh => {
-                    const isSelected = selectedVehicleId === veh.id;
+                  {uniqueBrandVehicles.map(veh => {
+                    const isSelected = selectedVehicleId === veh.id || selectedCarrierName.trim().toLowerCase() === (veh.brand || veh.owner || veh.name || '').trim().toLowerCase();
                     return (
                       <div
                         key={veh.id}
                         onClick={() => {
                           setSelectedVehicleId(veh.id);
-                          setSelectedCarrierName(veh.name);
+                          setSelectedCarrierName(veh.brand || veh.owner || veh.name);
                           setActiveMode(veh.mode as any);
                           setIsCarrierDropdownOpen(false);
                         }}
@@ -713,21 +780,28 @@ function CarrierContent() {
                             width: '36px',
                             height: '36px',
                             borderRadius: '8px',
-                            background: veh.mode === 'bike' ? '#ffedd5' : '#e0f2fe',
+                            background: veh.mode === 'bike' ? '#ffedd5' : veh.mode === 'ship' ? '#e0f2fe' : '#e0f2fe',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            color: veh.mode === 'bike' ? '#ea580c' : '#0284c7',
+                            color: veh.mode === 'bike' ? '#ea580c' : veh.mode === 'ship' ? '#0284c7' : '#0284c7',
                             fontSize: '16px'
                           }}>
-                            <i className={veh.mode === 'bike' ? 'fa-solid fa-motorcycle' : 'fa-solid fa-truck-moving'}></i>
+                            <i className={
+                              veh.mode === 'bike' ? 'fa-solid fa-motorcycle' :
+                                veh.mode === 'ship' ? 'fa-solid fa-ship' :
+                                  veh.mode === 'flight' ? 'fa-solid fa-plane' :
+                                    veh.mode === 'train' ? 'fa-solid fa-train' :
+                                      veh.mode === 'bus' ? 'fa-solid fa-bus' :
+                                        'fa-solid fa-truck-moving'
+                            }></i>
                           </div>
                           <div>
                             <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>
-                              {veh.name}
+                              {veh.brand || veh.owner || veh.name}
                             </div>
                             <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 600, marginTop: '2px' }}>
-                              Capacity: {veh.maxPayloadTon} Ton • ₹{veh.ratePerKm}/km
+                              Capacity: {veh.maxPayloadTon} Ton
                             </div>
                           </div>
                         </div>
@@ -796,7 +870,7 @@ function CarrierContent() {
                   const firstOfMode = fleetVehicles.find(v => v.mode === tab.id);
                   if (firstOfMode) {
                     setSelectedVehicleId(firstOfMode.id);
-                    setSelectedCarrierName(firstOfMode.name);
+                    setSelectedCarrierName(firstOfMode.brand || firstOfMode.owner || firstOfMode.name);
                   }
                 }}
                 style={{
@@ -878,7 +952,7 @@ function CarrierContent() {
                     setPickupAddress(text);
                     handlePickupChange(text);
                   }}
-                  placeholder="6-digit pincode / Pickup location"
+                  placeholder="Enter 6-digit pincode / Pickup location"
                   style={{
                     flex: 1,
                     border: 'none',
@@ -915,6 +989,12 @@ function CarrierContent() {
                   <span>Select on Map</span>
                 </button>
               </div>
+              {pickupArea && (
+                <div style={{ fontSize: '11.5px', color: '#0369a1', fontWeight: 600, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <i className="fa-solid fa-location-dot" style={{ fontSize: '10px' }}></i>
+                  <span>{pickupArea}</span>
+                </div>
+              )}
             </div>
 
             {/* Delivery Pincode / Location */}
@@ -942,7 +1022,7 @@ function CarrierContent() {
                     setDeliveryAddress(text);
                     handleDeliveryChange(text);
                   }}
-                  placeholder="6-digit pincode / Delivery location"
+                  placeholder="Enter 6-digit pincode / Delivery location"
                   style={{
                     flex: 1,
                     border: 'none',
@@ -979,6 +1059,12 @@ function CarrierContent() {
                   <span>Select on Map</span>
                 </button>
               </div>
+              {deliveryArea && (
+                <div style={{ fontSize: '11.5px', color: '#0369a1', fontWeight: 600, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <i className="fa-solid fa-location-dot" style={{ fontSize: '10px' }}></i>
+                  <span>{deliveryArea}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -1100,41 +1186,7 @@ function CarrierContent() {
             </div>
           </div>
 
-          {/* Action Buttons: Continue to Vehicle Selection & Reset */}
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginTop: '6px' }}>
-            <button
-              type="button"
-              style={{
-                padding: '12px 24px',
-                borderRadius: '10px',
-                border: 'none',
-                background: '#4f46e5',
-                color: '#ffffff',
-                fontWeight: 800,
-                fontSize: '14.5px',
-                cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)'
-              }}
-            >
-              Continue to Vehicle Selection
-            </button>
-            <button
-              type="button"
-              onClick={handleReset}
-              style={{
-                padding: '10px 16px',
-                borderRadius: '8px',
-                border: 'none',
-                background: 'transparent',
-                color: '#64748b',
-                fontWeight: 700,
-                fontSize: '14px',
-                cursor: 'pointer'
-              }}
-            >
-              Reset
-            </button>
-          </div>
+
 
         </div>
       </div>
@@ -1167,7 +1219,7 @@ function CarrierContent() {
                   key={veh.id}
                   onClick={() => {
                     setSelectedVehicleId(veh.id);
-                    setSelectedCarrierName(veh.name);
+                    setSelectedCarrierName(veh.brand || veh.owner || veh.name);
                   }}
                   style={{
                     background: isSelected ? '#f8faff' : '#ffffff',
@@ -1350,7 +1402,7 @@ function CarrierContent() {
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedVehicleId(veh.id);
-                          setSelectedCarrierName(veh.name);
+                          setSelectedCarrierName(veh.brand || veh.owner || veh.name);
                         }}
                         style={{
                           background: '#ffffff',
