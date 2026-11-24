@@ -148,11 +148,13 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
   const [pickupPincodeRaw, setPickupPincodeRaw] = useState('');
   const [pickupAddress, setPickupAddress] = useState('');
   const [pickupCity, setPickupCity] = useState('');
+  const [pickupState, setPickupState] = useState('');
   const [pickupArea, setPickupArea] = useState('');
 
   const [deliveryPincodeRaw, setDeliveryPincodeRaw] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [deliveryCity, setDeliveryCity] = useState('');
+  const [deliveryState, setDeliveryState] = useState('');
   const [deliveryArea, setDeliveryArea] = useState('');
 
   // Form Fields

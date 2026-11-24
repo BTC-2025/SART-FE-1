@@ -120,11 +120,13 @@ function CarrierContent() {
   const [pickupPincodeRaw, setPickupPincodeRaw] = useState('');
   const [pickupAddress, setPickupAddress] = useState('');
   const [pickupCity, setPickupCity] = useState('');
+  const [pickupState, setPickupState] = useState('');
   const [pickupArea, setPickupArea] = useState('');
 
   const [deliveryPincodeRaw, setDeliveryPincodeRaw] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [deliveryCity, setDeliveryCity] = useState('');
+  const [deliveryState, setDeliveryState] = useState('');
   const [deliveryArea, setDeliveryArea] = useState('');
 
   // Form Fields
@@ -689,18 +691,18 @@ function CarrierContent() {
                 <i
                   className={
                     activeMode === 'bike' ? 'fa-solid fa-motorcycle' :
-                    activeMode === 'ship' ? 'fa-solid fa-ship' :
-                    activeMode === 'flight' ? 'fa-solid fa-plane' :
-                    activeMode === 'train' ? 'fa-solid fa-train' :
-                    activeMode === 'bus' ? 'fa-solid fa-bus' :
-                    'fa-solid fa-truck-moving'
+                      activeMode === 'ship' ? 'fa-solid fa-ship' :
+                        activeMode === 'flight' ? 'fa-solid fa-plane' :
+                          activeMode === 'train' ? 'fa-solid fa-train' :
+                            activeMode === 'bus' ? 'fa-solid fa-bus' :
+                              'fa-solid fa-truck-moving'
                   }
                   style={{
                     color: activeMode === 'bike' ? '#f97316' :
-                           activeMode === 'ship' ? '#0284c7' :
-                           activeMode === 'flight' ? '#8b5cf6' :
-                           activeMode === 'train' ? '#059669' :
-                           '#0ea5e9',
+                      activeMode === 'ship' ? '#0284c7' :
+                        activeMode === 'flight' ? '#8b5cf6' :
+                          activeMode === 'train' ? '#059669' :
+                            '#0ea5e9',
                     fontSize: '17px'
                   }}
                 ></i>
@@ -788,11 +790,11 @@ function CarrierContent() {
                           }}>
                             <i className={
                               veh.mode === 'bike' ? 'fa-solid fa-motorcycle' :
-                              veh.mode === 'ship' ? 'fa-solid fa-ship' :
-                              veh.mode === 'flight' ? 'fa-solid fa-plane' :
-                              veh.mode === 'train' ? 'fa-solid fa-train' :
-                              veh.mode === 'bus' ? 'fa-solid fa-bus' :
-                              'fa-solid fa-truck-moving'
+                                veh.mode === 'ship' ? 'fa-solid fa-ship' :
+                                  veh.mode === 'flight' ? 'fa-solid fa-plane' :
+                                    veh.mode === 'train' ? 'fa-solid fa-train' :
+                                      veh.mode === 'bus' ? 'fa-solid fa-bus' :
+                                        'fa-solid fa-truck-moving'
                             }></i>
                           </div>
                           <div>
@@ -1185,41 +1187,7 @@ function CarrierContent() {
             </div>
           </div>
 
-          {/* Action Buttons: Continue to Vehicle Selection & Reset */}
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginTop: '6px' }}>
-            <button
-              type="button"
-              style={{
-                padding: '12px 24px',
-                borderRadius: '10px',
-                border: 'none',
-                background: '#4f46e5',
-                color: '#ffffff',
-                fontWeight: 800,
-                fontSize: '14.5px',
-                cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)'
-              }}
-            >
-              Continue to Vehicle Selection
-            </button>
-            <button
-              type="button"
-              onClick={handleReset}
-              style={{
-                padding: '10px 16px',
-                borderRadius: '8px',
-                border: 'none',
-                background: 'transparent',
-                color: '#64748b',
-                fontWeight: 700,
-                fontSize: '14px',
-                cursor: 'pointer'
-              }}
-            >
-              Reset
-            </button>
-          </div>
+
 
         </div>
       </div>
