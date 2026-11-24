@@ -56,37 +56,56 @@ function CarrierBookingDetailsContent() {
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   // ---------------- STEP 1: ROUTE DETAILS ----------------
-  const [pickupAddress, setPickupAddress] = useState('Cherlapally Industrial Area, Phase 3');
+  const [pickupAddress, setPickupAddress] = useState('No. 12, Rajaji Salai, George Town, Chennai, Tamil Nadu - 600001');
   const [pickupState, setPickupState] = useState('Telangana');
   const [pickupCity, setPickupCity] = useState('Hyderabad');
-  const [pickupPincode, setPickupPincode] = useState('500051');
+  const [pickupPincode, setPickupPincode] = useState('600001');
 
-  const [deliveryAddress, setDeliveryAddress] = useState('Peenya Industrial Area, Stage 2');
-  const [deliveryState, setDeliveryState] = useState('Karnataka');
-  const [deliveryCity, setDeliveryCity] = useState('Bengaluru');
-  const [deliveryPincode, setDeliveryPincode] = useState('560058');
+  const [deliveryAddress, setDeliveryAddress] = useState('Dhanlakshmi Puram, Kakupalle, Nellore Mandal, Sri Potti Sriramulu Nellore, Andhra Pradesh - 524002');
+  const [deliveryState, setDeliveryState] = useState('Tamil Nadu');
+  const [deliveryCity, setDeliveryCity] = useState('Chennai');
+  const [deliveryPincode, setDeliveryPincode] = useState('600001');
 
   // Update initial pickup/delivery once selectedCarrier loads if present
   useEffect(() => {
     if (selectedCarrier) {
       if (selectedCarrier.pickupAddress) setPickupAddress(selectedCarrier.pickupAddress);
       if (selectedCarrier.pickupPincode) setPickupPincode(selectedCarrier.pickupPincode);
+      if (selectedCarrier.pickupCity) setPickupCity(selectedCarrier.pickupCity);
+      if (selectedCarrier.pickupState) setPickupState(selectedCarrier.pickupState);
+
       if (selectedCarrier.deliveryAddress) setDeliveryAddress(selectedCarrier.deliveryAddress);
       if (selectedCarrier.deliveryPincode) setDeliveryPincode(selectedCarrier.deliveryPincode);
+      if (selectedCarrier.deliveryCity) setDeliveryCity(selectedCarrier.deliveryCity);
+      if (selectedCarrier.deliveryState) setDeliveryState(selectedCarrier.deliveryState);
+
       if (selectedCarrier.weight) setTotalCargoWeight(String(selectedCarrier.weight));
       if (selectedCarrier.weightUnit) setWeightUnitVal(selectedCarrier.weightUnit);
       if (selectedCarrier.goodsType) setGoodsDescription(selectedCarrier.goodsType);
     } else {
       const qPickup = searchParams.get('pickupAddress');
       const qPickupPin = searchParams.get('pickupPincode');
+      const qPickupCity = searchParams.get('pickupCity');
+      const qPickupState = searchParams.get('pickupState');
+
       const qDel = searchParams.get('deliveryAddress');
       const qDelPin = searchParams.get('deliveryPincode');
+      const qDelCity = searchParams.get('deliveryCity');
+      const qDelState = searchParams.get('deliveryState');
+
       const qW = searchParams.get('weight');
       const qWU = searchParams.get('weightUnit');
+
       if (qPickup) setPickupAddress(qPickup);
       if (qPickupPin) setPickupPincode(qPickupPin);
+      if (qPickupCity) setPickupCity(qPickupCity);
+      if (qPickupState) setPickupState(qPickupState);
+
       if (qDel) setDeliveryAddress(qDel);
       if (qDelPin) setDeliveryPincode(qDelPin);
+      if (qDelCity) setDeliveryCity(qDelCity);
+      if (qDelState) setDeliveryState(qDelState);
+
       if (qW) setTotalCargoWeight(qW);
       if (qWU) setWeightUnitVal(qWU);
     }
@@ -95,7 +114,7 @@ function CarrierBookingDetailsContent() {
   const [pickupDate, setPickupDate] = useState('2026-11-25');
   const [pickupTime, setPickupTime] = useState('10:00');
   const [loadType, setLoadType] = useState('Full Truck Load (FTL) - Dedicated Carrier');
-  const [approxDistance, setApproxDistance] = useState(normalizedMode === 'SHIP' ? 'Approx. 850 Nautical Miles' : 'Approx. 570 km');
+  const [approxDistance, setApproxDistance] = useState('Approx. 570 km');
 
   // ---------------- STEP 2: SENDER DETAILS ----------------
   const [senderType, setSenderType] = useState<'business' | 'individual'>('business');
