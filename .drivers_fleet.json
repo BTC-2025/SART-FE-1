@@ -1,0 +1,39 @@
+[
+  {
+    "id": "DRV-1795524256075",
+    "name": "sai",
+    "mode": "bike",
+    "type": "bike",
+    "brand": "sai",
+    "model": "Two-Wheeler / Bike",
+    "plate": "3728HSH32938",
+    "regId": "3728HSH32938",
+    "hub": "chennai",
+    "location": "chennai",
+    "fuel": "Diesel",
+    "isAvailable": true,
+    "image": "blob:http://localhost:3007/031604be-4fa9-4018-9c4f-0add35a968e9",
+    "rating": 4.9,
+    "ratePerKm": 14,
+    "baseCharge": 120,
+    "advancePercent": 25,
+    "eligibleVehicles": [
+      "Two-Wheeler / Bike",
+      "Car / Sedan / SUV",
+      "8-Wheeler Trucks"
+    ],
+    "cannotDriveList": [
+      ""
+    ],
+    "phone": "7482984930",
+    "dob": "1992-01-29",
+    "gender": "Male",
+    "address": "chennai",
+    "pincode": "600001",
+    "dlNumber": "3728HSH32938",
+    "aadhaarNumber": "3298392892398",
+    "panNumber": "EYW9238938IWE",
+    "emergencyContact": "sai",
+    "createdAt": "2026-11-24T12:44:16.779Z"
+  }
+]

@@ -302,12 +302,12 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
       try {
         const res = await fetch('/api/carriers', { cache: 'no-store' });
         if (res.ok) {
-          const data = await res.json();
-          if (data && Array.isArray(data.vehicles)) {
+          const cData = await res.json();
+          if (cData && Array.isArray(cData.vehicles)) {
             try {
-              localStorage.setItem('logi_pulse_vehicles', JSON.stringify(data.vehicles));
+              localStorage.setItem('logi_pulse_vehicles', JSON.stringify(cData.vehicles));
             } catch (e) { }
-            setFleetVehicles(data.vehicles.map(parseCarrier));
+            setFleetVehicles(cData.vehicles.map(parseCarrier));
             return;
           }
         }

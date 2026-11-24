@@ -267,7 +267,6 @@ export const MODELS_BY_BRAND: Record<string, string[]> = {
   'Force Motors Bus': ['Cruiser Deluxe', 'Citiline 10-Seater', 'Traveller Smart School Bus'],
 
   'Tata.ev (Nexon/Punch/Tiago)': ['Nexon EV Long Range 45kWh', 'Punch EV Empowered', 'Tiago EV XT/XZ+', 'Tigor EV Tech', 'Curvv EV 55kWh'],
-  'Ola Electric': ['Ola S1 Pro Gen 2', 'Ola S1 Air', 'Ola S1 X+ (3kWh)', 'Roadster Pro EV Motorcycle'],
   'Ather Energy': ['Ather 450X 3.7kWh', 'Ather 450S 2.9kWh', 'Ather Rizta Family Scooter'],
   'MG ZS EV': ['MG ZS EV Excite', 'MG ZS EV Exclusive Pro ADAS'],
   'Mahindra XUV400': ['XUV400 Pro EL 39.4kWh', 'XUV400 EC 34.5kWh'],
