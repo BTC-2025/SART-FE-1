@@ -641,8 +641,22 @@ function CarrierContent() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <i
-                  className={activeMode === 'bike' ? 'fa-solid fa-motorcycle' : 'fa-solid fa-truck-moving'}
-                  style={{ color: activeMode === 'bike' ? '#f97316' : '#0ea5e9', fontSize: '17px' }}
+                  className={
+                    activeMode === 'bike' ? 'fa-solid fa-motorcycle' :
+                    activeMode === 'ship' ? 'fa-solid fa-ship' :
+                    activeMode === 'flight' ? 'fa-solid fa-plane' :
+                    activeMode === 'train' ? 'fa-solid fa-train' :
+                    activeMode === 'bus' ? 'fa-solid fa-bus' :
+                    'fa-solid fa-truck-moving'
+                  }
+                  style={{
+                    color: activeMode === 'bike' ? '#f97316' :
+                           activeMode === 'ship' ? '#0284c7' :
+                           activeMode === 'flight' ? '#8b5cf6' :
+                           activeMode === 'train' ? '#059669' :
+                           '#0ea5e9',
+                    fontSize: '17px'
+                  }}
                 ></i>
                 <span style={{ fontSize: '15px', fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '210px' }}>
                   {selectedCarrierName}
@@ -719,14 +733,21 @@ function CarrierContent() {
                             width: '36px',
                             height: '36px',
                             borderRadius: '8px',
-                            background: veh.mode === 'bike' ? '#ffedd5' : '#e0f2fe',
+                            background: veh.mode === 'bike' ? '#ffedd5' : veh.mode === 'ship' ? '#e0f2fe' : '#e0f2fe',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            color: veh.mode === 'bike' ? '#ea580c' : '#0284c7',
+                            color: veh.mode === 'bike' ? '#ea580c' : veh.mode === 'ship' ? '#0284c7' : '#0284c7',
                             fontSize: '16px'
                           }}>
-                            <i className={veh.mode === 'bike' ? 'fa-solid fa-motorcycle' : 'fa-solid fa-truck-moving'}></i>
+                            <i className={
+                              veh.mode === 'bike' ? 'fa-solid fa-motorcycle' :
+                              veh.mode === 'ship' ? 'fa-solid fa-ship' :
+                              veh.mode === 'flight' ? 'fa-solid fa-plane' :
+                              veh.mode === 'train' ? 'fa-solid fa-train' :
+                              veh.mode === 'bus' ? 'fa-solid fa-bus' :
+                              'fa-solid fa-truck-moving'
+                            }></i>
                           </div>
                           <div>
                             <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>
