@@ -384,6 +384,12 @@ function CarrierContent() {
     router.push(`/home/carrier/${modeCapitalized}/BookingDetails`);
   };
 
+  // Unique brands/logistics operators list for dropdown selector
+  const uniqueBrandVehicles = fleetVehicles.filter((veh, index, self) => {
+    const brandName = (veh.brand || veh.owner || veh.name || '').trim().toLowerCase();
+    return index === self.findIndex(v => ((v.brand || v.owner || v.name || '').trim().toLowerCase()) === brandName);
+  });
+
   // Filter vehicles strictly by owner-added fleet
   const currentVehicles = fleetVehicles.filter(v => v.mode === activeMode);
 
@@ -672,7 +678,7 @@ function CarrierContent() {
                       All Available Carriers
                     </h4>
                     <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 600 }}>
-                      Select cargo vehicle ({fleetVehicles.length} total)
+                      Select cargo vehicle ({uniqueBrandVehicles.length} total)
                     </span>
                   </div>
                   <button
@@ -685,8 +691,8 @@ function CarrierContent() {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '340px', overflowY: 'auto' }}>
-                  {fleetVehicles.map(veh => {
-                    const isSelected = selectedVehicleId === veh.id;
+                  {uniqueBrandVehicles.map(veh => {
+                    const isSelected = selectedVehicleId === veh.id || selectedCarrierName.trim().toLowerCase() === (veh.brand || veh.owner || veh.name || '').trim().toLowerCase();
                     return (
                       <div
                         key={veh.id}
