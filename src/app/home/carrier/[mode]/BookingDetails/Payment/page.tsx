@@ -5,7 +5,7 @@ import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import SubNavbar from '@/components/SubNavbar';
 import Footer from '@/components/Footer';
-import { ArrowLeft, Check, ShieldCheck, CreditCard, Smartphone, Building, Wallet, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Check, ShieldCheck, CreditCard, Smartphone, Building, Wallet, CheckCircle2, Download, Printer } from 'lucide-react';
 
 function CarrierPaymentContent() {
   const router = useRouter();
@@ -48,12 +48,119 @@ function CarrierPaymentContent() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentDone, setPaymentDone] = useState(false);
 
-  const handlePayAdvance = () => {
+  const handlePayAdvance = async () => {
     setIsProcessing(true);
+    
+    // Construct rich booking data payload for carrier owner dashboard
+    const bookingPayload = {
+      id: bookingId,
+      bookingId,
+      vehicleId: bookingSummary?.vehicleId || 'CRG-SHIP-001',
+      vehicleName,
+      vehicleReg,
+      mode: routeMode.toLowerCase(),
+      customerName: bookingSummary?.senderName || 'Valued Shipper',
+      customerPhone: bookingSummary?.senderMobile || '+91 98450 12345',
+      senderType: bookingSummary?.senderType || 'business',
+      senderGstin: bookingSummary?.senderGstin || '',
+      senderEmail: bookingSummary?.senderEmail || '',
+      receiverName: bookingSummary?.receiverName || 'Consignee Hub',
+      receiverPhone: bookingSummary?.receiverMobile || '+91 98765 43210',
+      receiverType: bookingSummary?.receiverType || 'business',
+      receiverGstin: bookingSummary?.receiverGstin || '',
+      pickup,
+      dropLoc: delivery,
+      pickupAddress: bookingSummary?.pickupAddress || pickup,
+      deliveryAddress: bookingSummary?.deliveryAddress || delivery,
+      pickupPincode: bookingSummary?.pickupPincode || '',
+      deliveryPincode: bookingSummary?.deliveryPincode || '',
+      pickupDate: bookingSummary?.pickupDate || new Date().toISOString().split('T')[0],
+      pickupTime: bookingSummary?.pickupTime || '10:00',
+      goodsType: goodsDescription,
+      goodsCategory: bookingSummary?.goodsCategory || 'Industrial Freight',
+      cargoWeight,
+      consignmentValue: bookingSummary?.consignmentValue || 500000,
+      ewayBillNumber: bookingSummary?.ewayBillNumber || `EWB-${Date.now().toString().slice(-12)}`,
+      distanceKm: 850,
+      totalPrice: totalAmount,
+      advancePaid: advancePayable,
+      remainingBalance: dueOnDelivery,
+      payMethod: selectedMethod.toUpperCase() + (selectedMethod === 'upi' ? ` (${selectedUpiApp})` : ''),
+      status: 'Advance Paid - Ready to Dispatch',
+      createdAt: new Date().toISOString()
+    };
+
+    // 1. Try persisting to backend database
+    try {
+      await fetch('http://localhost:3005/api/carriers/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingPayload)
+      });
+    } catch (e) {
+      console.warn('Backend offline, caching booking locally:', e);
+    }
+
+    // 2. Also persist to localStorage for cross-app instant sync (both portals on localhost)
+    try {
+      const existingStr = localStorage.getItem('sart_carrier_bookings');
+      const existingList = existingStr ? JSON.parse(existingStr) : [];
+      const updatedList = [bookingPayload, ...existingList.filter((b: any) => b.id !== bookingId)];
+      localStorage.setItem('sart_carrier_bookings', JSON.stringify(updatedList));
+      window.dispatchEvent(new Event('storage'));
+    } catch (e) { }
+
     setTimeout(() => {
       setIsProcessing(false);
       setPaymentDone(true);
-    }, 1200);
+    }, 1000);
+  };
+
+  const handleDownloadReceipt = () => {
+    const receiptData = {
+      receiptType: 'CARRIER CONSIGNMENT & ADVANCE PAYMENT VOUCHER',
+      bookingReference: bookingId,
+      bookingDate: new Date().toLocaleString('en-IN'),
+      carrier: {
+        name: vehicleName,
+        regId: vehicleReg,
+        mode: routeMode
+      },
+      shipperSender: {
+        name: bookingSummary?.senderName || 'Valued Shipper',
+        mobile: bookingSummary?.senderMobile || '+91 98450 12345',
+        gstin: bookingSummary?.senderGstin || 'Unregistered',
+        pickupAddress: bookingSummary?.pickupAddress || pickup
+      },
+      consigneeReceiver: {
+        name: bookingSummary?.receiverName || 'Consignee Hub',
+        mobile: bookingSummary?.receiverMobile || '+91 98765 43210',
+        gstin: bookingSummary?.receiverGstin || 'Unregistered',
+        deliveryAddress: bookingSummary?.deliveryAddress || delivery
+      },
+      consignment: {
+        goods: goodsDescription,
+        weight: cargoWeight,
+        ewayBill: bookingSummary?.ewayBillNumber || 'N/A'
+      },
+      paymentSummary: {
+        totalFreight: `₹${totalAmount.toLocaleString('en-IN')}`,
+        advancePaid: `₹${advancePayable.toLocaleString('en-IN')}`,
+        balancePayableOnDelivery: `₹${dueOnDelivery.toLocaleString('en-IN')}`,
+        paymentMethod: selectedMethod.toUpperCase() + (selectedMethod === 'upi' ? ` (${selectedUpiApp})` : ''),
+        status: 'CONFIRMED / DISPATCH READY'
+      }
+    };
+
+    const blob = new Blob([JSON.stringify(receiptData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Carrier-Receipt-${bookingId}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -141,23 +248,44 @@ function CarrierPaymentContent() {
             <p style={{ fontSize: '12.5px', color: '#64748b', margin: 0 }}>
               Live Telematics tracking link and driver contact details have been dispatched to your verified WhatsApp number.
             </p>
-            <button
-              type="button"
-              onClick={() => router.push('/home/carrier')}
-              style={{
-                marginTop: '12px',
-                padding: '12px 32px',
-                borderRadius: '10px',
-                border: 'none',
-                background: '#1e3a8a',
-                color: '#ffffff',
-                fontWeight: 800,
-                fontSize: '14.5px',
-                cursor: 'pointer'
-              }}
-            >
-              Return to Carrier Fleet
-            </button>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <button
+                type="button"
+                onClick={handleDownloadReceipt}
+                style={{
+                  padding: '12px 24px',
+                  borderRadius: '10px',
+                  border: '1.5px solid #0284c7',
+                  background: '#f0f9ff',
+                  color: '#0369a1',
+                  fontWeight: 800,
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <Download size={17} />
+                <span>Download All Booking Details & Receipt</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push('/home/carrier')}
+                style={{
+                  padding: '12px 28px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  background: '#1e3a8a',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '14px',
+                  cursor: 'pointer'
+                }}
+              >
+                Return to Carrier Fleet
+              </button>
+            </div>
           </div>
         ) : (
           /* Payment Layout (2-Column Grid) */
