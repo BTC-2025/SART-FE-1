@@ -105,7 +105,7 @@ function CarrierContent() {
 
   // Top header dropdown state for "Select Carrier"
   const [isCarrierDropdownOpen, setIsCarrierDropdownOpen] = useState(false);
-  const [selectedCarrierName, setSelectedCarrierName] = useState('Heavy Road Truck');
+  const [selectedCarrierName, setSelectedCarrierName] = useState('Tata Motors');
   const carrierDropdownRef = useRef<HTMLDivElement>(null);
 
   // Pincode Inputs (showing place beside the pincode)
@@ -391,7 +391,7 @@ function CarrierContent() {
   useEffect(() => {
     if (currentVehicles.length > 0) {
       setSelectedVehicleId(currentVehicles[0].id);
-      setSelectedCarrierName(currentVehicles[0].name);
+      setSelectedCarrierName(currentVehicles[0].brand || currentVehicles[0].owner || currentVehicles[0].name);
     }
   }, [activeMode, fleetVehicles]);
 
@@ -692,7 +692,7 @@ function CarrierContent() {
                         key={veh.id}
                         onClick={() => {
                           setSelectedVehicleId(veh.id);
-                          setSelectedCarrierName(veh.name);
+                          setSelectedCarrierName(veh.brand || veh.owner || veh.name);
                           setActiveMode(veh.mode as any);
                           setIsCarrierDropdownOpen(false);
                         }}
@@ -724,10 +724,10 @@ function CarrierContent() {
                           </div>
                           <div>
                             <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>
-                              {veh.name}
+                              {veh.brand || veh.owner || veh.name}
                             </div>
                             <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 600, marginTop: '2px' }}>
-                              Capacity: {veh.maxPayloadTon} Ton • ₹{veh.ratePerKm}/km
+                              Capacity: {veh.maxPayloadTon} Ton
                             </div>
                           </div>
                         </div>
@@ -796,7 +796,7 @@ function CarrierContent() {
                   const firstOfMode = fleetVehicles.find(v => v.mode === tab.id);
                   if (firstOfMode) {
                     setSelectedVehicleId(firstOfMode.id);
-                    setSelectedCarrierName(firstOfMode.name);
+                    setSelectedCarrierName(firstOfMode.brand || firstOfMode.owner || firstOfMode.name);
                   }
                 }}
                 style={{
@@ -1167,7 +1167,7 @@ function CarrierContent() {
                   key={veh.id}
                   onClick={() => {
                     setSelectedVehicleId(veh.id);
-                    setSelectedCarrierName(veh.name);
+                    setSelectedCarrierName(veh.brand || veh.owner || veh.name);
                   }}
                   style={{
                     background: isSelected ? '#f8faff' : '#ffffff',
@@ -1350,7 +1350,7 @@ function CarrierContent() {
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedVehicleId(veh.id);
-                          setSelectedCarrierName(veh.name);
+                          setSelectedCarrierName(veh.brand || veh.owner || veh.name);
                         }}
                         style={{
                           background: '#ffffff',
