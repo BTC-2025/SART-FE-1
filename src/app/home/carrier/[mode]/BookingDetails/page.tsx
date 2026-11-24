@@ -39,8 +39,10 @@ function CarrierBookingDetailsContent() {
   const paramBrand = selectedCarrier?.brand || searchParams.get('brand') || (normalizedMode === 'SHIP' ? 'Shipping Corporation of India' : 'Carrier Logistics');
   const paramModel = selectedCarrier?.model || searchParams.get('model') || (paramBrand && paramName && paramName.startsWith(paramBrand) ? paramName.slice(paramBrand.length).trim() : (normalizedMode === 'SHIP' ? 'Coastal Cargo Feeder' : paramName));
   const paramReg = selectedCarrier?.regId || searchParams.get('regId') || (normalizedMode === 'SHIP' ? 'IMO 7879' : 'MH 12 MH 6789');
-  const paramHub = selectedCarrier?.hub || searchParams.get('hub') || 'Tata Steel Logistics Hub, Chennai, Tamil Nadu - 600081';
+  const paramHub = selectedCarrier?.hub || searchParams.get('hub') || '';
   const paramImage = selectedCarrier?.image || searchParams.get('image') || '';
+
+
 
   const baseRateKm = Number(selectedCarrier?.ratePerKm || searchParams.get('ratePerKm') || (normalizedMode === 'SHIP' ? 650 : 48));
   const baseTripFee = Number(selectedCarrier?.baseCharge || searchParams.get('baseCharge') || (normalizedMode === 'SHIP' ? 120000 : 1800));
@@ -56,15 +58,15 @@ function CarrierBookingDetailsContent() {
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   // ---------------- STEP 1: ROUTE DETAILS ----------------
-  const [pickupAddress, setPickupAddress] = useState('No. 12, Rajaji Salai, George Town, Chennai, Tamil Nadu - 600001');
-  const [pickupState, setPickupState] = useState('Telangana');
-  const [pickupCity, setPickupCity] = useState('Hyderabad');
-  const [pickupPincode, setPickupPincode] = useState('600001');
+  const [pickupAddress, setPickupAddress] = useState('');
+  const [pickupState, setPickupState] = useState('');
+  const [pickupCity, setPickupCity] = useState('');
+  const [pickupPincode, setPickupPincode] = useState('');
 
-  const [deliveryAddress, setDeliveryAddress] = useState('Dhanlakshmi Puram, Kakupalle, Nellore Mandal, Sri Potti Sriramulu Nellore, Andhra Pradesh - 524002');
-  const [deliveryState, setDeliveryState] = useState('Tamil Nadu');
-  const [deliveryCity, setDeliveryCity] = useState('Chennai');
-  const [deliveryPincode, setDeliveryPincode] = useState('600001');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [deliveryState, setDeliveryState] = useState('');
+  const [deliveryCity, setDeliveryCity] = useState('');
+  const [deliveryPincode, setDeliveryPincode] = useState('');
 
   // Update initial pickup/delivery once selectedCarrier loads if present
   useEffect(() => {
@@ -114,7 +116,7 @@ function CarrierBookingDetailsContent() {
   const [pickupDate, setPickupDate] = useState('2026-11-25');
   const [pickupTime, setPickupTime] = useState('10:00');
   const [loadType, setLoadType] = useState('Full Truck Load (FTL) - Dedicated Carrier');
-  const [approxDistance, setApproxDistance] = useState('Approx. 570 km');
+  const [approxDistance, setApproxDistance] = useState('');
 
   // ---------------- STEP 2: SENDER DETAILS ----------------
   const [senderType, setSenderType] = useState<'business' | 'individual'>('business');
@@ -540,26 +542,7 @@ function CarrierBookingDetailsContent() {
                 </div>
               </div>
 
-              {/* Route Distance Banner */}
-              <div style={{
-                background: '#eff6ff',
-                border: '1.5px dashed #93c5fd',
-                borderRadius: '12px',
-                padding: '14px 20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '12px',
-                color: '#1e3a8a',
-                fontSize: '14px',
-                fontWeight: 700
-              }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#2563eb' }}></span>
-                <span>{pickupCity}, {pickupState}</span>
-                <i className="fa-solid fa-arrow-right-long" style={{ color: '#3b82f6' }}></i>
-                <span>{deliveryCity}, {deliveryState}</span>
-                <span style={{ color: '#64748b', fontWeight: 600 }}>({approxDistance})</span>
-              </div>
+
 
               {/* Bottom Row: Pickup Date, Preferred Pickup Time, Load Type */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.5fr', gap: '18px' }}>

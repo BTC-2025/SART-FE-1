@@ -244,12 +244,12 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
       const defaultImg = isBike
         ? '/images/hero_cargo_bike.png'
         : isShip
-        ? 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&q=80'
-        : isTrain
-        ? '/images/carrier_mode_train.jpg'
-        : isFlight
-        ? '/images/carrier_mode_flight.png'
-        : '/images/tata_ace_fleet.jpg';
+          ? 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&q=80'
+          : isTrain
+            ? '/images/carrier_mode_train.jpg'
+            : isFlight
+              ? '/images/carrier_mode_flight.png'
+              : '/images/tata_ace_fleet.jpg';
 
       return {
         id: v.id || `CRG-${Date.now()}`,
@@ -389,14 +389,14 @@ export default function CarrierBookingModal({ isOpen, onClose }: CarrierBookingM
       brand: veh.brand || '',
       regId: veh.regId || '',
       hub: veh.hub || '',
-      pickupPincode: pickupPincodeRaw || '600001',
-      pickupCity: pickupCity || 'Hyderabad',
-      pickupState: pickupState || 'Telangana',
-      pickupAddress: pickupAddress || 'No. 12, Rajaji Salai, George Town, Chennai, Tamil Nadu - 600001',
-      deliveryPincode: deliveryPincodeRaw || '600001',
-      deliveryCity: deliveryCity || 'Chennai',
-      deliveryState: deliveryState || 'Tamil Nadu',
-      deliveryAddress: deliveryAddress || 'Dhanlakshmi Puram, Kakupalle, Nellore Mandal, Sri Potti Sriramulu Nellore, Andhra Pradesh - 524002',
+      pickupPincode: pickupPincodeRaw || '',
+      pickupCity: pickupCity || '',
+      pickupState: pickupState || '',
+      pickupAddress: pickupAddress || '',
+      deliveryPincode: deliveryPincodeRaw || '',
+      deliveryCity: deliveryCity || '',
+      deliveryState: deliveryState || '',
+      deliveryAddress: deliveryAddress || '',
       weight: weight || (veh.mode === 'bike' ? '150' : veh.mode === 'ship' ? '52000' : '28'),
       weightUnit: weightUnit || (veh.mode === 'bike' ? 'kg' : 'Tonnes'),
       goodsType: goodsType || 'Industrial / Commercial Freight',
