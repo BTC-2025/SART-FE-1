@@ -41,7 +41,7 @@ export const ALL_SERVICES_SHORTCUTS: ShortcutItem[] = [
   { id: 'driver_on_demand', name: 'On-Demand Driver', type: 'drivers', icon: 'fa-id-card', route: '/home/drivers' },
 
   // Parkings
-  { id: 'parking_spot', name: 'Parking Spot', type: 'parking', icon: 'fa-square-p', route: '/home/parking' },
+  { id: 'parking_spot', name: 'Parkings', type: 'parking', icon: 'fa-square-p', route: '/home/parking' },
   { id: 'parking_ev', name: 'EV Charging Slot', type: 'parking', icon: 'fa-charging-station', route: '/home/parking' },
 
   // Communities

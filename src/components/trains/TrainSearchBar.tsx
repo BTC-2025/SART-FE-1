@@ -1268,7 +1268,7 @@ export default function TrainSearchBar({
               onClick={(e) => e.stopPropagation()}
             >
               <div style={{ padding: '6px 12px 4px', fontSize: '11px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Special Aerial Charters
+                Special Aerial &amp; Marine Charters
               </div>
               <div
                 onClick={() => {
@@ -1294,6 +1294,34 @@ export default function TrainSearchBar({
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <span style={{ fontSize: '13.5px', fontWeight: 800 }}>Helicopter</span>
                   <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Helipad transfers & charters</span>
+                </div>
+              </div>
+
+              {/* Ship / Marine Voyage */}
+              <div
+                onClick={() => {
+                  setShowOtherRidesDropdown(false);
+                  handleModeChange('ship' as any);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  background: activeMode === 'ship' ? '#e0f2fe' : 'transparent',
+                  color: activeMode === 'ship' ? '#0284c7' : '#1e293b',
+                  fontWeight: 700,
+                  fontSize: '14px'
+                }}
+              >
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#e0f2fe', color: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <i className="fa-solid fa-ship"></i>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '13.5px', fontWeight: 800 }}>Ship</span>
+                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Cruises &amp; sea passenger ferries</span>
                 </div>
               </div>
             </div>

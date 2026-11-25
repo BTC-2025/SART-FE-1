@@ -10,6 +10,7 @@ import AutoBookingView from './AutoBookingView';
 import CarBookingView from './CarBookingView';
 import FlightBookingView from './FlightBookingView';
 import HelicopterBookingView from './helicopter/HelicopterBookingView';
+import ShipBookingView from './ship/ShipBookingView';
 import TrainPassengerDetailsModal from './TrainPassengerDetails';
 import { useSartStore } from '@/store/useSartStore';
 
@@ -37,13 +38,14 @@ import { TrainApi } from '@/apis/trainApi';
 export type { TrainClassOption, TrainItem, BikeStopItem, CityLocation };
 export { POPULAR_CITIES, INDIAN_STATIONS, INITIAL_TRAINS, EXPANDED_CORRIDOR_TRAINS, ALL_CHENNAI_BANGALORE_TRAINS, getCorridorTrains };
 
-export type RideMode = 'bike' | 'auto' | 'car' | 'bus' | 'train' | 'flight' | 'helicopter';
+export type RideMode = 'bike' | 'auto' | 'car' | 'bus' | 'train' | 'flight' | 'helicopter' | 'ship';
 
 export function getRideModeFromPath(urlPath?: string, fallbackMode?: RideMode): RideMode {
   if (typeof window !== 'undefined') {
     const sp = new URLSearchParams(window.location.search);
     const m = (sp.get('mode') || sp.get('vehicle'))?.toLowerCase();
     if (m === 'helicopter' || m === 'heli' || m === 'chopper') return 'helicopter';
+    if (m === 'ship' || m === 'boat' || m === 'cruise' || m === 'ferry') return 'ship';
     if (m === 'flight' || m === 'filght') return 'flight';
     if (m === 'bus') return 'bus';
     if (m === 'train') return 'train';
@@ -56,6 +58,7 @@ export function getRideModeFromPath(urlPath?: string, fallbackMode?: RideMode): 
   const lower = p.toLowerCase();
 
   if (/(?:^|\/)helicopter(?:\/|$|\?)/.test(lower) || /(?:^|\/)heli(?:\/|$|\?)/.test(lower) || /(?:^|\/)chopper(?:\/|$|\?)/.test(lower)) return 'helicopter';
+  if (/(?:^|\/)ship(?:\/|$|\?)/.test(lower) || /(?:^|\/)cruise(?:\/|$|\?)/.test(lower) || /(?:^|\/)ferry(?:\/|$|\?)/.test(lower)) return 'ship';
   if (/(?:^|\/)bus(?:\/|$|\?)/.test(lower)) return 'bus';
   if (/(?:^|\/)flight(?:\/|$|\?)/.test(lower) || /(?:^|\/)filght(?:\/|$|\?)/.test(lower)) return 'flight';
   if (/(?:^|\/)car(?:\/|$|\?)/.test(lower) || /(?:^|\/)cab(?:\/|$|\?)/.test(lower)) return 'car';
@@ -66,7 +69,7 @@ export function getRideModeFromPath(urlPath?: string, fallbackMode?: RideMode): 
   if (fallbackMode) return fallbackMode;
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem('sart_active_ride_mode') as RideMode;
-    if (['bike', 'auto', 'car', 'bus', 'train', 'flight', 'helicopter'].includes(stored)) {
+    if (['bike', 'auto', 'car', 'bus', 'train', 'flight', 'helicopter', 'ship'].includes(stored)) {
       return stored;
     }
   }
@@ -894,6 +897,12 @@ export default function TrainBookingView() {
         />
       ) : activeMode === 'helicopter' ? (
         <HelicopterBookingView
+          source={formatStationName(source)}
+          destination={formatStationName(destination)}
+          dateOfJourney={dateOfJourney}
+        />
+      ) : activeMode === 'ship' ? (
+        <ShipBookingView
           source={formatStationName(source)}
           destination={formatStationName(destination)}
           dateOfJourney={dateOfJourney}

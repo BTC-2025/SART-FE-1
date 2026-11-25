@@ -9,31 +9,43 @@ import CustomizeDockModal, {
   DEFAULT_SELECTED_SHORTCUT_IDS,
   ShortcutItem
 } from './CustomizeDockModal';
+import UserAuthModal from './UserAuthModal';
 
 const MY_SERVE_OPTIONS = [
   {
     id: 'captain',
     label: 'Captain',
     icon: 'fa-user-tie',
-    route: '/ride/captain'
+    url: 'http://localhost:3005/ride/captain/login?category=bike',
+    isExternal: false
   },
   {
     id: 'rental_owner',
     label: 'Rental Owner',
     icon: 'fa-key',
-    route: '/home/rental'
+    url: 'http://localhost:3007/rentals',
+    isExternal: true
+  },
+  {
+    id: 'carriers',
+    label: 'Carriers',
+    icon: 'fa-truck-fast',
+    url: 'http://localhost:3007/carriers',
+    isExternal: true
   },
   {
     id: 'parking_owner',
     label: 'Parking Owner',
     icon: 'fa-square-parking',
-    route: '/booking'
+    url: 'http://localhost:3007/parking',
+    isExternal: true
   },
   {
     id: 'drivers',
     label: 'Drivers',
     icon: 'fa-id-card',
-    route: '/home/rental/Car/CarDetails/DriverDetails'
+    url: 'http://localhost:3007/drivers',
+    isExternal: true
   }
 ];
 
@@ -47,6 +59,10 @@ export default function SubNavbar() {
   // State for My Serve dropdown menu
   const [isMyServeOpen, setIsMyServeOpen] = useState(false);
   const myServeRef = useRef<HTMLDivElement>(null);
+
+  // Authentication requirement modal & pending target
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [pendingTargetUrl, setPendingTargetUrl] = useState<string | null>(null);
 
   // Default: only Bike appears initially (matching user image)
   const [selectedShortcutIds, setSelectedShortcutIds] = useState<string[]>(DEFAULT_SELECTED_SHORTCUT_IDS);
@@ -118,32 +134,49 @@ export default function SubNavbar() {
     router.push('/profile', { scroll: false });
   };
 
+  const checkIsLoggedIn = () => {
+    if (typeof window === 'undefined') return false;
+    try {
+      const stored = localStorage.getItem('sart_user_session');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && (parsed.token || parsed.phone || parsed.email || parsed.id)) {
+          return true;
+        }
+      }
+    } catch (e) { }
+    return false;
+  };
+
+  const navigateToUrl = (targetUrl: string) => {
+    if (typeof window === 'undefined') return;
+    if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
+      window.location.href = targetUrl;
+    } else {
+      router.push(targetUrl);
+    }
+  };
+
   const handleMyServeSelect = (option: typeof MY_SERVE_OPTIONS[0]) => {
     setIsMyServeOpen(false);
-    if (option.id === 'captain') {
-      router.push('/ride/captain');
-    } else if (option.id === 'rental_owner') {
-      if (typeof window !== 'undefined') {
-        const win = window.open('http://localhost:5173', '_blank');
-        if (!win || win.closed || typeof win.closed === 'undefined') {
-          router.push('/home/rental');
-        }
-      } else {
-        router.push('/home/rental');
-      }
-    } else if (option.id === 'parking_owner') {
-      if (typeof window !== 'undefined') {
-        const win = window.open('http://localhost:5173', '_blank');
-        if (!win || win.closed || typeof win.closed === 'undefined') {
-          router.push('/booking');
-        }
-      } else {
-        router.push('/booking');
-      }
-    } else if (option.id === 'drivers') {
-      router.push('/home/rental/Car/CarDetails/DriverDetails');
-    } else if (option.route) {
-      router.push(option.route);
+
+    // Only logged-in users can enter into these portals
+    const loggedIn = checkIsLoggedIn();
+    if (!loggedIn) {
+      setPendingTargetUrl(option.url);
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    navigateToUrl(option.url);
+  };
+
+  const handleAuthSuccess = () => {
+    setIsAuthModalOpen(false);
+    if (pendingTargetUrl) {
+      const url = pendingTargetUrl;
+      setPendingTargetUrl(null);
+      navigateToUrl(url);
     }
   };
 
@@ -272,6 +305,16 @@ export default function SubNavbar() {
         selectedIds={selectedShortcutIds}
         onSave={handleSaveShortcuts}
         maxSelections={4}
+      />
+
+      {/* User Login Modal: ensures only logged-in users can enter */}
+      <UserAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => {
+          setIsAuthModalOpen(false);
+          setPendingTargetUrl(null);
+        }}
+        onSuccess={handleAuthSuccess}
       />
     </>
   );

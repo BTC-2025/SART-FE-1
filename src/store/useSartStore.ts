@@ -64,7 +64,7 @@ interface SartStore extends AppState {
   setLocation: (loc: string) => void;
   setActiveBookingId: (id: string | null) => void;
   setActiveTab: (tab: string) => void;
-  setActiveRideMode: (mode: 'bike' | 'auto' | 'car' | 'bus' | 'train' | 'flight' | 'helicopter') => void;
+  setActiveRideMode: (mode: 'bike' | 'auto' | 'car' | 'bus' | 'train' | 'flight' | 'helicopter' | 'ship') => void;
 }
 
 export const useSartStore = create<SartStore>()(
