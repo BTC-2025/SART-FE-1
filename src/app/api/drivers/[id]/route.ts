@@ -41,6 +41,39 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   return NextResponse.json({ success: true, driver }, { headers: corsHeaders });
 }
 
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const resolvedParams = await params;
+    const body = await request.json().catch(() => ({}));
+    const drivers = readDrivers();
+    let found = false;
+    const updated = drivers.map(d => {
+      if (d.id === resolvedParams.id) {
+        found = true;
+        return {
+          ...d,
+          ...body,
+          updatedAt: new Date().toISOString()
+        };
+      }
+      return d;
+    });
+
+    if (!found) {
+      updated.unshift({
+        ...body,
+        id: resolvedParams.id,
+        updatedAt: new Date().toISOString()
+      });
+    }
+
+    writeDrivers(updated);
+    return NextResponse.json({ success: true, message: 'Driver updated', drivers: updated }, { headers: corsHeaders });
+  } catch (err: any) {
+    return NextResponse.json({ success: false, message: err.message }, { status: 500, headers: corsHeaders });
+  }
+}
+
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const resolvedParams = await params;

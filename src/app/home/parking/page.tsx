@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import SubNavbar from '@/components/SubNavbar';
 import Footer from '@/components/Footer';
@@ -23,7 +24,9 @@ import {
   AlertCircle,
   Clock3,
   Sparkles,
-  ExternalLink
+  ExternalLink,
+  Zap,
+  Info
 } from 'lucide-react';
 
 export interface ParkingSpotItem {
@@ -37,6 +40,7 @@ export interface ParkingSpotItem {
   locality?: string;
   pincode?: string;
   pincodePlace?: string;
+  landmark?: string;
   address: string;
   lat: number;
   lng: number;
@@ -49,9 +53,12 @@ export interface ParkingSpotItem {
   availableSlots: number;
   totalSlots: number;
   operatingHours?: string;
+  gateInstructions?: string;
+  bookingMode?: string;
   securityFeatures?: string[];
   features?: string[];
   image: string;
+  photos?: any[];
   ownerName?: string;
   primaryMobile?: string;
   vehicleTypes?: any;
@@ -62,13 +69,14 @@ export interface ParkingSpotItem {
 // Vehicle Categories supported with intuitive icons
 const VEHICLE_TYPES = [
   { id: 'all', label: 'All Vehicles', icon: 'fa-solid fa-shapes' },
-  { id: 'bike', label: '2-Wheeler / Bike', icon: 'fa-solid fa-motorcycle', key: 'twoWheeler' },
+  { id: 'bike', label: 'Bike', icon: 'fa-solid fa-motorcycle', key: 'twoWheeler' },
   { id: 'car', label: 'Car / Sedan / SUV', icon: 'fa-solid fa-car', key: 'fourWheeler' },
-  { id: 'truck', label: 'Truck / Heavy Bay', icon: 'fa-solid fa-truck', key: 'heavyVehicle' },
-  { id: 'bus', label: 'Bus / Coach', icon: 'fa-solid fa-bus', key: 'heavyVehicle' }
+  { id: 'truck', label: 'Truck / Heavy Trucks', icon: 'fa-solid fa-truck', key: 'heavyVehicle' },
 ];
 
 export default function ParkingSearchPage() {
+  const router = useRouter();
+
   // Search Inputs
   const [vehicleType, setVehicleType] = useState<string>('car');
   const [selectedDate, setSelectedDate] = useState<string>(() => {
@@ -97,112 +105,65 @@ export default function ParkingSearchPage() {
   const [selectedSpot, setSelectedSpot] = useState<ParkingSpotItem | null>(null);
   const [bookingSuccessModal, setBookingSuccessModal] = useState<boolean>(false);
 
-  // Fetch Spots from backend API and sync with local storage
+  // Fetch Spots strictly from backend API (if backend is stopped, no spots show)
   const loadSpots = async (queryState?: string, queryCity?: string) => {
     setIsLoadingSpots(true);
     let loaded: ParkingSpotItem[] = [];
 
-    // 1. Try Backend APIs (/api/parking/spots and Express port 5000)
-    const endpoints = [
-      '/api/parking/spots',
-      'http://localhost:5000/api/parking/spots',
-      'http://localhost:3005/api/parking/spots'
-    ];
-
-    for (const ep of endpoints) {
-      try {
-        const params = new URLSearchParams();
-        if (queryState) params.append('state', queryState);
-        if (queryCity) params.append('city', queryCity);
-        const url = params.toString() ? `${ep}?${params.toString()}` : ep;
-
-        const res = await fetch(url, { cache: 'no-store' });
-        if (res.ok) {
-          const json = await res.json();
-          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-            json.data.forEach((item: any) => {
-              if (!loaded.some(l => l.id === item.id)) {
-                loaded.push({
-                  id: item.id,
-                  name: item.spotName || item.name || '',
-                  category: item.spaceType || item.category || '',
-                  city: item.city || '',
-                  state: item.state || '',
-                  locality: item.locality || '',
-                  pincode: item.pincode || '',
-                  pincodePlace: item.pincodePlace || item.locality || item.city,
-                  address: item.address || `${item.doorNo ? item.doorNo + ', ' : ''}${item.streetName ? item.streetName + ', ' : ''}${item.locality ? item.locality + ', ' : ''}${item.city}, ${item.state} - ${item.pincode || ''}`.replace(/^,\s*/, ''),
-                  lat: Number(item.lat) || 28.4595,
-                  lng: Number(item.lng) || 77.0266,
-                  hourlyRate: Number(item.minHourlyRate || item.hourlyRate) || 20,
-                  dailyRate: Number(item.dailyRate) || 150,
-                  monthlyRate: Number(item.monthlyRate) || 2500,
-                  pricingText: item.pricingText || `₹${item.minHourlyRate || item.hourlyRate || 20}/hr`,
-                  rating: Number(item.rating) || 4.8,
-                  reviewsCount: Number(item.reviewsCount) || 24,
-                  availableSlots: Number(item.availableSlots) || 35,
-                  totalSlots: Number(item.totalSlots) || 50,
-                  operatingHours: item.operatingHours || '24/7 Open',
-                  securityFeatures: Array.isArray(item.securityFeatures) ? item.securityFeatures : ['CCTV Surveillance', '24/7 Security Guard', 'Gated Boundary Wall'],
-                  image: item.coverPhoto || item.image || '',
-                  ownerName: item.ownerName || '',
-                  primaryMobile: item.primaryMobile || '',
-                  vehicleTypes: item.vehicleTypes
-                });
-              }
-            });
-            break;
-          }
-        }
-      } catch (e) { }
-    }
-
-    // 2. Check local storage added from FE-2 business portal
+    // Strictly fetch from Backend Express API (port 5000)
     try {
-      const localFleet = localStorage.getItem('sart_parking_fleet');
-      if (localFleet) {
-        const parsed = JSON.parse(localFleet);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          parsed.forEach((item: any) => {
+      const params = new URLSearchParams();
+      if (queryState) params.append('state', queryState);
+      if (queryCity) params.append('city', queryCity);
+      const url = params.toString()
+        ? `http://localhost:5000/api/parking/spots?${params.toString()}`
+        : 'http://localhost:5000/api/parking/spots';
+
+      const res = await fetch(url, { cache: 'no-store' });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          json.data.forEach((item: any) => {
             if (!loaded.some(l => l.id === item.id)) {
-              loaded.unshift({
+              loaded.push({
                 id: item.id,
-                name: item.name || item.yardData?.spotName || '',
-                category: item.brand || item.yardData?.spaceType || '',
-                city: item.city || item.yardData?.city || '',
-                state: item.yardData?.state || '',
-                locality: item.locality || item.yardData?.locality || '',
-                pincode: item.yardData?.pincode || '',
+                name: item.spotName || item.name || '',
+                category: item.spaceType || item.category || '',
+                spaceType: item.spaceType || item.category || 'Open Yard',
+                city: item.city || '',
+                state: item.state || '',
+                locality: item.locality || '',
+                pincode: item.pincode || '',
                 pincodePlace: item.pincodePlace || item.locality || item.city,
-                address: item.location || `${item.city}, ${item.yardData?.state || ''}`,
-                lat: Number(item.yardData?.coordinates?.lat) || 28.4595,
-                lng: Number(item.yardData?.coordinates?.lng) || 77.0266,
-                hourlyRate: Number(item.hourlyRate) || 20,
+                landmark: item.landmark || '',
+                address: item.address || `${item.doorNo ? item.doorNo + ', ' : ''}${item.streetName ? item.streetName + ', ' : ''}${item.locality ? item.locality + ', ' : ''}${item.city}, ${item.state} - ${item.pincode || ''}`.replace(/^,\s*/, ''),
+                lat: Number(item.lat) || 28.4595,
+                lng: Number(item.lng) || 77.0266,
+                hourlyRate: Number(item.minHourlyRate || item.hourlyRate) || 20,
                 dailyRate: Number(item.dailyRate) || 150,
                 monthlyRate: Number(item.monthlyRate) || 2500,
-                pricingText: item.pricingText || `₹${item.hourlyRate || 20}/hr`,
-                rating: Number(item.rating) || 4.9,
-                reviewsCount: 18,
-                availableSlots: 45,
-                totalSlots: 60,
-                operatingHours: item.yardData?.operatingHours || '24/7 Open',
-                securityFeatures: item.yardData?.securityFeatures || [''],
-                image: item.image || '',
-                ownerName: item.yardData?.ownerName || 'Verified Yard Host',
-                primaryMobile: item.yardData?.primaryMobile || '',
-                vehicleTypes: item.yardData?.vehicleTypes
+                pricingText: item.pricingText || `₹${item.minHourlyRate || item.hourlyRate || 20}/hr`,
+                rating: Number(item.rating) || 4.8,
+                reviewsCount: Number(item.reviewsCount) || 24,
+                availableSlots: Number(item.availableSlots) || 35,
+                totalSlots: Number(item.totalSlots) || 50,
+                operatingHours: item.operatingHours || '24/7 Open',
+                gateInstructions: item.gateInstructions || 'Direct entry from main road. Scan QR code or show booking OTP to guard at gate.',
+                bookingMode: item.bookingMode || 'Instant Booking',
+                securityFeatures: Array.isArray(item.securityFeatures) ? item.securityFeatures : ['CCTV Surveillance', '24/7 Security Guard', 'Gated Boundary Wall', 'Night Floodlights'],
+                image: item.coverPhoto || item.image || (Array.isArray(item.photos) && item.photos[0]?.url) || 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=800&q=80',
+                photos: Array.isArray(item.photos) ? item.photos : [],
+                ownerName: item.ownerName || '',
+                primaryMobile: item.primaryMobile || '',
+                vehicleTypes: item.vehicleTypes
               });
             }
           });
         }
       }
-    } catch (e) { }
-
-    // 3. Fallback mock spots if completely empty so user always sees interactive parking options
-    if (loaded.length === 0) {
-      loaded = [
-
-      ];
+    } catch (e) {
+      // Backend is stopped / offline -> loaded remains empty, meaning NO vehicles or yards show
+      loaded = [];
     }
 
     setSpots(loaded);
@@ -211,6 +172,20 @@ export default function ParkingSearchPage() {
 
   useEffect(() => {
     loadSpots();
+
+    // Auto-refresh every 3 seconds so deletions or additions from owner immediately update in real-time
+    const interval = setInterval(() => {
+      loadSpots();
+    }, 3000);
+
+    // Also listen to window focus so when tab switches back, it re-fetches immediately
+    const onFocus = () => loadSpots();
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
   }, []);
 
   // Distance calculator helper in KM
@@ -321,13 +296,22 @@ export default function ParkingSearchPage() {
   const filteredAndSortedSpots = useMemo(() => {
     let list = [...spots];
 
-    // Filter by vehicle type if specific vehicle is chosen
+    // Filter by vehicle type: Car shows Car slots, Bike shows Bike slots
     if (vehicleType && vehicleType !== 'all') {
       list = list.filter((s) => {
-        if (!s.vehicleTypes) return true; // If no restrictive schema, default allow
-        if (vehicleType === 'bike') return s.vehicleTypes.twoWheeler?.enabled !== false;
-        if (vehicleType === 'car') return s.vehicleTypes.fourWheeler?.enabled !== false;
-        if (vehicleType === 'truck' || vehicleType === 'bus') return s.vehicleTypes.heavyVehicle?.enabled !== false;
+        if (!s.vehicleTypes) return true;
+        if (vehicleType === 'bike') {
+          const bikeCfg = s.vehicleTypes.twoWheeler;
+          return bikeCfg && bikeCfg.enabled !== false && (Number(bikeCfg.slots) > 0 || bikeCfg.slots === undefined);
+        }
+        if (vehicleType === 'car') {
+          const carCfg = s.vehicleTypes.fourWheeler;
+          return carCfg && carCfg.enabled !== false && (Number(carCfg.slots) > 0 || carCfg.slots === undefined);
+        }
+        if (vehicleType === 'truck' || vehicleType === 'bus') {
+          const truckCfg = s.vehicleTypes.heavyVehicle;
+          return truckCfg && truckCfg.enabled !== false && (Number(truckCfg.slots) > 0 || truckCfg.slots === undefined);
+        }
         return true;
       });
     }
@@ -746,188 +730,364 @@ export default function ParkingSearchPage() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))',
-                gap: '20px'
+                gridTemplateColumns: 'repeat(auto-fill, minmax(460px, 1fr))',
+                gap: '24px'
               }}
             >
-              {filteredAndSortedSpots.map((spot) => (
-                <div
-                  key={spot.id}
-                  style={{
-                    backgroundColor: '#ffffff',
-                    borderRadius: '16px',
-                    border: '1.5px solid #e2e8f0',
-                    boxShadow: '0 4px 18px rgba(0, 0, 0, 0.04)',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    transition: 'all 0.2s ease',
-                    position: 'relative'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-3px)';
-                    e.currentTarget.style.boxShadow = '0 12px 28px rgba(0, 0, 0, 0.08)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.boxShadow = '0 4px 18px rgba(0, 0, 0, 0.04)';
-                  }}
-                >
-                  {/* Spot Image Header */}
-                  <div style={{ height: '170px', position: 'relative', overflow: 'hidden', backgroundColor: '#e2e8f0' }}>
-                    <img
-                      src={spot.image}
-                      alt={spot.name}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
+              {filteredAndSortedSpots.map((spot) => {
+                const spaceType = spot.spaceType || spot.category || 'Open Yard';
+                const bookingMode = spot.bookingMode || 'Instant Booking';
 
-                    {/* Distance Badge */}
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '12px',
-                        left: '12px',
-                        backgroundColor: 'rgba(15, 23, 42, 0.85)',
-                        backdropFilter: 'blur(4px)',
-                        color: '#ffffff',
-                        fontSize: '11px',
-                        fontWeight: 800,
-                        padding: '4px 10px',
-                        borderRadius: '20px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '5px'
-                      }}
-                    >
-                      <Navigation size={11} color="#60a5fa" />
-                      <span>{spot.distanceText}</span>
-                    </div>
+                const bikeSlots = spot.vehicleTypes?.twoWheeler?.enabled !== false ? (Number(spot.vehicleTypes?.twoWheeler?.slots) || 15) : 0;
+                const carSlots = spot.vehicleTypes?.fourWheeler?.enabled !== false ? (Number(spot.vehicleTypes?.fourWheeler?.slots) || 25) : 0;
+                const truckSlots = spot.vehicleTypes?.heavyVehicle?.enabled !== false ? (Number(spot.vehicleTypes?.heavyVehicle?.slots) || 0) : 0;
+                const totalCalculatedSlots = bikeSlots + carSlots + truckSlots || spot.totalSlots || 45;
 
-                    {/* Rating Badge */}
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '12px',
-                        right: '12px',
-                        backgroundColor: '#ffffff',
-                        color: '#0f172a',
-                        fontSize: '12px',
-                        fontWeight: 800,
-                        padding: '4px 8px',
-                        borderRadius: '8px',
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}
-                    >
-                      <Star size={13} fill="#f59e0b" color="#f59e0b" />
-                      <span>{spot.rating}</span>
-                    </div>
+                const hourlyPrice = spot.hourlyRate || 20;
+                const hoursText = spot.operatingHours || '24/7 Open';
+                const landmarkText = spot.landmark || 'Opposite Cyber City Metro Gate 2';
+                const gateInstructions = spot.gateInstructions || 'Direct entry from main road. Scan QR code or show booking OTP to guard at gate.';
 
-                    {/* Available Slots Bar */}
-                    <div
-                      style={{
-                        position: 'absolute',
-                        bottom: '10px',
-                        left: '12px',
-                        backgroundColor: '#10b981',
-                        color: '#ffffff',
-                        fontSize: '11px',
-                        fontWeight: 800,
-                        padding: '3px 10px',
-                        borderRadius: '20px'
-                      }}
-                    >
-                      ● {spot.availableSlots} Slots Available
-                    </div>
-                  </div>
+                const securityList = Array.isArray(spot.securityFeatures) && spot.securityFeatures.length > 0
+                  ? spot.securityFeatures
+                  : ['CCTV Surveillance', '24/7 Security Guard', 'Gated / Boundary Wall', 'Night Floodlights'];
 
-                  {/* Spot Info Body */}
-                  <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                    <div style={{ marginBottom: '10px' }}>
-                      <span style={{ fontSize: '11px', fontWeight: 800, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        {spot.category}
-                      </span>
-                      <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: '2px 0 6px 0' }}>
-                        {spot.name}
-                      </h3>
-                      <p style={{ fontSize: '13px', color: '#64748b', margin: 0, display: 'flex', alignItems: 'flex-start', gap: '5px', lineHeight: '1.4' }}>
-                        <MapPin size={14} color="#94a3b8" style={{ flexShrink: 0, marginTop: '2px' }} />
-                        <span>{spot.address}</span>
-                      </p>
-                    </div>
+                return (
+                  <div
+                    key={spot.id}
+                    style={{
+                      backgroundColor: '#ffffff',
+                      borderRadius: '18px',
+                      border: '1.5px solid #e2e8f0',
+                      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+                      overflow: 'hidden',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      transition: 'all 0.2s ease',
+                      position: 'relative'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 12px 28px rgba(0, 0, 0, 0.08)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'none';
+                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.05)';
+                    }}
+                  >
+                    {/* Spot Image Header with Space Type, Instant Booking Pill & Carousel Dots (Matching Image 2) */}
+                    <div style={{ height: '190px', position: 'relative', overflow: 'hidden', backgroundColor: '#0f172a' }}>
+                      <img
+                        src={spot.image || 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=800&q=80'}
+                        alt={spot.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=800&q=80';
+                        }}
+                      />
 
-                    {/* Host & Features */}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
-                      {(spot.securityFeatures || ['CCTV Guard', 'Gated Barrier']).slice(0, 3).map((feat, fi) => (
-                        <span
-                          key={fi}
-                          style={{
-                            fontSize: '11px',
-                            fontWeight: 700,
-                            backgroundColor: '#f1f5f9',
-                            color: '#334155',
-                            padding: '3px 8px',
-                            borderRadius: '6px'
-                          }}
-                        >
-                          ✓ {feat}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Bottom Pricing & Reserve Button */}
-                    <div
-                      style={{
-                        marginTop: 'auto',
-                        paddingTop: '14px',
-                        borderTop: '1px solid #f1f5f9',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between'
-                      }}
-                    >
-                      <div>
-                        <div style={{ fontSize: '19px', fontWeight: 900, color: '#0f172a' }}>
-                          ₹{spot.hourlyRate}
-                          <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748b' }}>/hr</span>
-                        </div>
-                        <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 700 }}>
-                          ₹{spot.dailyRate || spot.hourlyRate * 8}/day pass
-                        </span>
+                      {/* Space Type Badge (Top Left) */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '12px',
+                          left: '12px',
+                          backgroundColor: 'rgba(15, 23, 42, 0.88)',
+                          backdropFilter: 'blur(4px)',
+                          color: '#ffffff',
+                          fontSize: '11px',
+                          fontWeight: 800,
+                          padding: '4px 12px',
+                          borderRadius: '20px',
+                          border: '1px solid rgba(255, 255, 255, 0.25)'
+                        }}
+                      >
+                        {spaceType}
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedSpot(spot);
-                          setBookingSuccessModal(true);
-                        }}
+                      {/* Instant Booking Pill (Top Right) */}
+                      <div
                         style={{
-                          backgroundColor: '#2563eb',
+                          position: 'absolute',
+                          top: '12px',
+                          right: '12px',
+                          backgroundColor: '#059669',
                           color: '#ffffff',
-                          border: 'none',
-                          borderRadius: '10px',
-                          padding: '10px 18px',
-                          fontSize: '13px',
-                          fontWeight: 700,
-                          cursor: 'pointer',
+                          fontSize: '11px',
+                          fontWeight: 800,
+                          padding: '4px 10px',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                        }}
+                      >
+                        <Zap size={13} fill="#fde047" color="#fde047" />
+                        <span>{bookingMode}</span>
+                      </div>
+
+                      {/* Carousel Indicator Dots (Bottom Center) */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          bottom: '10px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '6px',
-                          boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
-                          transition: 'background-color 0.15s ease'
+                          backgroundColor: 'rgba(0,0,0,0.45)',
+                          padding: '3px 8px',
+                          borderRadius: '20px',
+                          backdropFilter: 'blur(2px)'
                         }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1d4ed8')}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
                       >
-                        Reserve Spot <ArrowRight size={14} />
-                      </button>
+                        <span style={{ width: '16px', height: '6px', borderRadius: '4px', backgroundColor: '#ffffff' }}></span>
+                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.5)' }}></span>
+                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.5)' }}></span>
+                      </div>
+                    </div>
+
+                    {/* Spot Details Body (Exact Match to User Image 2) */}
+                    <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1, gap: '14px' }}>
+                      {/* Spot Title & Address */}
+                      <div>
+                        <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: '0 0 6px 0', letterSpacing: '-0.3px' }}>
+                          {spot.name}
+                        </h3>
+                        <p style={{ fontSize: '13px', color: '#475569', margin: 0, display: 'flex', alignItems: 'flex-start', gap: '6px', lineHeight: '1.4' }}>
+                          <MapPin size={15} color="#2563eb" style={{ flexShrink: 0, marginTop: '2px' }} />
+                          <span>{spot.address}</span>
+                        </p>
+                      </div>
+
+                      {/* Landmark Box */}
+                      {landmarkText && (
+                        <div
+                          style={{
+                            backgroundColor: '#ffffff',
+                            border: '1.5px solid #e2e8f0',
+                            borderRadius: '10px',
+                            padding: '8px 12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            fontSize: '12.5px',
+                            color: '#334155'
+                          }}
+                        >
+                          <Info size={14} color="#6366f1" style={{ flexShrink: 0 }} />
+                          <span><strong>Landmark:</strong> {landmarkText}</span>
+                        </div>
+                      )}
+
+                      {/* Starting Tariff & Hours Box (Lavender / Soft Purple Box in Image 2) */}
+                      <div
+                        style={{
+                          backgroundColor: '#f5f3ff',
+                          border: '1px solid #ddd6fe',
+                          borderRadius: '12px',
+                          padding: '12px 16px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between'
+                        }}
+                      >
+                        <div>
+                          <span style={{ display: 'block', fontSize: '10.5px', fontWeight: 800, color: '#6d28d9', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>
+                            STARTING TARIFF
+                          </span>
+                          <div style={{ fontSize: '22px', fontWeight: 900, color: '#1e1b4b' }}>
+                            ₹{hourlyPrice} <span style={{ fontSize: '13px', fontWeight: 700, color: '#6d28d9' }}>/ hr</span>
+                          </div>
+                        </div>
+
+                        <div style={{ textAlign: 'right' }}>
+                          <span style={{ display: 'block', fontSize: '10.5px', fontWeight: 800, color: '#6d28d9', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>
+                            HOURS
+                          </span>
+                          <div style={{ fontSize: '15px', fontWeight: 800, color: '#1e1b4b', display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'flex-end' }}>
+                            <Clock3 size={15} color="#6d28d9" />
+                            <span>{hoursText}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Vehicle Slots Available Badges */}
+                      <div>
+                        <span style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+                          VEHICLE SLOTS AVAILABLE ({totalCalculatedSlots} TOTAL)
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          {bikeSlots > 0 && (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                backgroundColor: '#ecfdf5',
+                                color: '#059669',
+                                border: '1px solid #a7f3d0',
+                                padding: '5px 12px',
+                                borderRadius: '8px',
+                                fontSize: '12.5px',
+                                fontWeight: 700
+                              }}
+                            >
+                              <i className="fa-solid fa-motorcycle" style={{ fontSize: '12px' }}></i>
+                              <span>{bikeSlots} Bike Slots</span>
+                            </span>
+                          )}
+
+                          {carSlots > 0 && (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                backgroundColor: '#eff6ff',
+                                color: '#2563eb',
+                                border: '1px solid #bfdbfe',
+                                padding: '5px 12px',
+                                borderRadius: '8px',
+                                fontSize: '12.5px',
+                                fontWeight: 700
+                              }}
+                            >
+                              <i className="fa-solid fa-car" style={{ fontSize: '12px' }}></i>
+                              <span>{carSlots} Car Slots</span>
+                            </span>
+                          )}
+
+                          {truckSlots > 0 && (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                backgroundColor: '#fef3c7',
+                                color: '#b45309',
+                                border: '1px solid #fde68a',
+                                padding: '5px 12px',
+                                borderRadius: '8px',
+                                fontSize: '12.5px',
+                                fontWeight: 700
+                              }}
+                            >
+                              <i className="fa-solid fa-truck" style={{ fontSize: '12px' }}></i>
+                              <span>{truckSlots} Truck Slots</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Security & Features Badges */}
+                      <div>
+                        <span style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+                          SECURITY & FEATURES
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          {securityList.slice(0, 3).map((feat, idx) => (
+                            <span
+                              key={idx}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                backgroundColor: '#f5f3ff',
+                                color: '#4338ca',
+                                padding: '4px 10px',
+                                borderRadius: '8px',
+                                fontSize: '11.5px',
+                                fontWeight: 700
+                              }}
+                            >
+                              <span>✓</span> {feat}
+                            </span>
+                          ))}
+                          {securityList.length > 3 && (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                backgroundColor: '#f1f5f9',
+                                color: '#64748b',
+                                padding: '4px 8px',
+                                borderRadius: '8px',
+                                fontSize: '11.5px',
+                                fontWeight: 700
+                              }}
+                            >
+                              +{securityList.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Gate Instructions Box */}
+                      {gateInstructions && (
+                        <div style={{ paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
+                          <span style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#0f172a', marginBottom: '2px' }}>
+                            Gate Instructions:
+                          </span>
+                          <p style={{ margin: 0, fontSize: '12px', fontStyle: 'italic', color: '#64748b', lineHeight: '1.4' }}>
+                            "{gateInstructions}"
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Reserve Spot Action */}
+                      <div style={{ paddingTop: '10px', marginTop: 'auto' }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedSpot(spot);
+                            try {
+                              localStorage.setItem('sart_selected_parking_spot', JSON.stringify(spot));
+                            } catch (e) { }
+
+                            const queryParams = new URLSearchParams({
+                              spotId: spot.id,
+                              spotName: spot.name,
+                              vehicleType: vehicleType,
+                              date: selectedDate,
+                              time: selectedTime,
+                              duration: String(durationHours)
+                            });
+
+                            router.push(`/home/parking/UserDetails?${queryParams.toString()}`);
+                          }}
+                          style={{
+                            width: '100%',
+                            backgroundColor: '#2a1373',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '12px',
+                            padding: '12px',
+                            fontSize: '14px',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            boxShadow: '0 4px 14px rgba(42, 19, 115, 0.25)',
+                            transition: 'all 0.15s ease'
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1f0d57')}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2a1373')}
+                        >
+                          <Zap size={16} fill="#fde047" color="#fde047" />
+                          <span>Reserve Spot Now</span>
+                        </button>
+                      </div>
+
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
@@ -939,7 +1099,7 @@ export default function ParkingSearchPage() {
         isOpen={isMapModalOpen}
         onClose={() => setIsMapModalOpen(false)}
         onConfirm={handleMapConfirm}
-        initialAddress={addressInput || 'Gurugram, Haryana'}
+        initialAddress={addressInput || ''}
       />
 
       {/* Booking Confirmation Modal */}

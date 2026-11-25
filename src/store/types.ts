@@ -63,5 +63,5 @@ export interface AppState {
   location: string;
   activeBookingId: string | null;
   activeTab: string;
-  activeRideMode?: 'bike' | 'auto' | 'car' | 'bus' | 'train' | 'flight' | 'helicopter';
+  activeRideMode?: 'bike' | 'auto' | 'car' | 'bus' | 'train' | 'flight' | 'helicopter' | 'ship';
 }

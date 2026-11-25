@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import './HelicopterBookingView.css';
 import {
   HelicopterItem,
@@ -24,6 +25,7 @@ export default function HelicopterBookingView({
   destination,
   dateOfJourney
 }: HelicopterBookingViewProps) {
+  const router = useRouter();
   const effectiveDate = useMemo(() => {
     if (dateOfJourney) return dateOfJourney;
     const now = new Date();
@@ -480,7 +482,7 @@ export default function HelicopterBookingView({
               onClick={() => setSortBy('cheapest')}
             >
               <span className="hb-sort-tab-title">Cheapest</span>
-              <span className="hb-sort-tab-sub">₹ 22,800 | 01h 40m</span>
+              <span className="hb-sort-tab-sub">₹ 3,400 | 01h 40m</span>
             </button>
             <button
               type="button"
@@ -488,7 +490,7 @@ export default function HelicopterBookingView({
               onClick={() => setSortBy('direct')}
             >
               <span className="hb-sort-tab-title">Direct Helipad First</span>
-              <span className="hb-sort-tab-sub">₹ 28,500 | 01h 15m</span>
+              <span className="hb-sort-tab-sub">₹ 3,500 | 01h 15m</span>
             </button>
             <button
               type="button"
@@ -569,8 +571,25 @@ export default function HelicopterBookingView({
                       type="button"
                       className="hb-book-btn"
                       onClick={() => {
-                        setSelectedHeliModal(heli);
-                        setBookingConfirmed(false);
+                        try {
+                          localStorage.setItem('sart_selected_heli', JSON.stringify(heli));
+                        } catch (e) { }
+
+                        const qp = new URLSearchParams({
+                          operator: heli.operator,
+                          heliNo: heli.heliNo,
+                          source: `${heli.depCity} (${heli.depHeliCode})`,
+                          destination: `${heli.arrCity} (${heli.arrHeliCode})`,
+                          sourceCode: heli.depHeliCode.split('-')[0],
+                          destCode: heli.arrHeliCode.split('-')[0],
+                          date: effectiveDate,
+                          depTime: heli.depTime,
+                          arrTime: heli.arrTime,
+                          model: heli.heliModel,
+                          fare: String(heli.fare)
+                        });
+
+                        router.push(`/home/ride/helicopter/PassengerDetails?${qp.toString()}`);
                       }}
                     >
                       Book Helipad Seat <i className="fa-solid fa-arrow-right"></i>
