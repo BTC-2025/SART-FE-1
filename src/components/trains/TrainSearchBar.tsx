@@ -197,18 +197,22 @@ export default function TrainSearchBar({
         <div className="tb-search-field" ref={sourceRef}>
           <i
             className={`fa-solid ${activeMode === 'bike'
-                ? 'fa-motorcycle'
-                : activeMode === 'auto'
-                  ? 'fa-taxi'
-                  : activeMode === 'car'
-                    ? 'fa-car'
-                    : activeMode === 'bus'
-                      ? 'fa-bus'
-                      : activeMode === 'flight'
-                        ? 'fa-plane'
-                        : activeMode === 'helicopter'
-                          ? 'fa-helicopter'
-                          : 'fa-train-subway'
+              ? 'fa-motorcycle'
+              : activeMode === 'auto'
+                ? 'fa-taxi'
+                : activeMode === 'car'
+                  ? 'fa-car'
+                  : activeMode === 'bus'
+                    ? 'fa-bus'
+                    : activeMode === 'flight'
+                      ? 'fa-plane'
+                      : activeMode === 'ship'
+                        ? 'fa-ship'
+                        : activeMode === 'ship'
+                          ? 'fa-ship'
+                          : activeMode === 'helicopter'
+                            ? 'fa-helicopter'
+                            : 'fa-train-subway'
               } tb-field-icon`}
           ></i>
           <div className="tb-field-content">
@@ -227,7 +231,7 @@ export default function TrainSearchBar({
                   onSearch();
                 }
               }}
-              placeholder="From Station / Location"
+              placeholder={activeMode === 'ship' ? 'From Port / Coastal Hub' : 'From Station / Location'}
             />
           </div>
 
@@ -309,18 +313,22 @@ export default function TrainSearchBar({
         <div className="tb-search-field" ref={destRef}>
           <i
             className={`fa-solid ${activeMode === 'bike'
-                ? 'fa-motorcycle'
-                : activeMode === 'auto'
-                  ? 'fa-taxi'
-                  : activeMode === 'car'
-                    ? 'fa-car'
-                    : activeMode === 'bus'
-                      ? 'fa-bus'
-                      : activeMode === 'flight'
-                        ? 'fa-plane'
-                        : activeMode === 'helicopter'
-                          ? 'fa-helicopter'
-                          : 'fa-train-subway'
+              ? 'fa-motorcycle'
+              : activeMode === 'auto'
+                ? 'fa-taxi'
+                : activeMode === 'car'
+                  ? 'fa-car'
+                  : activeMode === 'bus'
+                    ? 'fa-bus'
+                    : activeMode === 'flight'
+                      ? 'fa-plane'
+                      : activeMode === 'ship'
+                        ? 'fa-ship'
+                        : activeMode === 'ship'
+                          ? 'fa-ship'
+                          : activeMode === 'helicopter'
+                            ? 'fa-helicopter'
+                            : 'fa-train-subway'
               } tb-field-icon`}
           ></i>
           <div className="tb-field-content">
@@ -339,7 +347,7 @@ export default function TrainSearchBar({
                   onSearch();
                 }
               }}
-              placeholder="To Station / Location"
+              placeholder={activeMode === 'ship' ? 'To Island / Destination Port' : 'To Station / Location'}
             />
           </div>
 
@@ -1212,7 +1220,7 @@ export default function TrainSearchBar({
 
       {/* Mode Tabs */}
       <div className="tb-mode-tabs" style={{ position: 'relative', overflow: 'visible' }}>
-        {INITIAL_MODE_ORDER.filter((m) => m.id !== 'helicopter').map((m) => (
+        {INITIAL_MODE_ORDER.filter((m) => m.id !== 'ship' && m.id !== 'helicopter').map((m) => (
           <button
             key={m.id}
             className={`tb-mode-tab ${activeMode === m.id ? 'active' : ''}`}
@@ -1225,23 +1233,25 @@ export default function TrainSearchBar({
           </button>
         ))}
 
-        {/* Other Rides */}
+        {/* Dropdown Tab for Others: Ship & Helicopter */}
         <div ref={otherRidesRef} style={{ position: 'relative', display: 'inline-block' }}>
           <button
             type="button"
-            className={`tb-mode-tab ${activeMode === 'helicopter' ? 'active' : ''}`}
+            className={`tb-mode-tab ${(activeMode === 'ship' || activeMode === 'helicopter') ? 'active' : ''}`}
             onClick={(e) => {
               e.stopPropagation();
               setShowOtherRidesDropdown((prev) => !prev);
             }}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
-            title="Click to view Other Rides"
+            title="Click to choose Ship or Helicopter"
           >
             <i
-              className={`fa-solid ${activeMode === 'helicopter' ? 'fa-helicopter' : 'fa-bars'}`}
-              style={{ color: activeMode === 'helicopter' ? '#dc2626' : 'inherit' }}
+              className={`fa-solid ${activeMode === 'helicopter' ? 'fa-helicopter' : activeMode === 'ship' ? 'fa-ship' : 'fa-ellipsis'}`}
+              style={{ color: activeMode === 'helicopter' ? '#dc2626' : activeMode === 'ship' ? '#0284c7' : 'inherit' }}
             ></i>
-            <span>{activeMode === 'helicopter' ? 'Helicopter' : 'Other Rides'}</span>
+            <span>
+              {activeMode === 'helicopter' ? 'Helicopter' : activeMode === 'ship' ? 'Ship' : 'Others'}
+            </span>
             <i
               className={`fa-solid fa-chevron-${showOtherRidesDropdown ? 'up' : 'down'}`}
               style={{ fontSize: '11px', opacity: 0.7 }}
@@ -1254,50 +1264,20 @@ export default function TrainSearchBar({
                 position: 'absolute',
                 top: 'calc(100% + 4px)',
                 left: 0,
-                minWidth: '220px',
+                minWidth: '260px',
                 background: '#ffffff',
-                borderRadius: '12px',
+                borderRadius: '14px',
                 boxShadow: '0 16px 36px rgba(15, 23, 42, 0.2), 0 2px 10px rgba(0, 0, 0, 0.08)',
-                border: '1px solid #cbd5e1',
+                border: '1.5px solid #cbd5e1',
                 zIndex: 99999,
-                padding: '8px',
+                padding: '10px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '4px'
+                gap: '8px'
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div style={{ padding: '6px 12px 4px', fontSize: '11px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Special Aerial &amp; Marine Charters
-              </div>
-              <div
-                onClick={() => {
-                  setShowOtherRidesDropdown(false);
-                  handleModeChange('helicopter');
-                }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '10px 14px',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  background: activeMode === 'helicopter' ? '#fee2e2' : 'transparent',
-                  color: activeMode === 'helicopter' ? '#dc2626' : '#1e293b',
-                  fontWeight: 700,
-                  fontSize: '14px'
-                }}
-              >
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#fee2e2', color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <i className="fa-solid fa-helicopter"></i>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '13.5px', fontWeight: 800 }}>Helicopter</span>
-                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Helipad transfers & charters</span>
-                </div>
-              </div>
-
-              {/* Ship / Marine Voyage */}
+              {/* Option 1: Ship */}
               <div
                 onClick={() => {
                   setShowOtherRidesDropdown(false);
@@ -1308,20 +1288,68 @@ export default function TrainSearchBar({
                   alignItems: 'center',
                   gap: '12px',
                   padding: '10px 14px',
-                  borderRadius: '8px',
+                  borderRadius: '10px',
                   cursor: 'pointer',
-                  background: activeMode === 'ship' ? '#e0f2fe' : 'transparent',
-                  color: activeMode === 'ship' ? '#0284c7' : '#1e293b',
-                  fontWeight: 700,
-                  fontSize: '14px'
+                  background: activeMode === 'ship' ? '#f0f9ff' : 'transparent',
+                  border: activeMode === 'ship' ? '1.5px solid #0284c7' : '1px solid #e2e8f0',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  if (activeMode !== 'ship') e.currentTarget.style.backgroundColor = '#f0f9ff';
+                }}
+                onMouseLeave={(e) => {
+                  if (activeMode !== 'ship') e.currentTarget.style.backgroundColor = 'transparent';
                 }}
               >
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#e0f2fe', color: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#0284c7', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>
                   <i className="fa-solid fa-ship"></i>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '13.5px', fontWeight: 800 }}>Ship</span>
-                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Cruises &amp; sea passenger ferries</span>
+                <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>Ship</span>
+                    {activeMode === 'ship' && (
+                      <span style={{ fontSize: '10px', background: '#ecfdf5', color: '#059669', padding: '1px 5px', borderRadius: '4px', fontWeight: 700 }}>Selected</span>
+                    )}
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#64748b' }}>Marine Voyages &amp; Ferries</span>
+                </div>
+              </div>
+
+              {/* Option 2: Helicopter */}
+              <div
+                onClick={() => {
+                  setShowOtherRidesDropdown(false);
+                  handleModeChange('helicopter' as any);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  background: activeMode === 'helicopter' ? '#fef2f2' : 'transparent',
+                  border: activeMode === 'helicopter' ? '1.5px solid #dc2626' : '1px solid #e2e8f0',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  if (activeMode !== 'helicopter') e.currentTarget.style.backgroundColor = '#fef2f2';
+                }}
+                onMouseLeave={(e) => {
+                  if (activeMode !== 'helicopter') e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#dc2626', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>
+                  <i className="fa-solid fa-helicopter"></i>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>Helicopter</span>
+                    {activeMode === 'helicopter' && (
+                      <span style={{ fontSize: '10px', background: '#ecfdf5', color: '#059669', padding: '1px 5px', borderRadius: '4px', fontWeight: 700 }}>Selected</span>
+                    )}
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#64748b' }}>Helipad transfers &amp; Charters</span>
                 </div>
               </div>
             </div>

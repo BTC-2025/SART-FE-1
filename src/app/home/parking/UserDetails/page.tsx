@@ -727,10 +727,109 @@ function ParkingUserDetailsContent() {
 
                 <button
                   type="button"
-                  onClick={() => {
-                    if (currentStep === 1) setCurrentStep(2);
-                    else if (currentStep === 2) setCurrentStep(3);
-                    else setIsSuccessModalOpen(true);
+                  onClick={async () => {
+                    if (currentStep === 1) {
+                      setCurrentStep(2);
+                    } else if (currentStep === 2) {
+                      setCurrentStep(3);
+                    } else {
+                      // Process booking confirmation
+                      setIsSuccessModalOpen(true);
+
+                      const parkingBookingInfo = {
+                        bookingId: `BK-PRK-${Date.now().toString().slice(-6)}`,
+                        spotId: spot?.id || spotIdParam,
+                        spotName: spot?.name || spot?.spotName || 'Sector 44 Prime Multi-Vehicle Yard',
+                        customerName: fullName,
+                        customerPhone: mobileNumber,
+                        customerAge: age,
+                        vehicleNumber: numberPlate,
+                        vehicleModel: selectedVehicleType,
+                        wheelersCategory: wheelersCategory,
+                        rcNumber: rcNumber,
+                        drivingLicense: drivingLicense,
+                        panCardNumber: panCardNumber,
+                        bayCode: selectedBayCode,
+                        bookingDate: bookingDate,
+                        startTime: bookingTime,
+                        endTime: calculateEndTime(),
+                        durationHours: bookingDuration,
+                        totalAmount: totalEstimatedCost,
+                        advanceAmount: advanceAmount,
+                        dueAtExit: dueAtExit,
+                        paymentMethod: paymentMethod,
+                        otp: '748921',
+                        status: 'Occupied / Booked',
+                        bookedAt: new Date().toISOString()
+                      };
+
+                      const currentSpotId = spot?.id || spotIdParam;
+
+                      // 1. Store in localStorage for instant front-end sync
+                      try {
+                        localStorage.setItem(`parking_booking_${currentSpotId}`, JSON.stringify(parkingBookingInfo));
+                        localStorage.setItem('sart_latest_parking_booking', JSON.stringify(parkingBookingInfo));
+
+                        const notifPayload = {
+                          id: parkingBookingInfo.bookingId,
+                          type: 'parking_booking',
+                          badge: 'New Parking Reservation',
+                          title: `${fullName} reserved ${selectedBayCode} at ${spot?.name || spot?.spotName || 'Parking Yard'}`,
+                          customerName: fullName,
+                          customerPhone: mobileNumber,
+                          vehicleNumber: numberPlate,
+                          vehicleModel: selectedVehicleType,
+                          category: 'Parking Slot',
+                          vehicleName: spot?.name || spot?.spotName || 'Parking Yard',
+                          spotId: currentSpotId,
+                          bayCode: selectedBayCode,
+                          startTime: bookingTime,
+                          endTime: calculateEndTime(),
+                          date: bookingDate,
+                          time: `${bookingTime} - ${calculateEndTime()}`,
+                          totalAmount: totalEstimatedCost,
+                          read: false,
+                          createdAt: new Date().toISOString()
+                        };
+
+                        const existingBiz = JSON.parse(localStorage.getItem('sart_business_bookings') || '[]');
+                        localStorage.setItem('sart_business_bookings', JSON.stringify([notifPayload, ...existingBiz]));
+                        window.dispatchEvent(new Event('storage'));
+
+                        // 2. Sync to backend APIs on port 5000 and 3005
+                        await Promise.allSettled([
+                          fetch(`http://localhost:5000/api/parking/spots/${encodeURIComponent(currentSpotId)}/booking`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              isAvailable: false,
+                              bookingDetails: parkingBookingInfo
+                            })
+                          }),
+                          fetch(`http://localhost:3005/api/parking/spots`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              id: currentSpotId,
+                              isAvailable: false,
+                              bookingDetails: parkingBookingInfo
+                            })
+                          }),
+                          fetch('http://localhost:5000/api/business/notifications', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(notifPayload)
+                          }),
+                          fetch('http://localhost:3005/api/business/notifications', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(notifPayload)
+                          })
+                        ]);
+                      } catch (err) {
+                        console.error('Error syncing parking booking:', err);
+                      }
+                    }
                   }}
                   style={{
                     backgroundColor: '#391E84',

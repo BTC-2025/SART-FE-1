@@ -80,11 +80,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const body = await request.json().catch(() => ({}));
     const drivers = readDrivers();
     const updated = drivers.map(d => {
-      if (d.id === resolvedParams.id) {
+      if (d.id === resolvedParams.id || d.name?.toLowerCase() === resolvedParams.id?.toLowerCase() || d.regId === resolvedParams.id || d.plate === resolvedParams.id) {
+        const nextAvailable = typeof body?.isAvailable === 'boolean'
+          ? body.isAvailable
+          : (body?.status === 'Available' ? true : (body?.status === 'On Trip' ? false : !d.isAvailable));
+        
         return {
           ...d,
           ...body,
-          isAvailable: body.isAvailable !== undefined ? body.isAvailable : !d.isAvailable,
+          isAvailable: nextAvailable,
+          status: nextAvailable ? 'Available' : 'On Trip',
+          bookingDetails: body.bookingDetails !== undefined ? body.bookingDetails : (nextAvailable ? null : d.bookingDetails),
           updatedAt: new Date().toISOString()
         };
       }

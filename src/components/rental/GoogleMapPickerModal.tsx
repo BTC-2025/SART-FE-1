@@ -14,8 +14,14 @@ const POPULAR_HUBS = [
   { title: 'Anna Nagar West Depot', city: 'Chennai', address: '2nd Avenue, Anna Nagar, Chennai, Tamil Nadu', lat: 13.0850, lng: 80.2101 },
   { title: 'Guindy Industrial Estate', city: 'Chennai', address: 'GST Road, Guindy, Chennai, Tamil Nadu', lat: 13.0067, lng: 80.2025 },
   { title: 'Baner Hub Point', city: 'Pune', address: 'Baner Road, Baner, Pune, Maharashtra', lat: 18.5590, lng: 73.7868 },
+  { title: 'Cyber City, Phase 2', city: 'Gurugram', address: 'Cyber City, Phase 2, Gurugram, Haryana - 122002', lat: 28.4950, lng: 77.0895 },
+  { title: 'Sector 44 Hub', city: 'Gurugram', address: 'Plot No. 14-B, Sector 44, Gurugram, Haryana', lat: 28.4485, lng: 77.0682 },
   { title: 'Indiranagar 100ft Road', city: 'Bengaluru', address: '100ft Road, Indiranagar, Bengaluru, Karnataka', lat: 12.9784, lng: 77.6408 }
 ];
+
+// Default coordinates
+const DEFAULT_COORDS = { lat: 12.9854, lng: 79.1821 };
+const DEFAULT_ADDRESS = 'Ranipet - Chittoor Trunk Road, Thiruvalam, Katpadi, Vellore, Tamil Nadu, 632106, India';
 
 interface GoogleMapPickerModalProps {
   isOpen: boolean;
@@ -23,139 +29,236 @@ interface GoogleMapPickerModalProps {
   onConfirm: (address: string, coords?: { lat: number; lng: number }) => void;
   initialAddress?: string;
   initialCoords?: { lat: number; lng: number };
+  targetLabel?: string;
 }
 
 export default function GoogleMapPickerModal({
   isOpen,
   onClose,
   onConfirm,
-  initialAddress = 'Velachery, Chennai, Tamil Nadu',
-  initialCoords = { lat: 12.9815, lng: 80.2180 }
+  initialAddress = DEFAULT_ADDRESS,
+  initialCoords,
+  targetLabel
 }: GoogleMapPickerModalProps) {
-  const [pinnedCoords, setPinnedCoords] = useState<{ lat: number; lng: number }>(initialCoords);
+  const [pinnedCoords, setPinnedCoords] = useState<{ lat: number; lng: number }>(initialCoords || DEFAULT_COORDS);
   const [pinnedAddress, setPinnedAddress] = useState<string>(initialAddress);
   const [mapSearchText, setMapSearchText] = useState<string>('');
   const [isLocatingGps, setIsLocatingGps] = useState<boolean>(false);
+  const [isMapReady, setIsMapReady] = useState<boolean>(false);
 
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const leafletMapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
+  const hasInitializedRef = useRef<boolean>(false);
 
-  // Sync initial values when modal opens
+  // Sync initial values when modal opens (run only when isOpen transitions to true)
   useEffect(() => {
     if (isOpen) {
-      if (initialAddress) setPinnedAddress(initialAddress);
-      if (initialCoords?.lat && initialCoords?.lng) setPinnedCoords(initialCoords);
+      const addr = initialAddress || DEFAULT_ADDRESS;
+      setPinnedAddress(addr);
+
+      const matched = POPULAR_HUBS.find(h =>
+        addr.toLowerCase().includes(h.city.toLowerCase()) ||
+        addr.toLowerCase().includes(h.title.toLowerCase())
+      );
+
+      if (matched) {
+        setPinnedCoords({ lat: matched.lat, lng: matched.lng });
+      } else if (initialCoords?.lat && initialCoords?.lng) {
+        setPinnedCoords({ lat: initialCoords.lat, lng: initialCoords.lng });
+      } else {
+        setPinnedCoords(DEFAULT_COORDS);
+      }
     }
-  }, [isOpen, initialAddress, initialCoords]);
+  }, [isOpen, initialAddress, initialCoords?.lat, initialCoords?.lng]);
 
   // Initialize Leaflet Map
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      if (leafletMapRef.current) {
+        try {
+          leafletMapRef.current.remove();
+        } catch (e) {}
+        leafletMapRef.current = null;
+      }
+      setIsMapReady(false);
+      return;
+    }
 
     let isMounted = true;
-    const timer = setTimeout(async () => {
-      if (!mapContainerRef.current) return;
 
-      const L = (await import('leaflet')).default;
-      await import('leaflet/dist/leaflet.css');
+    const initMap = async () => {
+      // Ensure Leaflet is loaded (from global window or dynamic import)
+      let L: any = (window as any).L;
+      if (!L) {
+        try {
+          const leafletModule = await import('leaflet');
+          L = leafletModule.default || leafletModule;
+        } catch (err) {
+          console.warn('Leaflet dynamic import error:', err);
+        }
+      }
 
-      if (!isMounted || !mapContainerRef.current) return;
+      if (!L) {
+        // Fallback: wait a bit for script tag in layout.jsx to hydrate
+        let attempts = 0;
+        while (!L && attempts < 10) {
+          await new Promise(r => setTimeout(r, 150));
+          L = (window as any).L;
+          attempts++;
+        }
+      }
+
+      if (!isMounted || !mapContainerRef.current || !L) return;
 
       if (leafletMapRef.current) {
-        leafletMapRef.current.remove();
+        try {
+          leafletMapRef.current.remove();
+        } catch (e) {}
         leafletMapRef.current = null;
       }
 
-      const startLat = pinnedCoords.lat || 12.9815;
-      const startLng = pinnedCoords.lng || 80.2180;
+      const startLat = pinnedCoords?.lat || 12.9854;
+      const startLng = pinnedCoords?.lng || 79.1821;
 
-      const map = L.map(mapContainerRef.current, {
-        center: [startLat, startLng],
-        zoom: 14,
-        zoomControl: true
-      });
-
-      // Google Maps Road Layer matching Image 1
-      L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-        attribution: 'Leaflet | &copy; Google Maps',
-        maxZoom: 20
-      }).addTo(map);
-
-      // Custom Google-Pin Marker
-      const customPinIcon = L.divIcon({
-        className: 'google-map-pin-marker',
-        html: `
-          <div class="custom-pin-wrap">
-            <svg viewBox="0 0 24 24" width="38" height="38" fill="#ea4335">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-            </svg>
-            <div class="pin-shadow"></div>
-          </div>
-        `,
-        iconSize: [38, 38],
-        iconAnchor: [19, 36]
-      });
-
-      const marker = L.marker([startLat, startLng], {
-        draggable: true,
-        icon: customPinIcon
-      }).addTo(map);
-
-      const updateLocationFromLatLng = async (lat: number, lng: number) => {
-        setPinnedCoords({ lat, lng });
-
-        // Fast local proximity match
-        let closest: any = null;
-        let minD = 9999;
-        POPULAR_HUBS.forEach((hub) => {
-          const d = Math.hypot(hub.lat - lat, hub.lng - lng);
-          if (d < minD) {
-            minD = d;
-            closest = hub;
-          }
+      try {
+        const map = L.map(mapContainerRef.current, {
+          center: [startLat, startLng],
+          zoom: 15,
+          zoomControl: true,
+          attributionControl: false
         });
 
-        if (closest && minD < 0.05) {
-          setPinnedAddress(closest.address);
-        } else {
-          setPinnedAddress(`Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`);
-        }
+        // Google Maps Standard Road Tile Layer
+        L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+          attribution: 'Map data &copy; Google Maps',
+          maxZoom: 20
+        }).addTo(map);
 
-        // Live reverse geocode query
-        try {
-          const revRes = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
-          );
-          if (revRes.ok) {
-            const revData = await revRes.json();
-            if (revData && revData.display_name) {
-              setPinnedAddress(revData.display_name);
+        // Custom Google Pin Marker Icon matching screenshot
+        const customPinIcon = L.divIcon({
+          className: 'google-map-pin-marker',
+          html: `
+            <div style="position: relative; display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -100%);">
+              <div style="
+                background: #ea4335;
+                color: #ffffff;
+                width: 36px;
+                height: 36px;
+                border-radius: 50% 50% 50% 0;
+                transform: rotate(-45deg);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 14px rgba(234, 67, 53, 0.45);
+                border: 2px solid #ffffff;
+              ">
+                <div style="
+                  width: 12px;
+                  height: 12px;
+                  background: #ffffff;
+                  border-radius: 50%;
+                  transform: rotate(45deg);
+                "></div>
+              </div>
+              <div style="
+                width: 14px;
+                height: 4px;
+                background: rgba(0,0,0,0.3);
+                border-radius: 50%;
+                filter: blur(1.5px);
+                margin-top: 2px;
+              "></div>
+            </div>
+          `,
+          iconSize: [36, 46],
+          iconAnchor: [18, 46]
+        });
+
+        const marker = L.marker([startLat, startLng], {
+          draggable: true,
+          icon: customPinIcon
+        }).addTo(map);
+
+        const updateLocationFromLatLng = async (lat: number, lng: number) => {
+          setPinnedCoords({ lat, lng });
+
+          // Fast local proximity match
+          let closest: any = null;
+          let minD = 9999;
+          POPULAR_HUBS.forEach((hub) => {
+            const d = Math.hypot(hub.lat - lat, hub.lng - lng);
+            if (d < minD) {
+              minD = d;
+              closest = hub;
             }
+          });
+
+          if (closest && minD < 0.05) {
+            setPinnedAddress(closest.address);
+          } else {
+            setPinnedAddress(`Selected Location (Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)})`);
           }
-        } catch (e) { }
-      };
 
-      // Marker drag event
-      marker.on('dragend', (e: any) => {
-        const { lat, lng } = e.target.getLatLng();
-        updateLocationFromLatLng(lat, lng);
-      });
+          // Live reverse geocoding via OpenStreetMap Nominatim
+          try {
+            const revRes = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
+            );
+            if (revRes.ok) {
+              const revData = await revRes.json();
+              if (revData && revData.display_name) {
+                setPinnedAddress(revData.display_name);
+              }
+            }
+          } catch (e) {}
+        };
 
-      // Map click event
-      map.on('click', (e: any) => {
-        const { lat, lng } = e.latlng;
-        marker.setLatLng([lat, lng]);
-        updateLocationFromLatLng(lat, lng);
-      });
+        // Marker drag event
+        marker.on('dragend', (e: any) => {
+          const { lat, lng } = e.target.getLatLng();
+          updateLocationFromLatLng(lat, lng);
+        });
 
-      markerRef.current = marker;
-      leafletMapRef.current = map;
-    }, 120);
+        // Map click event
+        map.on('click', (e: any) => {
+          const { lat, lng } = e.latlng;
+          marker.setLatLng([lat, lng]);
+          updateLocationFromLatLng(lat, lng);
+        });
+
+        markerRef.current = marker;
+        leafletMapRef.current = map;
+        setIsMapReady(true);
+
+        // Map invalidateSize after animation/modal display
+        setTimeout(() => {
+          if (map) {
+            map.invalidateSize();
+          }
+        }, 150);
+        setTimeout(() => {
+          if (map) {
+            map.invalidateSize();
+          }
+        }, 400);
+
+      } catch (err) {
+        console.error('Error creating Leaflet map:', err);
+      }
+    };
+
+    const timer = setTimeout(initMap, 80);
 
     return () => {
       isMounted = false;
       clearTimeout(timer);
+      if (leafletMapRef.current) {
+        try {
+          leafletMapRef.current.remove();
+        } catch (e) {}
+        leafletMapRef.current = null;
+      }
     };
   }, [isOpen]);
 
@@ -212,7 +315,7 @@ export default function GoogleMapPickerModal({
       setPinnedCoords({ lat: local.lat, lng: local.lng });
       setPinnedAddress(local.address);
       if (leafletMapRef.current && markerRef.current) {
-        leafletMapRef.current.flyTo([local.lat, local.lng], 15);
+        leafletMapRef.current.flyTo([local.lat, local.lng], 16, { animate: true });
         markerRef.current.setLatLng([local.lat, local.lng]);
       }
       return;
@@ -228,12 +331,12 @@ export default function GoogleMapPickerModal({
           setPinnedCoords({ lat, lng });
           setPinnedAddress(data[0].display_name);
           if (leafletMapRef.current && markerRef.current) {
-            leafletMapRef.current.flyTo([lat, lng], 15);
+            leafletMapRef.current.flyTo([lat, lng], 16, { animate: true });
             markerRef.current.setLatLng([lat, lng]);
           }
         }
       }
-    } catch (e) { }
+    } catch (e) {}
   };
 
   const handleConfirmLocation = () => {
@@ -244,51 +347,179 @@ export default function GoogleMapPickerModal({
   if (!isOpen) return null;
 
   return (
-    <div className="map-modal-overlay" onClick={onClose}>
-      <div className="map-modal-card" onClick={(e) => e.stopPropagation()}>
-        {/* Modal Header matching Image 1 */}
-        <div className="map-modal-top-bar">
-          <div className="map-modal-title-group">
-            <div className="map-title-pin-icon">
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 99999,
+        backgroundColor: 'rgba(15, 23, 42, 0.65)',
+        backdropFilter: 'blur(4px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px'
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '780px',
+          backgroundColor: '#ffffff',
+          borderRadius: '16px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header matching user reference image */}
+        <div
+          style={{
+            padding: '16px 20px',
+            backgroundColor: '#ffffff',
+            borderBottom: '1px solid #f1f5f9',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                backgroundColor: '#fee2e2',
+                border: '1px solid #fecaca',
+                color: '#ea4335',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '18px'
+              }}
+            >
               <i className="fa-solid fa-map-location-dot"></i>
             </div>
             <div>
-              <h4 className="map-modal-heading">Select on Google Maps</h4>
-              <p className="map-modal-caption">Click anywhere on the map or drag the pin to set the exact hub location</p>
+              <h4 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, color: '#0f172a' }}>
+                Select on Google Maps
+              </h4>
+              <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#64748b' }}>
+                Click anywhere on the map or drag the pin to set the exact hub location
+              </p>
             </div>
           </div>
+
           <button
             type="button"
-            className="map-modal-close-btn"
             onClick={onClose}
             aria-label="Close"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              fontSize: '18px',
+              color: '#94a3b8',
+              cursor: 'pointer',
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
           >
             <i className="fa-solid fa-xmark"></i>
           </button>
         </div>
 
-        {/* Search & Live GPS Bar inside Map matching Image 1 */}
-        <div className="map-toolbar-row">
-          <form onSubmit={handleMapSearchSubmit} className="map-inner-search-form">
-            <i className="fa-solid fa-magnifying-glass search-icon"></i>
+        {/* Search & Live GPS Bar inside Map matching user image */}
+        <div
+          style={{
+            padding: '10px 18px',
+            backgroundColor: '#ffffff',
+            borderBottom: '1px solid #f1f5f9',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px'
+          }}
+        >
+          <form
+            onSubmit={handleMapSearchSubmit}
+            style={{
+              flex: 1,
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            <i
+              className="fa-solid fa-magnifying-glass"
+              style={{
+                position: 'absolute',
+                left: '12px',
+                fontSize: '13px',
+                color: '#94a3b8',
+                pointerEvents: 'none'
+              }}
+            ></i>
             <input
               type="text"
               placeholder="Search city, area or landmark..."
               value={mapSearchText}
               onChange={(e) => setMapSearchText(e.target.value)}
-              className="map-inner-search-input"
+              style={{
+                width: '100%',
+                height: '38px',
+                padding: '0 80px 0 34px',
+                border: '1px solid #cbd5e1',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: 500,
+                color: '#0f172a',
+                outline: 'none'
+              }}
             />
-            <button type="submit" className="map-inner-search-btn">
+            <button
+              type="submit"
+              style={{
+                position: 'absolute',
+                right: '4px',
+                padding: '6px 14px',
+                backgroundColor: '#2563eb',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
               Search
             </button>
           </form>
 
           <button
             type="button"
-            className="map-live-gps-btn"
             onClick={handleUseLiveLocation}
             disabled={isLocatingGps}
             title="Use Live GPS Location"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 14px',
+              backgroundColor: '#ecfdf5',
+              border: '1px solid #a7f3d0',
+              color: '#047857',
+              borderRadius: '8px',
+              fontSize: '12.5px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap'
+            }}
           >
             {isLocatingGps ? (
               <>
@@ -302,31 +533,98 @@ export default function GoogleMapPickerModal({
           </button>
         </div>
 
-        {/* Leaflet Map Canvas */}
-        <div className="map-canvas-container" ref={mapContainerRef}></div>
+        {/* Leaflet Map Canvas Container with Explicit Dimensions & Fallback */}
+        <div style={{ position: 'relative', width: '100%', height: '390px', backgroundColor: '#e2e8f0' }}>
+          <div
+            ref={mapContainerRef}
+            style={{
+              width: '100%',
+              height: '100%',
+              zIndex: 10
+            }}
+          />
 
-        {/* Selected Address Display & Confirmation Footer matching Image 1 */}
-        <div className="map-modal-footer">
-          <div className="map-selected-preview">
-            <i className="fa-solid fa-location-dot map-preview-pin"></i>
-            <div className="map-preview-text-col">
-              <span className="map-preview-label">Selected Pickup Address:</span>
-              <span className="map-preview-address">{pinnedAddress}</span>
+          {/* Quick Hub Badges Overlay at Top Left of Map */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '12px',
+              right: '12px',
+              zIndex: 500,
+              display: 'flex',
+              gap: '6px',
+              background: 'rgba(255, 255, 255, 0.92)',
+              padding: '4px 8px',
+              borderRadius: '8px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              fontSize: '11px',
+              fontWeight: 700,
+              color: '#0f172a'
+            }}
+          >
+            <span style={{ color: '#16a34a' }}>● GPS Connected</span>
+          </div>
+        </div>
+
+        {/* Selected Address Display & Confirmation Footer matching user image */}
+        <div
+          style={{
+            padding: '14px 20px',
+            backgroundColor: '#ffffff',
+            borderTop: '1px solid #f1f5f9',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '16px',
+            flexWrap: 'wrap'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: '240px' }}>
+            <i className="fa-solid fa-location-dot" style={{ color: '#ea4335', fontSize: '17px' }}></i>
+            <div>
+              <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#64748b', display: 'block' }}>
+                SELECTED {targetLabel ? targetLabel.toUpperCase() : 'PICKUP'} ADDRESS:
+              </span>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', wordBreak: 'break-word' }}>
+                {pinnedAddress}
+              </span>
             </div>
           </div>
 
-          <div className="map-footer-btn-strip">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <button
               type="button"
-              className="map-cancel-btn"
               onClick={onClose}
+              style={{
+                padding: '9px 18px',
+                borderRadius: '8px',
+                border: '1.5px solid #cbd5e1',
+                backgroundColor: '#ffffff',
+                color: '#334155',
+                fontSize: '13px',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
             >
               Cancel
             </button>
             <button
               type="button"
-              className="map-confirm-btn"
               onClick={handleConfirmLocation}
+              style={{
+                padding: '9px 20px',
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: '#2563eb',
+                color: '#ffffff',
+                fontSize: '13px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)'
+              }}
             >
               <i className="fa-solid fa-check"></i> Confirm Location
             </button>

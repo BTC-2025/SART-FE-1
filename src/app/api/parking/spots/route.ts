@@ -135,3 +135,37 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, message: err.message }, { status: 500, headers: corsHeaders });
   }
 }
+
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, isAvailable, bookingDetails } = body;
+    const current = readSpots();
+
+    const isAvail = isAvailable !== undefined ? Boolean(isAvailable) : !Boolean(bookingDetails);
+
+    const updated = current.map(s => {
+      if (s.id === id) {
+        return {
+          ...s,
+          isAvailable: isAvail,
+          bookingDetails: bookingDetails || (isAvail ? null : s.bookingDetails),
+          activeBooking: bookingDetails || (isAvail ? null : s.activeBooking),
+          bookingStatus: isAvail ? 'AVAILABLE' : 'ALREADY_BOOKED',
+          updatedAt: new Date().toISOString()
+        };
+      }
+      return s;
+    });
+
+    writeSpots(updated);
+
+    return NextResponse.json({
+      success: true,
+      message: 'Parking spot booking status updated',
+      spots: updated
+    }, { headers: corsHeaders });
+  } catch (err: any) {
+    return NextResponse.json({ success: false, message: err.message }, { status: 500, headers: corsHeaders });
+  }
+}

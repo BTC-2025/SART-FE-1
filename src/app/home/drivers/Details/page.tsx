@@ -1081,7 +1081,116 @@ function DriverBookingDetailsContent() {
 
                       <button
                         type="button"
-                        onClick={() => setIsBookingConfirmed(true)}
+                        onClick={async () => {
+                          setIsBookingConfirmed(true);
+
+                          // Prepare booking payload for the driver
+                          const bookingInfo = {
+                            bookingId: `BK-DRV-${Date.now().toString().slice(-6)}`,
+                            bookingRef: `DRV-REF-${Date.now().toString().slice(-6)}`,
+                            otp: '4829',
+                            bookedAt: new Date().toISOString(),
+                            reportingDate: reportingDate,
+                            reportingTime: reportingTime,
+                            serviceType: serviceType,
+                            vehicleType: selectedVehicleType,
+                            requiredHours: requiredHours,
+                            foodProvided: foodProvided,
+                            distanceEstimate: distanceEstimate,
+                            pickupLocation: pickupLocation,
+                            dropLocation: dropLocation,
+                            customerName: fullName,
+                            customerPhone: mobilePhone,
+                            customerEmail: customerEmail,
+                            paymentMethod: paymentMethod,
+                            totalFare: totalFare,
+                            status: 'Actively Booked'
+                          };
+
+                          const driverId = driver?.id || searchParams?.get('driverId') || 'DRV-1795524256075';
+
+                          // Update driver availability to false (On Trip) and persist booking details
+                          try {
+                            // Update localStorage
+                            const stored = localStorage.getItem('sart_fleet_drivers');
+                            if (stored) {
+                              const list = JSON.parse(stored);
+                              const updated = list.map((d: any) =>
+                                d.id === driverId
+                                  ? { ...d, isAvailable: false, status: 'On Trip', bookingDetails: bookingInfo }
+                                  : d
+                              );
+                              localStorage.setItem('sart_fleet_drivers', JSON.stringify(updated));
+                            }
+
+                            // Save driver booking in local driver bookings map
+                            localStorage.setItem(`driver_booking_${driverId}`, JSON.stringify(bookingInfo));
+
+                            // Add to business bookings for notification
+                            const notifPayload = {
+                              id: bookingInfo.bookingId,
+                              type: 'driver_booking',
+                              badge: 'New Driver Booking',
+                              title: `${fullName} booked Captain: ${driver?.name || 'Driver'}`,
+                              customerName: fullName,
+                              customerPhone: mobilePhone,
+                              category: 'Chauffeur / Driver',
+                              vehicleName: driver?.name ? `Captain: ${driver.name}` : 'Fleet Captain',
+                              vehiclePlate: driver?.dlNumber || driver?.plate || '',
+                              reportingDate: reportingDate,
+                              reportingTime: reportingTime,
+                              date: reportingDate,
+                              time: reportingTime,
+                              pickupLocation: pickupLocation,
+                              dropLocation: dropLocation,
+                              serviceType: serviceType,
+                              vehicleType: selectedVehicleType,
+                              totalFare: totalFare,
+                              read: false,
+                              createdAt: new Date().toISOString()
+                            };
+
+                            try {
+                              const existingBiz = JSON.parse(localStorage.getItem('sart_business_bookings') || '[]');
+                              localStorage.setItem('sart_business_bookings', JSON.stringify([notifPayload, ...existingBiz]));
+                              window.dispatchEvent(new Event('storage'));
+                            } catch (e) { }
+
+                            // Call Driver Backend API and Business Notification API on port 3005 and 5000
+                            await Promise.allSettled([
+                              fetch(`http://localhost:3005/api/drivers/${encodeURIComponent(driverId)}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  isAvailable: false,
+                                  status: 'On Trip',
+                                  bookingDetails: bookingInfo
+                                })
+                              }),
+                              fetch(`http://localhost:5000/api/drivers/${encodeURIComponent(driverId)}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  isAvailable: false,
+                                  status: 'On Trip',
+                                  bookingDetails: bookingInfo
+                                })
+                              }),
+                              fetch('http://localhost:3005/api/business/notifications', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(notifPayload)
+                              }),
+                              fetch('http://localhost:5000/api/business/notifications', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(notifPayload)
+                              })
+                            ]);
+                          } catch (err) {
+                            console.error('Error syncing driver booking:', err);
+                          }
+                        }}
                         style={{
                           flex: 2,
                           padding: '12px',
@@ -1158,6 +1267,7 @@ function DriverBookingDetailsContent() {
             <GoogleMapPickerModal
               isOpen={Boolean(activeMapTarget)}
               onClose={() => setActiveMapTarget(null)}
+              targetLabel={activeMapTarget === 'pickup' ? 'Pickup' : 'Drop / Destination'}
               initialAddress={activeMapTarget === 'pickup' ? pickupLocation : dropLocation}
               onConfirm={(addr) => {
                 if (activeMapTarget === 'pickup') setPickupLocation(addr);

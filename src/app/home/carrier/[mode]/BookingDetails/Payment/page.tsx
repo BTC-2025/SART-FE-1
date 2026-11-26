@@ -50,7 +50,7 @@ function CarrierPaymentContent() {
 
   const handlePayAdvance = async () => {
     setIsProcessing(true);
-    
+
     // Construct rich booking data payload for carrier owner dashboard
     const bookingPayload = {
       id: bookingId,
@@ -92,11 +92,16 @@ function CarrierPaymentContent() {
 
     // 1. Try persisting to backend database
     try {
-      await fetch('http://localhost:3005/api/carriers/bookings', {
+      await fetch('http://localhost:5000/api/carriers/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bookingPayload)
       });
+      await fetch('http://localhost:3005/api/carriers/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingPayload)
+      }).catch(() => null);
     } catch (e) {
       console.warn('Backend offline, caching booking locally:', e);
     }
@@ -107,6 +112,18 @@ function CarrierPaymentContent() {
       const existingList = existingStr ? JSON.parse(existingStr) : [];
       const updatedList = [bookingPayload, ...existingList.filter((b: any) => b.id !== bookingId)];
       localStorage.setItem('sart_carrier_bookings', JSON.stringify(updatedList));
+
+      // Mark vehicle as On Trip / Unavailable in localStorage
+      const bookedVehId = bookingPayload.vehicleId;
+      const localFleet = JSON.parse(localStorage.getItem('logi_pulse_vehicles') || '[]');
+      const updatedFleet = localFleet.map((v: any) => {
+        if (v.id === bookedVehId || v.plate === vehicleReg || v.name === vehicleName) {
+          return { ...v, isAvailable: false, status: 'On Trip' };
+        }
+        return v;
+      });
+      localStorage.setItem('logi_pulse_vehicles', JSON.stringify(updatedFleet));
+
       window.dispatchEvent(new Event('storage'));
     } catch (e) { }
 
@@ -473,10 +490,16 @@ function CarrierPaymentContent() {
               <div style={{ fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px', color: '#475569' }}>
                 <div><strong>Vehicle:</strong> {vehicleName}</div>
                 <div><strong>Reg ID:</strong> {vehicleReg}</div>
-                <div><strong>Sender:</strong> {bookingSummary?.senderName || 'Tata Steel Logistics Ltd.'} ({bookingSummary?.senderGstin || 'No GST'})</div>
-                <div><strong>Receiver:</strong> {bookingSummary?.receiverName || 'Bengaluru Industrial Steel Hub'}</div>
-                <div><strong>Cargo:</strong> {goodsDescription}</div>
+                <div><strong>Sender:</strong> {bookingSummary?.senderName || ''} ({bookingSummary?.senderGstin || ''})</div>
+                <div><strong>Receiver:</strong> {bookingSummary?.receiverName || ''}</div>
+                <div><strong>Cargo:</strong> {goodsDescription || ''}</div>
                 <div><strong>Weight:</strong> {cargoWeight}</div>
+                {Boolean(bookingSummary?.pickupAddress || pickup) && (
+                  <div><strong>Pickup Address:</strong> {bookingSummary?.pickupAddress || pickup}</div>
+                )}
+                {Boolean(bookingSummary?.deliveryAddress || delivery) && (
+                  <div><strong>Delivery Address:</strong> {bookingSummary?.deliveryAddress || delivery}</div>
+                )}
               </div>
 
               <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>

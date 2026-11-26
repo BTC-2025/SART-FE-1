@@ -69,8 +69,26 @@ export async function PATCH(
 ) {
   try {
     const resolved = await params;
+    let body: any = {};
+    try {
+      body = await request.json();
+    } catch (e) { }
+
     const current = readFleet();
-    const updated = current.map(v => v.id === resolved.id ? { ...v, isAvailable: !v.isAvailable } : v);
+    const updated = current.map(v => {
+      if (v.id === resolved.id || v.plate === resolved.id || v.regId === resolved.id) {
+        const nextAvailable = typeof body?.isAvailable === 'boolean'
+          ? body.isAvailable
+          : !v.isAvailable;
+        return {
+          ...v,
+          ...body,
+          isAvailable: nextAvailable,
+          status: nextAvailable ? 'Available' : (body?.status || 'On Trip')
+        };
+      }
+      return v;
+    });
     writeFleet(updated);
     return NextResponse.json({ success: true, vehicles: updated }, { headers: corsHeaders });
   } catch (err: any) {

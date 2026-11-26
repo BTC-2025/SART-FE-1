@@ -7,6 +7,7 @@ import './SubNavbar.css';
 import CustomizeDockModal, {
   ALL_SERVICES_SHORTCUTS,
   DEFAULT_SELECTED_SHORTCUT_IDS,
+  PERMANENT_SHORTCUT_IDS,
   ShortcutItem
 } from './CustomizeDockModal';
 import UserAuthModal from './UserAuthModal';
@@ -64,7 +65,7 @@ export default function SubNavbar() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [pendingTargetUrl, setPendingTargetUrl] = useState<string | null>(null);
 
-  // Default: only Bike appears initially (matching user image)
+  // Default: Bike, Truck, Parkings permanent defaults (matching user image)
   const [selectedShortcutIds, setSelectedShortcutIds] = useState<string[]>(DEFAULT_SELECTED_SHORTCUT_IDS);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -75,9 +76,13 @@ export default function SubNavbar() {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setSelectedShortcutIds(parsed.slice(0, 4));
+          // Always ensure the 3 permanent shortcuts exist at the start
+          const customOnly = parsed.filter((id: string) => !PERMANENT_SHORTCUT_IDS.includes(id)).slice(0, 2);
+          setSelectedShortcutIds([...PERMANENT_SHORTCUT_IDS, ...customOnly]);
+          return;
         }
       }
+      setSelectedShortcutIds(DEFAULT_SELECTED_SHORTCUT_IDS);
     } catch (e) { }
   }, []);
 
@@ -95,11 +100,13 @@ export default function SubNavbar() {
   }, []);
 
   const handleSaveShortcuts = (newIds: string[]) => {
-    const limited = newIds.slice(0, 4);
-    setSelectedShortcutIds(limited);
+    // Ensure permanent 3 are never removed, plus up to 2 custom choices
+    const customOnly = newIds.filter(id => !PERMANENT_SHORTCUT_IDS.includes(id)).slice(0, 2);
+    const combined = [...PERMANENT_SHORTCUT_IDS, ...customOnly];
+    setSelectedShortcutIds(combined);
     if (typeof window !== 'undefined') {
       try {
-        localStorage.setItem('sart_subnav_shortcut_ids', JSON.stringify(limited));
+        localStorage.setItem('sart_subnav_shortcut_ids', JSON.stringify(combined));
       } catch (e) { }
     }
   };
@@ -298,13 +305,13 @@ export default function SubNavbar() {
         </div>
       </nav>
 
-      {/* Customize Shortcuts Modal (Image 2 UI: max 4 selectable) */}
+      {/* Customize Shortcuts Modal: Bike, Truck, Parkings permanent defaults + max 2 custom additions */}
       <CustomizeDockModal
         isOpen={isDockModalOpen}
         onClose={() => setIsDockModalOpen(false)}
         selectedIds={selectedShortcutIds}
         onSave={handleSaveShortcuts}
-        maxSelections={4}
+        maxCustomAdditions={2}
       />
 
       {/* User Login Modal: ensures only logged-in users can enter */}

@@ -245,10 +245,11 @@
   background: #ffffff;
   border: 1.5px solid #e2e8f0;
   border-radius: 18px;
-  padding: 18px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 2px;
+  height: 500px;
 }
 
 /* Header Info */
