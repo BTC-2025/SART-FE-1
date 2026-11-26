@@ -105,9 +105,11 @@ export default function ParkingSearchPage() {
   const [selectedSpot, setSelectedSpot] = useState<ParkingSpotItem | null>(null);
   const [bookingSuccessModal, setBookingSuccessModal] = useState<boolean>(false);
 
-  // Fetch Spots strictly from backend API (if backend is stopped, no spots show)
-  const loadSpots = async (queryState?: string, queryCity?: string) => {
-    setIsLoadingSpots(true);
+  // Fetch Spots strictly from backend API with silent background refresh support
+  const loadSpots = async (queryState?: string, queryCity?: string, isBackground = false) => {
+    if (!isBackground) {
+      setIsLoadingSpots(true);
+    }
     let loaded: ParkingSpotItem[] = [];
 
     // Strictly fetch from Backend Express API (port 5000)
@@ -167,19 +169,30 @@ export default function ParkingSearchPage() {
     }
 
     setSpots(loaded);
-    setIsLoadingSpots(false);
+    if (!isBackground) {
+      setIsLoadingSpots(false);
+    }
   };
 
+  // Keep references to current resolved state/city for background timer without causing useEffect loops
+  const resolvedStateRef = useRef(resolvedState);
+  const resolvedCityRef = useRef(resolvedCity);
   useEffect(() => {
-    loadSpots();
+    resolvedStateRef.current = resolvedState;
+    resolvedCityRef.current = resolvedCity;
+  }, [resolvedState, resolvedCity]);
 
-    // Auto-refresh every 3 seconds so deletions or additions from owner immediately update in real-time
+  useEffect(() => {
+    // Initial fetch: show loader only if spots have not loaded yet
+    loadSpots(undefined, undefined, false);
+
+    // Silent background auto-refresh every 4 seconds without re-triggering spinner or layout jumps
     const interval = setInterval(() => {
-      loadSpots();
-    }, 3000);
+      loadSpots(resolvedStateRef.current, resolvedCityRef.current, true);
+    }, 4000);
 
-    // Also listen to window focus so when tab switches back, it re-fetches immediately
-    const onFocus = () => loadSpots();
+    // Silent background refresh on tab focus
+    const onFocus = () => loadSpots(resolvedStateRef.current, resolvedCityRef.current, true);
     window.addEventListener('focus', onFocus);
 
     return () => {
@@ -360,7 +373,7 @@ export default function ParkingSearchPage() {
           {/* Header Title & Subtitle */}
           <div style={{ marginBottom: '24px', textAlign: 'left' }}>
             <h1 style={{ fontSize: '26px', fontWeight: 900, color: '#0f172a', margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ color: '#2563eb' }}><MapPin size={28} /></span> Smart Parking & Yard Reservation
+              <span style={{ color: '#2563eb' }}></span> Smart Parking & Yard Reservation
             </h1>
             <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>
               Select your vehicle type, date, time and location. Turn on live location to discover verified parking yards in your state, sorted nearest to you.
@@ -679,15 +692,16 @@ export default function ParkingSearchPage() {
             )}
           </div>
 
-          {/* Parking Spots Grid */}
-          {isLoadingSpots ? (
-            <div style={{ padding: '60px 0', textAlign: 'center', color: '#64748b' }}>
-              <div className="animate-spin" style={{ display: 'inline-block', marginBottom: '12px' }}>
-                <Clock3 size={32} color="#2563eb" />
+          {/* Parking Spots Grid Container with minimum height to anchor footer & prevent jumping */}
+          <div style={{ minHeight: '450px', width: '100%' }}>
+            {isLoadingSpots && spots.length === 0 ? (
+              <div style={{ padding: '80px 0', textAlign: 'center', color: '#64748b' }}>
+                <div className="animate-spin" style={{ display: 'inline-block', marginBottom: '12px' }}>
+                  <Clock3 size={32} color="#2563eb" />
+                </div>
+                <p style={{ fontWeight: 600 }}>Loading verified parking yards...</p>
               </div>
-              <p style={{ fontWeight: 600 }}>Loading verified parking yards...</p>
-            </div>
-          ) : filteredAndSortedSpots.length === 0 ? (
+            ) : filteredAndSortedSpots.length === 0 ? (
             <div
               style={{
                 backgroundColor: '#ffffff',
@@ -1090,6 +1104,7 @@ export default function ParkingSearchPage() {
               })}
             </div>
           )}
+          </div>
 
         </div>
       </main>
@@ -1203,7 +1218,82 @@ export default function ParkingSearchPage() {
               </button>
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
+                  const bookingInfo = {
+                    bookingId: `BK-PRK-${Date.now().toString().slice(-6)}`,
+                    spotId: selectedSpot.id,
+                    spotName: selectedSpot.name,
+                    customerName: 'Rajesh Kumar',
+                    customerPhone: '+91 98765 43210',
+                    vehicleNumber: 'DL 3C AB 2324',
+                    vehicleModel: vehicleType === 'bike' ? 'Motorcycle' : vehicleType === 'truck' ? 'Commercial Truck' : 'Car / Sedan',
+                    bayCode: 'Bay C-14',
+                    bookingDate: selectedDate,
+                    startTime: selectedTime,
+                    endTime: '06:00 PM',
+                    durationHours: durationHours,
+                    totalAmount: selectedSpot.hourlyRate * durationHours,
+                    otp: '8291',
+                    status: 'Occupied / Booked',
+                    bookedAt: new Date().toISOString()
+                  };
+
+                  const notifPayload = {
+                    id: bookingInfo.bookingId,
+                    type: 'parking_booking',
+                    badge: 'New Parking Reservation',
+                    title: `Rajesh Kumar reserved Bay C-14 at ${selectedSpot.name}`,
+                    customerName: 'Rajesh Kumar',
+                    customerPhone: '+91 98765 43210',
+                    vehicleNumber: 'DL 3C AB 2324',
+                    vehicleModel: vehicleType === 'bike' ? 'Motorcycle' : vehicleType === 'truck' ? 'Commercial Truck' : 'Car / Sedan',
+                    category: 'Parking Slot',
+                    vehicleName: selectedSpot.name,
+                    spotId: selectedSpot.id,
+                    bayCode: 'Bay C-14',
+                    startTime: selectedTime,
+                    endTime: '06:00 PM',
+                    date: selectedDate,
+                    time: `${selectedTime} (${durationHours} hrs)`,
+                    totalAmount: selectedSpot.hourlyRate * durationHours,
+                    read: false,
+                    createdAt: new Date().toISOString()
+                  };
+
+                  try {
+                    localStorage.setItem(`parking_booking_${selectedSpot.id}`, JSON.stringify(bookingInfo));
+                    localStorage.setItem('sart_latest_parking_booking', JSON.stringify(bookingInfo));
+
+                    const existingBiz = JSON.parse(localStorage.getItem('sart_business_bookings') || '[]');
+                    localStorage.setItem('sart_business_bookings', JSON.stringify([notifPayload, ...existingBiz]));
+                    window.dispatchEvent(new Event('storage'));
+
+                    await Promise.allSettled([
+                      fetch(`http://localhost:5000/api/parking/spots/${encodeURIComponent(selectedSpot.id)}/booking`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ isAvailable: false, bookingDetails: bookingInfo })
+                      }),
+                      fetch(`http://localhost:3005/api/parking/spots`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: selectedSpot.id, isAvailable: false, bookingDetails: bookingInfo })
+                      }),
+                      fetch('http://localhost:5000/api/business/notifications', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(notifPayload)
+                      }),
+                      fetch('http://localhost:3005/api/business/notifications', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(notifPayload)
+                      })
+                    ]);
+                  } catch (e) {
+                    console.error('Error dispatching parking reservation:', e);
+                  }
+
                   alert(`Reservation Confirmed for ${selectedSpot.name}! OTP: 8291. Direct gate navigation enabled.`);
                   setBookingSuccessModal(false);
                 }}

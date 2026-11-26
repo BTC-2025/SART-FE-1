@@ -26,6 +26,7 @@ function BookingDeliveryDetailsContent() {
   // Form State
   const [deliveryAddress, setDeliveryAddress] = useState(pickupParam || 'Katpadi');
   const [fullName, setFullName] = useState('');
+  const [age, setAge] = useState('26');
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [email, setEmail] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -258,7 +259,8 @@ function BookingDeliveryDetailsContent() {
       deliveryType,
       deliveryFee: String(deliveryCharges),
       name: fullName,
-      phone: whatsappNumber,
+      age: age || '26',
+      phone: whatsappNumber ? `+91 ${whatsappNumber}` : '',
       email,
       duration: durationLabel,
       totalFare: String(totalFare),
@@ -549,7 +551,11 @@ function BookingDeliveryDetailsContent() {
                   <input
                     type="tel"
                     value={whatsappNumber}
-                    onChange={(e) => setWhatsappNumber(e.target.value)}
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                      setWhatsappNumber(digits);
+                    }}
+                    maxLength={10}
                     placeholder="Mobile number"
                     style={{
                       border: 'none',
@@ -585,28 +591,61 @@ function BookingDeliveryDetailsContent() {
             </div>
           </div>
 
-          {/* 3. EMAIL */}
-          <div>
-            <label style={{ fontSize: '11px', fontWeight: 800, color: '#475569', letterSpacing: '0.4px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
-              EMAIL
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="fullname@email.com"
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                borderRadius: '10px',
-                border: '1.5px solid #e2e8f0',
-                background: '#fafaf9',
-                fontSize: '13.5px',
-                color: '#0f172a',
-                outline: 'none',
-                boxSizing: 'border-box'
-              }}
-            />
+          {/* 3. AGE & EMAIL (Age before Email with reduced Email width) */}
+          <div style={{ display: 'grid', gridTemplateColumns: '130px 1fr', gap: '16px' }}>
+            <div>
+              <label style={{ fontSize: '11px', fontWeight: 800, color: '#475569', letterSpacing: '0.4px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+                AGE
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="number"
+                  value={age}
+                  min={18}
+                  max={99}
+                  onChange={(e) => setAge(e.target.value)}
+                  placeholder="26"
+                  style={{
+                    width: '100%',
+                    padding: '12px 32px 12px 14px',
+                    borderRadius: '10px',
+                    border: '1.5px solid #e2e8f0',
+                    background: '#fafaf9',
+                    fontSize: '13.5px',
+                    fontWeight: 600,
+                    color: '#0f172a',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                <span style={{ position: 'absolute', right: '10px', top: '13px', fontSize: '11px', color: '#64748b', fontWeight: 600, pointerEvents: 'none' }}>
+                  yrs
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <label style={{ fontSize: '11px', fontWeight: 800, color: '#475569', letterSpacing: '0.4px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+                EMAIL
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="fullname@email.com"
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  borderRadius: '10px',
+                  border: '1.5px solid #e2e8f0',
+                  background: '#fafaf9',
+                  fontSize: '13.5px',
+                  color: '#0f172a',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
           </div>
 
           {/* 4. LOCATION & PICKUP ADDRESS SELECTOR */}

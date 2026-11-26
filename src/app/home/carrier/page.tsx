@@ -266,12 +266,23 @@ function CarrierContent() {
         },
         image: v.image || (v.images && v.images[0]) || defaultImg,
         mode,
-        isAvailable: v.isAvailable !== false
+        isAvailable: v.isAvailable === true || v.isAvailable === 1 || v.status === 'Available'
       };
     };
 
     const loadOwnerFleet = async () => {
-      // Strictly fetch carrier fleet only from Backend API
+      // 1. First check localStorage for immediate sync
+      try {
+        const local = localStorage.getItem('logi_pulse_vehicles');
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setFleetVehicles(parsed.map(parseCarrier));
+          }
+        }
+      } catch (e) { }
+
+      // 2. Fetch fresh carrier fleet from API
       try {
         const res = await fetch('/api/carriers', { cache: 'no-store' });
         if (res.ok) {
@@ -285,8 +296,6 @@ function CarrierContent() {
           }
         }
       } catch (err) { }
-
-      setFleetVehicles([]);
     };
 
     loadOwnerFleet();
@@ -392,6 +401,10 @@ function CarrierContent() {
   const handleContinueBooking = () => {
     const veh = currentVehicles.find(v => v.id === selectedVehicleId) || currentVehicles[0];
     if (!veh) return;
+    if (veh.isAvailable === false) {
+      alert('This vehicle is currently on a trip and already booked. Please select an available vehicle or wait until the trip is completed.');
+      return;
+    }
 
     const modeCapitalized = veh.mode ? (veh.mode.charAt(0).toUpperCase() + veh.mode.slice(1).toLowerCase()) : 'Truck';
 
@@ -454,12 +467,12 @@ function CarrierContent() {
   const advanceDue = Math.round(tripPrice * 0.40); // 40% advance payment calculation
 
   // Count available units strictly from what owner added
-  const truckCount = fleetVehicles.filter(v => v.mode === 'truck').length;
-  const bikeCount = fleetVehicles.filter(v => v.mode === 'bike').length;
-  const trainCount = fleetVehicles.filter(v => v.mode === 'train').length;
-  const flightCount = fleetVehicles.filter(v => v.mode === 'flight').length;
-  const shipCount = fleetVehicles.filter(v => v.mode === 'ship').length;
-  const busCount = fleetVehicles.filter(v => v.mode === 'bus').length;
+  const truckCount = fleetVehicles.filter(v => v.mode === 'truck' && v.isAvailable !== false).length;
+  const bikeCount = fleetVehicles.filter(v => v.mode === 'bike' && v.isAvailable !== false).length;
+  const trainCount = fleetVehicles.filter(v => v.mode === 'train' && v.isAvailable !== false).length;
+  const flightCount = fleetVehicles.filter(v => v.mode === 'flight' && v.isAvailable !== false).length;
+  const shipCount = fleetVehicles.filter(v => v.mode === 'ship' && v.isAvailable !== false).length;
+  const busCount = fleetVehicles.filter(v => v.mode === 'bus' && v.isAvailable !== false).length;
 
   const modeTabs = [
     { id: 'truck', label: 'Truck', icon: 'fa-solid fa-truck', count: truckCount, available: truckCount > 0 },
@@ -1236,19 +1249,23 @@ function CarrierContent() {
                     width: '100%'
                   }}
                 >
-                  {/* 1. Vehicle Photo at Top - compact height */}
+                  {/* 1. Vehicle Photo at Top - prominent height */}
                   <div style={{
                     width: '100%',
-                    height: '140px',
+                    height: '210px',
                     borderRadius: '12px',
                     overflow: 'hidden',
                     background: '#f8fafc',
-                    position: 'relative'
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '4px'
                   }}>
                     <img
                       src={veh.image}
                       alt={veh.name}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      style={{ width: '98%', height: '96%', maxHeight: '200px', objectFit: 'contain' }}
                       onError={(e: any) => { e.target.src = '/images/tata_ace_fleet.jpg'; }}
                     />
                   </div>
@@ -1365,19 +1382,53 @@ function CarrierContent() {
 
                   {/* 6. Bottom Selection Row */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '2px' }}>
-                    <span style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '5px',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      color: '#16a34a'
-                    }}>
-                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }}></span>
-                      Available
-                    </span>
+                    {veh.isAvailable !== false ? (
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        color: '#16a34a'
+                      }}>
+                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }}></span>
+                        Available
+                      </span>
+                    ) : (
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        color: '#dc2626',
+                        background: '#fee2e2',
+                        padding: '2px 8px',
+                        borderRadius: '12px'
+                      }}>
+                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#dc2626' }}></span>
+                        On Trip
+                      </span>
+                    )}
 
-                    {isSelected ? (
+                    {veh.isAvailable === false ? (
+                      <button
+                        type="button"
+                        disabled
+                        style={{
+                          background: '#f1f5f9',
+                          color: '#94a3b8',
+                          border: '1px solid #cbd5e1',
+                          padding: '5px 12px',
+                          borderRadius: '8px',
+                          fontSize: '12px',
+                          fontWeight: 700,
+                          cursor: 'not-allowed'
+                        }}
+                      >
+                        Not Available
+                      </button>
+                    ) : isSelected ? (
                       <button
                         type="button"
                         style={{

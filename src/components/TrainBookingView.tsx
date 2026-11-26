@@ -83,7 +83,7 @@ export const INITIAL_MODE_ORDER: { id: RideMode; label: string; icon: string }[]
   { id: 'bus', label: 'Bus', icon: 'fa-bus' },
   { id: 'train', label: 'Train', icon: 'fa-train' },
   { id: 'flight', label: 'Flight', icon: 'fa-plane' },
-  { id: 'helicopter', label: 'Helicopter', icon: 'fa-helicopter' }
+  { id: 'ship', label: 'Ship', icon: 'fa-ship' }
 ];
 
 export default function TrainBookingView() {

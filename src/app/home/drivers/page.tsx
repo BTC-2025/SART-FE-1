@@ -49,6 +49,8 @@ export interface DriverFleetItem {
   dailyRate?: number;
   outstationRate?: number;
   isAvailable?: boolean;
+  status?: string;
+  bookingDetails?: any;
 }
 
 // Vehicle Categories matching user's Image exactly
@@ -122,9 +124,11 @@ function DriversSearchContent() {
   const [bookingSuccessModal, setBookingSuccessModal] = useState<boolean>(false);
   const [selectedDriver, setSelectedDriver] = useState<DriverFleetItem | null>(null);
 
-  // Load Drivers strictly from backend APIs and shared persistence
-  const loadDrivers = async () => {
-    setIsLoading(true);
+  // Load Drivers strictly from backend APIs and shared persistence with silent background support
+  const loadDrivers = async (isBackground = false) => {
+    if (!isBackground) {
+      setIsLoading(true);
+    }
     let loaded: DriverFleetItem[] = [];
 
     const endpoints = [
@@ -166,20 +170,34 @@ function DriversSearchContent() {
     } catch (e) { }
 
     setDrivers(loaded);
-    setIsLoading(false);
+    if (!isBackground) {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
-    loadDrivers();
+    loadDrivers(false);
+    const interval = setInterval(() => {
+      loadDrivers(true);
+    }, 4000);
+    const onStorage = () => loadDrivers(true);
+    window.addEventListener('storage', onStorage);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', onStorage);
+    };
   }, []);
 
-  // Filter drivers based on selected vehicle category
+  // Filter drivers based on selected vehicle category & availability
   const filteredDrivers = useMemo(() => {
-    if (!selectedCategory) return drivers;
-    const catObj = DRIVER_VEHICLE_CATEGORIES.find(c => c.id === selectedCategory);
-    if (!catObj) return drivers;
+    // Only show available drivers (hide drivers who are currently 'On Trip')
+    const availableDrivers = drivers.filter(d => d.isAvailable !== false && d.status !== 'On Trip');
 
-    return drivers.filter((d) => {
+    if (!selectedCategory) return availableDrivers;
+    const catObj = DRIVER_VEHICLE_CATEGORIES.find(c => c.id === selectedCategory);
+    if (!catObj) return availableDrivers;
+
+    return availableDrivers.filter((d) => {
       if (!d.eligibleVehicles || d.eligibleVehicles.length === 0) return false;
       const key = catObj.key.toLowerCase();
       return d.eligibleVehicles.some((ev: string) => {
@@ -201,6 +219,7 @@ function DriversSearchContent() {
   // Compute available counts for each category
   const getCategoryCount = (key: string) => {
     return drivers.filter(d => {
+      if (d.isAvailable === false || d.status === 'On Trip') return false;
       if (!d.eligibleVehicles || d.eligibleVehicles.length === 0) return false;
       return d.eligibleVehicles.some((ev: string) => {
         const evLower = ev.toLowerCase();
@@ -481,7 +500,7 @@ function DriversSearchContent() {
               <div style={{ paddingTop: '18px' }}>
                 <button
                   type="button"
-                  onClick={loadDrivers}
+                  onClick={() => loadDrivers(false)}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -597,7 +616,7 @@ function DriversSearchContent() {
             </span>
           </div>
 
-          {isLoading ? (
+          {isLoading && drivers.length === 0 ? (
             <div style={{ padding: '60px 0', textAlign: 'center', color: '#64748b' }}>
               <div className="animate-spin" style={{ display: 'inline-block', marginBottom: '12px' }}>
                 <Clock3 size={32} color="#2563eb" />

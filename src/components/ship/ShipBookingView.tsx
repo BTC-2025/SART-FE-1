@@ -12,12 +12,37 @@ interface ShipBookingViewProps {
 
 const SHIP_SERVICES = [
   {
+    id: 'SHP-SAMUDRA',
+    name: 'MV Samudra Express',
+    vesselType: 'High-Speed Cruise Ferry',
+    code: 'IMO 9842105',
+    depPort: 'Chennai Port (Berth 4)',
+    arrPort: 'Port Blair (Haddo Wharf)',
+    depDate: '28 Nov 2026',
+    arrDate: '30 Nov 2026',
+    depTime: '08:30 AM',
+    arrTime: '03:00 PM',
+    duration: '54h 30m',
+    fare: 6850,
+    cabinType: 'Deluxe Ocean Cabin',
+    operator: 'SART Maritime Lines',
+    rating: 4.8,
+    mealsIncluded: true,
+    deck: 'CRUISE FERRY • DECK 4',
+    speed: '22 Knots',
+    capacity: '1,200 Pax • Ro-Ro Deck',
+    amenities: ['AC Cabins', 'Dining Hall', 'Medical Bay', 'Lifeboats', 'Sat-WiFi'],
+    reportNotice: 'Report at pier 90 mins before departure'
+  },
+  {
     id: 'SHP-01',
     name: 'Cordelia Empress Cruise',
     vesselType: 'Luxury Cruise Liner',
     code: 'CE-904',
     depPort: 'Mumbai Port Trust (BOM-SEA)',
     arrPort: 'Goa Mormugao Port (GOI-SEA)',
+    depDate: '28 Nov 2026',
+    arrDate: '29 Nov 2026',
     depTime: '17:00',
     arrTime: '08:30',
     duration: '15h 30m',
@@ -26,7 +51,11 @@ const SHIP_SERVICES = [
     operator: 'Cordelia Cruises',
     rating: 4.9,
     mealsIncluded: true,
-    deck: 'Deck 7 - Sunset Promenade'
+    deck: 'Deck 7 - Sunset Promenade',
+    speed: '20 Knots',
+    capacity: '1,800 Pax',
+    amenities: ['AC Cabins', 'Fine Dining', 'Pool Deck', 'Live Casino', 'Wi-Fi'],
+    reportNotice: 'Report at pier 90 mins before departure'
   },
   {
     id: 'SHP-02',
@@ -35,6 +64,8 @@ const SHIP_SERVICES = [
     code: 'LK-302',
     depPort: 'Kochi Ferry Wharf (COK-SEA)',
     arrPort: 'Kavaratti Island Jetty (LAK-SEA)',
+    depDate: '28 Nov 2026',
+    arrDate: '28 Nov 2026',
     depTime: '09:00',
     arrTime: '14:30',
     duration: '5h 30m',
@@ -43,7 +74,11 @@ const SHIP_SERVICES = [
     operator: 'Lakshadweep Maritime',
     rating: 4.8,
     mealsIncluded: false,
-    deck: 'Main AC Deck'
+    deck: 'Main AC Deck',
+    speed: '24 Knots',
+    capacity: '700 Pax',
+    amenities: ['AC Cabins', 'Snack Bar', 'Medical Bay', 'Lifeboats'],
+    reportNotice: 'Report at pier 60 mins before departure'
   },
   {
     id: 'SHP-03',
@@ -52,6 +87,8 @@ const SHIP_SERVICES = [
     code: 'MK-108',
     depPort: 'Port Blair Phoenix Jetty (IXZ-SEA)',
     arrPort: 'Havelock Island Pier (HVL-SEA)',
+    depDate: '28 Nov 2026',
+    arrDate: '28 Nov 2026',
     depTime: '08:00',
     arrTime: '09:30',
     duration: '1h 30m',
@@ -60,24 +97,139 @@ const SHIP_SERVICES = [
     operator: 'Makruzz Ferries',
     rating: 4.9,
     mealsIncluded: true,
-    deck: 'Upper Observation Deck'
+    deck: 'Upper Observation Deck',
+    speed: '28 Knots',
+    capacity: '330 Pax',
+    amenities: ['AC Cabins', 'Beverage Bar', 'Panoramic Windows'],
+    reportNotice: 'Report at pier 45 mins before departure'
   }
 ];
 
 export default function ShipBookingView({
-  source = 'Mumbai',
-  destination = 'Goa',
+  source = 'Chennai',
+  destination = 'Port Blair',
   dateOfJourney = '26 Nov, 2026'
 }: ShipBookingViewProps) {
   const router = useRouter();
-  const [selectedVessel, setSelectedVessel] = useState<any>(null);
+  const [selectedShipId, setSelectedShipId] = useState<string>('all');
+
+  // Sync selected ship from localStorage or custom events
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('sart_selected_ship_id');
+      if (stored) {
+        setSelectedShipId(stored);
+      }
+
+      const handleShipEvent = (e: any) => {
+        if (e.detail?.id) {
+          setSelectedShipId(e.detail.id);
+        }
+      };
+      window.addEventListener('sart_ship_selected', handleShipEvent);
+      return () => window.removeEventListener('sart_ship_selected', handleShipEvent);
+    }
+  }, []);
+
+  const handleSelectShip = (id: string) => {
+    setSelectedShipId(id);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sart_selected_ship_id', id);
+    }
+  };
+
+  const filteredShips = selectedShipId === 'all'
+    ? SHIP_SERVICES
+    : SHIP_SERVICES.filter((s) => s.id === selectedShipId);
+
+  const selectedShipData = SHIP_SERVICES.find((s) => s.id === selectedShipId);
 
   return (
     <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '24px 16px 60px' }}>
+      {/* Ship Quick Filter Pills / Selector Bar */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          overflowX: 'auto',
+          paddingBottom: '16px',
+          marginBottom: '20px',
+          borderBottom: '1px solid #e2e8f0'
+        }}
+      >
+        <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#0369a1', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+          <i className="fa-solid fa-ship"></i> Select Ship:
+        </span>
+
+        <button
+          type="button"
+          onClick={() => handleSelectShip('all')}
+          style={{
+            padding: '7px 16px',
+            borderRadius: '24px',
+            fontSize: '12.5px',
+            fontWeight: selectedShipId === 'all' ? 800 : 600,
+            background: selectedShipId === 'all' ? '#0284c7' : '#f8fafc',
+            color: selectedShipId === 'all' ? '#ffffff' : '#475569',
+            border: selectedShipId === 'all' ? '1.5px solid #0284c7' : '1px solid #cbd5e1',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+            transition: 'all 0.15s ease',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          <span>All Available Ships ({SHIP_SERVICES.length})</span>
+        </button>
+
+        {SHIP_SERVICES.map((s) => {
+          const isSelected = selectedShipId === s.id;
+          return (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => handleSelectShip(s.id)}
+              style={{
+                padding: '7px 16px',
+                borderRadius: '24px',
+                fontSize: '12.5px',
+                fontWeight: isSelected ? 800 : 600,
+                background: isSelected ? '#0284c7' : '#ffffff',
+                color: isSelected ? '#ffffff' : '#1e293b',
+                border: isSelected ? '1.5px solid #0284c7' : '1px solid #cbd5e1',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.15s ease',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                boxShadow: isSelected ? '0 4px 12px rgba(2, 132, 199, 0.25)' : 'none'
+              }}
+            >
+              <span>{s.name}</span>
+              <span
+                style={{
+                  fontSize: '10.5px',
+                  padding: '1px 6px',
+                  borderRadius: '10px',
+                  background: isSelected ? 'rgba(255,255,255,0.25)' : '#e0f2fe',
+                  color: isSelected ? '#ffffff' : '#0369a1',
+                  fontWeight: 700
+                }}
+              >
+                ₹{s.fare.toLocaleString('en-IN')}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Top Banner */}
       <div
         style={{
-          backgroundColor: '#0c4a6e',
+          background: 'linear-gradient(135deg, #0c4a6e 0%, #0369a1 100%)',
           color: '#ffffff',
           borderRadius: '16px',
           padding: '24px 28px',
@@ -94,15 +246,35 @@ export default function ShipBookingView({
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
             <span style={{ fontSize: '24px' }}>🚢</span>
             <h2 style={{ fontSize: '22px', fontWeight: 900, margin: 0 }}>
-              Cruise &amp; Passenger Ship Charters
+              {selectedShipData ? selectedShipData.name : 'Cruise & Passenger Ship Charters'}
             </h2>
           </div>
           <p style={{ margin: 0, fontSize: '13.5px', color: '#bae6fd' }}>
-            Book scheduled passenger ferries, sea passenger voyages, and luxury marine cruises.
+            {selectedShipData
+              ? `${selectedShipData.vesselType} • Route: ${selectedShipData.depPort} ➔ ${selectedShipData.arrPort}`
+              : 'Book scheduled passenger ferries, sea passenger voyages, and luxury marine cruises.'}
           </p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {selectedShipId !== 'all' && (
+            <button
+              type="button"
+              onClick={() => handleSelectShip('all')}
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                color: '#ffffff',
+                border: '1px solid rgba(255,255,255,0.4)',
+                padding: '6px 14px',
+                borderRadius: '20px',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              Show All Ships
+            </button>
+          )}
           <span
             style={{
               backgroundColor: 'rgba(255,255,255,0.15)',
@@ -122,7 +294,7 @@ export default function ShipBookingView({
 
       {/* Available Ships List */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {SHIP_SERVICES.map((ship) => (
+        {filteredShips.map((ship) => (
           <div
             key={ship.id}
             style={{
@@ -200,7 +372,30 @@ export default function ShipBookingView({
               <button
                 type="button"
                 onClick={() => {
-                  alert(`Reserving Sea Voyage on ${ship.name} (${ship.code}). Proceeding to Port Manifest.`);
+                  try {
+                    localStorage.setItem('sart_selected_ship_voyage', JSON.stringify(ship));
+                  } catch (e) { }
+
+                  const query = new URLSearchParams({
+                    shipId: ship.id,
+                    name: ship.name,
+                    vesselType: ship.vesselType,
+                    code: ship.code,
+                    operator: ship.operator,
+                    depPort: ship.depPort,
+                    arrPort: ship.arrPort,
+                    depDate: ship.depDate || '28 Nov 2026',
+                    arrDate: ship.arrDate || '30 Nov 2026',
+                    depTime: ship.depTime,
+                    arrTime: ship.arrTime,
+                    duration: ship.duration,
+                    fare: String(ship.fare),
+                    cabinType: ship.cabinType,
+                    deck: ship.deck,
+                    rating: String(ship.rating)
+                  });
+
+                  router.push(`/home/ride/ship/PassengerDetails?${query.toString()}`);
                 }}
                 style={{
                   width: '100%',

@@ -64,7 +64,11 @@
     "gateInstructions": "Direct entry from main road.",
     "bookingMode": "Instant Booking",
     "cancellationPolicy": "Free up to 1 hr before",
-    "updatedAt": "2026-11-25T12:03:07.680Z"
+    "updatedAt": "2026-11-26T11:48:53.139Z",
+    "isAvailable": true,
+    "bookingDetails": null,
+    "activeBooking": null,
+    "bookingStatus": "AVAILABLE"
   },
   {
     "id": "PRK-1795595508806",

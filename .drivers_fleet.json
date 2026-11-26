@@ -35,7 +35,10 @@
     "aadhaarNumber": "3298392892398",
     "panNumber": "EYW9238938IWE",
     "emergencyContact": "sai",
-    "createdAt": "2026-11-25T12:24:06.695Z"
+    "createdAt": "2026-11-25T12:24:06.695Z",
+    "status": "Available",
+    "bookingDetails": null,
+    "updatedAt": "2026-11-26T12:19:55.444Z"
   },
   {
     "id": "DRV-1795587457751",
@@ -74,6 +77,8 @@
     "panNumber": "HN68NII89HN",
     "emergencyContact": "kumar",
     "createdAt": "2026-11-25T07:15:56.169Z",
-    "updatedAt": "2026-11-25T12:01:15.589Z"
+    "updatedAt": "2026-11-26T12:19:58.447Z",
+    "status": "Available",
+    "bookingDetails": null
   }
 ]

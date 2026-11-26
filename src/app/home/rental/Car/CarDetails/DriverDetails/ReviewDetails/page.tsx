@@ -21,8 +21,19 @@ function ReviewDetailsContent() {
   const deliveryTypeParam = searchParams.get('deliveryType') || 'hub';
   const [pickupMode, setPickupMode] = useState<'hub' | 'delivery'>(deliveryTypeParam === 'delivery' ? 'delivery' : 'hub');
 
-  const pickupTimeParam = searchParams.get('pickupTime') || 'Thu, 19 Nov • 10:00 AM';
-  const returnTimeParam = searchParams.get('returnTime') || 'Fri, 20 Nov • 10:00 AM';
+  const pickupDateRaw = searchParams.get('pickupDate');
+  const pickupTimeRaw = searchParams.get('pickupTime');
+  const returnDateRaw = searchParams.get('returnDate');
+  const returnTimeRaw = searchParams.get('returnTime');
+
+  const pickupTimeParam = pickupDateRaw && pickupTimeRaw
+    ? `${pickupDateRaw} • ${pickupTimeRaw}`
+    : searchParams.get('pickupTime') || 'Thu, 19 Nov • 10:00 AM';
+
+  const returnTimeParam = returnDateRaw && returnTimeRaw
+    ? `${returnDateRaw} • ${returnTimeRaw}`
+    : searchParams.get('returnTime') || 'Fri, 20 Nov • 10:00 AM';
+
   const rentalDuration = searchParams.get('duration') || '1 Day (24 hrs)';
 
   const customerName = searchParams.get('name') || '';
@@ -155,13 +166,55 @@ function ReviewDetailsContent() {
     fetchVehicleDetails();
   }, [vehicleId]);
 
-  // Pricing matching Image 1 exactly:
-  // Base Rate: ₹1,800.00
-  // Taxes & Insurance (18%): ₹324.00
-  // Security Deposit (Refundable): ₹5,000.00
-  // Self-Pickup at Owner Hub: FREE (₹0.00) (or ₹1,000 if Delivery selected)
-  // Total Payable: ₹7,124.00
-  const baseRate = vehicle?.dailyRate || vehicle?.price || 1800;
+  // Calculate dynamic duration, days count, and base rental price based on dates/times & rentalBase passed from step 1
+  const calculateDurationAndPrice = () => {
+    const passedRentalBase = searchParams.get('rentalBase') ? Number(searchParams.get('rentalBase')) : null;
+    const passedDuration = searchParams.get('duration');
+
+    const pt = pickupTimeRaw || (pickupTimeParam.includes('•') ? pickupTimeParam.split('•')[1]?.trim() : '10:00');
+    const rt = returnTimeRaw || (returnTimeParam.includes('•') ? returnTimeParam.split('•')[1]?.trim() : '10:00');
+    const pDate = pickupDateRaw || (pickupTimeParam.includes('•') ? pickupTimeParam.split('•')[0]?.trim() : '');
+    const rDate = returnDateRaw || (returnTimeParam.includes('•') ? returnTimeParam.split('•')[0]?.trim() : '');
+
+    const dailyRate = Number(vehicle?.dailyRate || vehicle?.price || 1800);
+    const hourlyRate = Number(vehicle?.hourlyRate || 150);
+
+    let days = 1;
+    let durationLabel = passedDuration || '1 Day (24 hrs)';
+    let computedBase = passedRentalBase || dailyRate;
+
+    if (pDate && rDate) {
+      const start = new Date(`${pDate}T${pt.length === 5 ? pt : '10:00'}`);
+      const end = new Date(`${rDate}T${rt.length === 5 ? rt : '10:00'}`);
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && end > start) {
+        const diffMs = end.getTime() - start.getTime();
+        const totalHours = Math.max(1, Math.round(diffMs / (1000 * 60 * 60)));
+        days = Math.max(1, Math.ceil(totalHours / 24));
+        const extraHours = totalHours % 24;
+
+        if (days === 7 && extraHours === 0) {
+          durationLabel = '7 Days (1 Week)';
+          computedBase = passedRentalBase || Math.round(dailyRate * 7 * 0.85);
+        } else if (days >= 28) {
+          durationLabel = `${days} Days (~1 Month)`;
+          computedBase = passedRentalBase || (vehicle as any)?.monthlyRate || Math.round(dailyRate * days * 0.65);
+        } else if (days === 1) {
+          durationLabel = '1 Day (24 hrs)';
+          computedBase = passedRentalBase || dailyRate;
+        } else {
+          durationLabel = `${days} Days`;
+          computedBase = passedRentalBase || (days * dailyRate);
+        }
+      }
+    }
+
+    return { days, durationLabel, rentalBase: computedBase };
+  };
+
+  const { days: rentalDays, durationLabel: dynamicDuration, rentalBase: dynamicBaseRate } = calculateDurationAndPrice();
+
+  // Pricing matching Image 1 exactly
+  const baseRate = dynamicBaseRate;
   const taxes = Math.round(baseRate * 0.18);
   const securityDeposit = 5000;
   const deliveryCharge = pickupMode === 'delivery' ? 1000 : 0;
@@ -263,14 +316,15 @@ function ReviewDetailsContent() {
         vehicleImage: vehicleImage.startsWith('data:') ? '/images/cab_sedan.png' : vehicleImage,
         pickup,
         ownerLocation: ownerHubAddress,
-        pickupDate: pickupTimeParam.split('•')[0]?.trim() || 'Thu, 19 Nov',
-        pickupTime: pickupTimeParam.split('•')[1]?.trim() || '10:00 AM',
-        returnDate: returnTimeParam.split('•')[0]?.trim() || 'Fri, 20 Nov',
-        returnTime: returnTimeParam.split('•')[1]?.trim() || '10:00 AM',
+        pickupDate: pickupDateRaw || pickupTimeParam.split('•')[0]?.trim() || '26-11-2026',
+        pickupTime: pickupTimeRaw || pickupTimeParam.split('•')[1]?.trim() || '10:00 AM',
+        returnDate: returnDateRaw || returnTimeParam.split('•')[0]?.trim() || '27-11-2026',
+        returnTime: returnTimeRaw || returnTimeParam.split('•')[1]?.trim() || '10:00 AM',
         customerName,
         customerPhone,
         customerEmail,
         customerAge,
+        duration: dynamicDuration,
         baseRate,
         taxAmount: taxes,
         securityDeposit,
@@ -404,7 +458,7 @@ function ReviewDetailsContent() {
                   </span>
                 </div>
                 <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
-                  ₹{baseRate.toLocaleString()} total (1 day)
+                  ₹{baseRate.toLocaleString()} total ({dynamicDuration})
                 </div>
               </div>
 
@@ -448,7 +502,7 @@ function ReviewDetailsContent() {
                     padding: '0 4px'
                   }}>
                     <span>—</span>
-                    <span>1 Day (24 hrs)</span>
+                    <span>{dynamicDuration}</span>
                     <span>—</span>
                   </div>
 
@@ -817,7 +871,7 @@ function ReviewDetailsContent() {
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                <span style={{ color: '#475569' }}>Base Rate (₹{baseRate.toLocaleString()}/day x 1)</span>
+                <span style={{ color: '#475569' }}>Base Rate ({dynamicDuration})</span>
                 <span style={{ fontWeight: 600, color: '#0f172a' }}>₹ {baseRate.toLocaleString()}.00</span>
               </div>
 

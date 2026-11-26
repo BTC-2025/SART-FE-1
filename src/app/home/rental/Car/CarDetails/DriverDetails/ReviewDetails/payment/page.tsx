@@ -384,6 +384,41 @@ function RentalPaymentContent() {
                     </span>
                   </div>
 
+                  {/* Booking & Delivery Date/Time Box matching User input */}
+                  <div style={{
+                    background: '#f8fafc',
+                    borderRadius: '8px',
+                    padding: '10px 14px',
+                    border: '1px solid #e2e8f0',
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '12px'
+                  }}>
+                    <div>
+                      <span style={{ fontSize: '10.5px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                        Pickup Date &amp; Time
+                      </span>
+                      <strong style={{ fontSize: '12px', color: '#0f172a', display: 'block' }}>
+                        {pickupDate}
+                      </strong>
+                      <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 700 }}>
+                        {pickupTime}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span style={{ fontSize: '10.5px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                        Return Date &amp; Time
+                      </span>
+                      <strong style={{ fontSize: '12px', color: '#0f172a', display: 'block' }}>
+                        {returnDate}
+                      </strong>
+                      <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 700 }}>
+                        {returnTime}
+                      </span>
+                    </div>
+                  </div>
+
                   {/* User Selected Delivery / Pickup Address */}
                   <div style={{
                     background: '#f8fafc',

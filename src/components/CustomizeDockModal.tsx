@@ -25,20 +25,17 @@ export const ALL_SERVICES_SHORTCUTS: ShortcutItem[] = [
 
   // Carriers & Cargo Logistics
   { id: 'truck', name: 'Truck', type: 'carrier', icon: 'fa-truck-moving', route: '/home/carrier' },
-  { id: 'train_cargo', name: 'Train', type: 'carrier', icon: 'fa-train-subway', route: '/home/carrier' },
-  { id: 'flight_cargo', name: 'Flight', type: 'carrier', icon: 'fa-plane-departure', route: '/home/carrier' },
-  { id: 'bike_parcel', name: 'Bike', type: 'carrier', icon: 'fa-box', route: '/home/carrier' },
-  { id: 'ship_cargo', name: 'Ship', type: 'carrier', icon: 'fa-ship', route: '/home/carrier' },
-  { id: 'bus', name: 'Bus', type: 'carrier', icon: 'fa-truck-pickup', route: '/home/carrier' },
+  { id: 'train_cargo', name: 'Train Cargo', type: 'carrier', icon: 'fa-train-subway', route: '/home/carrier' },
+  { id: 'flight_cargo', name: 'Flight Cargo', type: 'carrier', icon: 'fa-plane-departure', route: '/home/carrier' },
+  { id: 'bike_parcel', name: 'Bike Parcel', type: 'carrier', icon: 'fa-box', route: '/home/carrier' },
+  { id: 'ship_cargo', name: 'Ship Cargo', type: 'carrier', icon: 'fa-ship', route: '/home/carrier' },
+  { id: 'bus_cargo', name: 'Bus Cargo', type: 'carrier', icon: 'fa-truck-pickup', route: '/home/carrier' },
 
   // Rentals
-  { id: 'rental_car', name: 'Self-Drive Car', type: 'rental', icon: 'fa-car-side', route: '/home/rental' },
-  { id: 'rental_bike', name: 'Self-Drive Bike', type: 'rental', icon: 'fa-motorcycle', route: '/home/rental' },
   { id: 'rental_luxury', name: 'Vehicle Rental', type: 'rental', icon: 'fa-gem', route: '/home/rental' },
 
   // Drivers
-  { id: 'driver_chauffeur', name: 'Personal Chauffeur', type: 'drivers', icon: 'fa-user-tie', route: '/home/drivers' },
-  { id: 'driver_on_demand', name: 'On-Demand Driver', type: 'drivers', icon: 'fa-id-card', route: '/home/drivers' },
+  { id: 'driver_on_demand', name: 'Driver', type: 'drivers', icon: 'fa-id-card', route: '/home/drivers' },
 
   // Parkings
   { id: 'parking_spot', name: 'Parkings', type: 'parking', icon: 'fa-square-p', route: '/home/parking' },
@@ -49,14 +46,15 @@ export const ALL_SERVICES_SHORTCUTS: ShortcutItem[] = [
   { id: 'community_union', name: 'Driver & Fleet Union', type: 'community', icon: 'fa-handshake', route: '/home/community' }
 ];
 
-export const DEFAULT_SELECTED_SHORTCUT_IDS: string[] = ['bike', 'truck'];
+export const PERMANENT_SHORTCUT_IDS: string[] = ['bike', 'truck', 'parking_spot'];
+export const DEFAULT_SELECTED_SHORTCUT_IDS: string[] = ['bike', 'truck', 'parking_spot'];
 
 interface CustomizeDockModalProps {
   isOpen: boolean;
   onClose: () => void;
   selectedIds: string[];
   onSave: (ids: string[]) => void;
-  maxSelections?: number;
+  maxCustomAdditions?: number;
 }
 
 export default function CustomizeDockModal({
@@ -64,44 +62,51 @@ export default function CustomizeDockModal({
   onClose,
   selectedIds,
   onSave,
-  maxSelections = 4
+  maxCustomAdditions = 2
 }: CustomizeDockModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<'all' | 'ride' | 'carrier' | 'rental' | 'drivers' | 'parking' | 'community'>('all');
-  const [tempSelected, setTempSelected] = useState<string[]>(selectedIds);
 
-  // Sync temp selections when modal opens
+  // Custom added shortcuts (excluding permanent ones: bike, truck, parking_spot)
+  const [customSelected, setCustomSelected] = useState<string[]>([]);
+
+  // Sync custom selections when modal opens
   React.useEffect(() => {
     if (isOpen) {
-      setTempSelected(selectedIds);
+      const customs = selectedIds.filter(id => !PERMANENT_SHORTCUT_IDS.includes(id)).slice(0, maxCustomAdditions);
+      setCustomSelected(customs);
       setSearchQuery('');
     }
-  }, [isOpen, selectedIds]);
+  }, [isOpen, selectedIds, maxCustomAdditions]);
 
   if (!isOpen) return null;
 
   const handleToggle = (id: string) => {
-    if (tempSelected.includes(id)) {
-      if (tempSelected.length <= 1) {
-        return;
-      }
-      setTempSelected(prev => prev.filter(item => item !== id));
+    // If it's one of the 3 permanent shortcuts, it cannot be changed or removed
+    if (PERMANENT_SHORTCUT_IDS.includes(id)) {
+      return;
+    }
+
+    if (customSelected.includes(id)) {
+      setCustomSelected(prev => prev.filter(item => item !== id));
     } else {
-      // Maximum 4 shortcuts can be chosen
-      if (tempSelected.length >= maxSelections) {
-        alert(`You can choose a maximum of ${maxSelections} shortcuts for the navigation bar.`);
+      // Max 2 custom shortcuts can be added
+      if (customSelected.length >= maxCustomAdditions) {
+        alert(`You can add up to ${maxCustomAdditions} extra shortcuts after Bike, Truck, and Parkings.`);
         return;
       }
-      setTempSelected(prev => [...prev, id]);
+      setCustomSelected(prev => [...prev, id]);
     }
   };
 
   const handleResetDefaults = () => {
-    setTempSelected(DEFAULT_SELECTED_SHORTCUT_IDS);
+    setCustomSelected([]);
   };
 
   const handleDone = () => {
-    onSave(tempSelected);
+    // Permanent 3 are always preserved first, followed by up to 2 custom choices
+    const fullList = [...PERMANENT_SHORTCUT_IDS, ...customSelected.slice(0, maxCustomAdditions)];
+    onSave(fullList);
     onClose();
   };
 
@@ -119,7 +124,7 @@ export default function CustomizeDockModal({
           <div>
             <h3 className="dock-modal-title">Customize Shortcuts</h3>
             <span className="dock-modal-subtitle">
-              Select {maxSelections} shortcuts ({tempSelected.length}/{maxSelections} selected)
+              Bike, Truck &amp; Parkings are permanent defaults. Add up to {maxCustomAdditions} extra shortcuts ({customSelected.length}/{maxCustomAdditions} added)
             </span>
           </div>
           <button type="button" className="dock-modal-close-btn" onClick={onClose} title="Close">
@@ -202,24 +207,37 @@ export default function CustomizeDockModal({
         {/* 2-Column Grid */}
         <div className="dock-shortcuts-grid">
           {filteredServices.map(service => {
-            const isSelected = tempSelected.includes(service.id);
-            const isAtMax = !isSelected && tempSelected.length >= maxSelections;
+            const isPermanent = PERMANENT_SHORTCUT_IDS.includes(service.id);
+            const isSelected = isPermanent || customSelected.includes(service.id);
+            const isAtMax = !isSelected && customSelected.length >= maxCustomAdditions;
 
             return (
               <div
                 key={service.id}
-                className={`shortcut-item-card ${isSelected ? 'selected' : ''} ${isAtMax ? 'disabled' : ''}`}
+                className={`shortcut-item-card ${isSelected ? 'selected' : ''} ${isAtMax ? 'disabled' : ''} ${isPermanent ? 'permanent-locked' : ''}`}
                 onClick={() => handleToggle(service.id)}
+                style={{
+                  cursor: isPermanent ? 'default' : isAtMax ? 'not-allowed' : 'pointer',
+                  opacity: isPermanent ? 0.95 : isAtMax ? 0.5 : 1
+                }}
+                title={isPermanent ? 'Default permanent shortcut (cannot be removed)' : service.name}
               >
                 <div className="shortcut-card-left">
                   <div className={`shortcut-icon-badge ${isSelected ? 'active' : ''}`}>
                     <i className={`fa-solid ${service.icon}`}></i>
                   </div>
-                  <span className="shortcut-card-name">{service.name}</span>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span className="shortcut-card-name">{service.name}</span>
+                    {isPermanent && (
+                      <span style={{ fontSize: '10.5px', color: '#16a34a', fontWeight: 700 }}>
+                        Permanent Default
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                <div className={`shortcut-radio-circle ${isSelected ? 'checked' : ''}`}>
-                  {isSelected && <i className="fa-solid fa-check"></i>}
+                <div className={`shortcut-radio-circle ${isSelected ? 'checked' : ''}`} style={isPermanent ? { backgroundColor: '#16a34a', borderColor: '#16a34a' } : {}}>
+                  {isSelected && <i className={`fa-solid ${isPermanent ? 'fa-lock' : 'fa-check'}`}></i>}
                 </div>
               </div>
             );
