@@ -90,18 +90,69 @@ function CarrierPaymentContent() {
       createdAt: new Date().toISOString()
     };
 
-    // 1. Try persisting to backend database
+    // 1. Try persisting to backend database and notifications
+    const notifPayload = {
+      id: `NOTIF-${Date.now()}-${Math.floor(Math.random() * 900 + 100)}`,
+      bookingId: bookingId,
+      type: 'carrier_booking',
+      vertical: 'Carriers',
+      badge: 'New Carrier Booking',
+      title: `${bookingSummary?.senderName || 'Valued Shipper'} booked ${vehicleName}`,
+      customerName: bookingSummary?.senderName || 'Valued Shipper',
+      customerPhone: bookingSummary?.senderMobile || '+91 98450 12345',
+      category: 'Commercial Freight',
+      carrierName: vehicleName,
+      vehicleName: vehicleName,
+      vehicleReg: vehicleReg,
+      vehiclePlate: vehicleReg,
+      route: `${pickup} → ${delivery}`,
+      fromLocation: pickup,
+      toLocation: delivery,
+      totalAmount: totalAmount,
+      totalPrice: totalAmount,
+      advancePaid: advancePayable,
+      status: 'Advance Paid - Ready to Dispatch',
+      read: false,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      createdAt: new Date().toISOString()
+    };
+
     try {
-      await fetch('http://localhost:5000/api/carriers/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bookingPayload)
-      });
-      await fetch('http://localhost:3005/api/carriers/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bookingPayload)
-      }).catch(() => null);
+      await Promise.allSettled([
+        fetch('http://localhost:5000/api/carriers/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bookingPayload)
+        }),
+        fetch('http://localhost:3005/api/carriers/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bookingPayload)
+        }),
+        fetch('http://localhost:5000/api/business/notifications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(notifPayload)
+        }),
+        fetch('http://localhost:3005/api/business/notifications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(notifPayload)
+        }),
+        ...(bookingPayload.vehicleId ? [
+          fetch(`http://localhost:3005/api/carriers/${encodeURIComponent(bookingPayload.vehicleId)}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ isAvailable: false, status: 'On Trip', bookingDetails: bookingPayload })
+          }),
+          fetch(`http://localhost:5000/api/carriers/${encodeURIComponent(bookingPayload.vehicleId)}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ isAvailable: false, status: 'On Trip', bookingDetails: bookingPayload })
+          })
+        ] : [])
+      ]);
     } catch (e) {
       console.warn('Backend offline, caching booking locally:', e);
     }
@@ -113,18 +164,23 @@ function CarrierPaymentContent() {
       const updatedList = [bookingPayload, ...existingList.filter((b: any) => b.id !== bookingId)];
       localStorage.setItem('sart_carrier_bookings', JSON.stringify(updatedList));
 
+      // Save notification to sart_business_bookings
+      const existingBiz = JSON.parse(localStorage.getItem('sart_business_bookings') || '[]');
+      localStorage.setItem('sart_business_bookings', JSON.stringify([notifPayload, ...existingBiz]));
+
       // Mark vehicle as On Trip / Unavailable in localStorage
       const bookedVehId = bookingPayload.vehicleId;
       const localFleet = JSON.parse(localStorage.getItem('logi_pulse_vehicles') || '[]');
       const updatedFleet = localFleet.map((v: any) => {
         if (v.id === bookedVehId || v.plate === vehicleReg || v.name === vehicleName) {
-          return { ...v, isAvailable: false, status: 'On Trip' };
+          return { ...v, isAvailable: false, status: 'On Trip', bookingDetails: bookingPayload };
         }
         return v;
       });
       localStorage.setItem('logi_pulse_vehicles', JSON.stringify(updatedFleet));
 
       window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('carrier_vehicle_booked', { detail: bookingPayload }));
     } catch (e) { }
 
     setTimeout(() => {

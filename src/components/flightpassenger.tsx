@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import SubNavbar from '@/components/SubNavbar';
 import Footer from '@/components/Footer';
+import FlightDobCalendarModal from './FlightDobCalendarModal';
+import FlightPassengerSummarySidebar from './FlightPassengerSummarySidebar';
 import './flightpassenger.css';
 
 export interface PassengerFormData {
@@ -152,6 +154,7 @@ export default function FlightPassenger({ initialFlightData }: FlightPassengerPr
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
+          const cCabin = parsed.cabinClass || (parsed.fareTier?.includes('Business') ? 'Business' : parsed.fareTier?.includes('Premium') ? 'Premium Economy' : 'Economy');
           currentFlight = {
             ...currentFlight,
             airline: parsed.airline || currentFlight.airline,
@@ -162,7 +165,10 @@ export default function FlightPassenger({ initialFlightData }: FlightPassengerPr
             destinationAirport: parsed.destinationAirport || currentFlight.destinationAirport,
             depTime: parsed.depTime || currentFlight.depTime,
             arrTime: parsed.arrTime || currentFlight.arrTime,
-            fareTier: parsed.fareTier ? `${parsed.fareTier} | Economy` : currentFlight.fareTier,
+            fareTier: parsed.fareTier || `${currentFlight.fareTier} | ${cCabin}`,
+            cabinClass: cCabin,
+            checkInBaggage: parsed.checkInBaggage || (cCabin === 'Business' ? '40 KG' : cCabin === 'Premium Economy' ? '25 KG' : '15 KG'),
+            cabinBaggage: parsed.cabinBaggage || (cCabin === 'Business' ? '12 KG' : cCabin === 'Premium Economy' ? '10 KG' : '7 KG'),
             fare: Number(parsed.fare) || currentFlight.fare,
             totalFare: Number(parsed.totalFare || parsed.fare) || currentFlight.totalFare,
             travelers: parsed.travelers || currentFlight.travelers
@@ -743,20 +749,7 @@ export default function FlightPassenger({ initialFlightData }: FlightPassengerPr
               </div>
 
               {/* Hotels on IndiGo Promo Banner (Image 5) */}
-              <div className="fp-hotel-banner">
-                <div className="fp-hotel-left">
-                  <div className="fp-hotel-icon">
-                    <i className="fa-solid fa-hotel"></i>
-                  </div>
-                  <div>
-                    <h4 className="fp-hotel-heading">Hotels on IndiGo</h4>
-                    <p className="fp-hotel-sub">Unlock exclusive hotel savings just for flight bookers.</p>
-                  </div>
-                </div>
-                <button type="button" className="fp-hotel-btn">
-                  Yes, I'm interested
-                </button>
-              </div>
+
 
               {/* Protection Cards (Smart Cancellation & Switch) (Image 5) */}
               <div className="fp-protection-grid">
@@ -879,397 +872,28 @@ export default function FlightPassenger({ initialFlightData }: FlightPassengerPr
             </div>
           </div>
 
-          {/* ================================================================
-              RIGHT COLUMN: TRIP & FLIGHT SUMMARY (Image 1)
-              ================================================================ */}
-          <aside className="fp-right-col">
-            {/* Trip Summary Card */}
-            <div className="fp-summary-card">
-              <div className="fp-summary-top-row">
-                <h4 className="fp-summary-title">Trip Summary</h4>
-              </div>
-              <div className="fp-pax-summary-pill">{summaryPill}</div>
-
-              {/* Flight Details Inside Summary */}
-              <div className="fp-flight-box">
-                <div className="fp-departing-badge">Departing</div>
-
-                <div className="fp-flight-meta-row">
-                  <span style={{ fontWeight: 800, color: '#0369a1' }}>{flightData.fareTier}</span>
-                  <span>
-                    ✈ {flightData.flightNo}, {flightData.aircraft}
-                  </span>
-                </div>
-
-                <div className="fp-timeline">
-                  {/* Origin */}
-                  <div className="fp-timeline-node">
-                    <div className="fp-node-dot"></div>
-                    <div className="fp-node-content">
-                      <div className="fp-node-time">
-                        {flightData.depTime} <span style={{ fontSize: '11px', color: '#64748b' }}>| {flightData.depDate}</span>
-                      </div>
-                      <div className="fp-node-city">{flightData.source}</div>
-                      <div className="fp-node-airport">Indira Gandhi International Airport ({flightData.sourceTerminal})</div>
-                    </div>
-                  </div>
-
-                  <div className="fp-travel-duration">Travel time {flightData.travelTime}</div>
-
-                  {/* Destination */}
-                  <div className="fp-timeline-node">
-                    <div className="fp-node-dot"></div>
-                    <div className="fp-node-content">
-                      <div className="fp-node-time">
-                        {flightData.arrTime} <span style={{ fontSize: '11px', color: '#64748b' }}>| {flightData.arrDate}</span>
-                      </div>
-                      <div className="fp-node-city">{flightData.destination}</div>
-                      <div className="fp-node-airport">Chhatrapati Shivaji Maharaj International Airport ({flightData.destinationTerminal})</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Baggage Row */}
-                <div className="fp-baggage-row">
-                  <div>
-                    <i className="fa-solid fa-lock" style={{ marginRight: '4px', color: '#0284c7' }}></i>
-                    Cabin Baggage : {flightData.cabinBaggage}
-                  </div>
-                  <div>
-                    <i className="fa-solid fa-suitcase-rolling" style={{ marginRight: '4px', color: '#0284c7' }}></i>
-                    Check-in Baggage : {flightData.checkInBaggage}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Our Exclusive Benefits */}
-            <div className="fp-exclusive-benefits">
-              <h4 className="fp-benefits-title">Our Exclusive Benefits</h4>
-
-              {/* Maldives Banner */}
-              <div
-                className="fp-benefit-banner"
-                style={{
-                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #0c4a6e 100%)',
-                  padding: '16px',
-                  color: 'white',
-                  position: 'relative'
-                }}
-              >
-                <div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.85 }}>
-                  Sart Special
-                </div>
-                <div style={{ fontSize: '18px', fontWeight: 900, marginTop: '2px' }}>Maldives for shore</div>
-                <div style={{ fontSize: '11px', opacity: 0.9, marginTop: '4px' }}>
-                  Enjoy 10% off on all flights from Bengaluru, Hyderabad, Kochi, Mumbai &amp; Trivandrum
-                </div>
-              </div>
-
-              {/* 6E Fare Hold Banner */}
-              <div className="fp-fare-hold-card">
-                <div>
-                  <div style={{ fontSize: '11px', color: '#93c5fd' }}>Hold Fare Starting at just</div>
-                  <div className="fp-fare-hold-price">₹49*</div>
-                  <div style={{ fontSize: '10px', color: '#bae6fd' }}>Unlimited Free curve protection</div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <i className="fa-solid fa-lock" style={{ fontSize: '28px', color: '#38bdf8' }}></i>
-                  <div style={{ fontSize: '12px', fontWeight: 800, marginTop: '4px' }}>6E Fare Hold</div>
-                </div>
-              </div>
-            </div>
-          </aside>
+          {/* RIGHT COLUMN: TRIP & FLIGHT SUMMARY */}
+          <FlightPassengerSummarySidebar
+            flightData={flightData}
+            summaryPill={summaryPill}
+          />
         </div>
       </main>
 
       {/* Date of Birth Calendar Picker Modal */}
-      {activeDobPax && (
-        <div
-          className="fp-dob-modal-overlay"
-          onClick={() => setActiveDobPax(null)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(3px)',
-            zIndex: 100000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '16px'
-          }}
-        >
-          <div
-            className="fp-dob-modal-card"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: '#ffffff',
-              borderRadius: '16px',
-              padding: '20px 22px',
-              maxWidth: '350px',
-              width: '100%',
-              boxShadow: '0 20px 35px -5px rgba(0, 0, 0, 0.25)',
-              display: 'flex',
-              flexDirection: 'column',
-              boxSizing: 'border-box'
-            }}
-          >
-            {/* Modal Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <i className="fa-solid fa-calendar-days" style={{ color: '#0084ff', fontSize: '16px' }}></i>
-                <span style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
-                  Select Date of Birth
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setActiveDobPax(null)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#94a3b8',
-                  fontSize: '18px',
-                  cursor: 'pointer',
-                  padding: '4px',
-                  lineHeight: 1
-                }}
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Passenger Label */}
-            <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '12px' }}>
-              Passenger: <strong style={{ color: '#002970' }}>{activeDobPax.typeLabel} ({activeDobPax.firstName || 'Traveler'})</strong>
-            </div>
-
-            {/* Month & Year Selectors with Arrows */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginBottom: '12px' }}>
-              <button
-                type="button"
-                onClick={() => {
-                  if (calMonth === 0) {
-                    setCalMonth(11);
-                    setCalYear((y) => Math.max(1920, y - 1));
-                  } else {
-                    setCalMonth((m) => m - 1);
-                  }
-                }}
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '6px',
-                  border: '1px solid #cbd5e1',
-                  background: '#f8fafc',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#334155'
-                }}
-                title="Previous Month"
-              >
-                ‹
-              </button>
-
-              <div style={{ display: 'flex', gap: '6px', flex: 1 }}>
-                {/* Month Dropdown */}
-                <select
-                  value={calMonth}
-                  onChange={(e) => setCalMonth(parseInt(e.target.value, 10))}
-                  style={{
-                    flex: 1.2,
-                    padding: '6px 8px',
-                    borderRadius: '6px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '12.5px',
-                    fontWeight: 700,
-                    color: '#0f172a',
-                    background: '#ffffff',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {[
-                    'January', 'February', 'March', 'April', 'May', 'June',
-                    'July', 'August', 'September', 'October', 'November', 'December'
-                  ].map((mName, mIdx) => (
-                    <option key={mIdx} value={mIdx}>
-                      {mName}
-                    </option>
-                  ))}
-                </select>
-
-                {/* Year Dropdown */}
-                <select
-                  value={calYear}
-                  onChange={(e) => setCalYear(parseInt(e.target.value, 10))}
-                  style={{
-                    flex: 1,
-                    padding: '6px 8px',
-                    borderRadius: '6px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '12.5px',
-                    fontWeight: 700,
-                    color: '#0f172a',
-                    background: '#ffffff',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {Array.from({ length: new Date().getFullYear() - 1920 + 1 }, (_, i) => new Date().getFullYear() - i).map((y) => (
-                    <option key={y} value={y}>
-                      {y}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  if (calMonth === 11) {
-                    setCalMonth(0);
-                    setCalYear((y) => Math.min(new Date().getFullYear(), y + 1));
-                  } else {
-                    setCalMonth((m) => m + 1);
-                  }
-                }}
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '6px',
-                  border: '1px solid #cbd5e1',
-                  background: '#f8fafc',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#334155'
-                }}
-                title="Next Month"
-              >
-                ›
-              </button>
-            </div>
-
-            {/* Days of Week Header */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', textAlign: 'center', gap: '2px', marginBottom: '6px', fontSize: '11px', fontWeight: 800, color: '#64748b' }}>
-              {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
-                <div key={d} style={{ padding: '2px 0' }}>{d}</div>
-              ))}
-            </div>
-
-            {/* Calendar Days Matrix */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '3px', textAlign: 'center', marginBottom: '14px' }}>
-              {/* Empty leading cells */}
-              {Array.from({ length: new Date(calYear, calMonth, 1).getDay() }).map((_, i) => (
-                <div key={`empty-${i}`} style={{ height: '32px' }} />
-              ))}
-
-              {/* Day cells */}
-              {Array.from({ length: new Date(calYear, calMonth + 1, 0).getDate() }).map((_, i) => {
-                const dayNum = i + 1;
-                const isSelected = calDay === dayNum;
-                return (
-                  <button
-                    key={dayNum}
-                    type="button"
-                    onClick={() => setCalDay(dayNum)}
-                    style={{
-                      height: '32px',
-                      width: '32px',
-                      margin: '0 auto',
-                      borderRadius: '50%',
-                      border: isSelected ? '2px solid #002970' : 'none',
-                      background: isSelected ? '#0084ff' : 'transparent',
-                      color: isSelected ? '#ffffff' : '#0f172a',
-                      fontWeight: isSelected ? 800 : 600,
-                      fontSize: '12px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      transition: 'all 0.1s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isSelected) e.currentTarget.style.background = '#f1f5f9';
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isSelected) e.currentTarget.style.background = 'transparent';
-                    }}
-                  >
-                    {dayNum}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Selected Date Summary & OK / Cancel Actions */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingTop: '12px',
-              borderTop: '1px solid #f1f5f9'
-            }}>
-              <div>
-                <div style={{ fontSize: '10px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px', fontWeight: 700 }}>
-                  Selected DOB
-                </div>
-                <div style={{ fontSize: '13px', fontWeight: 800, color: '#002970' }}>
-                  {String(calDay).padStart(2, '0')}-{String(calMonth + 1).padStart(2, '0')}-{calYear}
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button
-                  type="button"
-                  onClick={() => setActiveDobPax(null)}
-                  style={{
-                    padding: '8px 14px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
-                    background: '#f8fafc',
-                    color: '#475569',
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    cursor: 'pointer'
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const formatted = `${String(calDay).padStart(2, '0')}-${String(calMonth + 1).padStart(2, '0')}-${calYear}`;
-                    handlePassengerChange(activeDobPax.id, 'dob', formatted);
-                    setErrors((prev) => {
-                      const copy = { ...prev };
-                      delete copy[`${activeDobPax.id}_dob`];
-                      return copy;
-                    });
-                    setActiveDobPax(null);
-                  }}
-                  style={{
-                    padding: '8px 18px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    background: '#002970',
-                    color: '#ffffff',
-                    fontSize: '12px',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 6px rgba(0, 41, 112, 0.3)'
-                  }}
-                >
-                  OK
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <FlightDobCalendarModal
+        activeDobPax={activeDobPax}
+        onClose={() => setActiveDobPax(null)}
+        onSelectDob={(paxId, formatted) => {
+          handlePassengerChange(paxId, 'dob', formatted);
+          setErrors((prev) => {
+            const copy = { ...prev };
+            delete copy[`${paxId}_dob`];
+            return copy;
+          });
+          setActiveDobPax(null);
+        }}
+      />
 
       <Footer />
     </div>

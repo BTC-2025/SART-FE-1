@@ -89,6 +89,13 @@ export async function POST(request: Request) {
     else if (eligibles.some((v: string) => v.toLowerCase().includes('ship') || v.toLowerCase().includes('maritime'))) mode = 'ship';
     else if (eligibles.some((v: string) => v.toLowerCase().includes('flight') || v.toLowerCase().includes('aircraft'))) mode = 'flight';
 
+    const hourlyRate = Number(body.hourlyRate) || Number(body.baseCharge) || (mode === 'bike' ? 120 : mode === 'ship' ? 1200 : 200);
+    const dailyRate = Number(body.dailyRate) || (mode === 'bike' ? 800 : mode === 'ship' ? 8000 : 1500);
+    const weeklyRate = Number(body.weeklyRate) || (dailyRate * 6);
+    const monthlyRate = Number(body.monthlyRate) || (dailyRate * 24);
+    const outstationRate = Number(body.outstationRate) || (mode === 'bike' ? 1200 : mode === 'ship' ? 25000 : 1800);
+    const baseCharge = Number(body.baseCharge) || hourlyRate;
+
     const newDriver = {
       ...body,
       id,
@@ -104,9 +111,14 @@ export async function POST(request: Request) {
       location: body.address || 'Logistics Hub',
       isAvailable: body.isAvailable !== false,
       rating: Number(body.rating) || 4.9,
-      ratePerKm: mode === 'bike' ? 14 : mode === 'ship' ? 649 : 48,
-      baseCharge: mode === 'bike' ? 120 : mode === 'ship' ? 180000 : 1800,
-      advancePercent: mode === 'bike' ? 25 : mode === 'ship' ? 35 : 30,
+      hourlyRate,
+      dailyRate,
+      weeklyRate,
+      monthlyRate,
+      outstationRate,
+      baseCharge,
+      ratePerKm: Number(body.ratePerKm) || (mode === 'bike' ? 14 : mode === 'ship' ? 649 : 48),
+      advancePercent: Number(body.advancePercent) || (mode === 'bike' ? 25 : mode === 'ship' ? 35 : 30),
       createdAt: new Date().toISOString()
     };
 
