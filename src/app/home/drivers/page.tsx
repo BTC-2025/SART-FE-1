@@ -46,7 +46,10 @@ export interface DriverFleetItem {
   rating?: number | string;
   tripCount?: number;
   baseCharge?: number;
+  hourlyRate?: number;
   dailyRate?: number;
+  weeklyRate?: number;
+  monthlyRate?: number;
   outstationRate?: number;
   isAvailable?: boolean;
   status?: string;
@@ -856,12 +859,34 @@ function DriversSearchContent() {
                           marginBottom: '16px'
                         }}
                       >
-                        <span style={{ fontSize: '11px', color: '#64748b', display: 'block', fontWeight: 600, marginBottom: '2px' }}>
-                          Rate Card / Charges:
-                        </span>
-                        <span style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
-                          ₹{driver.baseCharge || 120}/hr | ₹{(driver.dailyRate || 1000).toLocaleString('en-IN')} (8 Hrs) | Outstation: ₹{(driver.outstationRate || 1800).toLocaleString('en-IN')}/day
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3px' }}>
+                          <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
+                            Rate Card / Charges:
+                          </span>
+                          {(driver.weeklyRate || driver.monthlyRate) && (
+                            <span style={{ fontSize: '10px', color: '#2563eb', fontWeight: 700, background: '#eff6ff', padding: '1px 6px', borderRadius: '4px' }}>
+                              Weekly &amp; Monthly Available
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>
+                          <span>₹{driver.hourlyRate || driver.baseCharge || 120}/hr</span>
+                          <span style={{ color: '#94a3b8', margin: '0 5px' }}>|</span>
+                          <span>₹{(driver.dailyRate || 800).toLocaleString('en-IN')} (8 Hrs)</span>
+                          <span style={{ color: '#94a3b8', margin: '0 5px' }}>|</span>
+                          <span>Outstation: ₹{(driver.outstationRate || 1800).toLocaleString('en-IN')}/day</span>
+                        </div>
+                        {(driver.weeklyRate || driver.monthlyRate) && (
+                          <div style={{ fontSize: '11px', fontWeight: 600, color: '#475569', marginTop: '4px', display: 'flex', gap: '8px' }}>
+                            {driver.weeklyRate && (
+                              <span>Week: <strong style={{ color: '#0f172a' }}>₹{Number(driver.weeklyRate).toLocaleString('en-IN')}</strong></span>
+                            )}
+                            {driver.weeklyRate && driver.monthlyRate && <span>•</span>}
+                            {driver.monthlyRate && (
+                              <span>Month: <strong style={{ color: '#0f172a' }}>₹{Number(driver.monthlyRate).toLocaleString('en-IN')}</strong></span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
 

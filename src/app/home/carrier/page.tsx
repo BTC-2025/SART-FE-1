@@ -96,6 +96,7 @@ export interface CarrierVehicleItem {
   badge?: { text: string; bg: string; color: string; icon: string };
   image: string;
   mode: string;
+  status?: string;
   isAvailable?: boolean;
 }
 
@@ -266,18 +267,49 @@ function CarrierContent() {
         },
         image: v.image || (v.images && v.images[0]) || defaultImg,
         mode,
-        isAvailable: v.isAvailable === true || v.isAvailable === 1 || v.status === 'Available'
+        status: v.status || (v.isAvailable === false ? 'On Trip' : 'Available'),
+        isAvailable: v.isAvailable !== false && v.isAvailable !== 0 && v.isAvailable !== 'false' && (v.status || '').toLowerCase() !== 'on trip' && (v.status || '').toLowerCase() !== 'booked' && (v.status || '').toLowerCase() !== 'unavailable'
       };
     };
 
     const loadOwnerFleet = async () => {
+      // Helper to retrieve deleted IDs from localStorage
+      const getDeletedIds = (): Set<string> => {
+        const deletedSet = new Set<string>();
+        try {
+          const stored = JSON.parse(localStorage.getItem('sart_deleted_carrier_ids') || '[]');
+          if (Array.isArray(stored)) {
+            stored.forEach((item: string) => {
+              if (typeof item === 'string' && item.trim()) {
+                deletedSet.add(item.toLowerCase().replace(/[^a-z0-9]/g, ''));
+              }
+            });
+          }
+        } catch (e) { }
+        return deletedSet;
+      };
+
+      const isNotDeleted = (v: any, deletedSet: Set<string>) => {
+        if (!v) return false;
+        const idClean = (v.id || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const plateClean = (v.plate || v.regId || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const nameClean = (v.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (idClean && deletedSet.has(idClean)) return false;
+        if (plateClean && deletedSet.has(plateClean)) return false;
+        if (nameClean && deletedSet.has(nameClean)) return false;
+        return true;
+      };
+
+      const deletedSet = getDeletedIds();
+
       // 1. First check localStorage for immediate sync
       try {
         const local = localStorage.getItem('logi_pulse_vehicles');
         if (local) {
           const parsed = JSON.parse(local);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            setFleetVehicles(parsed.map(parseCarrier));
+            const activeVehicles = parsed.filter(v => isNotDeleted(v, deletedSet));
+            setFleetVehicles(activeVehicles.map(parseCarrier));
           }
         }
       } catch (e) { }
@@ -288,10 +320,11 @@ function CarrierContent() {
         if (res.ok) {
           const cData = await res.json();
           if (cData && Array.isArray(cData.vehicles)) {
+            const freshActive = cData.vehicles.filter(v => isNotDeleted(v, deletedSet));
             try {
-              localStorage.setItem('logi_pulse_vehicles', JSON.stringify(cData.vehicles));
+              localStorage.setItem('logi_pulse_vehicles', JSON.stringify(freshActive));
             } catch (e) { }
-            setFleetVehicles(cData.vehicles.map(parseCarrier));
+            setFleetVehicles(freshActive.map(parseCarrier));
             return;
           }
         }
@@ -444,20 +477,32 @@ function CarrierContent() {
     router.push(`/home/carrier/${modeCapitalized}/BookingDetails`);
   };
 
-  // Unique brands/logistics operators list for dropdown selector
-  const uniqueBrandVehicles = fleetVehicles.filter((veh, index, self) => {
+  // Helper to determine if a vehicle is currently available (not on trip / not booked)
+  const isVehicleAvailable = (v: any) => {
+    if (!v) return false;
+    if (v.isAvailable === false || v.isAvailable === 'false' || v.isAvailable === 0) return false;
+    const s = (v.status || '').toLowerCase();
+    if (s.includes('trip') || s.includes('booked') || s.includes('transit') || s.includes('unavailable')) return false;
+    return true;
+  };
+
+  // Unique brands/logistics operators list for dropdown selector (only available vehicles)
+  const uniqueBrandVehicles = fleetVehicles.filter(v => isVehicleAvailable(v)).filter((veh, index, self) => {
     const brandName = (veh.brand || veh.owner || veh.name || '').trim().toLowerCase();
     return index === self.findIndex(v => ((v.brand || v.owner || v.name || '').trim().toLowerCase()) === brandName);
   });
 
-  // Filter vehicles strictly by owner-added fleet
-  const currentVehicles = fleetVehicles.filter(v => v.mode === activeMode);
+  // Filter vehicles strictly by owner-added fleet and available status (on trip vehicles are hidden from user page)
+  const currentVehicles = fleetVehicles.filter(v => v.mode === activeMode && isVehicleAvailable(v));
 
-  // Auto-select first vehicle of the mode when switching
+  // Auto-select first available vehicle of the mode when switching
   useEffect(() => {
     if (currentVehicles.length > 0) {
       setSelectedVehicleId(currentVehicles[0].id);
       setSelectedCarrierName(currentVehicles[0].brand || currentVehicles[0].owner || currentVehicles[0].name);
+    } else {
+      setSelectedVehicleId('');
+      setSelectedCarrierName('');
     }
   }, [activeMode, fleetVehicles]);
 
@@ -466,13 +511,13 @@ function CarrierContent() {
   const tripPrice = selectedVehicle ? selectedVehicle.totalPrice : 15525;
   const advanceDue = Math.round(tripPrice * 0.40); // 40% advance payment calculation
 
-  // Count available units strictly from what owner added
-  const truckCount = fleetVehicles.filter(v => v.mode === 'truck' && v.isAvailable !== false).length;
-  const bikeCount = fleetVehicles.filter(v => v.mode === 'bike' && v.isAvailable !== false).length;
-  const trainCount = fleetVehicles.filter(v => v.mode === 'train' && v.isAvailable !== false).length;
-  const flightCount = fleetVehicles.filter(v => v.mode === 'flight' && v.isAvailable !== false).length;
-  const shipCount = fleetVehicles.filter(v => v.mode === 'ship' && v.isAvailable !== false).length;
-  const busCount = fleetVehicles.filter(v => v.mode === 'bus' && v.isAvailable !== false).length;
+  // Count available units strictly from what owner added and is currently available
+  const truckCount = fleetVehicles.filter(v => v.mode === 'truck' && isVehicleAvailable(v)).length;
+  const bikeCount = fleetVehicles.filter(v => v.mode === 'bike' && isVehicleAvailable(v)).length;
+  const trainCount = fleetVehicles.filter(v => v.mode === 'train' && isVehicleAvailable(v)).length;
+  const flightCount = fleetVehicles.filter(v => v.mode === 'flight' && isVehicleAvailable(v)).length;
+  const shipCount = fleetVehicles.filter(v => v.mode === 'ship' && isVehicleAvailable(v)).length;
+  const busCount = fleetVehicles.filter(v => v.mode === 'bus' && isVehicleAvailable(v)).length;
 
   const modeTabs = [
     { id: 'truck', label: 'Truck', icon: 'fa-solid fa-truck', count: truckCount, available: truckCount > 0 },
@@ -880,10 +925,13 @@ function CarrierContent() {
                 type="button"
                 onClick={() => {
                   setActiveMode(tab.id as any);
-                  const firstOfMode = fleetVehicles.find(v => v.mode === tab.id);
+                  const firstOfMode = fleetVehicles.find(v => v.mode === tab.id && isVehicleAvailable(v));
                   if (firstOfMode) {
                     setSelectedVehicleId(firstOfMode.id);
                     setSelectedCarrierName(firstOfMode.brand || firstOfMode.owner || firstOfMode.name);
+                  } else {
+                    setSelectedVehicleId('');
+                    setSelectedCarrierName('');
                   }
                 }}
                 style={{

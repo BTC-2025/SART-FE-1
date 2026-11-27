@@ -74,9 +74,22 @@ export async function PATCH(
       body = await request.json();
     } catch (e) { }
 
+    const targetId = decodeURIComponent(resolved.id).toLowerCase().trim();
     const current = readFleet();
     const updated = current.map(v => {
-      if (v.id === resolved.id || v.plate === resolved.id || v.regId === resolved.id) {
+      const vPlate = (v.plate || v.regId || '').toLowerCase().trim();
+      const vName = (v.name || '').toLowerCase().trim();
+      const vId = (v.id || '').toLowerCase().trim();
+      const bodyPlate = (body?.vehiclePlate || body?.plate || '').toLowerCase().trim();
+      const bodyName = (body?.vehicleName || body?.name || '').toLowerCase().trim();
+
+      if (
+        vId === targetId ||
+        vPlate === targetId ||
+        vName === targetId ||
+        (bodyPlate && vPlate === bodyPlate) ||
+        (bodyName && vName === bodyName)
+      ) {
         const nextAvailable = typeof body?.isAvailable === 'boolean'
           ? body.isAvailable
           : !v.isAvailable;
@@ -84,7 +97,8 @@ export async function PATCH(
           ...v,
           ...body,
           isAvailable: nextAvailable,
-          status: nextAvailable ? 'Available' : (body?.status || 'On Trip')
+          status: nextAvailable ? 'Available' : (body?.status || 'On Trip'),
+          bookingDetails: body?.bookingDetails !== undefined ? body.bookingDetails : (nextAvailable ? null : v.bookingDetails)
         };
       }
       return v;
@@ -102,8 +116,21 @@ export async function DELETE(
 ) {
   try {
     const resolved = await params;
+    const targetId = decodeURIComponent(resolved.id).toLowerCase().trim();
+    const targetClean = targetId.replace(/[^a-z0-9]/g, '');
     const current = readFleet();
-    const updated = current.filter(v => v.id !== resolved.id);
+    const updated = current.filter(v => {
+      const vId = (v.id || '').toLowerCase().trim();
+      const vIdClean = vId.replace(/[^a-z0-9]/g, '');
+      const vPlate = (v.plate || v.regId || '').toLowerCase().trim();
+      const vPlateClean = vPlate.replace(/[^a-z0-9]/g, '');
+      const vName = (v.name || '').toLowerCase().trim();
+      const vNameClean = vName.replace(/[^a-z0-9]/g, '');
+
+      if (targetId && (vId === targetId || vPlate === targetId || vName === targetId)) return false;
+      if (targetClean && (vIdClean === targetClean || vPlateClean === targetClean || vNameClean === targetClean)) return false;
+      return true;
+    });
     writeFleet(updated);
     return NextResponse.json({ success: true, vehicles: updated }, { headers: corsHeaders });
   } catch (err: any) {

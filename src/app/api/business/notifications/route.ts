@@ -51,13 +51,13 @@ export async function POST(request: Request) {
     const b = await request.json();
     const current = readNotifications();
 
-    const isDriver = b.type === 'driver_booking';
-    const isCarrier = b.type === 'carrier_booking';
-    const isParking = b.type === 'parking_booking';
+    const isDriver = b.type === 'driver_booking' || b.type === 'driver' || b.vertical === 'Drivers';
+    const isCarrier = b.type === 'carrier_booking' || b.type === 'carrier' || b.vertical === 'Carriers';
+    const isParking = b.type === 'parking_booking' || b.type === 'parking' || b.vertical === 'Parkings';
 
     let defaultBadge = 'New Rental Booking';
     if (isDriver) defaultBadge = 'New Driver Booking';
-    else if (isCarrier) defaultBadge = 'New Logistics Booking';
+    else if (isCarrier) defaultBadge = 'New Carrier Booking';
     else if (isParking) defaultBadge = 'New Parking Reservation';
 
     let defaultCategory = 'Chauffeur / Driver';
@@ -68,10 +68,11 @@ export async function POST(request: Request) {
     let defaultTitle = `${b.customerName || 'Customer'} booked a ${b.category || defaultCategory} (${b.vehicleName || ''})`;
     if (isDriver) defaultTitle = `${b.customerName || 'Customer'} booked Captain: ${b.vehicleName || 'Driver'}`;
     else if (isParking) defaultTitle = `${b.customerName || 'Customer'} reserved parking at ${b.vehicleName || 'Yard'}`;
+    else if (isCarrier) defaultTitle = `${b.customerName || 'Customer'} booked ${b.vehicleName || 'Carrier Vehicle'}`;
 
     const newNotif = {
       id: `NOTIF-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      type: b.type || (isDriver ? 'driver_booking' : isParking ? 'parking_booking' : 'rental_booking'),
+      type: b.type || (isDriver ? 'driver_booking' : isCarrier ? 'carrier_booking' : isParking ? 'parking_booking' : 'rental_booking'),
       badge: b.badge || defaultBadge,
       title: b.title || defaultTitle,
       customerName: b.customerName || 'Customer',

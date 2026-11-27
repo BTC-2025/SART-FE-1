@@ -43,7 +43,7 @@ function DriverBookingDetailsContent() {
   // Stepper Stage: 1 = Passenger / Customer Details & Trip Form, 2 = Review Journey, 3 = Payment
   const [currentStep, setCurrentStep] = useState<number>(1);
 
-  // Form Fields (Matching User's Image 2 & Image 3)
+  // Form Fields (Matching User's Duration Selection: Hours, 1 Day, 1 Week, 1 Month)
   const [serviceType, setServiceType] = useState<string>('One Way In-city'); // 'One Way In-city' | 'One Way Outstation' | 'Round Trip In-city' | 'Round Trip Outstation'
   const [selectedVehicleType, setSelectedVehicleType] = useState<string>('Car / Sedan / SUV'); // Bike / 2-Wheeler, Car / Sedan / SUV, Commercial / LCV, 6-Wheeler Truck, 8-10W Heavy Truck
 
@@ -78,6 +78,23 @@ function DriverBookingDetailsContent() {
     } catch (e) { }
 
     if (searchParams) {
+      const dId = searchParams.get('driverId');
+      if (dId) {
+        Promise.any([
+          fetch(`http://localhost:5000/api/drivers/${dId}`).then(r => r.json()),
+          fetch(`http://localhost:3005/api/drivers/${dId}`).then(r => r.json())
+        ])
+          .then(res => {
+            if (res && res.driver) {
+              setDriver(res.driver);
+              try {
+                localStorage.setItem('sart_selected_driver', JSON.stringify(res.driver));
+              } catch (e) { }
+            }
+          })
+          .catch(() => null);
+      }
+
       const p = searchParams.get('pickup');
       if (p) setPickupLocation(p);
       const d = searchParams.get('date');
@@ -97,13 +114,33 @@ function DriverBookingDetailsContent() {
   const isOutstation = serviceType.includes('Outstation');
   const isRoundTrip = serviceType.includes('Round Trip');
 
+  const hourlyRate = Number(driver?.hourlyRate || driver?.baseCharge || 120);
+  const dailyRate = Number(driver?.dailyRate || 800);
+  const weeklyRate = Number(driver?.weeklyRate || (dailyRate * 6));
+  const monthlyRate = Number(driver?.monthlyRate || (dailyRate * 24));
+  const outstationRate = Number(driver?.outstationRate || 1800);
+
+  // Compute duration-based tariff
+  let durationTariff = dailyRate;
+  if (requiredHours.includes('4 Hours')) {
+    durationTariff = Math.round(hourlyRate * 4);
+  } else if (requiredHours.includes('8 Hours')) {
+    durationTariff = dailyRate;
+  } else if (requiredHours.includes('1 Day') || requiredHours.includes('24 Hours')) {
+    durationTariff = isOutstation ? outstationRate : Math.round(dailyRate * 1.5);
+  } else if (requiredHours.includes('1 Week')) {
+    durationTariff = weeklyRate;
+  } else if (requiredHours.includes('1 Month')) {
+    durationTariff = monthlyRate;
+  }
+
   const baseTariff = isOutstation
-    ? (driver?.outstationRate || 1800) * (isRoundTrip ? 1.8 : 1)
-    : (driver?.dailyRate || 1000) * (isRoundTrip ? 1.5 : 1);
+    ? (requiredHours.includes('1 Week') ? weeklyRate * 1.2 : requiredHours.includes('1 Month') ? monthlyRate * 1.2 : outstationRate) * (isRoundTrip ? 1.8 : 1)
+    : durationTariff * (isRoundTrip ? 1.5 : 1);
 
   const convenienceFee = 11.80;
   const travelInsurance = 0.45;
-  const totalFare = baseTariff + convenienceFee + travelInsurance;
+  const totalFare = Math.round(baseTariff + convenienceFee + travelInsurance);
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f8fafc', overflowX: 'hidden' }}>
@@ -423,8 +460,9 @@ function DriverBookingDetailsContent() {
                         >
                           <option value="4 Hours (Half Day)">4 Hours (Half Day)</option>
                           <option value="8 Hours (Full Day)">8 Hours (Full Day)</option>
-                          <option value="12 Hours (Extended)">12 Hours (Extended)</option>
-                          <option value="24 Hours (Multi-Day)">24 Hours (Multi-Day)</option>
+                          <option value="1 Day (24 Hrs)">1 Day (24 Hrs)</option>
+                          <option value="1 Week (7 Days)">1 Week (7 Days)</option>
+                          <option value="1 Month (30 Days)">1 Month (30 Days)</option>
                         </select>
                         <ChevronDown size={16} color="#64748b" style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
                       </div>

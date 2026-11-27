@@ -7,12 +7,14 @@ interface PublicDriverRegistrationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onRegisterSuccess: (member: PublicUnionMember) => void;
+  defaultUnionName?: string;
 }
 
 export default function PublicDriverRegistrationModal({
   isOpen,
   onClose,
-  onRegisterSuccess
+  onRegisterSuccess,
+  defaultUnionName
 }: PublicDriverRegistrationModalProps) {
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
 
@@ -42,7 +44,13 @@ export default function PublicDriverRegistrationModal({
   const [experienceYears, setExperienceYears] = useState<number>(8);
   const [currentFleet, setCurrentFleet] = useState('Self-Employed / Independent Stand Driver');
   const [cleanRecord, setCleanRecord] = useState(true);
-  const [unionName, setUnionName] = useState('Heavy Truckers Association');
+  const [unionName, setUnionName] = useState(defaultUnionName || 'Auto Stand Union');
+
+  React.useEffect(() => {
+    if (defaultUnionName) {
+      setUnionName(defaultUnionName);
+    }
+  }, [defaultUnionName, isOpen]);
 
   // Step 4: Documents & Fee Confirmation
   const [agreedTerms, setAgreedTerms] = useState(true);
@@ -122,23 +130,23 @@ export default function PublicDriverRegistrationModal({
   };
 
   const fillDemoData = () => {
-    setFullName('Santhosh Kumar');
-    setFatherName('Dhanapal Kumar');
-    setDob('1991-08-15');
-    setGender('Male');
-    setMobile('9840155555');
-    setAlternateMobile('9840144444');
-    setEmail('santhosh.k@driverwelfare.org');
-    setState('Tamil Nadu');
-    setDistrict('Chennai');
-    setCity('Chennai');
-    setPincode('600008');
-    setFullAddress('Door No 14, Gandhi Irwin Road, Egmore Goods Yard, Chennai');
-    setLicenseNumber('TN-01-20120088991');
-    setIssuingRto('Chennai North (TN-01)');
-    setVehicleType('Heavy Truck Driver (HGV)');
+    setFullName('');
+    setFatherName('');
+    setDob('');
+    setGender('');
+    setMobile('');
+    setAlternateMobile('');
+    setEmail('');
+    setState('');
+    setDistrict('');
+    setCity('');
+    setPincode('');
+    setFullAddress('');
+    setLicenseNumber('');
+    setIssuingRto('');
+    setVehicleType('');
     setExperienceYears(11);
-    setCurrentFleet('Chennai Central Goods Stand Union');
+    setCurrentFleet('');
   };
 
   return (
@@ -200,10 +208,10 @@ export default function PublicDriverRegistrationModal({
         {/* Step Progress Tracker */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '22px', background: '#f8fafc', padding: '12px 16px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
           {[
-            { s: 1, icon: 'fa-user', label: 'Step 1: Personal Info' },
-            { s: 2, icon: 'fa-location-dot', label: 'Step 2: Address Info' },
-            { s: 3, icon: 'fa-id-card', label: 'Step 3: Driving Info' },
-            { s: 4, icon: 'fa-file-arrow-up', label: 'Step 4: Docs & Fee' }
+            { s: 1, icon: 'fa-user', label: 'Personal Info' },
+            { s: 2, icon: 'fa-location-dot', label: 'Address Info' },
+            { s: 3, icon: 'fa-id-card', label: 'Driving Info' },
+            { s: 4, icon: 'fa-file-arrow-up', label: 'Docs & Fee' }
           ].map(st => (
             <div
               key={st.s}
@@ -221,7 +229,7 @@ export default function PublicDriverRegistrationModal({
                   width: '28px',
                   height: '28px',
                   borderRadius: '50%',
-                  background: currentStep === st.s ? '#10b981' : currentStep > st.s ? '#059669' : '#e2e8f0',
+                  background: currentStep === st.s ? '#2A1373' : currentStep > st.s ? '#4f23cb' : '#e2e8f0',
                   color: currentStep >= st.s ? '#ffffff' : '#64748b',
                   fontSize: '12px',
                   fontWeight: 800,
@@ -232,7 +240,7 @@ export default function PublicDriverRegistrationModal({
               >
                 {currentStep > st.s ? '✓' : st.s}
               </div>
-              <span style={{ fontSize: '12px', fontWeight: currentStep === st.s ? 800 : 600, color: currentStep === st.s ? '#065f46' : '#64748b' }}>
+              <span style={{ fontSize: '12px', fontWeight: currentStep === st.s ? 800 : 600, color: currentStep === st.s ? '#2A1373' : '#64748b' }}>
                 {st.label}
               </span>
             </div>
@@ -684,12 +692,12 @@ export default function PublicDriverRegistrationModal({
                 padding: '14px',
                 borderRadius: '12px',
                 border: 'none',
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                background: 'linear-gradient(135deg, #2A1373 0%, #1a0a4c 100%)',
                 color: '#ffffff',
                 fontSize: '15px',
                 fontWeight: 900,
                 cursor: 'pointer',
-                boxShadow: '0 8px 18px rgba(16, 185, 129, 0.4)'
+                boxShadow: '0 8px 18px rgba(42, 19, 115, 0.4)'
               }}
             >
               <i className="fa-solid fa-circle-check" style={{ marginRight: '8px' }}></i>
@@ -722,7 +730,7 @@ export default function PublicDriverRegistrationModal({
             <button
               type="button"
               onClick={handleNext}
-              style={{ padding: '10px 22px', borderRadius: '10px', border: 'none', background: '#10b981', color: '#ffffff', fontSize: '13.5px', fontWeight: 800, cursor: 'pointer' }}
+              style={{ padding: '10px 22px', borderRadius: '10px', border: 'none', background: '#2A1373', color: '#ffffff', fontSize: '13.5px', fontWeight: 800, cursor: 'pointer' }}
             >
               Continue to Step {currentStep + 1} <i className="fa-solid fa-arrow-right" style={{ marginLeft: '6px' }}></i>
             </button>
