@@ -1,0 +1,533 @@
+/* UsedCarValuationView.css - Matching Image from User Request */
+.used-car-valuation-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 20px 60px;
+  color: #1e293b;
+  font-family: inherit;
+}
+
+/* Nav back button */
+.valuation-nav-bar {
+  margin-bottom: 24px;
+}
+
+.btn-back-to-sell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-back-to-sell:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* 2-Column Grid Layout */
+.valuation-two-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 48px;
+  align-items: flex-start;
+}
+
+@media (max-width: 960px) {
+  .valuation-two-col-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+/* LEFT COLUMN STYLING */
+.val-left-col {
+  padding-top: 16px;
+}
+
+.smartprice-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #fed7aa;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ea580c;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 4px rgba(234, 88, 12, 0.08);
+}
+
+.smartprice-pill-badge .star-icon {
+  font-size: 15px;
+  color: #f97316;
+}
+
+.val-main-title {
+  font-size: 40px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 20px 0;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.val-description-text {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #64748b;
+  margin: 0;
+}
+
+.list-car-free-link {
+  background: none;
+  border: none;
+  color: #ea580c;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  font-size: 15px;
+  display: inline;
+}
+
+.list-car-free-link:hover {
+  color: #c2410c;
+}
+
+/* RIGHT COLUMN: CALCULATOR CARD */
+.val-right-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.calc-super-heading {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 16px 0;
+}
+
+.val-calc-card-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 32px 32px 28px;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.06), 0 4px 10px rgba(0, 0, 0, 0.02);
+}
+
+.calc-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 24px 0;
+}
+
+.calc-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.calc-fields-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .calc-fields-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.calc-form-field {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 12px 6px;
+  transition: border-color 0.2s;
+}
+
+.calc-form-field:focus-within {
+  border-color: #f97316;
+}
+
+.calc-form-field.full-width {
+  width: 100%;
+}
+
+.calc-floating-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+
+.calc-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.calc-select-input {
+  width: 100%;
+  appearance: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a;
+  cursor: pointer;
+  padding: 4px 24px 4px 0;
+}
+
+.calc-arrow-icon {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.calc-text-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a;
+  padding: 4px 0;
+}
+
+.calc-text-input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.calc-input-with-suffix {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.calc-unit-suffix {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  margin-left: 8px;
+}
+
+/* OR Divider */
+.calc-or-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 6px 0;
+}
+
+.calc-or-divider::before,
+.calc-or-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.calc-or-divider span {
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+}
+
+/* Registration input subsection */
+.calc-reg-subsection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.calc-reg-section-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.calc-reg-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 12px 14px;
+  transition: border-color 0.2s;
+}
+
+.calc-reg-input-wrap:focus-within {
+  border-color: #f97316;
+}
+
+.calc-reg-car-icon {
+  font-size: 16px;
+  color: #64748b;
+}
+
+.calc-reg-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.calc-reg-input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+/* Big Orange Check Value Button */
+.btn-calc-check-value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px;
+  background: #f95721;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: background 0.15s, transform 0.1s;
+  box-shadow: 0 4px 12px rgba(249, 87, 33, 0.25);
+}
+
+.btn-calc-check-value:hover {
+  background: #ea4510;
+}
+
+.btn-calc-check-value:active {
+  transform: scale(0.99);
+}
+
+.btn-calc-check-value i {
+  font-size: 15px;
+}
+
+/* Footer Trust Badge */
+.calc-card-footer-trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #059669;
+  margin-top: 8px;
+}
+
+.calc-card-footer-trust i {
+  font-size: 13px;
+}
+
+/* VALUATION RESULT MODAL */
+.val-result-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.val-result-card {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 540px;
+  padding: 28px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.val-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.val-badge-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ecfdf5;
+  color: #059669;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.btn-val-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.btn-val-close:hover {
+  color: #0f172a;
+}
+
+.val-result-veh-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+}
+
+.val-result-meta {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 20px 0;
+}
+
+.val-result-price-box {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.price-box-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #ea580c;
+  margin-bottom: 8px;
+}
+
+.price-big-highlight {
+  font-size: 28px;
+  font-weight: 800;
+  color: #9a3412;
+  margin-bottom: 8px;
+}
+
+.price-sub-note {
+  font-size: 13px;
+  color: #431407;
+}
+
+.val-condition-tier-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.tier-col {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+
+.tier-col.active {
+  background: #eff6ff;
+  border-color: #3b82f6;
+}
+
+.tier-name {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.tier-amt {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.val-result-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-val-sell-now {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: #f95721;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-val-sell-now:hover {
+  background: #ea4510;
+}
+
+.btn-val-book-inspection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-val-book-inspection:hover {
+  background: #f1f5f9;
+}

@@ -33,6 +33,7 @@ import StoreSparesHub from './store/StoreSparesHub';
 import StoreServicesHub from './store/StoreServicesHub';
 import StoreCompareHub from './store/StoreCompareHub';
 import StoreFuelHub from './store/StoreFuelHub';
+import FuelEnergyPortalsHub from './store/FuelEnergyPortalsHub';
 import StoreFinanceHub from './store/StoreFinanceHub';
 import StoreSosHub from './store/StoreSosHub';
 
@@ -147,9 +148,18 @@ export default function StoreTab() {
       if (s.includes('compare')) return 'compare_vehicles';
       if (s.includes('buy') || s.includes('sell')) return 'buy_sell';
       if (s.includes('spare') || s.includes('accessori')) return 'spare_parts';
+      if (
+        s.includes('fuelstations') ||
+        s.includes('checkfuelprices') ||
+        s.includes('findevchargingstations') ||
+        s.includes('chargingstation') ||
+        s.includes('servicecenters') ||
+        s.includes('servicecenter') ||
+        s.includes('ev') ||
+        s.includes('fuel')
+      ) return 'ev_fuel_stations';
       if (s.includes('mechanic') || s.includes('service')) return 'mechanic_service';
       if (s.includes('sos') || s.includes('roadside') || s.includes('emergency')) return 'emergency_sos';
-      if (s.includes('ev') || s.includes('fuel')) return 'ev_fuel_stations';
       return null;
     };
 
@@ -381,63 +391,6 @@ export default function StoreTab() {
                 </button>
               ))}
             </div>
-
-            {/* Right: Search Bar & Location Chooser */}
-            <div className="store-top-actions-right">
-              {/* Search Bar Pill */}
-              <div className="store-top-search-pill">
-                <input
-                  type="text"
-                  placeholder="Search cars, bikes, scooters..."
-                  value={topVehicleSearch}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setTopVehicleSearch(val);
-                    if (activeHubTab !== 'buy_sell' && val.trim()) {
-                      setActiveHubTab('buy_sell');
-                    }
-                  }}
-                  className="top-search-input"
-                />
-                {topVehicleSearch && (
-                  <button
-                    type="button"
-                    className="top-search-clear-btn"
-                    onClick={() => setTopVehicleSearch('')}
-                    title="Clear search"
-                  >
-                    <i className="fa-solid fa-xmark"></i>
-                  </button>
-                )}
-              </div>
-
-              {/* Location Chooser Pill */}
-              <div className="store-top-location-picker">
-                <div className="location-pin-wrap">
-                  <i className="fa-solid fa-location-dot location-dot-icon"></i>
-                  <span className="location-online-dot"></span>
-                </div>
-                <select
-                  value={userLocationCity}
-                  onChange={(e) => {
-                    const newCity = e.target.value;
-                    setUserLocationCity(newCity);
-                    setSelectedFuelCity(newCity);
-                    showToast(`Location updated to ${newCity}`);
-                  }}
-                  className="location-city-select"
-                >
-                  <option value="Chennai">Chennai</option>
-                  <option value="Bengaluru">Bengaluru</option>
-                  <option value="Mumbai">Mumbai</option>
-                  <option value="Delhi NCR">Delhi NCR</option>
-                  <option value="Hyderabad">Hyderabad</option>
-                  <option value="Coimbatore">Coimbatore</option>
-                  <option value="Pune">Pune</option>
-                </select>
-                <i className="fa-solid fa-chevron-down location-arrow-icon"></i>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -527,12 +480,14 @@ export default function StoreTab() {
           />
         )}
 
-        {/* TAB 5: EV & FUEL STATIONS */}
+        {/* TAB 5: EV & FUEL STATIONS / PORTALS (MATCHING IMAGES 1, 2, 3, 4) */}
         {activeHubTab === 'ev_fuel_stations' && (
-          <StoreFuelHub
+          <FuelEnergyPortalsHub
             showToast={showToast}
             selectedFuelCity={selectedFuelCity}
             setSelectedFuelCity={setSelectedFuelCity}
+            userLocationCity={userLocationCity}
+            setUserLocationCity={setUserLocationCity}
           />
         )}
 
