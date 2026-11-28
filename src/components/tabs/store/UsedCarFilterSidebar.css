@@ -1,0 +1,263 @@
+/* ==========================================================================
+   USED CAR FILTER SIDEBAR STYLES (MATCHING IMAGE 1)
+   ========================================================================== */
+
+.used-car-filter-sidebar {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.filter-sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 6px;
+}
+
+.btn-collapse-all {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.btn-collapse-all:hover {
+  color: #111827;
+}
+
+.btn-reset-filters {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ea580c;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.btn-reset-filters:hover {
+  background: #fff7ed;
+}
+
+.filter-block {
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.filter-block:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.filter-block-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 6px;
+}
+
+.filter-block-title i {
+  font-size: 11px;
+  color: #9ca3af;
+  transition: transform 0.15s;
+}
+
+.filter-block-body {
+  padding-top: 4px;
+}
+
+/* Recommended Pills */
+.recommended-pills-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.filter-rec-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 18px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.filter-rec-pill i {
+  font-size: 10px;
+  color: #6b7280;
+}
+
+.filter-rec-pill:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.filter-rec-pill.active {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+
+.filter-rec-pill.active i {
+  color: #2563eb;
+}
+
+.filter-show-more-link {
+  background: none;
+  border: none;
+  color: #ea580c;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0 0 0;
+  display: inline-block;
+}
+
+.filter-show-more-link:hover {
+  text-decoration: underline;
+}
+
+/* Slider Controls */
+.slider-range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 2px;
+}
+
+.filter-range-slider {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: #e2e8f0;
+  outline: none;
+  cursor: pointer;
+  accent-color: #ea580c;
+  margin: 6px 0;
+}
+
+.slider-current-val {
+  font-size: 11px;
+  color: #4b5563;
+  margin-bottom: 6px;
+}
+
+.filter-sub-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #4b5563;
+  margin: 6px 0 4px 0;
+}
+
+/* Checkbox Grid (2-column layout matching Image 1) */
+.filter-checkbox-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 8px;
+}
+
+.filter-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #374151;
+  cursor: pointer;
+  line-height: 1.3;
+}
+
+.filter-checkbox-item input[type="checkbox"],
+.filter-checkbox-item input[type="radio"] {
+  cursor: pointer;
+  accent-color: #ea580c;
+  margin: 0;
+}
+
+.filter-checkbox-item span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Brand Search Box */
+.brand-search-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 5px 8px;
+  margin-bottom: 8px;
+  background: #ffffff;
+}
+
+.brand-search-box i {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.brand-search-box input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 11.5px;
+  color: #111827;
+  background: transparent;
+}
+
+/* Popular KM Chips */
+.popular-km-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.popular-km-chip {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 3px 8px;
+  font-size: 10.5px;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.popular-km-chip:hover {
+  background: #f9fafb;
+}
+
+.popular-km-chip.active {
+  background: #ffedd5;
+  border-color: #f97316;
+  color: #c2410c;
+  font-weight: 600;
+}

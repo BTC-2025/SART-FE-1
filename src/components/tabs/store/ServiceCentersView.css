@@ -1,0 +1,390 @@
+/* ServiceCentersView.css - Matching Image 4 with Category & Location Selectors */
+.service-centers-page-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 20px 48px;
+  color: #1e293b;
+  font-family: inherit;
+}
+
+/* 1. Top Tabs Bar: CARS | SERVICE CENTERS */
+.sc-top-tabs-bar {
+  display: flex;
+  gap: 28px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 20px;
+}
+
+.sc-top-tab-btn {
+  background: none;
+  border: none;
+  padding: 10px 0 12px 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.sc-top-tab-btn:hover {
+  color: #1e293b;
+}
+
+.sc-top-tab-btn.active {
+  color: #ea580c;
+}
+
+.sc-top-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: #ea580c;
+  border-radius: 2px 2px 0 0;
+}
+
+/* 2. Vehicle Category Selector Bar */
+.sc-veh-category-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 18px;
+  margin-bottom: 24px;
+}
+
+.sc-veh-cat-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sc-veh-cat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sc-veh-cat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sc-veh-cat-pill:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.sc-veh-cat-pill.active {
+  background: #fff7ed;
+  border-color: #ea580c;
+  color: #c2410c;
+  box-shadow: 0 1px 4px rgba(234, 88, 12, 0.15);
+}
+
+/* 3. Main Page Heading */
+.sc-page-main-heading {
+  font-size: 26px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 16px 0;
+}
+
+/* 4. Info Description Card */
+.sc-info-card-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.sc-info-card-box p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #475569;
+}
+
+/* 5. Filters Bar Row */
+.sc-filters-bar-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 900px) {
+  .sc-filters-bar-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sc-filter-select-box {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 6px 12px 4px;
+}
+
+.sc-dropdown-top-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+
+.sc-filter-select {
+  width: 100%;
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 6px 28px 6px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  outline: none;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.sc-select-caret {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  color: #64748b;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.btn-sc-search-orange {
+  min-width: 160px;
+  height: 48px;
+  padding: 12px 28px;
+  background: #f95721;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn-sc-search-orange:hover {
+  background: #ea4510;
+}
+
+.btn-sc-search-orange:active {
+  transform: scale(0.98);
+}
+
+/* 6. Results Master Card */
+.sc-results-master-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px 28px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.sc-results-header {
+  margin-bottom: 20px;
+}
+
+.sc-results-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 16px 0;
+}
+
+.sc-type-pills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sc-type-pill-btn {
+  padding: 6px 16px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.sc-type-pill-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.sc-type-pill-btn.active {
+  background: #f0f7ff;
+  border: 1.5px solid #2563eb;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+/* 2-Column Grid of Service Center Cards */
+.sc-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .sc-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sc-center-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.sc-center-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.sc-card-top-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.sc-center-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.sc-rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ecfdf5;
+  color: #059669;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sc-rating-badge i {
+  color: #eab308;
+  font-size: 11px;
+}
+
+.sc-card-detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #475569;
+  margin-bottom: 10px;
+}
+
+.sc-icon-location,
+.sc-icon-email,
+.sc-icon-clock {
+  color: #64748b;
+  margin-top: 3px;
+  font-size: 14px;
+}
+
+.sc-icon-phone {
+  color: #16a34a;
+  margin-top: 3px;
+  font-size: 14px;
+}
+
+.sc-link-email {
+  color: #475569;
+  text-decoration: none;
+}
+
+.sc-link-email:hover {
+  color: #ea580c;
+  text-decoration: underline;
+}
+
+.sc-link-phone {
+  color: #0f172a;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.sc-link-phone:hover {
+  color: #16a34a;
+  text-decoration: underline;
+}
+
+.sc-timings-item {
+  color: #059669;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.sc-card-footer-action {
+  margin-top: auto;
+  padding-top: 14px;
+}
+
+.btn-sc-locate {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-sc-locate:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
