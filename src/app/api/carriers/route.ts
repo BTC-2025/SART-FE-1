@@ -223,16 +223,12 @@ function readFleet(): any[] {
     if (fs.existsSync(DATA_FILE)) {
       const data = fs.readFileSync(DATA_FILE, 'utf-8');
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch (err) {
     console.error('Error reading carrier fleet file:', err);
   }
-  // If missing or empty, seed initial owner fleet
-  try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(DEFAULT_SEEDS, null, 2), 'utf-8');
-  } catch (e) { }
-  return DEFAULT_SEEDS;
+  return [];
 }
 
 function writeFleet(fleet: any[]) {
@@ -291,6 +287,10 @@ export async function PUT(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
+    if (searchParams.get('all') === 'true') {
+      writeFleet([]);
+      return NextResponse.json({ success: true, count: 0, vehicles: [] }, { headers: corsHeaders });
+    }
     const rawId = searchParams.get('id') || searchParams.get('plate') || '';
     const targetId = decodeURIComponent(rawId).toLowerCase().trim();
     const targetClean = targetId.replace(/[^a-z0-9]/g, '');
